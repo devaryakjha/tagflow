@@ -1,0 +1,9 @@
+name: tagflow
+
+packages:
+  - packages/**
+
+scripts:
+  analyze:
+    exec: dart analyze .
+    description: Analyze the project

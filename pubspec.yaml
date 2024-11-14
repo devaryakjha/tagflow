@@ -1,0 +1,8 @@
+name: tagflow_workspace
+
+environment: 
+  sdk: ^3.5.0
+dev_dependencies:
+  melos: ^6.2.0
+
+  
