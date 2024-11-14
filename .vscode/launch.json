@@ -26,7 +26,7 @@
       "cwd": "example",
       "request": "launch",
       "type": "dart",
-      "args": ["--web-renderer", "html"]
+      "args": ["--wasm"]
     },
     {
       "name": "example (profile mode)",

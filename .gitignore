@@ -30,3 +30,6 @@ build/
 
 # FVM Version Cache
 .fvm/
+
+**/.flutter-plugins-dependencies
+**/.flutter-plugins
