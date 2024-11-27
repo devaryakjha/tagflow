@@ -5,6 +5,9 @@ packages:
   - examples/**
 
 scripts:
+  docs:
+    exec: dartdoc
+    description: Generate documentation
   analyze:
     exec: dart analyze .
     description: Analyze the project
