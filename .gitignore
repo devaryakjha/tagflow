@@ -38,3 +38,6 @@ doc/api/
 
 # mason
 .mason/
+
+# migration
+migrate_working_dir/
