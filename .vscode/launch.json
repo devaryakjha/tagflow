@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "tagflow",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "tagflow",
+            "cwd": "examples/tagflow",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "tagflow (profile mode)",
+            "cwd": "examples/tagflow",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "tagflow (release mode)",
+            "cwd": "examples/tagflow",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "tagflow",
+            "cwd": "packages/tagflow",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "tagflow (profile mode)",
+            "cwd": "packages/tagflow",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "tagflow (release mode)",
+            "cwd": "packages/tagflow",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
