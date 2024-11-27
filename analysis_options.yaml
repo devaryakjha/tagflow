@@ -17,6 +17,8 @@ analyzer:
   exclude:
     - test/.test_coverage.dart
     - lib/generated_plugin_registrant.dart
+    - migrate_working_dir/
+    - tools/mason/templates/
 
 linter:
   rules:
