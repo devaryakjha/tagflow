@@ -2,6 +2,7 @@ name: tagflow
 
 packages:
   - packages/**
+  - examples/**
 
 scripts:
   analyze:
