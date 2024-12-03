@@ -2,7 +2,7 @@ name: tagflow
 
 packages:
   - packages/**
-  - examples/**
+  # - examples/**
 
 scripts:
   docs:

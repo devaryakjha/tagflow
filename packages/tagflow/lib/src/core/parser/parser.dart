@@ -77,23 +77,27 @@ class TagflowParser {
 class _Visitor extends TreeVisitor {
   String indent = '';
 
+  void log(String message) {
+    if (kDebugMode) print(message);
+  }
+
   @override
   void visitText(Text node) {
     if (node.data.trim().isNotEmpty) {
-      print('$indent${node.data.trim()}');
+      log('$indent${node.data.trim()}');
     }
   }
 
   @override
   void visitElement(Element node) {
     if (isVoidElement(node.localName)) {
-      print('$indent<${node.localName}/>');
+      log('$indent<${node.localName}/>');
     } else {
-      print('$indent<${node.localName}>');
+      log('$indent<${node.localName}>');
       indent += '  ';
       visitChildren(node);
       indent = indent.substring(0, indent.length - 2);
-      print('$indent</${node.localName}>');
+      log('$indent</${node.localName}>');
     }
   }
 
