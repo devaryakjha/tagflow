@@ -134,4 +134,11 @@ final class TagflowElement {
       const ListEquality<TagflowElement>().hash(children) ^
       textContent.hashCode ^
       isSelfClosing.hashCode;
+
+  @override
+  String toString() {
+    return 'TagflowElement{tag: $tag, attributes: $attributes, children: '
+        '$children, textContent: $textContent, isSelfClosing: $isSelfClosing'
+        '}';
+  }
 }
