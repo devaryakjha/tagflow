@@ -11,3 +11,6 @@ scripts:
   analyze:
     exec: dart analyze .
     description: Analyze the project
+  test:
+    exec: flutter test
+    description: Run tests
