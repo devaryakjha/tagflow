@@ -45,15 +45,10 @@ class TagflowConverter {
 
   /// Convert a TagflowElement to a Widget
   Widget convert(TagflowElement element, BuildContext context) {
-    // Try custom converters first
-    for (final converter in _customConverters) {
-      if (converter.canHandle(element)) {
-        return converter.convert(element, context, this);
-      }
-    }
+    // Combine custom and built-in converters for a single iteration
+    final allConverters = [..._customConverters, ..._builtInConverters];
 
-    // Then try built-in converters
-    for (final converter in _builtInConverters) {
+    for (final converter in allConverters) {
       if (converter.canHandle(element)) {
         return converter.convert(element, context, this);
       }
