@@ -1,6 +1,6 @@
 // lib/src/converter/converter.dart
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/src/core/models/element.dart';
+import 'package:tagflow/tagflow.dart';
 
 /// Base interface for element converters
 abstract class ElementConverter {
@@ -17,23 +17,50 @@ abstract class ElementConverter {
 
 /// Main converter that orchestrates the conversion process
 class TagflowConverter {
-  final List<ElementConverter> _converters = [];
+  /// Create a new converter
+  TagflowConverter() {
+    // Register built-in converters
+    _registerBuiltIns([
+      const ContainerConverter(),
+      const TextConverter(),
+      const HeadingConverter(),
+    ]);
+  }
 
-  /// Register a new converter
-  void register(ElementConverter converter) {
-    _converters.add(converter);
+  /// Custom converters take precedence over built-in ones
+  final List<ElementConverter> _customConverters = [];
+
+  /// Built-in converters as fallback
+  final List<ElementConverter> _builtInConverters = [];
+
+  /// Add a custom converter that takes precedence over built-in ones
+  void addConverter(ElementConverter converter) {
+    _customConverters.add(converter);
+  }
+
+  /// Internal method to register built-in converters
+  void _registerBuiltIns(List<ElementConverter> converters) {
+    _builtInConverters.addAll(converters);
   }
 
   /// Convert a TagflowElement to a Widget
   Widget convert(TagflowElement element, BuildContext context) {
-    // Find appropriate converter
-    final converter = _converters.firstWhere(
-      (conv) => conv.canHandle(element),
-      orElse: DefaultConverter.new,
-    );
+    // Try custom converters first
+    for (final converter in _customConverters) {
+      if (converter.canHandle(element)) {
+        return converter.convert(element, context, this);
+      }
+    }
 
-    // Convert using the found converter, passing this converter instance
-    return converter.convert(element, context, this);
+    // Then try built-in converters
+    for (final converter in _builtInConverters) {
+      if (converter.canHandle(element)) {
+        return converter.convert(element, context, this);
+      }
+    }
+
+    // Fallback to default converter
+    return DefaultConverter().convert(element, context, this);
   }
 
   /// Convert a list of elements to widgets

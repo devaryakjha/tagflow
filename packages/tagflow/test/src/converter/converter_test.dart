@@ -8,10 +8,7 @@ void main() {
     late TagflowConverter converter;
 
     setUp(() {
-      converter = TagflowConverter()
-        ..register(const ContainerConverter())
-        ..register(const TextConverter())
-        ..register(const HeadingConverter());
+      converter = TagflowConverter();
     });
 
     testWidgets('converts basic div correctly', (tester) async {
@@ -102,4 +99,82 @@ void main() {
       ); // Should find multiple columns (div and p)
     });
   });
+
+  group('TagflowConverter with custom converters', () {
+    late TagflowConverter converter;
+
+    setUp(() {
+      converter = TagflowConverter();
+    });
+
+    testWidgets('custom converter takes precedence over built-in',
+        (tester) async {
+      // Create a custom paragraph converter
+      final customParagraphConverter = CustomParagraphConverter();
+      converter.addConverter(customParagraphConverter);
+
+      final element = TagflowElement(
+        tag: 'p',
+        children: [TagflowElement.text('Test text')],
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) {
+              return converter.convert(
+                element,
+                context,
+              );
+            },
+          ),
+        ),
+      );
+
+      // Should find our custom text, not the default paragraph implementation
+      expect(find.text('Custom: Test text'), findsOneWidget);
+      expect(find.text('Test text'), findsNothing);
+    });
+
+    testWidgets('falls back to built-in when no custom handler',
+        (tester) async {
+      final element = TagflowElement(
+        tag: 'p',
+        children: [TagflowElement.text('Test text')],
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) {
+              return converter.convert(
+                element,
+                context,
+              );
+            },
+          ),
+        ),
+      );
+
+      // Should find regular text with default paragraph implementation
+      expect(find.text('Test text'), findsOneWidget);
+    });
+  });
+}
+
+class CustomParagraphConverter implements ElementConverter {
+  @override
+  bool canHandle(TagflowElement element) => element.tag.toLowerCase() == 'p';
+
+  @override
+  Widget convert(
+    TagflowElement element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    final children = converter.convertChildren(element.children, context);
+    return Text('Custom: ${(children.first as Text).data}');
+  }
 }
