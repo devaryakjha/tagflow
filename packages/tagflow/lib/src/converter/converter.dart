@@ -38,6 +38,11 @@ class TagflowConverter {
     _customConverters.add(converter);
   }
 
+  /// Add multiple custom converters
+  void addAllConverters(List<ElementConverter> converters) {
+    _customConverters.addAll(converters);
+  }
+
   /// Internal method to register built-in converters
   void _registerBuiltIns(List<ElementConverter> converters) {
     _builtInConverters.addAll(converters);

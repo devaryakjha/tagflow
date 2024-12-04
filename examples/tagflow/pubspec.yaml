@@ -10,6 +10,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  go_router: ^14.6.2
   tagflow:
     path: ../../packages/tagflow
 

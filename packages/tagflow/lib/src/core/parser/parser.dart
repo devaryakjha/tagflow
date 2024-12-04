@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/dom.dart';
@@ -32,7 +30,6 @@ class TagflowParser {
 
     // If there's exactly one valid node, return it directly
     if (validNodes.length == 1) {
-      log('found one valid node');
       return validNodes.first;
     }
 
@@ -47,7 +44,7 @@ class TagflowParser {
   TagflowElement _convertNode(dom.Node node) {
     // Handle text nodes
     if (node is dom.Text) {
-      final text = node.text.trim();
+      final text = node.text;
       return text.isEmpty
           ? const TagflowElement(tag: '#empty')
           : TagflowElement.text(text);

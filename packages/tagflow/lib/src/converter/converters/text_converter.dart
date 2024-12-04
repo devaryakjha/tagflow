@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -6,7 +7,15 @@ class TextConverter implements ElementConverter {
   /// Create a new text converter
   const TextConverter();
 
-  static const _textTags = {'p', 'span'};
+  static const _textTags = {
+    'p',
+    'span',
+    'strong',
+    'em',
+    'i',
+    'b',
+    '#text',
+  };
 
   @override
   bool canHandle(TagflowElement element) =>
@@ -18,24 +27,32 @@ class TextConverter implements ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final children = converter.convertChildren(element.children, context);
-
-    if (children.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    // For paragraphs, add padding
-    final isParagraph = element.tag.toLowerCase() == 'p';
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
+    final spans = _createSpansForText(element);
+    return Text.rich(
+      TextSpan(
+        text: element.textContent,
+        children: spans,
+      ),
     );
-
-    return isParagraph
-        ? Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: content,
-          )
-        : content;
   }
+
+  List<InlineSpan> _createSpansForText(TagflowElement element) {
+    return element.children.map(_mapElementToSpan).whereNotNull().toList();
+  }
+
+  InlineSpan? _mapElementToSpan(TagflowElement element) {
+    final children =
+        element.children.map(_mapElementToSpan).whereNotNull().toList();
+    return TextSpan(
+      text: element.textContent,
+      children: children,
+      style: _getTextstyle(element),
+    );
+  }
+
+  TextStyle? _getTextstyle(TagflowElement element) => switch (element.tag) {
+        'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
+        'strong' || 'b' => const TextStyle(fontWeight: FontWeight.bold),
+        _ => null,
+      };
 }

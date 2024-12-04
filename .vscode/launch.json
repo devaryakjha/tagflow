@@ -23,26 +23,6 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"
-    },
-    {
-      "name": "tagflow",
-      "cwd": "packages/tagflow",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
-      "name": "tagflow (profile mode)",
-      "cwd": "packages/tagflow",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "profile"
-    },
-    {
-      "name": "tagflow (release mode)",
-      "cwd": "packages/tagflow",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "release"
     }
   ]
 }
