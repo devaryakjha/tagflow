@@ -2,15 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for container elements
-class ContainerConverter implements ElementConverter {
+class ContainerConverter extends ElementConverter {
   /// Create a new container converter
   const ContainerConverter();
 
-  static const _containerTags = {'div', 'section', 'article'};
-
   @override
-  bool canHandle(TagflowElement element) =>
-      _containerTags.contains(element.tag.toLowerCase());
+  Set<String> get supportedTags => {'div', 'section', 'article'};
 
   @override
   Widget convert(
@@ -21,6 +18,7 @@ class ContainerConverter implements ElementConverter {
     final children = converter.convertChildren(element.children, context);
 
     return Column(
+      key: createUniqueKey(),
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: children,

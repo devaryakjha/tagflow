@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -42,6 +43,7 @@ Future<TagflowElement> _parseHtml(String html) async {
 
 class _TagflowState extends State<Tagflow> {
   late final TagflowConverter converter;
+  TagflowElement? element;
 
   @override
   void initState() {
@@ -52,7 +54,9 @@ class _TagflowState extends State<Tagflow> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _parseHtml(widget.html),
+      future: Future.microtask(
+        () async => element ??= await _parseHtml(widget.html),
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return widget.loadingBuilder ?? const SizedBox();
@@ -66,5 +70,27 @@ class _TagflowState extends State<Tagflow> {
         return converter.convert(element, context);
       },
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+
+    properties
+      ..add(DiagnosticsProperty<String>('html', widget.html))
+      ..add(
+        DiagnosticsProperty<List<ElementConverter>>(
+          'converters',
+          widget.converters,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty<TagflowElement>(
+          'element',
+          element,
+          defaultValue: null,
+          missingIfNull: true,
+        ),
+      );
   }
 }

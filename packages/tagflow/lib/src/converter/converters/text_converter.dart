@@ -1,25 +1,21 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for text elements
-class TextConverter implements ElementConverter {
+class TextConverter extends ElementConverter {
   /// Create a new text converter
   const TextConverter();
 
-  static const _textTags = {
-    'p',
-    'span',
-    'strong',
-    'em',
-    'i',
-    'b',
-    '#text',
-  };
-
   @override
-  bool canHandle(TagflowElement element) =>
-      _textTags.contains(element.tag.toLowerCase());
+  Set<String> get supportedTags => {
+        'p',
+        'span',
+        'strong',
+        'em',
+        'i',
+        'b',
+        '#text',
+      };
 
   @override
   Widget convert(
@@ -27,30 +23,43 @@ class TextConverter implements ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final spans = _createSpansForText(element);
+    final children = _convertChildren(element, context, converter);
     return Text.rich(
-      TextSpan(
-        text: element.textContent,
-        children: spans,
-      ),
+      key: createUniqueKey(),
+      TextSpan(text: element.textContent, children: children),
+      style: getTextStyle(element),
     );
   }
 
-  List<InlineSpan> _createSpansForText(TagflowElement element) {
-    return element.children.map(_mapElementToSpan).whereNotNull().toList();
+  List<InlineSpan> _convertChildren(
+    TagflowElement element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    return element.children.map((child) {
+      if (child.isTextNode) {
+        return TextSpan(
+          text: child.textContent,
+          style: getTextStyle(child),
+        );
+      } else {
+        if (canHandle(child)) {
+          return TextSpan(
+            children: _convertChildren(child, context, converter),
+            style: getTextStyle(child),
+          );
+        }
+        return WidgetSpan(
+          child: converter.convert(child, context),
+          style: getTextStyle(child),
+          alignment: PlaceholderAlignment.middle,
+        );
+      }
+    }).toList();
   }
 
-  InlineSpan? _mapElementToSpan(TagflowElement element) {
-    final children =
-        element.children.map(_mapElementToSpan).whereNotNull().toList();
-    return TextSpan(
-      text: element.textContent,
-      children: children,
-      style: _getTextstyle(element),
-    );
-  }
-
-  TextStyle? _getTextstyle(TagflowElement element) => switch (element.tag) {
+  /// Get the text style for a given element
+  TextStyle? getTextStyle(TagflowElement element) => switch (element.tag) {
         'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
         'strong' || 'b' => const TextStyle(fontWeight: FontWeight.bold),
         _ => null,

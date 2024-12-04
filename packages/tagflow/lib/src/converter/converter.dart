@@ -1,11 +1,20 @@
 // lib/src/converter/converter.dart
+import 'dart:developer';
+
 import 'package:flutter/widgets.dart';
+import 'package:nanoid/non_secure.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Base interface for element converters
 abstract class ElementConverter {
+  /// Create a new element converter
+  const ElementConverter();
+
+  /// Supported tags for this converter
+  Set<String> get supportedTags => {};
+
   /// Whether this converter can handle the given element
-  bool canHandle(TagflowElement element);
+  bool canHandle(TagflowElement element) => supportedTags.contains(element.tag);
 
   /// Convert the element to a widget
   Widget convert(
@@ -13,6 +22,12 @@ abstract class ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   );
+
+  /// Create a unique key for the given element
+  /// can be used to identify elements in a list
+  LocalKey createUniqueKey() {
+    return ValueKey(nanoid());
+  }
 }
 
 /// Main converter that orchestrates the conversion process
@@ -55,6 +70,7 @@ class TagflowConverter {
 
     for (final converter in allConverters) {
       if (converter.canHandle(element)) {
+        log('Using converter: $converter');
         return converter.convert(element, context, this);
       }
     }
@@ -73,7 +89,7 @@ class TagflowConverter {
 }
 
 /// Default fallback converter
-class DefaultConverter implements ElementConverter {
+class DefaultConverter extends ElementConverter {
   @override
   bool canHandle(TagflowElement element) => true;
 

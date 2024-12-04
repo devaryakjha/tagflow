@@ -164,9 +164,9 @@ void main() {
   });
 }
 
-class CustomParagraphConverter implements ElementConverter {
+class CustomParagraphConverter extends ElementConverter {
   @override
-  bool canHandle(TagflowElement element) => element.tag.toLowerCase() == 'p';
+  Set<String> get supportedTags => {'p'};
 
   @override
   Widget convert(
