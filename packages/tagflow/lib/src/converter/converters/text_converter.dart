@@ -21,6 +21,7 @@ class TextConverter extends ElementConverter {
         'h4',
         'h5',
         'h6',
+        'a',
       };
 
   @override
