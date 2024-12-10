@@ -34,7 +34,7 @@ class TextConverter extends ElementConverter {
     return Text.rich(
       key: createUniqueKey(),
       TextSpan(text: element.textContent, children: children),
-      style: getTextStyle(element),
+      style: _getTextStyle(element),
     );
   }
 
@@ -48,19 +48,19 @@ class TextConverter extends ElementConverter {
       if (child.isTextNode) {
         return TextSpan(
           text: child.textContent,
-          style: getTextStyle(child),
+          style: _getTextStyle(child),
         );
       } else {
         // create a widget span for non-text nodes
         if (canHandle(child)) {
           return TextSpan(
             children: _convertChildren(child, context, converter),
-            style: getTextStyle(child),
+            style: _getTextStyle(child),
           );
         }
         return WidgetSpan(
           child: converter.convert(child, context),
-          style: getTextStyle(child),
+          style: _getTextStyle(child),
           alignment: PlaceholderAlignment.middle,
         );
       }
@@ -68,7 +68,7 @@ class TextConverter extends ElementConverter {
   }
 
   /// Get the text style for a given element
-  TextStyle? getTextStyle(TagflowElement element) => switch (element.tag) {
+  TextStyle? _getTextStyle(TagflowElement element) => switch (element.tag) {
         'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
         'strong' || 'b' => const TextStyle(fontWeight: FontWeight.bold),
         'h1' => const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
