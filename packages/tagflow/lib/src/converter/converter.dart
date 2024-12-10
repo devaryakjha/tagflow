@@ -11,7 +11,7 @@ abstract class ElementConverter {
   const ElementConverter();
 
   /// Supported tags for this converter
-  Set<String> get supportedTags => {};
+  Set<String> get supportedTags;
 
   /// Whether this converter can handle the given element
   bool canHandle(TagflowElement element) => supportedTags.contains(element.tag);
@@ -39,6 +39,7 @@ class TagflowConverter {
       const ContainerConverter(),
       const TextConverter(),
       const ImgConverter(),
+      const BrConverter(),
     ]);
   }
 
@@ -90,6 +91,9 @@ class TagflowConverter {
 
 /// Default fallback converter
 class DefaultConverter extends ElementConverter {
+  @override
+  Set<String> get supportedTags => {};
+
   @override
   bool canHandle(TagflowElement element) => true;
 

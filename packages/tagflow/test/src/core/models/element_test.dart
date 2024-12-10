@@ -32,7 +32,7 @@ void main() {
       final textElement = TagflowElement.text('Hello');
       final divElement = TagflowElement(tag: 'div');
 
-      expect(textElement.toString(), contains('text: Hello'));
+      expect(textElement.toString(), contains('textContent: Hello'));
       expect(divElement.toString(), contains('tag: div'));
     });
   });

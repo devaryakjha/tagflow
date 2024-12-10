@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for text elements
-class TextConverter extends ElementConverter {
+final class TextConverter extends ElementConverter {
   /// Create a new text converter
   const TextConverter();
 
