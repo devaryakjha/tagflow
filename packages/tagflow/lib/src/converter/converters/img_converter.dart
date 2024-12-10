@@ -15,6 +15,9 @@ class ImgConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
+    if (!element.hasAttribute('src')) {
+      throw Exception('Image tag must have a src attribute');
+    }
     return Image.network(
       key: createUniqueKey(),
       element['src']!,

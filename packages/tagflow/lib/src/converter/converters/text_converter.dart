@@ -31,10 +31,10 @@ class TextConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final children = _convertChildren(element, context, converter);
+    final style = _getTextStyle(element);
     return Text.rich(
       key: createUniqueKey(),
-      TextSpan(text: element.textContent, children: children),
-      style: _getTextStyle(element),
+      TextSpan(text: element.textContent, children: children, style: style),
     );
   }
 
@@ -51,13 +51,15 @@ class TextConverter extends ElementConverter {
           style: _getTextStyle(child),
         );
       } else {
-        // create a widget span for non-text nodes
+        // create a text span for supported elements
         if (canHandle(child)) {
           return TextSpan(
             children: _convertChildren(child, context, converter),
             style: _getTextStyle(child),
           );
         }
+
+        // create a widget span for unsupported elements
         return WidgetSpan(
           child: converter.convert(child, context),
           style: _getTextStyle(child),
