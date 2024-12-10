@@ -38,7 +38,7 @@ class TagflowConverter {
     _registerBuiltIns([
       const ContainerConverter(),
       const TextConverter(),
-      const HeadingConverter(),
+      const ImgConverter(),
     ]);
   }
 

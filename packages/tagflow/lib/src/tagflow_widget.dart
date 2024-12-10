@@ -52,6 +52,17 @@ class _TagflowState extends State<Tagflow> {
   }
 
   @override
+  void didUpdateWidget(covariant Tagflow oldWidget) {
+    if (oldWidget.html != widget.html) {
+      _parseHtml(widget.html).then((e) {
+        element = e;
+        setState(() {});
+      });
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.microtask(

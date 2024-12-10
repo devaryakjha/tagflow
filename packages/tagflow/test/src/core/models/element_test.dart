@@ -30,7 +30,7 @@ void main() {
 
     test('toString formats correctly', () {
       final textElement = TagflowElement.text('Hello');
-      const divElement = TagflowElement(tag: 'div');
+      final divElement = TagflowElement(tag: 'div');
 
       expect(textElement.toString(), contains('text: Hello'));
       expect(divElement.toString(), contains('tag: div'));

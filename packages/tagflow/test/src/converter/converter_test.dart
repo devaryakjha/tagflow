@@ -123,10 +123,12 @@ void main() {
           textDirection: TextDirection.ltr,
           child: Builder(
             builder: (context) {
-              return converter.convert(
+              final widget = converter.convert(
                 element,
                 context,
               );
+              print(element);
+              return widget;
             },
           ),
         ),
@@ -175,6 +177,10 @@ class CustomParagraphConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final children = converter.convertChildren(element.children, context);
-    return Text('Custom: ${(children.first as Text).data}');
+    final child = children.first;
+    final text = child is Text
+        ? child.data ?? child.textSpan?.toPlainText()
+        : 'No text widget found';
+    return Text('Custom: $text');
   }
 }

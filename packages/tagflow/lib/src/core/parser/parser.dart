@@ -42,12 +42,11 @@ class TagflowParser {
 
   /// Converts DOM node to TagflowElement
   TagflowElement _convertNode(dom.Node node) {
+    final attributes = node.attributes;
     // Handle text nodes
     if (node is dom.Text) {
       final text = node.text;
-      return text.isEmpty
-          ? const TagflowElement(tag: '#empty')
-          : TagflowElement.text(text);
+      return text.isEmpty ? TagflowElement.empty() : TagflowElement.text(text);
     }
 
     // Handle element nodes
@@ -63,11 +62,12 @@ class TagflowParser {
       return TagflowElement(
         tag: tag,
         children: children,
+        attributes: attributes,
       );
     }
 
     // Handle unknown nodes
-    return const TagflowElement(tag: '#empty');
+    return TagflowElement.empty();
   }
 }
 

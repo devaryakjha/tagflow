@@ -15,6 +15,12 @@ class TextConverter extends ElementConverter {
         'i',
         'b',
         '#text',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
       };
 
   @override
@@ -37,12 +43,14 @@ class TextConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     return element.children.map((child) {
+      // create a text span for text nodes
       if (child.isTextNode) {
         return TextSpan(
           text: child.textContent,
           style: getTextStyle(child),
         );
       } else {
+        // create a widget span for non-text nodes
         if (canHandle(child)) {
           return TextSpan(
             children: _convertChildren(child, context, converter),
@@ -62,6 +70,12 @@ class TextConverter extends ElementConverter {
   TextStyle? getTextStyle(TagflowElement element) => switch (element.tag) {
         'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
         'strong' || 'b' => const TextStyle(fontWeight: FontWeight.bold),
+        'h1' => const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        'h2' => const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        'h3' => const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        'h4' => const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        'h5' => const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        'h6' => const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         _ => null,
       };
 }

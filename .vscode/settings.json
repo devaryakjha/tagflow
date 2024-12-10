@@ -3,5 +3,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
-  }
+  },
+  "cSpell.words": ["tagflow"]
 }

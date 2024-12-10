@@ -1,5 +1,5 @@
 name: tagflow_example
-description: "A new Flutter project."
+description: "An example app for the Tagflow package"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,7 +10,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-  go_router: ^14.6.2
   tagflow:
     path: ../../packages/tagflow
 
