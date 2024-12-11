@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for text elements
@@ -34,7 +36,12 @@ final class TextConverter extends ElementConverter {
     final style = _getTextStyle(element);
     return Text.rich(
       key: createUniqueKey(),
-      TextSpan(text: element.textContent, children: children, style: style),
+      TextSpan(
+        text: element.textContent,
+        children: children,
+        style: style,
+        recognizer: _getGestures(element, context),
+      ),
     );
   }
 
@@ -49,6 +56,7 @@ final class TextConverter extends ElementConverter {
         return TextSpan(
           text: child.textContent,
           style: _getTextStyle(child),
+          recognizer: _getGestures(child, context),
         );
       } else {
         // create a text span for supported elements
@@ -56,6 +64,7 @@ final class TextConverter extends ElementConverter {
           return TextSpan(
             children: _convertChildren(child, context, converter),
             style: _getTextStyle(child),
+            recognizer: _getGestures(child, context),
           );
         }
 
@@ -69,6 +78,25 @@ final class TextConverter extends ElementConverter {
     }).toList();
   }
 
+  GestureRecognizer? _getGestures(
+    TagflowElement element,
+    BuildContext context,
+  ) =>
+      switch (element.parentTag) {
+        'a' => TapGestureRecognizer()
+          ..onTap = Feedback.wrapForTap(
+            () {
+              final link = element.parentHref;
+              // TODO: open link in browser
+              if (kDebugMode) {
+                print('Tapped on a link: $link');
+              }
+            },
+            context,
+          ),
+        _ => null,
+      };
+
   /// Get the text style for a given element
   TextStyle? _getTextStyle(TagflowElement element) => switch (element.tag) {
         'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
@@ -79,6 +107,11 @@ final class TextConverter extends ElementConverter {
         'h4' => const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         'h5' => const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         'h6' => const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        'a' => const TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.blue,
+          ),
         _ => null,
       };
 }

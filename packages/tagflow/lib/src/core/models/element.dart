@@ -8,6 +8,7 @@ class TagflowElement {
     this.textContent,
     this.children = const [],
     LinkedHashMap<Object, String>? attributes,
+    this.parent,
   }) : _attributes = attributes ?? LinkedHashMap.identity();
 
   /// Factory constructor for text nodes
@@ -24,12 +25,28 @@ class TagflowElement {
   /// The HTML tag name (e.g., 'div', 'p', 'h1')
   final String tag;
 
+  /// Parent element
+  TagflowElement? parent;
+
   /// Element's text content
   final String? textContent;
 
   // Element's attributes
   final LinkedHashMap<Object, String> _attributes;
 
+  /// Child elements
+  final List<TagflowElement> children;
+
+  @override
+  String toString() {
+    return 'TagflowElement{tag: $tag, textContent: $textContent,'
+        ' children: $children'
+        ' attributes: $_attributes}';
+  }
+}
+
+/// Put all the getters and setters in this extension
+extension TagflowElementExtensions on TagflowElement {
   /// Returns the value of the attribute with the given name.
   String? operator [](String name) => _attributes[name];
 
@@ -53,19 +70,43 @@ class TagflowElement {
     _attributes['class'] = value.join(' ');
   }
 
-  /// Child elements
-  final List<TagflowElement> children;
-
   /// Whether this element represents a text node
   bool get isTextNode => tag == '#text' && textContent != null;
 
   /// Whether this element is an empty element
   bool get isEmpty => tag == '#empty';
 
-  @override
-  String toString() {
-    return 'TagflowElement{tag: $tag, textContent: $textContent,'
-        ' children: $children'
-        ' attributes: $_attributes}';
+  /// The tag name of the parent element
+  String get parentTag => parent?.tag ?? '';
+
+  /// Adds a child element to this element.
+  void addAllChildren(Iterable<TagflowElement> children) {
+    this.children.addAll(children);
   }
+
+  /// Adds a child element to this element.
+  void addChild(TagflowElement child) {
+    children.add(child);
+  }
+
+  /// Adds a parent element to this element.
+  /// and recursively adds all children of this element to the new parent.
+  void reparent([TagflowElement? newParent]) {
+    parent = newParent;
+    for (final child in children) {
+      child.reparent(this);
+    }
+  }
+}
+
+/// All extensions for [TagflowElement] that are specific to anchor elements
+extension TagflowAnchorElement on TagflowElement {
+  /// Whether this element represents an anchor element
+  bool get isAnchor => tag == 'a';
+
+  /// The anchor's href attribute
+  String? get href => _attributes['href'];
+
+  /// The anchor's target attribute
+  String? get parentHref => parent?.href;
 }

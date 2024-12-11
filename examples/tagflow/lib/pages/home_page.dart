@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow_example/pages/basic_example_page.dart';
+import 'package:tagflow_example/pages/typography_example_page.dart';
+import 'package:tagflow_example/widgets/example_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,10 +17,10 @@ class HomePage extends StatelessWidget {
         children: [
           _buildSection(
             context,
-            title: 'Basic Examples',
-            description: 'Simple HTML rendering with basic elements',
-            icon: Icons.code,
-            page: const BasicExamplePage(),
+            title: 'Typography Examples',
+            description: 'Examples of how to use typography elements',
+            icon: Icons.format_quote,
+            builder: (context) => const TypographyExample(),
           ),
         ],
       ),
@@ -31,15 +32,15 @@ class HomePage extends StatelessWidget {
     required String title,
     required String description,
     required IconData icon,
-    required Widget page,
+    required ExamplePage Function(BuildContext) builder,
   }) {
     return Card(
+      elevation: 0,
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias, // to clip the ink splash
       child: InkWell(
         onTap: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute<void>(builder: (_) => page));
+          Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

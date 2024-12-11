@@ -1,6 +1,25 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
+
+/// Error widget builder for handling parsing/conversion errors
+typedef ErrorWidgetBuilder = Widget Function(
+  BuildContext context,
+  Object? error,
+);
+
+/// Default error widget builder
+Widget _defaultErrorWidget(BuildContext context, Object? error) {
+  return Text(
+    'Failed to render HTML: $error',
+    style: const TextStyle(color: Color(0xFFB00020)),
+  );
+}
+
+/// Default loading widget builder
+Widget _defaultLoadingWidget(BuildContext context) {
+  return const Center(child: CircularProgressIndicator());
+}
 
 /// Main widget for rendering HTML content.
 class Tagflow extends StatefulWidget {
@@ -20,20 +39,13 @@ class Tagflow extends StatefulWidget {
   final List<ElementConverter> converters;
 
   /// Error builder for handling parsing/conversion errors
-  final Widget Function(BuildContext context, Object? error) errorBuilder;
+  final ErrorWidgetBuilder? errorBuilder;
 
   /// Loading widget shown while parsing
-  final Widget? loadingBuilder;
+  final WidgetBuilder? loadingBuilder;
 
   @override
   State<Tagflow> createState() => _TagflowState();
-}
-
-Widget _defaultErrorWidget(BuildContext context, Object? error) {
-  return Text(
-    'Failed to render HTML: $error',
-    style: const TextStyle(color: Color(0xFFB00020)),
-  );
 }
 
 Future<TagflowElement> _parseHtml(String html) async {
@@ -70,11 +82,14 @@ class _TagflowState extends State<Tagflow> {
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return widget.loadingBuilder ?? const SizedBox();
+          return (widget.loadingBuilder ?? _defaultLoadingWidget)(context);
         }
 
         if (snapshot.hasError) {
-          return widget.errorBuilder(context, snapshot.error);
+          return (widget.errorBuilder ?? _defaultErrorWidget)(
+            context,
+            snapshot.error,
+          );
         }
 
         final element = snapshot.data!;

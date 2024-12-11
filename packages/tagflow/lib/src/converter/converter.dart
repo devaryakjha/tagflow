@@ -28,6 +28,11 @@ abstract class ElementConverter {
   LocalKey createUniqueKey() {
     return ValueKey(nanoid());
   }
+
+  @override
+  String toString() {
+    return '$runtimeType(supportedTags: $supportedTags)';
+  }
 }
 
 /// Main converter that orchestrates the conversion process

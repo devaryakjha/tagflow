@@ -37,7 +37,7 @@ class TagflowParser {
     return TagflowElement(
       tag: 'div',
       children: validNodes,
-    );
+    )..reparent();
   }
 
   /// Converts DOM node to TagflowElement
