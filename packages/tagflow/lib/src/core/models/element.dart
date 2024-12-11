@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:flutter/rendering.dart';
+
 /// Represents an HTML element in the tagflow tree.
 class TagflowElement {
   /// Creates a new [TagflowElement] instance.
@@ -109,4 +111,65 @@ extension TagflowAnchorElement on TagflowElement {
 
   /// The anchor's target attribute
   String? get parentHref => parent?.href;
+}
+
+/// All extensions for [TagflowElement] that are specific to img elements
+extension TagflowImgElement on TagflowElement {
+  /// The image's src attribute
+  String get src => _attributes['src']!;
+
+  /// The image's alt attribute
+  String get alt => _attributes['alt']!;
+
+  /// Image's fit attribute
+  // convert css fit values to flutter fit values
+  BoxFit? get fit => switch (styles?['object-fit']) {
+        'contain' => BoxFit.contain,
+        'cover' => BoxFit.cover,
+        'fill' => BoxFit.fill,
+        'none' => BoxFit.none,
+        'scale-down' => BoxFit.scaleDown,
+        'scale-down-x' => BoxFit.scaleDown,
+        'scale-down-y' => BoxFit.scaleDown,
+        _ => null,
+      };
+}
+
+/// All extensions for [TagflowElement] that are specific to style attributes
+extension TagflowElementStyleExtensions on TagflowElement {
+  /// The style of the element
+  String? get style => _attributes['style'];
+
+  /// The styles of the element
+  LinkedHashMap<Object, String>? get styles {
+    if (style == null) {
+      return null;
+    }
+    return LinkedHashMap.fromEntries(
+      style!.split(';').map((e) {
+        final parts = e.split(':');
+        return MapEntry(parts[0].trim(), parts[1].trim());
+      }),
+    );
+  }
+
+  /// Whether the element has the given style
+  bool hasStyle(String name) => styles?.containsKey(name) ?? false;
+}
+
+/// All extensions for [TagflowElement] that are specific to sizing attributes
+extension TagflowElementSizeExtensions on TagflowElement {
+  /// The width of the element
+  double? get width => hasAttribute('width')
+      ? double.tryParse(_attributes['width']!)
+      : hasStyle('width')
+          ? double.tryParse(styles!['width']!)
+          : null;
+
+  /// The height of the element
+  double? get height => hasAttribute('height')
+      ? double.tryParse(_attributes['height']!)
+      : hasStyle('height')
+          ? double.tryParse(styles!['height']!)
+          : null;
 }

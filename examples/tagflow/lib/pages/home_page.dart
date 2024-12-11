@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow_example/pages/typography_example_page.dart';
+import 'package:tagflow_example/pages/image_example.page.dart';
+import 'package:tagflow_example/pages/typography_example.page.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -18,9 +19,16 @@ class HomePage extends StatelessWidget {
           _buildSection(
             context,
             title: 'Typography Examples',
-            description: 'Examples of how to use typography elements',
+            description: 'Examples of how to use typography',
             icon: Icons.format_quote,
             builder: (context) => const TypographyExample(),
+          ),
+          _buildSection(
+            context,
+            title: 'Image Examples',
+            description: 'Examples of how to use images',
+            icon: Icons.image,
+            builder: (context) => const ImageExample(),
           ),
         ],
       ),
@@ -36,38 +44,21 @@ class HomePage extends StatelessWidget {
   }) {
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias, // to clip the ink splash
-      child: InkWell(
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(icon, size: 32),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right),
-            ],
-          ),
+        leading: Icon(icon, size: 32),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
+        subtitle: Text(
+          description,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        trailing: const Icon(Icons.chevron_right),
       ),
     );
   }

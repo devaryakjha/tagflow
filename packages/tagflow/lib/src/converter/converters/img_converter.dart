@@ -18,9 +18,15 @@ final class ImgConverter extends ElementConverter {
     if (!element.hasAttribute('src')) {
       throw Exception('Image tag must have a src attribute');
     }
+
+    // Lets use alt for semantics
     return Image.network(
       key: createUniqueKey(),
-      element['src']!,
+      element.src,
+      semanticLabel: element.alt,
+      width: element.width,
+      height: element.height,
+      fit: element.fit,
     );
   }
 }
