@@ -1,3 +1,4 @@
+// lib/src/style/style.dart
 import 'package:flutter/widgets.dart';
 
 /// Represents a set of styles for an element
@@ -10,12 +11,11 @@ class TagflowStyle {
     this.backgroundColor,
     this.decoration,
     this.alignment,
-    this.headingStyles = const {},
-    this.paragraphStyle,
-    this.linkStyle,
+    this.elementStyles = const {},
+    this.defaultElementStyle,
   });
 
-  /// Text styling
+  /// Base text style
   final TextStyle? textStyle;
 
   /// Padding
@@ -33,14 +33,12 @@ class TagflowStyle {
   /// Alignment
   final Alignment? alignment;
 
-  /// Styles for headings
-  final Map<String, TextStyle> headingStyles;
+  /// Style applied to all elements (like CSS *)
+  final ElementStyle? defaultElementStyle;
 
-  /// Style for paragraphs
-  final TextStyle? paragraphStyle;
-
-  /// Style for links
-  final TextStyle? linkStyle;
+  /// Styles for specific HTML elements
+  /// Keys are HTML element names (e.g., 'p', 'h1', 'strong', 'em')
+  final Map<String, ElementStyle> elementStyles;
 
   /// Create a copy of this style with specific overrides
   TagflowStyle copyWith({
@@ -50,9 +48,8 @@ class TagflowStyle {
     Color? backgroundColor,
     BoxDecoration? decoration,
     Alignment? alignment,
-    Map<String, TextStyle>? headingStyles,
-    TextStyle? paragraphStyle,
-    TextStyle? linkStyle,
+    Map<String, ElementStyle>? elementStyles,
+    ElementStyle? defaultElementStyle,
   }) {
     return TagflowStyle(
       textStyle: textStyle ?? this.textStyle,
@@ -61,9 +58,8 @@ class TagflowStyle {
       backgroundColor: backgroundColor ?? this.backgroundColor,
       decoration: decoration ?? this.decoration,
       alignment: alignment ?? this.alignment,
-      headingStyles: headingStyles ?? this.headingStyles,
-      paragraphStyle: paragraphStyle ?? this.paragraphStyle,
-      linkStyle: linkStyle ?? this.linkStyle,
+      elementStyles: elementStyles ?? this.elementStyles,
+      defaultElementStyle: defaultElementStyle ?? this.defaultElementStyle,
     );
   }
 
@@ -78,20 +74,75 @@ class TagflowStyle {
       backgroundColor: other.backgroundColor ?? backgroundColor,
       decoration: other.decoration ?? decoration,
       alignment: other.alignment ?? alignment,
-      headingStyles: {
-        ...headingStyles,
-        ...other.headingStyles,
+      elementStyles: {
+        ...elementStyles,
+        for (final entry in other.elementStyles.entries)
+          entry.key:
+              elementStyles[entry.key]?.merge(entry.value) ?? entry.value,
       },
-      paragraphStyle:
-          other.paragraphStyle?.merge(paragraphStyle) ?? paragraphStyle,
-      linkStyle: other.linkStyle?.merge(linkStyle) ?? linkStyle,
+      defaultElementStyle:
+          other.defaultElementStyle?.merge(defaultElementStyle) ??
+              defaultElementStyle,
     );
   }
+
+  /// Get style for a specific HTML element
+  ElementStyle? getElementStyle(String tag) {
+    // Start with default style if exists
+    final baseStyle = defaultElementStyle;
+
+    // Get tag-specific style
+    final tagStyle = elementStyles[tag.toLowerCase()];
+
+    // If we have both, merge them, otherwise return whichever exists
+    if (baseStyle != null && tagStyle != null) {
+      return baseStyle.merge(tagStyle);
+    }
+
+    return tagStyle ?? baseStyle;
+  }
+}
+
+/// Style configuration for a specific HTML element
+class ElementStyle {
+  /// Create a new element style
+  const ElementStyle({
+    this.textStyle,
+    this.padding,
+    this.margin,
+    this.decoration,
+    this.alignment,
+  });
+
+  /// Text style
+  final TextStyle? textStyle;
+
+  /// element's padding
+  final EdgeInsets? padding;
+
+  /// element's margin
+  final EdgeInsets? margin;
+
+  /// element's decoration
+  final BoxDecoration? decoration;
+
+  /// element's alignment
+  final Alignment? alignment;
+
+  /// Merge two element styles
+  ElementStyle merge(ElementStyle? other) => ElementStyle(
+        textStyle:
+            textStyle?.merge(other?.textStyle) ?? other?.textStyle ?? textStyle,
+        padding: other?.padding ?? padding,
+        margin: other?.margin ?? margin,
+        decoration: other?.decoration ?? decoration,
+        alignment: other?.alignment ?? alignment,
+      );
 }
 
 /// Theme that provides default styles for all elements
 class TagflowTheme {
-  /// Create a new theme
+  /// Create a new theme with the given base style
   const TagflowTheme({
     required this.baseStyle,
     this.tagStyles = const {},
@@ -106,57 +157,119 @@ class TagflowTheme {
           fontSize: 16,
           color: Color(0xFF000000),
         ),
-        headingStyles: {
-          'h1': TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
+        elementStyles: {
+          // Headings
+          'h1': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 16),
           ),
-          'h2': TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          'h2': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 12),
           ),
-          'h3': TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+          'h3': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 8),
+          ),
+          'h4': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 8),
+          ),
+          'h5': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 8),
+          ),
+          'h6': ElementStyle(
+            textStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+            margin: EdgeInsets.symmetric(vertical: 8),
+          ),
+          // Text elements
+          'p': ElementStyle(
+            textStyle: TextStyle(height: 1.5),
+            margin: EdgeInsets.symmetric(vertical: 8),
+          ),
+          'a': ElementStyle(
+            textStyle: TextStyle(
+              color: Color(0xFF2563EB),
+              decoration: TextDecoration.underline,
+              decorationColor: Color(0xFF2563EB),
+            ),
+          ),
+          // Emphasis
+          'em': ElementStyle(
+            textStyle: TextStyle(fontStyle: FontStyle.italic),
+          ),
+          'i': ElementStyle(
+            textStyle: TextStyle(fontStyle: FontStyle.italic),
+          ),
+          'strong': ElementStyle(
+            textStyle: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          'b': ElementStyle(
+            textStyle: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          // Other inline elements
+          'span': ElementStyle(
+            textStyle: TextStyle(),
+          ),
+          'code': ElementStyle(
+            textStyle: TextStyle(
+              fontFamily: 'monospace',
+              backgroundColor: Color(0xFFF1F1F1),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 4),
           ),
         },
-        paragraphStyle: TextStyle(
-          height: 1.5,
-        ),
-        linkStyle: TextStyle(
-          color: Color(0xFF2563EB),
-          decoration: TextDecoration.underline,
-        ),
       ),
     );
   }
 
   /// Create a dark theme
   factory TagflowTheme.dark() {
-    return const TagflowTheme(
+    final light = TagflowTheme.light();
+
+    return TagflowTheme(
       baseStyle: TagflowStyle(
-        textStyle: TextStyle(
+        textStyle: const TextStyle(
           fontSize: 16,
           color: Color(0xFFFFFFFF),
         ),
-        // Add dark theme specific styles
+        elementStyles: light.baseStyle.elementStyles,
       ),
     );
   }
 
-  /// Base style for all elements
+  /// Base style for all elements (e.g., text, headings, etc.)
   final TagflowStyle baseStyle;
 
-  /// Styles for specific tags
+  /// Styles for specific HTML elements
   final Map<String, TagflowStyle> tagStyles;
 
-  /// Styles for specific classes
+  /// Styles for specific classes (e.g., '.my-class')
   final Map<String, TagflowStyle> classStyles;
 
-  /// Get style for a specific tag
+  /// Get style for a specific HTML element
   TagflowStyle? getTagStyle(String tag) => tagStyles[tag.toLowerCase()];
 
-  /// Get style for a specific class
+  /// Get style for a specific class (e.g., '.my-class')
   TagflowStyle? getClassStyle(String className) => classStyles[className];
 }
 

@@ -17,11 +17,15 @@ class ContainerConverter extends ElementConverter {
   ) {
     final children = converter.convertChildren(element.children, context);
 
-    return Column(
+    return StyledContainerWidget(
       key: createUniqueKey(),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: children,
+      style: resolveStyle(element, context),
+      tag: element.tag,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
     );
   }
 }

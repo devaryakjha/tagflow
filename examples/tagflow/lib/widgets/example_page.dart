@@ -28,17 +28,23 @@ abstract class ExamplePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Tagflow(
-            key: ValueKey(title),
-            converters: converters,
-            html: html,
-            loadingBuilder: loadingBuilder,
-            errorBuilder: errorBuilder,
+    final themeMode = Theme.of(context).brightness;
+    return TagflowThemeProvider(
+      theme: themeMode == Brightness.light
+          ? TagflowTheme.light()
+          : TagflowTheme.dark(),
+      child: Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Tagflow(
+              key: ValueKey(title),
+              converters: converters,
+              html: html,
+              loadingBuilder: loadingBuilder,
+              errorBuilder: errorBuilder,
+            ),
           ),
         ),
       ),

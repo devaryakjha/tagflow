@@ -20,13 +20,17 @@ final class ImgConverter extends ElementConverter {
     }
 
     // Lets use alt for semantics
-    return Image.network(
+    return StyledContainerWidget(
+      style: resolveStyle(element, context),
+      tag: element.tag,
       key: createUniqueKey(),
-      element.src,
-      semanticLabel: element.alt,
-      width: element.width,
-      height: element.height,
-      fit: element.fit,
+      child: Image.network(
+        element.src,
+        semanticLabel: element.alt,
+        width: element.width,
+        height: element.height,
+        fit: element.fit,
+      ),
     );
   }
 }

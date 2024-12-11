@@ -32,15 +32,20 @@ final class TextConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final children = _convertChildren(element, context, converter);
-    final style = _getTextStyle(element);
-    return Text.rich(
+    final style = resolveStyle(element, context);
+    final children = _convertChildren(element, context, converter, style);
+
+    return StyledContainerWidget(
+      style: style,
+      tag: element.tag,
       key: createUniqueKey(),
-      TextSpan(
-        text: element.textContent,
-        children: children,
-        style: style,
-        recognizer: _getGestures(element, context),
+      child: Text.rich(
+        TextSpan(
+          text: element.textContent,
+          children: children,
+          recognizer: _getGestures(element, context),
+          style: style.textStyle,
+        ),
       ),
     );
   }
@@ -49,21 +54,23 @@ final class TextConverter extends ElementConverter {
     TagflowElement element,
     BuildContext context,
     TagflowConverter converter,
+    TagflowStyle resolvedStyle,
   ) {
     return element.children.map((child) {
       // create a text span for text nodes
       if (child.isTextNode) {
         return TextSpan(
           text: child.textContent,
-          style: _getTextStyle(child),
+          style: _getTextStyle(child, resolvedStyle),
           recognizer: _getGestures(child, context),
         );
       } else {
         // create a text span for supported elements
         if (canHandle(child)) {
           return TextSpan(
-            children: _convertChildren(child, context, converter),
-            style: _getTextStyle(child),
+            children:
+                _convertChildren(child, context, converter, resolvedStyle),
+            style: _getTextStyle(child, resolvedStyle),
             recognizer: _getGestures(child, context),
           );
         }
@@ -71,7 +78,7 @@ final class TextConverter extends ElementConverter {
         // create a widget span for unsupported elements
         return WidgetSpan(
           child: converter.convert(child, context),
-          style: _getTextStyle(child),
+          style: _getTextStyle(child, resolvedStyle),
           alignment: PlaceholderAlignment.middle,
         );
       }
@@ -98,20 +105,10 @@ final class TextConverter extends ElementConverter {
       };
 
   /// Get the text style for a given element
-  TextStyle? _getTextStyle(TagflowElement element) => switch (element.tag) {
-        'em' || 'i' => const TextStyle(fontStyle: FontStyle.italic),
-        'strong' || 'b' => const TextStyle(fontWeight: FontWeight.bold),
-        'h1' => const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-        'h2' => const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        'h3' => const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        'h4' => const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        'h5' => const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        'h6' => const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        'a' => const TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-            decorationColor: Colors.blue,
-          ),
-        _ => null,
-      };
+  TextStyle? _getTextStyle(
+    TagflowElement element,
+    TagflowStyle resolvedStyle,
+  ) {
+    return resolvedStyle.getElementStyle(element.tag)?.textStyle;
+  }
 }
