@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
+import 'package:tagflow/tagflow.dart';
 
 /// Represents an HTML element in the tagflow tree.
 class TagflowElement {
@@ -123,16 +124,7 @@ extension TagflowImgElement on TagflowElement {
 
   /// Image's fit attribute
   // convert css fit values to flutter fit values
-  BoxFit? get fit => switch (styles?['object-fit']) {
-        'contain' => BoxFit.contain,
-        'cover' => BoxFit.cover,
-        'fill' => BoxFit.fill,
-        'none' => BoxFit.none,
-        'scale-down' => BoxFit.scaleDown,
-        'scale-down-x' => BoxFit.scaleDown,
-        'scale-down-y' => BoxFit.scaleDown,
-        _ => null,
-      };
+  BoxFit? get fit => StyleParser.parseBoxFit(styles?['object-fit'] ?? '');
 }
 
 /// All extensions for [TagflowElement] that are specific to style attributes
@@ -159,17 +151,14 @@ extension TagflowElementStyleExtensions on TagflowElement {
 
 /// All extensions for [TagflowElement] that are specific to sizing attributes
 extension TagflowElementSizeExtensions on TagflowElement {
+  String? get _width => _attributes['width'] ?? styles?['width'];
+
   /// The width of the element
-  double? get width => hasAttribute('width')
-      ? double.tryParse(_attributes['width']!)
-      : hasStyle('width')
-          ? double.tryParse(styles!['width']!)
-          : null;
+  double? get width => _width != null ? StyleParser.parseSize(_width!) : null;
+
+  String? get _height => _attributes['height'] ?? styles?['height'];
 
   /// The height of the element
-  double? get height => hasAttribute('height')
-      ? double.tryParse(_attributes['height']!)
-      : hasStyle('height')
-          ? double.tryParse(styles!['height']!)
-          : null;
+  double? get height =>
+      _height != null ? StyleParser.parseSize(_height!) : null;
 }

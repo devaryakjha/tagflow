@@ -68,7 +68,8 @@ class TagflowStyle {
     if (other == null) return this;
 
     return TagflowStyle(
-      textStyle: other.textStyle?.merge(textStyle) ?? textStyle,
+      textStyle:
+          textStyle?.merge(other.textStyle) ?? other.textStyle ?? textStyle,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
       backgroundColor: other.backgroundColor ?? backgroundColor,
@@ -130,14 +131,17 @@ class ElementStyle {
   final Alignment? alignment;
 
   /// Merge two element styles
-  ElementStyle merge(ElementStyle? other) => ElementStyle(
-        textStyle:
-            textStyle?.merge(other?.textStyle) ?? other?.textStyle ?? textStyle,
-        padding: other?.padding ?? padding,
-        margin: other?.margin ?? margin,
-        decoration: other?.decoration ?? decoration,
-        alignment: other?.alignment ?? alignment,
-      );
+  ElementStyle merge(ElementStyle? other) {
+    if (other == null) return this;
+    return ElementStyle(
+      textStyle:
+          textStyle?.merge(other.textStyle) ?? other.textStyle ?? textStyle,
+      padding: other.padding ?? padding,
+      margin: other.margin ?? margin,
+      decoration: other.decoration ?? decoration,
+      alignment: other.alignment ?? alignment,
+    );
+  }
 }
 
 /// Theme that provides default styles for all elements

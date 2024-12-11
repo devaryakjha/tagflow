@@ -42,18 +42,29 @@ class StyleParser {
       return intValue != null ? Color(0xFF000000 | intValue) : null;
     }
 
+    // handle rgb and rgba colors, where the last value is optional,
+    // but if present it can be a number between 0 and 1.
+    // e.g. rgba(255, 0, 0, 0.5)
     if (value.startsWith('rgb')) {
-      final values = RegExp(r'\d+')
-          .allMatches(value)
-          .map((m) => int.parse(m.group(0)!))
-          .toList();
-      if (values.length >= 3) {
-        return Color.fromRGBO(
-          values[0],
-          values[1],
-          values[2],
-          values.length > 3 ? values[3] / 255 : 1,
-        );
+      // Remove rgb/rgba prefix and parentheses, then split by comma
+      final rawValues = value
+          .replaceAll(RegExp(r'rgba?\(|\)'), '')
+          .split(',')
+          .map((s) => s.trim());
+
+      try {
+        final values = rawValues.take(3).map(int.parse).toList();
+        if (values.length == 3) {
+          // Handle alpha if present (rgba)
+          if (rawValues.length > 3) {
+            final alpha = double.parse(rawValues.elementAt(3));
+            final alphaInt = (alpha * 255).round();
+            return Color.fromARGB(alphaInt, values[0], values[1], values[2]);
+          }
+          return Color.fromRGBO(values[0], values[1], values[2], 1);
+        }
+      } catch (e) {
+        return null; // Return null if parsing fails
       }
     }
 
@@ -82,7 +93,12 @@ class StyleParser {
   }
 
   /// Parse a CSS size value
-  static double? parseSize(String value) {
+  static double? parseSize(String value, [double remSize = 16]) {
+    if (value.endsWith('rem')) {
+      final size = double.tryParse(value.replaceAll('rem', ''));
+      return size != null ? size * remSize : null; // 1rem = remSize
+    }
+
     if (value.endsWith('px')) {
       return double.tryParse(value.replaceAll('px', ''));
     }
@@ -116,6 +132,20 @@ class StyleParser {
       'right' => TextAlign.right,
       'center' => TextAlign.center,
       'justify' => TextAlign.justify,
+      _ => null,
+    };
+  }
+
+  /// Parse object-fit value
+  static BoxFit? parseBoxFit(String value) {
+    return switch (value.toLowerCase()) {
+      'contain' => BoxFit.contain,
+      'cover' => BoxFit.cover,
+      'fill' => BoxFit.fill,
+      'none' => BoxFit.none,
+      'scale-down' => BoxFit.scaleDown,
+      'scale-down-x' => BoxFit.scaleDown,
+      'scale-down-y' => BoxFit.scaleDown,
       _ => null,
     };
   }
