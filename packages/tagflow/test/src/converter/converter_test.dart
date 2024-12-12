@@ -29,7 +29,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(Column), findsOneWidget);
+      expect(find.byType(Flex), findsOneWidget);
       expect(find.text('Hello'), findsOneWidget);
     });
 
@@ -76,7 +76,7 @@ void main() {
     testWidgets('converts complex nested structure correctly', (tester) async {
       final parser = TagflowParser();
       final element = parser.parse('''
-        <div>
+        <div style="background-color: red; display: flex; justify-content: center; align-items: center; flex-direction: column; margin-bottom: 16px">
           <p>This is a paragraph</p>
           <h1>This is a heading1</h1>
         </div>
@@ -85,7 +85,10 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Builder(
-            builder: (context) => converter.convert(element, context),
+            builder: (context) {
+              final widget = converter.convert(element, context);
+              return widget;
+            },
           ),
         ),
       );
@@ -93,7 +96,7 @@ void main() {
       expect(find.text('This is a paragraph'), findsOneWidget);
       expect(find.text('This is a heading1'), findsOneWidget);
       expect(
-        find.byType(Column),
+        find.byType(Flex),
         findsWidgets,
       ); // Should find multiple columns (div and p)
     });
@@ -126,7 +129,6 @@ void main() {
                 element,
                 context,
               );
-              print(element);
               return widget;
             },
           ),
@@ -176,7 +178,7 @@ class CustomParagraphConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final children = converter.convertChildren(element.children, context);
-    final child = children.first;
+    final child = (children.first as StyledContainerWidget).child;
     final text = child is Text
         ? child.data ?? child.textSpan?.toPlainText()
         : 'No text widget found';

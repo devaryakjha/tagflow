@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/dom.dart';
@@ -36,6 +38,9 @@ class TagflowParser {
     // Otherwise wrap all nodes in a div
     return TagflowElement(
       tag: 'div',
+      attributes: LinkedHashMap.from({
+        'style': 'display: flex; flex-direction: column',
+      }),
       children: validNodes,
     )..reparent();
   }

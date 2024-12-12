@@ -16,14 +16,26 @@ class ContainerConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final children = converter.convertChildren(element.children, context);
-
+    final dir = StyleParser.parseFlexDirection(
+      element.styles?['flex-direction'] ?? 'row',
+    );
+    final mainAxisAlignment = StyleParser.parseMainAxisAlignment(
+      element.styles?['justify-content'] ?? 'start',
+    );
+    final crossAxisAlignment = StyleParser.parseCrossAxisAlignment(
+      element.styles?['align-items'] ?? 'start',
+    );
     return StyledContainerWidget(
       key: createUniqueKey(),
       style: resolveStyle(element, context),
       tag: element.tag,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      width: element.width,
+      height: element.height,
+      child: Flex(
         mainAxisSize: MainAxisSize.min,
+        direction: dir,
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: crossAxisAlignment,
         children: children,
       ),
     );

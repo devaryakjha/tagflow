@@ -41,6 +41,8 @@ class StyledContainerWidget extends StatelessWidget {
     required this.style,
     required this.tag,
     required this.child,
+    this.width,
+    this.height,
     super.key,
   });
 
@@ -52,6 +54,12 @@ class StyledContainerWidget extends StatelessWidget {
 
   /// The child widget
   final Widget child;
+
+  /// The width of the element
+  final double? width;
+
+  /// The height of the element
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +76,15 @@ class StyledContainerWidget extends StatelessWidget {
     if (mergedTextStyle != null) {
       current = DefaultTextStyle.merge(
         style: mergedTextStyle,
+        child: current,
+      );
+    }
+
+    // Apply width and height from element or base style
+    if (width != null || height != null) {
+      current = SizedBox(
+        width: width,
+        height: height,
         child: current,
       );
     }

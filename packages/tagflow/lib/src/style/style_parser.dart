@@ -93,6 +93,7 @@ class StyleParser {
   }
 
   /// Parse a CSS size value
+  /// TODO: Add support for em, ex, ch, rem, vw, vh, vmin, vmax, etc.
   static double? parseSize(String value, [double remSize = 16]) {
     if (value.endsWith('rem')) {
       final size = double.tryParse(value.replaceAll('rem', ''));
@@ -147,6 +148,40 @@ class StyleParser {
       'scale-down-x' => BoxFit.scaleDown,
       'scale-down-y' => BoxFit.scaleDown,
       _ => null,
+    };
+  }
+
+  /// Parse a CSS flex-direction value
+  static Axis parseFlexDirection(String value) {
+    return switch (value.toLowerCase()) {
+      'column' => Axis.vertical,
+      'column-reverse' => Axis.vertical,
+      _ => Axis.horizontal,
+    };
+  }
+
+  /// Parse a CSS justify-content value
+  static MainAxisAlignment parseMainAxisAlignment(String value) {
+    return switch (value.toLowerCase()) {
+      'start' => MainAxisAlignment.start,
+      'end' => MainAxisAlignment.end,
+      'center' => MainAxisAlignment.center,
+      'space-between' => MainAxisAlignment.spaceBetween,
+      'space-around' => MainAxisAlignment.spaceAround,
+      'space-evenly' => MainAxisAlignment.spaceEvenly,
+      _ => MainAxisAlignment.start,
+    };
+  }
+
+  /// Parse a CSS flex-direction value
+  static CrossAxisAlignment parseCrossAxisAlignment(String value) {
+    return switch (value.toLowerCase()) {
+      'start' => CrossAxisAlignment.start,
+      'end' => CrossAxisAlignment.end,
+      'center' => CrossAxisAlignment.center,
+      'stretch' => CrossAxisAlignment.stretch,
+      'baseline' => CrossAxisAlignment.baseline,
+      _ => CrossAxisAlignment.start,
     };
   }
 }
