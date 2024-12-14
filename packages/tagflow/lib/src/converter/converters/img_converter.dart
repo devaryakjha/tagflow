@@ -18,10 +18,10 @@ final class ImgConverter extends ElementConverter {
     if (!element.hasAttribute('src')) {
       throw Exception('Image tag must have a src attribute');
     }
-
+    final style = resolveStyle(element, context);
     // Lets use alt for semantics
     return StyledContainer(
-      style: resolveStyle(element, context),
+      style: style,
       tag: element.tag,
       key: createUniqueKey(),
       child: Image.network(
@@ -30,6 +30,7 @@ final class ImgConverter extends ElementConverter {
         width: element.width,
         height: element.height,
         fit: element.fit,
+        alignment: style.alignment ?? Alignment.center,
       ),
     );
   }

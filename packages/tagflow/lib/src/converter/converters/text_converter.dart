@@ -53,19 +53,22 @@ final class TextConverter extends ElementConverter {
     final style = resolveStyle(element, context);
     final children = _convertChildren(element, context, converter, style);
 
-    return _wrapInContainerIfNeeded(
-      Text.rich(
-        TextSpan(
-          text: element.textContent,
-          children: children,
-          recognizer: _getGestures(element, context),
-          mouseCursor: _getMouseCursor(element, context),
+    return KeyedSubtree(
+      key: createUniqueKey(),
+      child: _wrapInContainerIfNeeded(
+        Text.rich(
+          TextSpan(
+            text: element.textContent,
+            children: children,
+            recognizer: _getGestures(element, context),
+            mouseCursor: _getMouseCursor(element, context),
+          ),
+          softWrap: true,
         ),
-        softWrap: true,
+        element,
+        context,
+        style,
       ),
-      element,
-      context,
-      style,
     );
   }
 

@@ -56,72 +56,87 @@ class _TagflowFromTheme extends TagflowTheme {
     String? fontFamily,
     String? codeFontFamily,
   ) {
-    final textTheme = theme.textTheme.apply(
-      fontFamily: fontFamily,
-    );
+    final textTheme = theme.textTheme.apply(fontFamily: fontFamily);
+    final rem = textTheme.bodyMedium?.fontSize ?? 14.0;
 
     return TagflowStyle(
       textStyle: textTheme.bodyMedium,
-      // use css default margins for elements
       elementStyles: {
         'h1': ElementStyle(
-          textStyle: textTheme.displayLarge,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem * 0.67),
+          textStyle: textTheme.displayLarge?.copyWith(
+            fontSize: rem * 2,
+            fontWeight: FontWeight.w800,
+            height: 1.2,
+          ),
         ),
         'h2': ElementStyle(
-          textStyle: textTheme.displayMedium,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem * 0.83),
+          textStyle: textTheme.displayMedium?.copyWith(
+            fontSize: rem * 1.5,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
         ),
         'h3': ElementStyle(
-          textStyle: textTheme.displaySmall,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem),
+          textStyle: textTheme.displaySmall?.copyWith(
+            fontSize: rem * 1.17,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
+          ),
         ),
         'h4': ElementStyle(
-          textStyle: textTheme.headlineMedium,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem),
+          textStyle: textTheme.headlineMedium?.copyWith(
+            fontSize: rem,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
+          ),
         ),
         'h5': ElementStyle(
-          textStyle: textTheme.headlineSmall,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem),
+          textStyle: textTheme.headlineSmall?.copyWith(
+            fontSize: rem * 0.83,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
+          ),
         ),
         'h6': ElementStyle(
-          textStyle: textTheme.titleLarge,
-          margin: const EdgeInsets.only(top: 16),
+          margin: EdgeInsets.symmetric(vertical: rem),
+          textStyle: textTheme.titleLarge?.copyWith(
+            fontSize: rem * 0.67,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
+          ),
         ),
-        'p': const ElementStyle(
-          margin: EdgeInsets.only(top: 16),
+        'p': ElementStyle(
+          margin: EdgeInsets.symmetric(vertical: rem),
         ),
-        'a': ElementStyle(
+        'span': const ElementStyle(),
+        'a': const ElementStyle(
           textStyle: TextStyle(
-            color: theme.colorScheme.secondary,
+            color: Color(0xFF0000EE),
             decoration: TextDecoration.underline,
-            decorationColor: theme.colorScheme.secondary,
+            decorationColor: Color(0xFF0000EE),
           ),
         ),
         'code': ElementStyle(
-          decoration: BoxDecoration(
-            color: Colors.grey.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
           textStyle: TextStyle(
-            fontFamily: codeFontFamily,
-            fontFamilyFallback: fontFamily != null ? [fontFamily] : null,
+            fontFamily: codeFontFamily ?? 'monospace',
+            height: 1.2,
           ),
         ),
         'pre': ElementStyle(
-          margin: const EdgeInsets.symmetric(vertical: 16),
+          margin: EdgeInsets.symmetric(vertical: rem),
           textStyle: TextStyle(
-            fontFamily: codeFontFamily,
-            fontFamilyFallback: fontFamily != null ? [fontFamily] : null,
+            fontFamily: codeFontFamily ?? 'monospace',
+            height: 1.5,
           ),
         ),
         'img': const ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: 16),
-          // padding: EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
+          // Preserves aspect ratio by default
+          alignment: Alignment.center,
         ),
       },
     );
