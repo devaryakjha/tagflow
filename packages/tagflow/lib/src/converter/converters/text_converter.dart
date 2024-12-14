@@ -26,6 +26,23 @@ final class TextConverter extends ElementConverter {
         'pre',
       };
 
+  Widget _wrapInContainerIfNeeded(
+    Widget child,
+    TagflowElement element,
+    BuildContext context,
+    TagflowStyle style,
+  ) {
+    // text nodes are already wrapped,
+    // wrapping them again will break the text style
+    if (element.isTextNode) return child;
+
+    return StyledContainer(
+      style: style,
+      tag: element.tag,
+      child: child,
+    );
+  }
+
   @override
   Widget convert(
     TagflowElement element,
@@ -35,11 +52,8 @@ final class TextConverter extends ElementConverter {
     final style = resolveStyle(element, context);
     final children = _convertChildren(element, context, converter, style);
 
-    return StyledContainer(
-      style: style,
-      tag: element.tag,
-      key: createUniqueKey(),
-      child: Text.rich(
+    return _wrapInContainerIfNeeded(
+      Text.rich(
         TextSpan(
           text: element.textContent,
           children: children,
@@ -47,6 +61,9 @@ final class TextConverter extends ElementConverter {
           mouseCursor: _getMouseCursor(element, context),
         ),
       ),
+      element,
+      context,
+      style,
     );
   }
 

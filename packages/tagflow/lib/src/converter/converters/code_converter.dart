@@ -15,17 +15,16 @@ final class BasicCodeConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final children = converter.convertChildren(element.children, context);
+    final el =
+        element.children.first; // since code will always have a single child
+    final child = converter.convert(el, context);
     final style = resolveStyle(element, context);
+
     return StyledContainer(
       key: createUniqueKey(),
       style: style,
       tag: element.tag,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
+      child: child,
     );
   }
 }

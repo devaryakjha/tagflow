@@ -88,12 +88,11 @@ class _TagflowFromTheme extends TagflowTheme {
           textStyle: textTheme.titleLarge,
           margin: const EdgeInsets.only(top: 16),
         ),
-        'p': ElementStyle(
-          textStyle: textTheme.bodyMedium,
-          margin: const EdgeInsets.only(top: 16),
+        'p': const ElementStyle(
+          margin: EdgeInsets.only(top: 16),
         ),
         'a': ElementStyle(
-          textStyle: textTheme.bodyMedium?.apply(
+          textStyle: TextStyle(
             color: theme.colorScheme.secondary,
             decoration: TextDecoration.underline,
             decorationColor: theme.colorScheme.secondary,
@@ -101,18 +100,18 @@ class _TagflowFromTheme extends TagflowTheme {
         ),
         'code': ElementStyle(
           decoration: BoxDecoration(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(3),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: textTheme.bodyMedium?.apply(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+          textStyle: TextStyle(
             fontFamily: codeFontFamily,
             fontFamilyFallback: fontFamily != null ? [fontFamily] : null,
           ),
         ),
         'pre': ElementStyle(
-          padding: const EdgeInsets.all(16),
-          textStyle: textTheme.bodyMedium?.apply(
+          margin: const EdgeInsets.symmetric(vertical: 16),
+          textStyle: TextStyle(
             fontFamily: codeFontFamily,
             fontFamilyFallback: fontFamily != null ? [fontFamily] : null,
           ),
