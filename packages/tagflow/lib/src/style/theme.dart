@@ -1,8 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Theme that provides default styles for all elements
-class TagflowTheme {
+class TagflowTheme extends Equatable {
   /// Create a new theme with the given base style
   const TagflowTheme({
     required this.baseStyle,
@@ -37,6 +38,9 @@ class TagflowTheme {
 
   /// Get style for a specific class (e.g., '.my-class')
   TagflowStyle? getClassStyle(String className) => classStyles[className];
+
+  @override
+  List<Object?> get props => [baseStyle, classStyles];
 }
 
 class _TagflowFromTheme extends TagflowTheme {
@@ -203,6 +207,38 @@ class _TagflowFromTheme extends TagflowTheme {
         's': const ElementStyle(
           textStyle: TextStyle(
             decoration: TextDecoration.lineThrough,
+          ),
+        ),
+        'small': ElementStyle(
+          textStyle: TextStyle(
+            fontSize: rem * 0.85,
+          ),
+        ),
+        'mark': ElementStyle(
+          padding: EdgeInsets.all(rem * 0.2),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        'del': const ElementStyle(
+          textStyle: TextStyle(
+            decoration: TextDecoration.lineThrough,
+          ),
+        ),
+        'ins': const ElementStyle(
+          textStyle: TextStyle(
+            decoration: TextDecoration.underline,
+          ),
+        ),
+        'sub': ElementStyle(
+          textStyle: TextStyle(
+            fontSize: rem * 0.75,
+          ),
+        ),
+        'sup': ElementStyle(
+          textStyle: TextStyle(
+            fontSize: rem * 0.75,
           ),
         ),
       },

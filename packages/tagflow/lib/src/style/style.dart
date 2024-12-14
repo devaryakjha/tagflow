@@ -1,8 +1,8 @@
-// lib/src/style/style.dart
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 
 /// Represents a set of styles for an element
-class TagflowStyle {
+class TagflowStyle extends Equatable {
   /// Create a new style
   const TagflowStyle({
     this.textStyle,
@@ -108,10 +108,22 @@ class TagflowStyle {
 
     return tagStyle ?? baseStyle;
   }
+
+  @override
+  List<Object?> get props => [
+        textStyle,
+        padding,
+        margin,
+        backgroundColor,
+        decoration,
+        alignment,
+        elementStyles,
+        defaultElementStyle,
+      ];
 }
 
 /// Style configuration for a specific HTML element
-class ElementStyle {
+class ElementStyle extends Equatable {
   /// Create a new element style
   const ElementStyle({
     this.textStyle,
@@ -165,4 +177,13 @@ class ElementStyle {
       alignment: alignment ?? this.alignment,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        textStyle,
+        padding,
+        margin,
+        decoration,
+        alignment,
+      ];
 }

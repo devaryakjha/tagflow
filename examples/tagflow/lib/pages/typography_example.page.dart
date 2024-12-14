@@ -14,6 +14,20 @@ const _html = '''
 <p>Paragraph</p>
 <p>Paragraph with <a href="https://github.com/devaryakjha/tagflow">link</a></p>
 <span>Span</span>
+<p><u>underlined</u></p>
+<pre>Preformatted text</pre>
+<p><s>strikethrough</s></p>
+<p><b>bold</b></p>
+<p><i>italic</i></p>
+<p><em>emphasized</em></p>
+<p><strong>strong</strong></p>
+<p><small>small</small></p>
+<p><mark>marked</mark></p>
+<p><del>deleted</del></p>
+<p><ins>inserted</ins></p>
+<p><sub>subscript</sub></p>
+<p><sup>superscript</sup></p>
+<p><code>code</code></p>
 ''';
 
 class TypographyExample extends ExamplePage {
