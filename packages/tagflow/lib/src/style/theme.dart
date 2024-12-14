@@ -170,8 +170,6 @@ class _TagflowFromTheme extends TagflowTheme {
         ),
         //
         'img': ElementStyle(
-          // Preserves aspect ratio by default
-          alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
           ),

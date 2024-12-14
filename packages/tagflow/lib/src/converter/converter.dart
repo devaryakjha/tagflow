@@ -133,6 +133,7 @@ extension StyleResolution on ElementConverter {
           margin: elementStyle.margin,
           decoration: elementStyle.decoration,
           alignment: elementStyle.alignment,
+          backgroundColor: elementStyle.decoration?.color,
         ),
       );
     }

@@ -58,10 +58,7 @@ final class TextConverter extends ElementConverter {
       final child = children.first;
       if (child is TextSpan) {
         return _wrapInContainerIfNeeded(
-          Text(
-            child.toPlainText(),
-            softWrap: true,
-          ),
+          SelectableText(child.toPlainText()),
           element,
           context,
           style,
@@ -78,14 +75,13 @@ final class TextConverter extends ElementConverter {
     }
 
     return _wrapInContainerIfNeeded(
-      Text.rich(
+      SelectableText.rich(
         TextSpan(
           text: element.textContent,
           children: children,
           recognizer: _getGestures(element, context),
           mouseCursor: _getMouseCursor(element, context),
         ),
-        softWrap: true,
       ),
       element,
       context,

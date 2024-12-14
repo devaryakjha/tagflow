@@ -29,7 +29,6 @@ final class ImgConverter extends ElementConverter {
         width: element.width,
         height: element.height,
         fit: element.fit,
-        alignment: style.alignment ?? Alignment.center,
       ),
     );
   }

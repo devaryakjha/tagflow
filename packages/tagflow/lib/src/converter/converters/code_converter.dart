@@ -24,9 +24,11 @@ final class BasicCodeConverter extends ElementConverter {
     if (element.parentTag == 'pre') {
       style = style.copyWith(
         backgroundColor: Colors.transparent,
-        // FIXME(Arya): this is not working
-        // padding: EdgeInsets.zero,
-        // margin: EdgeInsets.zero,
+        decoration: style.decoration?.copyWith(
+          color: Colors.transparent,
+        ),
+        padding: EdgeInsets.zero,
+        margin: EdgeInsets.zero,
       );
     }
 
