@@ -93,7 +93,7 @@ class StyleParser {
   }
 
   /// Parse a CSS size value
-  /// TODO: Add support for em, ex, ch, rem, vw, vh, vmin, vmax, etc.
+  // TODO(Arya): Add support for em, ex, ch, rem, vw, vh, vmin, vmax, etc.
   static double? parseSize(String value, [double remSize = 16]) {
     if (value.endsWith('rem')) {
       final size = double.tryParse(value.replaceAll('rem', ''));
