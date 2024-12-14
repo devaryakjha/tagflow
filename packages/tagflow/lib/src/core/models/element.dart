@@ -100,6 +100,12 @@ extension TagflowElementExtensions on TagflowElement {
       child.reparent(this);
     }
   }
+
+  // create a simplified map of attributes
+  /// The attributes of the element
+  Map<String, String> get attributes => Map.fromEntries(
+        _attributes.entries.map((e) => MapEntry(e.key as String, e.value)),
+      );
 }
 
 /// All extensions for [TagflowElement] that are specific to anchor elements

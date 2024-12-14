@@ -29,6 +29,7 @@ class Tagflow extends StatefulWidget {
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder,
+    this.options,
     super.key,
   });
 
@@ -43,6 +44,9 @@ class Tagflow extends StatefulWidget {
 
   /// Loading widget shown while parsing
   final WidgetBuilder? loadingBuilder;
+
+  /// Options for configuring the Tagflow widget
+  final TagflowOptions? options;
 
   @override
   State<Tagflow> createState() => _TagflowState();
@@ -74,27 +78,39 @@ class _TagflowState extends State<Tagflow> {
     super.didUpdateWidget(oldWidget);
   }
 
+  Widget _wrapWithScope(Widget child) {
+    if (widget.options == null) {
+      return child;
+    }
+    return TagflowScope(
+      options: widget.options ?? TagflowOptions.defaultOptions,
+      child: Builder(builder: (context) => child),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Future.microtask(
-        () async => element ??= await _parseHtml(widget.html),
+    return _wrapWithScope(
+      FutureBuilder(
+        future: Future.microtask(
+          () async => element ??= await _parseHtml(widget.html),
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return (widget.loadingBuilder ?? _defaultLoadingWidget)(context);
+          }
+
+          if (snapshot.hasError) {
+            return (widget.errorBuilder ?? _defaultErrorWidget)(
+              context,
+              snapshot.error,
+            );
+          }
+
+          final element = snapshot.data!;
+          return converter.convert(element, context);
+        },
       ),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return (widget.loadingBuilder ?? _defaultLoadingWidget)(context);
-        }
-
-        if (snapshot.hasError) {
-          return (widget.errorBuilder ?? _defaultErrorWidget)(
-            context,
-            snapshot.error,
-          );
-        }
-
-        final element = snapshot.data!;
-        return converter.convert(element, context);
-      },
     );
   }
 

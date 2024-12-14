@@ -95,8 +95,13 @@ final class TextConverter extends ElementConverter {
             () {
               final link = element.parentHref;
               // TODO: open link in browser
+              final options = TagflowOptions.of(context);
+              final cb = options.linkTapCallback;
               if (kDebugMode) {
                 print('Tapped on a link: $link');
+              }
+              if (cb != null && link != null) {
+                cb(link, element.attributes);
               }
             },
             context,

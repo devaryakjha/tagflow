@@ -26,6 +26,8 @@ abstract class ExamplePage extends StatelessWidget {
     };
   }
 
+  TagflowOptions? get options => null;
+
   @override
   Widget build(BuildContext context) {
     final themeMode = Theme.of(context).brightness;
@@ -39,6 +41,7 @@ abstract class ExamplePage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Tagflow(
+              options: options,
               key: ValueKey(title),
               converters: converters,
               html: html,

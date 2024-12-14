@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:tagflow/src/tagflow_options.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 // complete typography example with tags like h1, h2, h3, p, span, etc.
 const _html = '''
@@ -21,4 +24,14 @@ class TypographyExample extends ExamplePage {
 
   @override
   String get html => _html;
+
+  @override
+  TagflowOptions? get options => TagflowOptions(
+        debug: kDebugMode,
+        linkTapCallback: (link, attributes) async {
+          if (await canLaunchUrlString(link)) {
+            await launchUrlString(link);
+          }
+        },
+      );
 }
