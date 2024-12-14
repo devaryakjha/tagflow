@@ -35,7 +35,7 @@ class ContainerConverter extends ElementConverter {
         direction: dir,
         mainAxisAlignment: mainAxisAlignment,
         crossAxisAlignment: crossAxisAlignment,
-        children: KeyedSubtree.ensureUniqueKeysForList(children),
+        children: children,
       ),
     );
   }

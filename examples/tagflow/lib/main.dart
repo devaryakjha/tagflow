@@ -75,11 +75,10 @@ class TagflowExample extends StatelessWidget {
       theme: themeData(ColorScheme.fromSeed(seedColor: Colors.black)),
       darkTheme: themeData(
         ColorScheme.fromSeed(
-          seedColor: Colors.black,
+          seedColor: Colors.blueGrey,
           brightness: Brightness.dark,
         ),
       ),
-      themeMode: ThemeMode.dark,
       home: const HomePage(),
     );
   }

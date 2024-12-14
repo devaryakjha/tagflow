@@ -57,45 +57,39 @@ final class TextConverter extends ElementConverter {
     if (children.length == 1) {
       final child = children.first;
       if (child is TextSpan) {
-        return KeyedSubtree(
-          child: _wrapInContainerIfNeeded(
-            Text(
-              child.toPlainText(),
-              softWrap: true,
-            ),
-            element,
-            context,
-            style,
+        return _wrapInContainerIfNeeded(
+          Text(
+            child.toPlainText(),
+            softWrap: true,
           ),
+          element,
+          context,
+          style,
         );
       }
       if (child is WidgetSpan) {
-        return KeyedSubtree(
-          child: _wrapInContainerIfNeeded(
-            child.child,
-            element,
-            context,
-            style,
-          ),
+        return _wrapInContainerIfNeeded(
+          child.child,
+          element,
+          context,
+          style,
         );
       }
     }
 
-    return KeyedSubtree(
-      child: _wrapInContainerIfNeeded(
-        Text.rich(
-          TextSpan(
-            text: element.textContent,
-            children: children,
-            recognizer: _getGestures(element, context),
-            mouseCursor: _getMouseCursor(element, context),
-          ),
-          softWrap: true,
+    return _wrapInContainerIfNeeded(
+      Text.rich(
+        TextSpan(
+          text: element.textContent,
+          children: children,
+          recognizer: _getGestures(element, context),
+          mouseCursor: _getMouseCursor(element, context),
         ),
-        element,
-        context,
-        style,
+        softWrap: true,
       ),
+      element,
+      context,
+      style,
     );
   }
 
