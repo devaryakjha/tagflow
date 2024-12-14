@@ -5,8 +5,10 @@ homepage: https://tagflow.arya.run
 license: ../../LICENSE
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.6.0
   flutter: ">=1.17.0"
+
+resolution: workspace
 
 dependencies:
   collection: ^1.18.0

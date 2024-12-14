@@ -4,14 +4,15 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.6.0
+
+resolution: workspace
 
 dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-  tagflow:
-    path: ../../packages/tagflow
+  tagflow: ^0.0.1+dev.1
 
 dev_dependencies:
   flutter_test:
