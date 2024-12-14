@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
@@ -94,12 +93,8 @@ final class TextConverter extends ElementConverter {
           ..onTap = Feedback.wrapForTap(
             () {
               final link = element.parentHref;
-              // TODO: open link in browser
               final options = TagflowOptions.of(context);
               final cb = options.linkTapCallback;
-              if (kDebugMode) {
-                print('Tapped on a link: $link');
-              }
               if (cb != null && link != null) {
                 cb(link, element.attributes);
               }
