@@ -2,7 +2,6 @@
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
-import 'package:nanoid/non_secure.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Base interface for element converters
@@ -23,12 +22,6 @@ abstract class ElementConverter {
     TagflowConverter converter,
   );
 
-  /// Create a unique key for the given element
-  /// can be used to identify elements in a list
-  LocalKey createUniqueKey() {
-    return ValueKey(nanoid());
-  }
-
   @override
   String toString() {
     return '$runtimeType(supportedTags: $supportedTags)';
@@ -46,6 +39,7 @@ class TagflowConverter {
       const ImgConverter(),
       const BrConverter(),
       const BasicCodeConverter(),
+      const BlockquoteConverter(),
     ]);
   }
 

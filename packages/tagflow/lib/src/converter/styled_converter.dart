@@ -224,15 +224,21 @@ class RenderStyledContainer extends RenderBox
   }
 
   void _paintWithoutClipping(PaintingContext context, Offset offset) {
-    // Existing paint logic
     final canvas = context.canvas;
     final marginOffset = offset.translate(_margin.left, _margin.top);
+    final contentSize = Size(
+      size.width - _margin.horizontal,
+      size.height - _margin.vertical,
+    );
 
     if (_hasDecoration && _decoration != null) {
+      // Paint decoration only in the content area (after margin)
       _decoration!.createBoxPainter().paint(
             canvas,
             marginOffset,
-            ImageConfiguration(size: size),
+            ImageConfiguration(
+              size: contentSize,
+            ), // Use content size, not full size
           );
     }
 

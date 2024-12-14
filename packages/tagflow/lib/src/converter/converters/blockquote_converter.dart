@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// A converter for the `code` tag.
-final class BasicCodeConverter extends ElementConverter {
-  /// Create a new basic code converter
-  const BasicCodeConverter();
+/// A converter for the `blockquote` tag.
+final class BlockquoteConverter extends ElementConverter {
+  /// Create a new blockquote converter
+  const BlockquoteConverter();
 
   @override
-  Set<String> get supportedTags => {'code'};
+  Set<String> get supportedTags => {'blockquote'};
 
   @override
   Widget convert(
@@ -15,10 +15,8 @@ final class BasicCodeConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final el =
-        element.children.first; // since code will always have a single child
-    final child = converter.convert(el, context);
     final style = resolveStyle(element, context);
+    final child = converter.convert(element.children.first, context);
 
     return StyledContainer(
       style: style,

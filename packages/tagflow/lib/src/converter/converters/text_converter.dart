@@ -54,7 +54,6 @@ final class TextConverter extends ElementConverter {
     final children = _convertChildren(element, context, converter, style);
 
     return KeyedSubtree(
-      key: createUniqueKey(),
       child: _wrapInContainerIfNeeded(
         Text.rich(
           TextSpan(

@@ -26,7 +26,6 @@ class ContainerConverter extends ElementConverter {
       element.styles?['align-items'] ?? 'start',
     );
     return StyledContainer(
-      key: createUniqueKey(),
       style: resolveStyle(element, context),
       tag: element.tag,
       width: element.width,
@@ -36,7 +35,7 @@ class ContainerConverter extends ElementConverter {
         direction: dir,
         mainAxisAlignment: mainAxisAlignment,
         crossAxisAlignment: crossAxisAlignment,
-        children: children,
+        children: KeyedSubtree.ensureUniqueKeysForList(children),
       ),
     );
   }

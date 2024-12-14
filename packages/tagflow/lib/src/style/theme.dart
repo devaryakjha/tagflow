@@ -134,9 +134,56 @@ class _TagflowFromTheme extends TagflowTheme {
             height: 1.5,
           ),
         ),
-        'img': const ElementStyle(
+        'blockquote': ElementStyle(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          margin: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: Colors.grey.withValues(alpha: 0.5),
+                width: 5,
+              ),
+            ),
+          ),
+        ),
+        'img': ElementStyle(
           // Preserves aspect ratio by default
           alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+
+        // styles
+        'b': const ElementStyle(
+          textStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        'strong': const ElementStyle(
+          textStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        'i': const ElementStyle(
+          textStyle: TextStyle(
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        'em': const ElementStyle(
+          textStyle: TextStyle(
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        'u': const ElementStyle(
+          textStyle: TextStyle(
+            decoration: TextDecoration.underline,
+          ),
+        ),
+        's': const ElementStyle(
+          textStyle: TextStyle(
+            decoration: TextDecoration.lineThrough,
+          ),
         ),
       },
     );

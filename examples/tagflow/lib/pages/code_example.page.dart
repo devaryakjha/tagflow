@@ -14,6 +14,19 @@ const c = a + b;</code></pre>
 <em>emphasized text</em>
 Plain text
 </pre>
+
+<h3>Blockquote</h3>
+<blockquote>
+  <p>Blockquote</p>
+</blockquote>
+
+<h3>Blockquote inside a paragraph</h3>
+<p>
+<em>ABC</em>
+<b>DEF</b>
+<blockquote>This is a quoted text</blockquote>
+<i>DEF</i>
+</p>
 ''';
 
 class CodeExample extends ExamplePage {

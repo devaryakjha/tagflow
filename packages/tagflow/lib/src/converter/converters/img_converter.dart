@@ -23,7 +23,6 @@ final class ImgConverter extends ElementConverter {
     return StyledContainer(
       style: style,
       tag: element.tag,
-      key: createUniqueKey(),
       child: Image.network(
         element.src,
         semanticLabel: element.alt,
