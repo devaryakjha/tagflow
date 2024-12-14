@@ -6,6 +6,8 @@
   </picture>
 </p>
 
+> ⚠️ **IMPORTANT**: This package is currently undergoing a complete rewrite. For a stable version, please check out the [`stable`](https://github.com/devaryakjha/tagflow/tree/stable) branch.
+
 # tagflow
 
 Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports tables, iframes, and other HTML elements through optional add-on packages.
