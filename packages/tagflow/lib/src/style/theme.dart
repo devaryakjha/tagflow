@@ -116,6 +116,13 @@ class _TagflowFromTheme extends TagflowTheme {
             fontFamilyFallback: fontFamily != null ? [fontFamily] : null,
           ),
         ),
+        'img': const ElementStyle(
+          margin: EdgeInsets.symmetric(vertical: 16),
+          // padding: EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+        ),
       },
     );
   }

@@ -130,18 +130,24 @@ class RenderStyledContainer extends RenderBox
   late EdgeInsets _padding;
   late BoxDecoration? _decoration;
   late bool _hasDecoration;
+  late bool _needsClipping;
 
   void _updateCachedStyles() {
     final elementStyle = _style.getElementStyle(_tag);
     _margin = elementStyle?.margin ?? _style.margin ?? EdgeInsets.zero;
     _padding = elementStyle?.padding ?? _style.padding ?? EdgeInsets.zero;
+
     if (_style.backgroundColor != null || elementStyle?.decoration != null) {
       _decoration = (elementStyle?.decoration ?? const BoxDecoration())
           .copyWith(color: _style.backgroundColor);
       _hasDecoration = true;
+      // Check if decoration requires clipping
+      _needsClipping = _decoration?.borderRadius != null ||
+          _decoration?.shape != BoxShape.rectangle;
     } else {
       _decoration = null;
       _hasDecoration = false;
+      _needsClipping = false;
     }
     markNeedsPaint();
   }
@@ -164,7 +170,7 @@ class RenderStyledContainer extends RenderBox
       ),
     );
 
-    child!.layout(childConstraints, parentUsesSize: true);
+    child?.layout(childConstraints, parentUsesSize: true);
 
     // Optimize size calculation
     final childSize = child!.size;
@@ -175,12 +181,53 @@ class RenderStyledContainer extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final canvas = context.canvas;
+    if (_needsClipping) {
+      _paintWithClipping(context, offset);
+    } else {
+      _paintWithoutClipping(context, offset);
+    }
+  }
 
-    // Calculate offsets once
+  void _paintWithClipping(PaintingContext context, Offset offset) {
+    final marginOffset = offset.translate(_margin.left, _margin.top);
+    // Calculate content rect accounting for padding/margin
+    final contentRect = Rect.fromLTWH(
+      _margin.left,
+      _margin.top,
+      size.width - _margin.horizontal,
+      size.height - _margin.vertical,
+    );
+
+    if (_hasDecoration && _decoration != null) {
+      context.pushClipPath(
+        needsCompositing,
+        offset, // Use original offset for proper clipping
+        contentRect, // Use content rect for decoration bounds
+        _decoration!.getClipPath(contentRect, TextDirection.ltr),
+        (context, offset) {
+          // Paint decoration aligned with content
+          _decoration!.createBoxPainter().paint(
+                context.canvas,
+                marginOffset,
+                ImageConfiguration(size: contentRect.size),
+              );
+
+          // Paint child with proper padding offset
+          if (child != null) {
+            final childOffset =
+                marginOffset.translate(_padding.left, _padding.top);
+            context.paintChild(child!, childOffset);
+          }
+        },
+      );
+    }
+  }
+
+  void _paintWithoutClipping(PaintingContext context, Offset offset) {
+    // Existing paint logic
+    final canvas = context.canvas;
     final marginOffset = offset.translate(_margin.left, _margin.top);
 
-    // Paint decoration if needed
     if (_hasDecoration && _decoration != null) {
       _decoration!.createBoxPainter().paint(
             canvas,
@@ -189,7 +236,6 @@ class RenderStyledContainer extends RenderBox
           );
     }
 
-    // Paint child with combined margin and padding offset
     if (child != null) {
       final childOffset = marginOffset.translate(_padding.left, _padding.top);
       context.paintChild(child!, childOffset);

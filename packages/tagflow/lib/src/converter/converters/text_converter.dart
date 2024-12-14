@@ -61,6 +61,7 @@ final class TextConverter extends ElementConverter {
           recognizer: _getGestures(element, context),
           mouseCursor: _getMouseCursor(element, context),
         ),
+        softWrap: true,
       ),
       element,
       context,
