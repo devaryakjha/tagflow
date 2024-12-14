@@ -53,6 +53,34 @@ final class TextConverter extends ElementConverter {
     final style = resolveStyle(element, context);
     final children = _convertChildren(element, context, converter, style);
 
+    // reduce the number of widgets if possible
+    if (children.length == 1) {
+      final child = children.first;
+      if (child is TextSpan) {
+        return KeyedSubtree(
+          child: _wrapInContainerIfNeeded(
+            Text(
+              child.toPlainText(),
+              softWrap: true,
+            ),
+            element,
+            context,
+            style,
+          ),
+        );
+      }
+      if (child is WidgetSpan) {
+        return KeyedSubtree(
+          child: _wrapInContainerIfNeeded(
+            child.child,
+            element,
+            context,
+            style,
+          ),
+        );
+      }
+    }
+
     return KeyedSubtree(
       child: _wrapInContainerIfNeeded(
         Text.rich(

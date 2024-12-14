@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// A converter for the `code` tag.
@@ -18,7 +18,12 @@ final class BasicCodeConverter extends ElementConverter {
     final el =
         element.children.first; // since code will always have a single child
     final child = converter.convert(el, context);
-    final style = resolveStyle(element, context);
+    var style = resolveStyle(element, context);
+
+    // remove background color if the parent is pre
+    if (element.parentTag == 'pre') {
+      style = style.copyWith(backgroundColor: Colors.transparent);
+    }
 
     return StyledContainer(
       style: style,

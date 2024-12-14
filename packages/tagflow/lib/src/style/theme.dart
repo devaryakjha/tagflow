@@ -121,17 +121,39 @@ class _TagflowFromTheme extends TagflowTheme {
             decorationColor: Color(0xFF0000EE),
           ),
         ),
+        // CODE THEMING
         'code': ElementStyle(
           textStyle: TextStyle(
             fontFamily: codeFontFamily ?? 'monospace',
             height: 1.2,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: rem * 0.375,
+            vertical: rem * 0.125,
+          ), // 6px/2px at default font size
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         'pre': ElementStyle(
           margin: EdgeInsets.symmetric(vertical: rem),
+          padding: EdgeInsets.all(rem),
           textStyle: TextStyle(
             fontFamily: codeFontFamily ?? 'monospace',
             height: 1.5,
+            color: theme.colorScheme.onSurfaceVariant,
+            fontSize: textTheme.bodyMedium?.fontSize ?? 14.0,
+          ),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant,
+            ),
           ),
         ),
         'blockquote': ElementStyle(
@@ -146,6 +168,7 @@ class _TagflowFromTheme extends TagflowTheme {
             ),
           ),
         ),
+        //
         'img': ElementStyle(
           // Preserves aspect ratio by default
           alignment: Alignment.center,
