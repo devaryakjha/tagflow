@@ -22,7 +22,12 @@ final class BasicCodeConverter extends ElementConverter {
 
     // remove background color if the parent is pre
     if (element.parentTag == 'pre') {
-      style = style.copyWith(backgroundColor: Colors.transparent);
+      style = style.copyWith(
+        backgroundColor: Colors.transparent,
+        // FIXME(Arya): this is not working
+        // padding: EdgeInsets.zero,
+        // margin: EdgeInsets.zero,
+      );
     }
 
     return StyledContainer(

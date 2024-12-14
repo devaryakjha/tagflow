@@ -14,14 +14,12 @@ const b = 2;
 const c = a + b;</code>
 </pre>
 
-
 <h3>Code Block with Multiple Elements</h3>
 <pre>
 <span>Line 1</span>
 <code>some code</code>
 <em>emphasized text</em>
-Plain text
-</pre>
+Plain text</pre>
 
 <h3>Blockquote</h3>
 <blockquote>

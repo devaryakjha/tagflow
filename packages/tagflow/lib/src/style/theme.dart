@@ -131,7 +131,7 @@ class _TagflowFromTheme extends TagflowTheme {
           padding: EdgeInsets.symmetric(
             horizontal: rem * 0.375,
             vertical: rem * 0.125,
-          ), // 6px/2px at default font size
+          ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest
                 .withValues(alpha: 0.3),
@@ -176,7 +176,6 @@ class _TagflowFromTheme extends TagflowTheme {
             borderRadius: BorderRadius.circular(5),
           ),
         ),
-
         // styles
         'b': const ElementStyle(
           textStyle: TextStyle(
