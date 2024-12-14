@@ -76,6 +76,9 @@ extension TagflowElementExtensions on TagflowElement {
   /// Whether this element represents a text node
   bool get isTextNode => tag == '#text' && textContent != null;
 
+  /// Whether this element represents a break element
+  bool get isBreak => tag == 'br';
+
   /// Whether this element is an empty element
   bool get isEmpty => tag == '#empty';
 

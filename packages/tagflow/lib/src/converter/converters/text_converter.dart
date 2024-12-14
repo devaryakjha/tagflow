@@ -24,6 +24,7 @@ final class TextConverter extends ElementConverter {
         'h6',
         'a',
         'pre',
+        'br',
       };
 
   Widget _wrapInContainerIfNeeded(
@@ -74,6 +75,9 @@ final class TextConverter extends ElementConverter {
     TagflowStyle resolvedStyle,
   ) {
     return element.children.map((child) {
+      if (child.isBreak) {
+        return const TextSpan(text: '\n');
+      }
       // create a text span for text nodes
       if (child.isTextNode) {
         return TextSpan(
