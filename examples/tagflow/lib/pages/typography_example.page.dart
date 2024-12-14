@@ -13,7 +13,7 @@ const _html = '''
 <h6>Heading 6</h6>
 <p>Paragraph</p>
 <p>Paragraph with <a href="https://github.com/devaryakjha/tagflow">link</a></p>
-<span>Span</span>
+<span>span</span>
 <p><u>underlined</u></p>
 <pre>Preformatted text</pre>
 <p><s>strikethrough</s></p>

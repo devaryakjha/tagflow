@@ -34,8 +34,7 @@ abstract class ExamplePage extends StatelessWidget {
     return TagflowThemeProvider(
       theme: TagflowTheme.fromTheme(
         Theme.of(context),
-        fontFamily: GoogleFonts.inter().fontFamily,
-        codeFontFamily: GoogleFonts.spaceMono().fontFamily,
+        codeFontFamily: GoogleFonts.firaCode().fontFamily,
       ),
       child: Scaffold(
         appBar: AppBar(title: Text(title)),

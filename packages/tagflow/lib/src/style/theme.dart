@@ -60,7 +60,7 @@ class _TagflowFromTheme extends TagflowTheme {
     String? fontFamily,
     String? codeFontFamily,
   ) {
-    final textTheme = theme.textTheme.apply(fontFamily: fontFamily);
+    final textTheme = theme.textTheme;
     final rem = textTheme.bodyMedium?.fontSize ?? 14.0;
 
     return TagflowStyle(

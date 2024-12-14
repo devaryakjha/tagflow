@@ -22,9 +22,7 @@ const c = a + b;</code>
 Plain text</pre>
 
 <h3>Blockquote</h3>
-<blockquote>
-  <p>Blockquote</p>
-</blockquote>
+<blockquote>This is a blockquote</blockquote>
 
 <h3>Blockquote inside a paragraph</h3>
 <p>

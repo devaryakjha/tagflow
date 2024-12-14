@@ -16,11 +16,11 @@ class TagflowExample extends StatelessWidget {
       const textTheme = TextTheme(
         displayLarge: TextStyle(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w800,
         ),
         displayMedium: TextStyle(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
         displaySmall: TextStyle(
           fontSize: 24,
@@ -44,11 +44,11 @@ class TagflowExample extends StatelessWidget {
         ),
         titleMedium: TextStyle(
           fontSize: 17,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
         ),
         bodyMedium: TextStyle(
           fontSize: 15,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
         ),
         bodyLarge: TextStyle(
           fontSize: 15,
@@ -66,7 +66,7 @@ class TagflowExample extends StatelessWidget {
       );
       return ThemeData(
         colorScheme: scheme,
-        textTheme: GoogleFonts.interTextTheme(textTheme),
+        textTheme: GoogleFonts.dmSansTextTheme(textTheme),
       );
     }
 
