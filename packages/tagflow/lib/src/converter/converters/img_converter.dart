@@ -20,7 +20,7 @@ final class ImgConverter extends ElementConverter {
     }
 
     // Lets use alt for semantics
-    return StyledContainerWidget(
+    return StyledContainer(
       style: resolveStyle(element, context),
       tag: element.tag,
       key: createUniqueKey(),

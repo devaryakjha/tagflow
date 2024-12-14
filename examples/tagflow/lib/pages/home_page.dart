@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagflow_example/pages/code_example.page.dart';
 import 'package:tagflow_example/pages/image_example.page.dart';
 import 'package:tagflow_example/pages/typography_example.page.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
@@ -29,6 +30,14 @@ class HomePage extends StatelessWidget {
             description: 'Examples of how to use images',
             icon: Icons.image,
             builder: (context) => const ImageExample(),
+          ),
+          // More text examples, for code blocks
+          _buildSection(
+            context,
+            title: 'Code Examples',
+            description: 'Examples of how to use code blocks',
+            icon: Icons.code,
+            builder: (context) => const CodeExample(),
           ),
         ],
       ),

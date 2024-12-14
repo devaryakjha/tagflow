@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:tagflow/src/tagflow_options.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

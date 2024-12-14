@@ -6,6 +6,7 @@ export 'src/core/core.dart';
 // Styles
 export 'src/style/style.dart';
 export 'src/style/style_parser.dart';
+export 'src/style/theme.dart';
 // Options
 export 'src/tagflow_options.dart';
 // Main entry point for rendering HTML content

@@ -1,43 +1,11 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: public_member_api_docs
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// {@template styled_widget}
-/// A widget that applies a style to its child
-///
-/// e.g.:
-///
-/// ```dart
-/// class StyledTextConverter implements ElementConverter {
-///   static const supportedTags = {'p', 'span', ...};
-
-///   @override
-///   Widget convert(
-///     TagflowElement element,
-///     BuildContext context,
-///     TagflowConverter converter,
-///   ) {
-///     final style = resolveStyle(element, context);
-///     final children = converter.convertChildren(element.children, context);
-
-///     final content = Column(
-///       crossAxisAlignment: CrossAxisAlignment.start,
-///       children: children,
-///     );
-
-///     return StyledContainerWidget(
-///       style: style,
-///       child: content,
-///     );
-///   }
-/// }
-/// ```
-/// {@endtemplate}
-class StyledContainerWidget extends StatelessWidget {
-  /// Create a new styled container
-  ///
-  /// {@macro styled_widget}
-  const StyledContainerWidget({
+class StyledContainer extends StatelessWidget {
+  const StyledContainer({
     required this.style,
     required this.tag,
     required this.child,
@@ -46,217 +14,210 @@ class StyledContainerWidget extends StatelessWidget {
     super.key,
   });
 
-  /// The style to apply
   final TagflowStyle style;
-
-  /// The HTML tag this style is being applied to
   final String tag;
-
-  /// The child widget
-  final Widget child;
-
-  /// The width of the element
   final double? width;
-
-  /// The height of the element
   final double? height;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final elementStyle = style.getElementStyle(tag);
-
-    // Start with the child
-    var current = child;
-
-    // Apply text styles if any exist
-    final mergedTextStyle = style.textStyle?.merge(
-      elementStyle?.textStyle ?? const TextStyle(),
-    );
-
-    if (mergedTextStyle != null) {
-      current = DefaultTextStyle.merge(
-        style: mergedTextStyle,
-        child: current,
-      );
-    }
-
-    // Apply width and height from element or base style
-    if (width != null || height != null) {
-      current = SizedBox(
+    return DefaultTextStyle.merge(
+      style: style.textStyle,
+      child: _StyledContainerWidget(
+        style: style,
+        tag: tag,
         width: width,
         height: height,
-        child: current,
-      );
-    }
-
-    // Apply padding from element or base style
-    final padding = elementStyle?.padding ?? style.padding;
-    if (padding != null) {
-      current = Padding(
-        padding: padding,
-        child: current,
-      );
-    }
-
-    // Apply margin from element or base style
-    final margin = elementStyle?.margin ?? style.margin;
-    if (margin != null) {
-      current = Padding(
-        padding: margin,
-        child: current,
-      );
-    }
-
-    // Apply decoration and background color if needed
-    final decoration = elementStyle?.decoration ?? style.decoration;
-    final backgroundColor = style.backgroundColor;
-    if (decoration != null || backgroundColor != null) {
-      current = DecoratedBox(
-        decoration: (decoration ?? const BoxDecoration()).copyWith(
-          color: backgroundColor,
-        ),
-        child: current,
-      );
-    }
-
-    return current;
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
-      ..add(DiagnosticsProperty<TagflowStyle>('style', style))
-      ..add(DiagnosticsProperty<String>('tag', tag))
-      ..add(DiagnosticsProperty<Widget>('child', child));
-
-    super.debugFillProperties(properties);
+        child: child,
+      ),
+    );
   }
 }
 
-/// Extension to help with style resolution
-// lib/src/converter/converter.dart
-extension StyleResolution on ElementConverter {
-  /// Get the computed style for an element
-  TagflowStyle resolveStyle(
-    TagflowElement element,
-    BuildContext context,
-  ) {
-    final theme = TagflowThemeProvider.of(context);
+class _StyledContainerWidget extends SingleChildRenderObjectWidget {
+  const _StyledContainerWidget({
+    required this.style,
+    required this.tag,
+    required Widget super.child,
+    this.width,
+    this.height,
+  });
 
-    // Start with base style
-    var style = theme.baseStyle;
+  final TagflowStyle style;
+  final String tag;
+  final double? width;
+  final double? height;
 
-    // Add default element style if exists
-    if (style.defaultElementStyle != null) {
-      style = style.merge(
-        TagflowStyle(
-          textStyle: style.defaultElementStyle?.textStyle,
-          padding: style.defaultElementStyle?.padding,
-          margin: style.defaultElementStyle?.margin,
-          decoration: style.defaultElementStyle?.decoration,
-          alignment: style.defaultElementStyle?.alignment,
-        ),
-      );
-    }
-
-    // Add tag-specific style from theme's tagStyles
-    final tagStyle = theme.getTagStyle(element.tag);
-    if (tagStyle != null) {
-      style = style.merge(tagStyle);
-    }
-
-    // Add element-specific style
-    final elementStyle = style.getElementStyle(element.tag);
-    if (elementStyle != null) {
-      style = style.merge(
-        TagflowStyle(
-          textStyle: elementStyle.textStyle,
-          padding: elementStyle.padding,
-          margin: elementStyle.margin,
-          decoration: elementStyle.decoration,
-          alignment: elementStyle.alignment,
-        ),
-      );
-    }
-
-    // Add class-specific styles
-    for (final className in element.classList) {
-      final classStyle = theme.getClassStyle(className);
-      if (classStyle != null) {
-        style = style.merge(classStyle);
-      }
-    }
-
-    // Finally, add inline styles
-    if (element.styles != null) {
-      style = style.merge(_parseInlineStyles(element.styles!));
-    }
-
-    return style;
-  }
-
-  /// Parse inline styles into TagflowStyle
-  TagflowStyle _parseInlineStyles(Map<Object, String> styles) {
-    var textStyle = const TextStyle();
-    EdgeInsets? padding;
-    EdgeInsets? margin;
-    Color? backgroundColor;
-    BoxDecoration? decoration;
-    Alignment? alignment;
-
-    for (final entry in styles.entries) {
-      final property = entry.key.toString();
-      final value = entry.value;
-
-      switch (property) {
-        // Font styles
-        case 'font-size':
-          final size = StyleParser.parseFontSize(value);
-          if (size != null) {
-            textStyle = textStyle.copyWith(fontSize: size);
-          }
-        case 'font-weight':
-          final weight = StyleParser.parseFontWeight(value);
-          if (weight != null) {
-            textStyle = textStyle.copyWith(fontWeight: weight);
-          }
-        case 'font-style':
-          final style = StyleParser.parseFontStyle(value);
-          if (style != null) {
-            textStyle = textStyle.copyWith(fontStyle: style);
-          }
-        case 'color':
-          final color = StyleParser.parseColor(value);
-          if (color != null) {
-            textStyle = textStyle.copyWith(color: color);
-          }
-        case 'text-decoration':
-          final decoration = StyleParser.parseTextDecoration(value);
-          if (decoration != null) {
-            textStyle = textStyle.copyWith(decoration: decoration);
-          }
-        case 'text-align':
-        // Handle in the converter since it's not part of TextStyle
-
-        // Layout
-        case 'padding':
-          padding = StyleParser.parseEdgeInsets(value);
-        case 'margin':
-          margin = StyleParser.parseEdgeInsets(value);
-        case 'background-color':
-          backgroundColor = StyleParser.parseColor(value);
-
-        // Add more properties as needed
-      }
-    }
-
-    return TagflowStyle(
-      textStyle: textStyle,
-      padding: padding,
-      margin: margin,
-      backgroundColor: backgroundColor,
-      decoration: decoration,
-      alignment: alignment,
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return RenderStyledContainer(
+      style: style,
+      tag: tag,
+      width: width,
+      height: height,
     );
   }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderStyledContainer renderObject,
+  ) {
+    if (renderObject.style != style ||
+        renderObject.tag != tag ||
+        renderObject.width != width ||
+        renderObject.height != height) {
+      renderObject
+        ..style = style
+        ..tag = tag
+        ..width = width
+        ..height = height;
+    }
+  }
+}
+
+class RenderStyledContainer extends RenderBox
+    with RenderObjectWithChildMixin<RenderBox>, RenderProxyBoxMixin {
+  RenderStyledContainer({
+    required TagflowStyle style,
+    required String tag,
+    double? width,
+    double? height,
+  })  : _style = style,
+        _tag = tag,
+        _width = width,
+        _height = height {
+    _updateCachedStyles();
+  }
+
+  TagflowStyle _style;
+  TagflowStyle get style => _style;
+  set style(TagflowStyle value) {
+    if (_style == value) return;
+    _style = value;
+    _updateCachedStyles();
+    markNeedsLayout();
+  }
+
+  String _tag;
+  String get tag => _tag;
+  set tag(String value) {
+    if (_tag == value) return;
+    _tag = value;
+    _updateCachedStyles();
+    markNeedsLayout();
+  }
+
+  double? _width;
+  double? get width => _width;
+  set width(double? value) {
+    if (_width == value) return;
+    _width = value;
+    markNeedsLayout();
+  }
+
+  double? _height;
+  double? get height => _height;
+  set height(double? value) {
+    if (_height == value) return;
+    _height = value;
+    markNeedsLayout();
+  }
+
+  // Cached styles for better performance
+  late EdgeInsets _margin;
+  late EdgeInsets _padding;
+  late BoxDecoration? _decoration;
+  late bool _hasDecoration;
+
+  void _updateCachedStyles() {
+    final elementStyle = _style.getElementStyle(_tag);
+    _margin = elementStyle?.margin ?? _style.margin ?? EdgeInsets.zero;
+    _padding = elementStyle?.padding ?? _style.padding ?? EdgeInsets.zero;
+    if (_style.backgroundColor != null || elementStyle?.decoration != null) {
+      _decoration = (elementStyle?.decoration ?? const BoxDecoration())
+          .copyWith(color: _style.backgroundColor);
+      _hasDecoration = true;
+    } else {
+      _decoration = null;
+      _hasDecoration = false;
+    }
+    markNeedsPaint();
+  }
+
+  @override
+  void performLayout() {
+    if (child == null) {
+      size = constraints.constrain(Size(_width ?? 0.0, _height ?? 0.0));
+      return;
+    }
+
+    // Use cached values for better performance
+    final horizontalExtra = _margin.horizontal + _padding.horizontal;
+    final verticalExtra = _margin.vertical + _padding.vertical;
+
+    final childConstraints = constraints.deflate(
+      EdgeInsets.symmetric(
+        horizontal: horizontalExtra,
+        vertical: verticalExtra,
+      ),
+    );
+
+    child!.layout(childConstraints, parentUsesSize: true);
+
+    // Optimize size calculation
+    final childSize = child!.size;
+    final width = _width ?? (childSize.width + horizontalExtra);
+    final height = _height ?? (childSize.height + verticalExtra);
+    size = constraints.constrain(Size(width, height));
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final canvas = context.canvas;
+
+    // Calculate offsets once
+    final marginOffset = offset.translate(_margin.left, _margin.top);
+
+    // Paint decoration if needed
+    if (_hasDecoration && _decoration != null) {
+      _decoration!.createBoxPainter().paint(
+            canvas,
+            marginOffset,
+            ImageConfiguration(size: size),
+          );
+    }
+
+    // Paint child with combined margin and padding offset
+    if (child != null) {
+      final childOffset = marginOffset.translate(_padding.left, _padding.top);
+      context.paintChild(child!, childOffset);
+    }
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (size.contains(position)) {
+      // Adjust hit test position for margin and padding
+      final adjustedPosition = position.translate(
+        -(_margin.left + _padding.left),
+        -(_margin.top + _padding.top),
+      );
+
+      if (child != null && child!.hitTest(result, position: adjustedPosition)) {
+        result.add(BoxHitTestEntry(this, position));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  Rect get paintBounds =>
+      Offset(_margin.left, _margin.top) &
+      Size(
+        size.width - _margin.horizontal,
+        size.height - _margin.vertical,
+      );
 }

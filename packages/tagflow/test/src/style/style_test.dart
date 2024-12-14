@@ -1,7 +1,7 @@
 // test/src/style/style_test.dart
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow/src/style/style.dart';
+import 'package:tagflow/tagflow.dart';
 
 void main() {
   group('ElementStyle', () {
@@ -125,54 +125,23 @@ void main() {
       late TagflowTheme capturedTheme;
 
       await tester.pumpWidget(
-        TagflowThemeProvider(
-          theme: TagflowTheme.light(),
-          child: Builder(
-            builder: (context) {
-              capturedTheme = TagflowThemeProvider.of(context);
-              return Container();
-            },
-          ),
+        Builder(
+          builder: (context) {
+            return TagflowThemeProvider(
+              theme: TagflowTheme.fromTheme(Theme.of(context)),
+              child: Builder(
+                builder: (context) {
+                  capturedTheme = TagflowThemeProvider.of(context);
+                  return Container();
+                },
+              ),
+            );
+          },
         ),
       );
 
       expect(capturedTheme.baseStyle.textStyle?.fontSize, 16);
       final h1Style = capturedTheme.baseStyle.elementStyles['h1'];
-      expect(h1Style?.textStyle?.fontSize, 32);
-    });
-
-    test('light theme has correct defaults', () {
-      final theme = TagflowTheme.light();
-      final baseStyle = theme.baseStyle;
-
-      // Check base text style
-      expect(baseStyle.textStyle?.color, const Color(0xFF000000));
-
-      // Check heading styles
-      final h1Style = baseStyle.elementStyles['h1'];
-      expect(h1Style?.textStyle?.fontSize, 32);
-      expect(h1Style?.textStyle?.fontWeight, FontWeight.bold);
-
-      // Check link style
-      final aStyle = baseStyle.elementStyles['a'];
-      expect(aStyle?.textStyle?.color, const Color(0xFF2563EB));
-      expect(aStyle?.textStyle?.decoration, TextDecoration.underline);
-
-      // Check emphasis styles
-      final emStyle = baseStyle.elementStyles['em'];
-      expect(emStyle?.textStyle?.fontStyle, FontStyle.italic);
-
-      final strongStyle = baseStyle.elementStyles['strong'];
-      expect(strongStyle?.textStyle?.fontWeight, FontWeight.bold);
-    });
-
-    test('dark theme has correct defaults', () {
-      final theme = TagflowTheme.dark();
-
-      expect(theme.baseStyle.textStyle?.color, const Color(0xFFFFFFFF));
-
-      // Ensure other styles are inherited from light theme
-      final h1Style = theme.baseStyle.elementStyles['h1'];
       expect(h1Style?.textStyle?.fontSize, 32);
     });
   });

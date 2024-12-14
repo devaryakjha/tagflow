@@ -2,6 +2,7 @@
 // contains an example.
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tagflow/tagflow.dart';
 
 abstract class ExamplePage extends StatelessWidget {
@@ -30,11 +31,12 @@ abstract class ExamplePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = Theme.of(context).brightness;
     return TagflowThemeProvider(
-      theme: themeMode == Brightness.light
-          ? TagflowTheme.light()
-          : TagflowTheme.dark(),
+      theme: TagflowTheme.fromTheme(
+        Theme.of(context),
+        fontFamily: GoogleFonts.inter().fontFamily,
+        codeFontFamily: GoogleFonts.spaceMono().fontFamily,
+      ),
       child: Scaffold(
         appBar: AppBar(title: Text(title)),
         body: SingleChildScrollView(

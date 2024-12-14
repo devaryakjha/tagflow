@@ -3,10 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow/src/converter/converter.dart';
-import 'package:tagflow/src/converter/styled_converter.dart';
-import 'package:tagflow/src/core/models/element.dart';
-import 'package:tagflow/src/style/style.dart';
+import 'package:tagflow/tagflow.dart';
 
 void main() {
   group('StyleResolution', () {
@@ -28,11 +25,6 @@ void main() {
             ),
           },
         ),
-        tagStyles: {
-          'p': TagflowStyle(
-            textStyle: TextStyle(color: Color(0xFF000000)),
-          ),
-        },
         classStyles: {
           'highlight': TagflowStyle(
             backgroundColor: Color(0xFFFFF9C4),

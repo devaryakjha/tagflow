@@ -25,7 +25,7 @@ class ContainerConverter extends ElementConverter {
     final crossAxisAlignment = StyleParser.parseCrossAxisAlignment(
       element.styles?['align-items'] ?? 'start',
     );
-    return StyledContainerWidget(
+    return StyledContainer(
       key: createUniqueKey(),
       style: resolveStyle(element, context),
       tag: element.tag,

@@ -23,6 +23,7 @@ final class TextConverter extends ElementConverter {
         'h5',
         'h6',
         'a',
+        'pre',
       };
 
   @override
@@ -34,7 +35,7 @@ final class TextConverter extends ElementConverter {
     final style = resolveStyle(element, context);
     final children = _convertChildren(element, context, converter, style);
 
-    return StyledContainerWidget(
+    return StyledContainer(
       style: style,
       tag: element.tag,
       key: createUniqueKey(),
@@ -43,7 +44,7 @@ final class TextConverter extends ElementConverter {
           text: element.textContent,
           children: children,
           recognizer: _getGestures(element, context),
-          style: style.textStyle,
+          mouseCursor: _getMouseCursor(element, context),
         ),
       ),
     );
@@ -62,6 +63,7 @@ final class TextConverter extends ElementConverter {
           text: child.textContent,
           style: _getTextStyle(child, resolvedStyle),
           recognizer: _getGestures(child, context),
+          mouseCursor: _getMouseCursor(child, context),
         );
       } else {
         // create a text span for supported elements
@@ -71,6 +73,7 @@ final class TextConverter extends ElementConverter {
                 _convertChildren(child, context, converter, resolvedStyle),
             style: _getTextStyle(child, resolvedStyle),
             recognizer: _getGestures(child, context),
+            mouseCursor: _getMouseCursor(child, context),
           );
         }
 
@@ -83,6 +86,15 @@ final class TextConverter extends ElementConverter {
       }
     }).toList();
   }
+
+  MouseCursor? _getMouseCursor(
+    TagflowElement element,
+    BuildContext context,
+  ) =>
+      switch (element.parentTag) {
+        'a' => SystemMouseCursors.click,
+        _ => null,
+      };
 
   GestureRecognizer? _getGestures(
     TagflowElement element,
@@ -109,6 +121,9 @@ final class TextConverter extends ElementConverter {
     TagflowElement element,
     TagflowStyle resolvedStyle,
   ) {
+    if (element.tag == '#text') {
+      return null;
+    }
     return resolvedStyle.getElementStyle(element.tag)?.textStyle;
   }
 }

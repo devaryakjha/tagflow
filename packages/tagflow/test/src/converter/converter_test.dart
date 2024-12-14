@@ -178,7 +178,7 @@ class CustomParagraphConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final children = converter.convertChildren(element.children, context);
-    final child = (children.first as StyledContainerWidget).child;
+    final child = (children.first as StyledContainer).child;
     final text = child is Text
         ? child.data ?? child.textSpan?.toPlainText()
         : 'No text widget found';
