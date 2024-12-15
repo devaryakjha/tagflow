@@ -23,12 +23,15 @@ final class ImgConverter extends ElementConverter {
     return StyledContainer(
       style: style,
       tag: element.tag,
-      child: Image.network(
-        element.src,
-        semanticLabel: element.alt,
-        width: element.width,
-        height: element.height,
-        fit: element.fit,
+      child: TagflowSelectableAdapter(
+        text: element.alt,
+        child: Image.network(
+          element.src,
+          semanticLabel: element.alt,
+          width: element.width,
+          height: element.height,
+          fit: element.fit,
+        ),
       ),
     );
   }

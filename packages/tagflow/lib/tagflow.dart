@@ -11,3 +11,5 @@ export 'src/style/theme.dart';
 export 'src/tagflow_options.dart';
 // Main entry point for rendering HTML content
 export 'src/tagflow_widget.dart';
+// Widgets
+export 'src/widgets/widgets.dart';

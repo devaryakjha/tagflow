@@ -108,7 +108,9 @@ class _TagflowState extends State<Tagflow> {
           }
 
           final element = snapshot.data!;
-          return converter.convert(element, context);
+          return SelectionArea(
+            child: converter.convert(element, context),
+          );
         },
       ),
     );

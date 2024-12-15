@@ -5,7 +5,7 @@ import 'package:tagflow/tagflow.dart';
 /// Converter for text elements
 ///
 /// This converter is responsible for converting text elements into a
-/// [SelectableText.rich] widget.
+/// [Text.rich] widget.
 ///
 /// It handles the conversion of text nodes and inline elements, including
 /// handling of gestures and widget spans for styled elements.
@@ -81,7 +81,7 @@ final class TextConverter extends ElementConverter {
     }
 
     return _wrapInStyledContainer(
-      SelectableText.rich(
+      Text.rich(
         TextSpan(
           text: element.textContent,
           children: children,
