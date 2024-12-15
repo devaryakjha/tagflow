@@ -1,8 +1,6 @@
 import 'package:tagflow_example/widgets/example_page.dart';
 
 const _html = '''
-<h3>Horizontal Rule</h3>
-<hr>
 <h3>Horizontal Rule with Attributes</h3>
 <hr style="color: #ff0000; height: 5px;">
 ''';
