@@ -29,6 +29,7 @@ Plain text</pre>
 <em>ABC</em>
 <b>DEF</b>
 <blockquote>This is a quoted text</blockquote>
+<q>This is a quoted text</q>
 <i>DEF</i>
 </p>
 ''';

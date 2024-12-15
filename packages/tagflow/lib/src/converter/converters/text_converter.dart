@@ -103,7 +103,8 @@ final class TextConverter extends ElementConverter {
       (style.padding != null ||
           style.margin != null ||
           style.decoration != null ||
-          style.alignment != null);
+          style.alignment != null ||
+          style.transform != null);
 
   List<InlineSpan> _convertChildren(
     TagflowElement element,

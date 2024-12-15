@@ -172,6 +172,18 @@ class _TagflowFromTheme extends TagflowTheme {
             ),
           ),
         ),
+        'q': ElementStyle(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          margin: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: Colors.grey.withValues(alpha: 0.5),
+                width: 5,
+              ),
+            ),
+          ),
+        ),
         //
         'img': ElementStyle(
           decoration: BoxDecoration(
@@ -232,14 +244,12 @@ class _TagflowFromTheme extends TagflowTheme {
           ),
         ),
         'sub': ElementStyle(
-          textStyle: TextStyle(
-            fontSize: rem * 0.75,
-          ),
+          transform: Matrix4.translationValues(0, rem * 0.35, 0),
+          textStyle: TextStyle(fontSize: rem * 0.65),
         ),
         'sup': ElementStyle(
-          textStyle: TextStyle(
-            fontSize: rem * 0.75,
-          ),
+          transform: Matrix4.translationValues(0, -rem * 0.35, 0),
+          textStyle: TextStyle(fontSize: rem * 0.65),
         ),
       },
     );

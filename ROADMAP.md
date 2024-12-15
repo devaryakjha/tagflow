@@ -26,9 +26,9 @@
   - [x] Basic text nodes
   - [x] Emphasis (`<em>`, `<i>`)
   - [x] Strong (`<strong>`, `<b>`)
-  - [x] Code (`<code>`, `<pre>`, `<blockquote>`)
-  - [ ] Subscript/Superscript (`<sub>`, `<sup>`)
-  - [ ] Quotes (`<blockquote>`, `<q>`)
+  - [x] Code (`<code>`, `<pre>`)
+  - [x] Subscript/Superscript (`<sub>`, `<sup>`)
+  - [x] Quotes (`<blockquote>`, `<q>`)
 
 - [ ] Lists
 

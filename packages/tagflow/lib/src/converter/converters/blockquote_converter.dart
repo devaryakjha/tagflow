@@ -7,7 +7,7 @@ final class BlockquoteConverter extends ElementConverter {
   const BlockquoteConverter();
 
   @override
-  Set<String> get supportedTags => {'blockquote'};
+  Set<String> get supportedTags => {'blockquote', 'q'};
 
   @override
   Widget convert(

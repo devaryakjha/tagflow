@@ -134,6 +134,7 @@ extension StyleResolution on ElementConverter {
           decoration: elementStyle.decoration,
           alignment: elementStyle.alignment,
           backgroundColor: elementStyle.decoration?.color,
+          transform: elementStyle.transform,
         ),
       );
     }

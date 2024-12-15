@@ -1,6 +1,8 @@
 import 'dart:collection';
 
-import 'package:flutter/rendering.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Represents an HTML element in the tagflow tree.
@@ -170,4 +172,10 @@ extension TagflowElementSizeExtensions on TagflowElement {
   /// The height of the element
   double? get height =>
       _height != null ? StyleParser.parseSize(_height!) : null;
+
+  /// The spacing of the element
+  ///
+  /// can be used with [Flex] to set the spacing between children
+  double? get spacing =>
+      styles?['gap'] != null ? StyleParser.parseSize(styles!['gap']!) : null;
 }

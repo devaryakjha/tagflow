@@ -25,8 +25,12 @@ class StyledContainer extends StatelessWidget {
     final hasAlignment = style.alignment != null;
     final hasPadding = style.padding != null;
     final hasMargin = style.margin != null;
-    final needsStyling =
-        hasDecoration || hasAlignment || hasPadding || hasMargin;
+    final hasTransform = style.transform != null;
+    final needsStyling = hasDecoration ||
+        hasAlignment ||
+        hasPadding ||
+        hasMargin ||
+        hasTransform;
 
     final constraints = BoxConstraints.tightFor(width: width, height: height);
 
@@ -34,6 +38,7 @@ class StyledContainer extends StatelessWidget {
       style: style.textStyle,
       child: needsStyling
           ? Container(
+              transform: style.transform,
               clipBehavior: hasDecoration ? Clip.antiAlias : Clip.none,
               alignment: style.alignment,
               padding: style.padding,
