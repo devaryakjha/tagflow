@@ -12,6 +12,7 @@ class TagflowStyle extends Equatable {
     this.decoration,
     this.alignment,
     this.transform,
+    this.textAlign,
     this.elementStyles = const {},
     this.defaultElementStyle,
   });
@@ -37,6 +38,9 @@ class TagflowStyle extends Equatable {
   /// Transform matrix
   final Matrix4? transform;
 
+  /// Text alignment
+  final TextAlign? textAlign;
+
   /// Style applied to all elements (like CSS *)
   final ElementStyle? defaultElementStyle;
 
@@ -55,6 +59,7 @@ class TagflowStyle extends Equatable {
     Matrix4? transform,
     Map<String, ElementStyle>? elementStyles,
     ElementStyle? defaultElementStyle,
+    TextAlign? textAlign,
   }) {
     return TagflowStyle(
       textStyle: textStyle ?? this.textStyle,
@@ -66,6 +71,7 @@ class TagflowStyle extends Equatable {
       transform: transform ?? this.transform,
       elementStyles: elementStyles ?? this.elementStyles,
       defaultElementStyle: defaultElementStyle ?? this.defaultElementStyle,
+      textAlign: textAlign ?? this.textAlign,
     );
   }
 
@@ -91,6 +97,7 @@ class TagflowStyle extends Equatable {
       defaultElementStyle:
           other.defaultElementStyle?.merge(defaultElementStyle) ??
               defaultElementStyle,
+      textAlign: other.textAlign ?? textAlign,
     );
   }
 
@@ -127,6 +134,7 @@ class TagflowStyle extends Equatable {
         transform,
         elementStyles,
         defaultElementStyle,
+        textAlign,
       ];
 }
 
@@ -140,6 +148,7 @@ class ElementStyle extends Equatable {
     this.decoration,
     this.alignment,
     this.transform,
+    this.textAlign,
   });
 
   /// Text style
@@ -160,6 +169,9 @@ class ElementStyle extends Equatable {
   /// Transform matrix (e.g. for superscripts and subscripts)
   final Matrix4? transform;
 
+  /// Text alignment
+  final TextAlign? textAlign;
+
   /// Merge two element styles
   ElementStyle merge(ElementStyle? other) {
     if (other == null) return this;
@@ -171,6 +183,7 @@ class ElementStyle extends Equatable {
       decoration: other.decoration ?? decoration,
       alignment: other.alignment ?? alignment,
       transform: other.transform ?? transform,
+      textAlign: other.textAlign ?? textAlign,
     );
   }
 
@@ -182,6 +195,7 @@ class ElementStyle extends Equatable {
     BoxDecoration? decoration,
     Alignment? alignment,
     Matrix4? transform,
+    TextAlign? textAlign,
   }) {
     return ElementStyle(
       textStyle: textStyle ?? this.textStyle,
@@ -190,6 +204,7 @@ class ElementStyle extends Equatable {
       decoration: decoration ?? this.decoration,
       alignment: alignment ?? this.alignment,
       transform: transform ?? this.transform,
+      textAlign: textAlign ?? this.textAlign,
     );
   }
 
@@ -201,5 +216,6 @@ class ElementStyle extends Equatable {
         decoration,
         alignment,
         transform,
+        textAlign,
       ];
 }

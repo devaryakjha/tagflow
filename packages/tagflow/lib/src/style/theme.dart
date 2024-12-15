@@ -118,11 +118,11 @@ class _TagflowFromTheme extends TagflowTheme {
           margin: EdgeInsets.symmetric(vertical: rem),
         ),
         'span': const ElementStyle(),
-        'a': const ElementStyle(
+        'a': ElementStyle(
           textStyle: TextStyle(
-            color: Color(0xFF0000EE),
+            color: theme.colorScheme.primary,
             decoration: TextDecoration.underline,
-            decorationColor: Color(0xFF0000EE),
+            decorationColor: theme.colorScheme.primary,
           ),
         ),
         // CODE THEMING

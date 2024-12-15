@@ -90,6 +90,7 @@ final class TextConverter extends ElementConverter {
               ? SystemMouseCursors.click
               : null,
         ),
+        textAlign: style.textAlign,
       ),
       element,
       context,

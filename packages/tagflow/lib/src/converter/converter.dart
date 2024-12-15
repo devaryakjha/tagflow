@@ -134,6 +134,7 @@ extension StyleResolution on ElementConverter {
           decoration: elementStyle.decoration,
           alignment: elementStyle.alignment,
           backgroundColor: elementStyle.decoration?.color,
+          textAlign: elementStyle.textAlign,
           transform: elementStyle.transform,
         ),
       );
@@ -163,6 +164,7 @@ extension StyleResolution on ElementConverter {
     Color? backgroundColor;
     BoxDecoration? decoration;
     Alignment? alignment;
+    TextAlign? textAlign;
 
     for (final entry in styles.entries) {
       final property = entry.key.toString();
@@ -196,7 +198,7 @@ extension StyleResolution on ElementConverter {
             textStyle = textStyle.copyWith(decoration: decoration);
           }
         case 'text-align':
-        // Handle in the converter since it's not part of TextStyle
+          textAlign = StyleParser.parseTextAlign(value);
 
         // Layout
         case 'padding':
@@ -232,6 +234,7 @@ extension StyleResolution on ElementConverter {
       backgroundColor: backgroundColor,
       decoration: decoration,
       alignment: alignment,
+      textAlign: textAlign,
     );
   }
 }
