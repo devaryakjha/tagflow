@@ -1,5 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tagflow/tagflow.dart';
 
 /// A widget that wraps the child with [Selectable] and [SelectionContainer].
 class TagflowSelectableAdapter extends StatelessWidget {
@@ -19,7 +20,8 @@ class TagflowSelectableAdapter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registrar = SelectionContainer.maybeOf(context);
-    if (registrar == null) {
+    final options = TagflowOptions.maybeOf(context);
+    if (registrar == null || !(options?.selectable.enabled ?? false)) {
       return child;
     }
     return MouseRegion(

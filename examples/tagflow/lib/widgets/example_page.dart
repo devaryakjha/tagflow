@@ -27,7 +27,12 @@ abstract class ExamplePage extends StatelessWidget {
     };
   }
 
-  TagflowOptions? get options => null;
+  TagflowOptions? get options => const TagflowOptions(
+        selectable: TagflowSelectableOptions(
+          enabled: true,
+          imageSelectionBehavior: TagflowImageSelectionBehavior.urlAndAlt,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
