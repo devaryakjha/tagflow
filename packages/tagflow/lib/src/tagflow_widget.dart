@@ -108,6 +108,9 @@ class _TagflowState extends State<Tagflow> {
           }
 
           final element = snapshot.data!;
+          if (widget.options?.selectable.enabled == false) {
+            return converter.convert(element, context);
+          }
           return SelectionArea(
             child: converter.convert(element, context),
           );
