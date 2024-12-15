@@ -184,4 +184,68 @@ class StyleParser {
       _ => CrossAxisAlignment.start,
     };
   }
+
+  /// Parse a CSS border-style value
+  static BorderStyle? parseBorderStyle(String value) {
+    return switch (value.toLowerCase()) {
+      'none' => BorderStyle.none,
+      _ => BorderStyle.solid,
+    };
+  }
+
+  /// Parse a CSS border value
+  static BoxBorder? parseBoxBorder(String value) {
+    final parts = value.split(' ');
+    final width = parseSize(parts[0]);
+    final style = parseBorderStyle(parts[1]) ?? BorderStyle.solid;
+    final color = parseColor(parts[2]);
+    return width != null && color != null
+        ? Border.all(width: width, color: color, style: style)
+        : null;
+  }
+
+  /// Parse a CSS border-radius value
+  static BorderRadius? parseBorderRadius(String value) {
+    final parts = value.split(' ');
+    if (parts.length == 1) {
+      final size = parseSize(parts[0]);
+      return BorderRadius.circular(size ?? 0);
+    }
+    if (parts.length == 2) {
+      final topLeft = parseSize(parts[0]);
+      final bottomRight = parseSize(parts[1]);
+      return BorderRadius.only(
+        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
+        bottomRight:
+            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
+      );
+    }
+    if (parts.length == 3) {
+      final topLeft = parseSize(parts[0]);
+      final bottomRight = parseSize(parts[1]);
+      final bottomLeft = parseSize(parts[2]);
+      return BorderRadius.only(
+        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
+        bottomRight:
+            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
+        bottomLeft:
+            bottomLeft != null ? Radius.circular(bottomLeft) : Radius.zero,
+      );
+    }
+    if (parts.length == 4) {
+      final topLeft = parseSize(parts[0]);
+      final topRight = parseSize(parts[1]);
+      final bottomRight = parseSize(parts[2]);
+      final bottomLeft = parseSize(parts[3]);
+      return BorderRadius.only(
+        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
+        topRight: topRight != null ? Radius.circular(topRight) : Radius.zero,
+        bottomRight:
+            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
+        bottomLeft:
+            bottomLeft != null ? Radius.circular(bottomLeft) : Radius.zero,
+      );
+    }
+    return null;
+  }
 }

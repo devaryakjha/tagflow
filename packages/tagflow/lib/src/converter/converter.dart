@@ -205,6 +205,21 @@ extension StyleResolution on ElementConverter {
           margin = StyleParser.parseEdgeInsets(value);
         case 'background-color':
           backgroundColor = StyleParser.parseColor(value);
+          if (decoration == null) {
+            decoration = BoxDecoration(color: backgroundColor);
+          } else {
+            decoration = decoration.copyWith(color: backgroundColor);
+          }
+        case 'border':
+          final border = StyleParser.parseBoxBorder(value);
+          if (border != null) {
+            decoration = decoration?.copyWith(border: border);
+          }
+        case 'border-radius':
+          final radius = StyleParser.parseBorderRadius(value);
+          if (radius != null) {
+            decoration = decoration?.copyWith(borderRadius: radius);
+          }
 
         // Add more properties as needed
       }

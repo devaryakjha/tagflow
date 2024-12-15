@@ -10,7 +10,7 @@ const _html = '''
 <h3>Image with custom fit and size</h3>
 <img src="https://picsum.photos/seed/fitsize/200" alt="Flutter Logo" style="object-fit: cover; width: 100px; height: 100px">
 <h3>Image inside a container</h3>
-<div style="background-color: red; display: flex; justify-content: center; align-items: center; flex-direction: row; margin-bottom: 16px">
+<div style="background-color: #000000; display: flex; justify-content: center; align-items: center; flex-direction: row; gap: 2rem; padding: 2rem; border-radius: 1rem; border: 5px solid #666; border-radius: 1rem">
   <img src="https://picsum.photos/seed/containerimg1/200" alt="Flutter Logo" style="object-fit: cover; width: 100px; height: 100px">
   <img src="https://picsum.photos/seed/containerimg2/200" alt="Flutter Logo" style="object-fit: cover; width: 100px; height: 100px">
 </div>
