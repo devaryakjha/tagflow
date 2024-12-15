@@ -39,6 +39,7 @@ class TagflowConverter {
       const ImgConverter(),
       const BasicCodeConverter(),
       const BlockquoteConverter(),
+      const HrConverter(),
     ]);
   }
 

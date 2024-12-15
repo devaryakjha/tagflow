@@ -251,6 +251,9 @@ class _TagflowFromTheme extends TagflowTheme {
           transform: Matrix4.translationValues(0, -rem * 0.35, 0),
           textStyle: TextStyle(fontSize: rem * 0.65),
         ),
+        'hr': const ElementStyle(
+          margin: EdgeInsets.symmetric(vertical: 20),
+        ),
       },
     );
   }

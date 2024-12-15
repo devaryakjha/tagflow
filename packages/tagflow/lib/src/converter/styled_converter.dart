@@ -7,7 +7,7 @@ class StyledContainer extends StatelessWidget {
   const StyledContainer({
     required this.style,
     required this.tag,
-    required this.child,
+    this.child,
     this.width,
     this.height,
     super.key,
@@ -17,7 +17,7 @@ class StyledContainer extends StatelessWidget {
   final String tag;
   final double? width;
   final double? height;
-  final Widget child;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

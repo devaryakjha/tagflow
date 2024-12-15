@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow_example/pages/code_example.page.dart';
+import 'package:tagflow_example/pages/generic_example.page.dart';
 import 'package:tagflow_example/pages/image_example.page.dart';
 import 'package:tagflow_example/pages/typography_example.page.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
@@ -38,6 +39,13 @@ class HomePage extends StatelessWidget {
             description: 'Examples of how to use code blocks',
             icon: Icons.code,
             builder: (context) => const CodeExample(),
+          ),
+          _buildSection(
+            context,
+            title: 'Generic Example',
+            description: 'Examples of how to use generic HTML',
+            icon: Icons.language,
+            builder: (context) => const GenericExample(),
           ),
         ],
       ),

@@ -149,10 +149,17 @@ extension TagflowElementStyleExtensions on TagflowElement {
       return null;
     }
     return LinkedHashMap.fromEntries(
-      style!.split(';').map((e) {
-        final parts = e.split(':');
-        return MapEntry(parts[0].trim(), parts[1].trim());
-      }),
+      style!
+          .split(';')
+          .map((e) {
+            final parts = e.split(':');
+            if (parts.length != 2) {
+              return null;
+            }
+            return MapEntry(parts[0].trim(), parts[1].trim());
+          })
+          .nonNulls
+          .toList(),
     );
   }
 
@@ -178,4 +185,9 @@ extension TagflowElementSizeExtensions on TagflowElement {
   /// can be used with [Flex] to set the spacing between children
   double? get spacing =>
       styles?['gap'] != null ? StyleParser.parseSize(styles!['gap']!) : null;
+
+  /// The color of the element
+  Color? get color => styles?['color'] != null
+      ? StyleParser.parseColor(styles!['color']!)
+      : null;
 }
