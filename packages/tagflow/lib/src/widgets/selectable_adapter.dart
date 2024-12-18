@@ -2,33 +2,47 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// A widget that wraps the child with [Selectable] and [SelectionContainer].
+/// A widget that wraps the child with selectable functionality.
 class TagflowSelectableAdapter extends StatelessWidget {
   /// Creates a [TagflowSelectableAdapter] widget.
   const TagflowSelectableAdapter({
     required this.child,
     super.key,
     this.text,
+    this.padding = 10.0,
+    this.cursor = SystemMouseCursors.text,
   });
 
-  /// The child widget to be wrapped with [Selectable].
+  /// The child widget to be wrapped with selection functionality.
   final Widget child;
 
   /// Text that can be copied from the child.
   final String? text;
 
+  /// Padding around the selection highlight.
+  /// Defaults to 10.0 pixels.
+  final double padding;
+
+  /// Mouse cursor to show when hovering.
+  /// Defaults to [SystemMouseCursors.text].
+  final MouseCursor cursor;
+
   @override
   Widget build(BuildContext context) {
     final registrar = SelectionContainer.maybeOf(context);
     final options = TagflowOptions.maybeOf(context);
+
+    // Early return if selection is not enabled
     if (registrar == null || !(options?.selectable.enabled ?? false)) {
       return child;
     }
+
     return MouseRegion(
-      cursor: SystemMouseCursors.text,
+      cursor: cursor,
       child: _SelectableAdapter(
         registrar: registrar,
         text: text,
+        padding: padding,
         child: child,
       ),
     );
@@ -39,13 +53,13 @@ class _SelectableAdapter extends SingleChildRenderObjectWidget {
   const _SelectableAdapter({
     required this.registrar,
     required super.child,
+    required this.padding,
     this.text,
   });
 
-  /// The text that can be copied from the child.
   final String? text;
-
   final SelectionRegistrar registrar;
+  final double padding;
 
   @override
   _RenderSelectableAdapter createRenderObject(BuildContext context) {
@@ -53,6 +67,7 @@ class _SelectableAdapter extends SingleChildRenderObjectWidget {
       DefaultSelectionStyle.of(context).selectionColor!,
       registrar,
       text,
+      padding,
     );
   }
 
@@ -64,7 +79,8 @@ class _SelectableAdapter extends SingleChildRenderObjectWidget {
     renderObject
       ..selectionColor = DefaultSelectionStyle.of(context).selectionColor!
       ..registrar = registrar
-      ..text = text;
+      ..text = text
+      ..padding = padding;
   }
 }
 
@@ -74,7 +90,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
     Color selectionColor,
     SelectionRegistrar registrar,
     String? text,
+    double padding,
   )   : _selectionColor = selectionColor,
+        _padding = padding,
         _geometry = ValueNotifier<SelectionGeometry>(_noSelection) {
     this.registrar = registrar;
     _text = text;
@@ -83,31 +101,95 @@ class _RenderSelectableAdapter extends RenderProxyBox
 
   static const SelectionGeometry _noSelection =
       SelectionGeometry(status: SelectionStatus.none, hasContent: true);
+
   final ValueNotifier<SelectionGeometry> _geometry;
 
   Color get selectionColor => _selectionColor;
-  late Color _selectionColor;
+  Color _selectionColor;
   set selectionColor(Color value) {
-    if (_selectionColor == value) {
-      return;
-    }
+    if (_selectionColor == value) return;
     _selectionColor = value;
     markNeedsPaint();
   }
 
   String? _text;
-
   String? get text => _text;
   set text(String? value) {
-    if (_text == value) {
-      return;
-    }
+    if (_text == value) return;
     _text = value;
     markNeedsPaint();
   }
 
-  // ValueListenable APIs
+  double get padding => _padding;
+  double _padding;
+  set padding(double value) {
+    if (_padding == value) return;
+    _padding = value;
+    markNeedsPaint();
+  }
 
+  // Cache for selection rect
+  Rect? _selectionRect;
+  void _invalidateSelectionRect() => _selectionRect = null;
+
+  Rect _getSelectionHighlightRect() {
+    return _selectionRect ??= Rect.fromLTWH(
+      0 - padding,
+      0 - padding,
+      size.width + padding * 2,
+      size.height + padding * 2,
+    );
+  }
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    _invalidateSelectionRect();
+  }
+
+  // Selection handling
+  Offset? _start;
+  Offset? _end;
+
+  void _updateGeometry() {
+    if (_start == null || _end == null) {
+      _geometry.value = _noSelection;
+      return;
+    }
+
+    final renderObjectRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final selectionRect = Rect.fromPoints(_start!, _end!);
+
+    if (renderObjectRect.intersect(selectionRect).isEmpty) {
+      _geometry.value = _noSelection;
+      return;
+    }
+
+    final highlightRect = _getSelectionHighlightRect();
+    final isReversed = _start!.dy > _end!.dy ||
+        (_start!.dy == _end!.dy && _start!.dx > _end!.dx);
+
+    final firstPoint = SelectionPoint(
+      localPosition: highlightRect.bottomLeft,
+      lineHeight: highlightRect.size.height,
+      handleType: TextSelectionHandleType.left,
+    );
+    final secondPoint = SelectionPoint(
+      localPosition: highlightRect.bottomRight,
+      lineHeight: highlightRect.size.height,
+      handleType: TextSelectionHandleType.right,
+    );
+
+    _geometry.value = SelectionGeometry(
+      status: SelectionStatus.uncollapsed,
+      hasContent: true,
+      startSelectionPoint: isReversed ? secondPoint : firstPoint,
+      endSelectionPoint: isReversed ? firstPoint : secondPoint,
+      selectionRects: [highlightRect],
+    );
+  }
+
+  // ValueListenable APIs
   @override
   void addListener(VoidCallback listener) => _geometry.addListener(listener);
 
@@ -118,64 +200,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
   @override
   SelectionGeometry get value => _geometry.value;
 
-  // Selectable APIs.
-
+  // Selectable APIs
   @override
   List<Rect> get boundingBoxes => <Rect>[paintBounds];
-
-  // Adjust this value to enlarge or shrink the selection highlight.
-  static const double _padding = 10;
-  Rect _getSelectionHighlightRect() {
-    return Rect.fromLTWH(
-      0 - _padding,
-      0 - _padding,
-      size.width + _padding * 2,
-      size.height + _padding * 2,
-    );
-  }
-
-  Offset? _start;
-  Offset? _end;
-  void _updateGeometry() {
-    if (_start == null || _end == null) {
-      _geometry.value = _noSelection;
-      return;
-    }
-    final renderObjectRect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final selectionRect = Rect.fromPoints(_start!, _end!);
-    if (renderObjectRect.intersect(selectionRect).isEmpty) {
-      _geometry.value = _noSelection;
-    } else {
-      final selectionRect = _getSelectionHighlightRect();
-      final firstSelectionPoint = SelectionPoint(
-        localPosition: selectionRect.bottomLeft,
-        lineHeight: selectionRect.size.height,
-        handleType: TextSelectionHandleType.left,
-      );
-      final secondSelectionPoint = SelectionPoint(
-        localPosition: selectionRect.bottomRight,
-        lineHeight: selectionRect.size.height,
-        handleType: TextSelectionHandleType.right,
-      );
-      final bool isReversed;
-      if (_start!.dy > _end!.dy) {
-        isReversed = true;
-      } else if (_start!.dy < _end!.dy) {
-        isReversed = false;
-      } else {
-        isReversed = _start!.dx > _end!.dx;
-      }
-      _geometry.value = SelectionGeometry(
-        status: SelectionStatus.uncollapsed,
-        hasContent: true,
-        startSelectionPoint:
-            isReversed ? secondSelectionPoint : firstSelectionPoint,
-        endSelectionPoint:
-            isReversed ? firstSelectionPoint : secondSelectionPoint,
-        selectionRects: <Rect>[selectionRect],
-      );
-    }
-  }
 
   @override
   SelectionResult dispatchSelectionEvent(SelectionEvent event) {
@@ -184,7 +211,6 @@ class _RenderSelectableAdapter extends RenderProxyBox
       case SelectionEventType.startEdgeUpdate:
       case SelectionEventType.endEdgeUpdate:
         final renderObjectRect = Rect.fromLTWH(0, 0, size.width, size.height);
-        // Normalize offset in case it is out side of the rect.
         final point =
             globalToLocal((event as SelectionEdgeUpdateEvent).globalPosition);
         final adjustedPoint =
@@ -203,91 +229,89 @@ class _RenderSelectableAdapter extends RenderProxyBox
         _start = Offset.zero;
         _end = Offset.infinite;
       case SelectionEventType.granularlyExtendSelection:
-        result = SelectionResult.end;
-        final extendSelectionEvent = event as GranularlyExtendSelectionEvent;
-        // Initialize the offset it there is no ongoing selection.
-        if (_start == null || _end == null) {
-          if (extendSelectionEvent.forward) {
-            _start = _end = Offset.zero;
-          } else {
-            _start = _end = Offset.infinite;
-          }
-        }
-        // Move the corresponding selection edge.
-        final newOffset =
-            extendSelectionEvent.forward ? Offset.infinite : Offset.zero;
-        if (extendSelectionEvent.isEnd) {
-          if (newOffset == _end) {
-            result = extendSelectionEvent.forward
-                ? SelectionResult.next
-                : SelectionResult.previous;
-          }
-          _end = newOffset;
-        } else {
-          if (newOffset == _start) {
-            result = extendSelectionEvent.forward
-                ? SelectionResult.next
-                : SelectionResult.previous;
-          }
-          _start = newOffset;
-        }
+        result =
+            _handleGranularSelection(event as GranularlyExtendSelectionEvent);
       case SelectionEventType.directionallyExtendSelection:
-        result = SelectionResult.end;
-        final extendSelectionEvent = event as DirectionallyExtendSelectionEvent;
-        // Convert to local coordinates.
-        final horizontalBaseLine = globalToLocal(Offset(event.dx, 0)).dx;
-        final Offset newOffset;
-        final bool forward;
-        switch (extendSelectionEvent.direction) {
-          case SelectionExtendDirection.backward:
-          case SelectionExtendDirection.previousLine:
-            forward = false;
-            // Initialize the offset it there is no ongoing selection.
-            if (_start == null || _end == null) {
-              _start = _end = Offset.infinite;
-            }
-            // Move the corresponding selection edge.
-            if (extendSelectionEvent.direction ==
-                    SelectionExtendDirection.previousLine ||
-                horizontalBaseLine < 0) {
-              newOffset = Offset.zero;
-            } else {
-              newOffset = Offset.infinite;
-            }
-          case SelectionExtendDirection.nextLine:
-          case SelectionExtendDirection.forward:
-            forward = true;
-            // Initialize the offset it there is no ongoing selection.
-            if (_start == null || _end == null) {
-              _start = _end = Offset.zero;
-            }
-            // Move the corresponding selection edge.
-            if (extendSelectionEvent.direction ==
-                    SelectionExtendDirection.nextLine ||
-                horizontalBaseLine > size.width) {
-              newOffset = Offset.infinite;
-            } else {
-              newOffset = Offset.zero;
-            }
-        }
-        if (extendSelectionEvent.isEnd) {
-          if (newOffset == _end) {
-            result = forward ? SelectionResult.next : SelectionResult.previous;
-          }
-          _end = newOffset;
-        } else {
-          if (newOffset == _start) {
-            result = forward ? SelectionResult.next : SelectionResult.previous;
-          }
-          _start = newOffset;
-        }
+        result = _handleDirectionalSelection(
+          event as DirectionallyExtendSelectionEvent,
+        );
     }
     _updateGeometry();
     return result;
   }
 
-  // This method is called when users want to copy selected content in this
-  // widget into clipboard.
+  SelectionResult _handleGranularSelection(
+    GranularlyExtendSelectionEvent event,
+  ) {
+    var result = SelectionResult.end;
+    if (_start == null || _end == null) {
+      if (event.forward) {
+        _start = _end = Offset.zero;
+      } else {
+        _start = _end = Offset.infinite;
+      }
+    }
+    final newOffset = event.forward ? Offset.infinite : Offset.zero;
+    if (event.isEnd) {
+      if (newOffset == _end) {
+        result =
+            event.forward ? SelectionResult.next : SelectionResult.previous;
+      }
+      _end = newOffset;
+    } else {
+      if (newOffset == _start) {
+        result =
+            event.forward ? SelectionResult.next : SelectionResult.previous;
+      }
+      _start = newOffset;
+    }
+    return result;
+  }
+
+  SelectionResult _handleDirectionalSelection(
+    DirectionallyExtendSelectionEvent event,
+  ) {
+    final horizontalBaseLine = globalToLocal(Offset(event.dx, 0)).dx;
+    final Offset newOffset;
+    final bool forward;
+
+    switch (event.direction) {
+      case SelectionExtendDirection.backward:
+      case SelectionExtendDirection.previousLine:
+        forward = false;
+        if (_start == null || _end == null) {
+          _start = _end = Offset.infinite;
+        }
+        newOffset = event.direction == SelectionExtendDirection.previousLine ||
+                horizontalBaseLine < 0
+            ? Offset.zero
+            : Offset.infinite;
+      case SelectionExtendDirection.nextLine:
+      case SelectionExtendDirection.forward:
+        forward = true;
+        if (_start == null || _end == null) {
+          _start = _end = Offset.zero;
+        }
+        newOffset = event.direction == SelectionExtendDirection.nextLine ||
+                horizontalBaseLine > size.width
+            ? Offset.infinite
+            : Offset.zero;
+    }
+
+    if (event.isEnd) {
+      if (newOffset == _end) {
+        return forward ? SelectionResult.next : SelectionResult.previous;
+      }
+      _end = newOffset;
+    } else {
+      if (newOffset == _start) {
+        return forward ? SelectionResult.next : SelectionResult.previous;
+      }
+      _start = newOffset;
+    }
+    return SelectionResult.end;
+  }
+
   @override
   SelectedContent? getSelectedContent() {
     return value.hasSelection ? SelectedContent(plainText: text ?? '') : null;
@@ -298,9 +322,7 @@ class _RenderSelectableAdapter extends RenderProxyBox
 
   @override
   void pushHandleLayers(LayerLink? startHandle, LayerLink? endHandle) {
-    if (_startHandle == startHandle && _endHandle == endHandle) {
-      return;
-    }
+    if (_startHandle == startHandle && _endHandle == endHandle) return;
     _startHandle = startHandle;
     _endHandle = endHandle;
     markNeedsPaint();
@@ -309,24 +331,23 @@ class _RenderSelectableAdapter extends RenderProxyBox
   @override
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
-    if (!_geometry.value.hasSelection) {
-      return;
-    }
-    // Draw the selection highlight.
+    if (!_geometry.value.hasSelection) return;
+
+    // Draw selection highlight
     final selectionPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = _selectionColor;
     context.canvas
         .drawRect(_getSelectionHighlightRect().shift(offset), selectionPaint);
 
-    // Push the layer links if any.
+    // Push handle layers
     if (_startHandle != null) {
       context.pushLayer(
         LeaderLayer(
           link: _startHandle!,
           offset: offset + value.startSelectionPoint!.localPosition,
         ),
-        (PaintingContext context, Offset offset) {},
+        (_, __) {},
         Offset.zero,
       );
     }
@@ -336,7 +357,7 @@ class _RenderSelectableAdapter extends RenderProxyBox
           link: _endHandle!,
           offset: offset + value.endSelectionPoint!.localPosition,
         ),
-        (PaintingContext context, Offset offset) {},
+        (_, __) {},
         Offset.zero,
       );
     }
