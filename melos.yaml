@@ -1,0 +1,15 @@
+name: tagflow
+
+packages:
+  - packages/**
+
+scripts:
+  docs:
+    exec: dartdoc
+    description: Generate documentation
+  analyze:
+    exec: dart analyze .
+    description: Analyze the project
+  test:
+    exec: flutter test
+    description: Run tests

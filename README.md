@@ -1,74 +1,162 @@
-# html_to_flutter
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/dark/logo.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/light/logo.svg">
+    <img alt="tagflow" src="assets/dark/logo.svg" width="400">
+  </picture>
+</p>
 
-[![pub package](https://img.shields.io/pub/v/html_to_flutter.svg)](https://pub.dev/packages/html_to_flutter)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/devaryakjha/html_to_flutter/blob/master/LICENSE)
+> ⚠️ **IMPORTANT**: This package is currently undergoing a complete rewrite. For a stable version, please check out the [`stable`](https://github.com/devaryakjha/tagflow/tree/stable) branch.
 
-A flutter package to help convert raw html string to flutter widgets.
+> 🚧 **Alpha Release**: This package is in active development. APIs may change frequently. For production use, please wait for v1.0.0.
 
-Take the following code as an example
+# tagflow
+
+Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports tables, iframes, and other HTML elements through optional add-on packages.
+
+[![pub package](https://img.shields.io/pub/v/tagflow.svg?label=tagflow&color=orange)](https://pub.dev/packages/tagflow)
+[![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
+
+---
+
+## Feature Highlights
+
+🚀 **Simple Integration**
 
 ```dart
+class MyWidget extends StatelessWidget {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('HTML to Flutter Demo'),
-        ),
-        body: Html(
-          data: """
-            <div>
-                <h1>Hello, Flutter!</h1>
-                  <p>This is a sample HTML content converted to Flutter widgets.</p>
-                  <p>It supports <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <strike>strike</strike> and <a href="https://flutter.dev">links</a>.</p>
-                  <p>It supports ordered and unordered lists</p>
-                  <ul>
-                    <li>Item 1</li>
-                    <li>Item 2</li>
-                    <li>Item 3</li>
-                  </ul>
-                  <br />
-                  <ol>
-                    <li>Item 1</li>
-                    <li>Item 2</li>
-                    <li>Item 3</li>
-                  </ol>
-                  <p>It supports images</p>
-                  <span><img src="https://via.assets.so/movie.png?id=1&q=95&w=100&h=100&fit=fill" height="100" /><img src="https://via.assets.so/movie.png?id=2&q=95&w=100&h=100&fit=fill" height="100" /><img src="https://via.assets.so/movie.png?id=3&q=95&w=100&h=100&fit=fill" height="100" /></span>
-                  <p>It supports tables</p>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Header 1</th>
-                        <th>Header 2</th>
-                        <th>Header 3</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Row 1, Cell 1</td>
-                        <td>Row 1, Cell 2</td>
-                        <td>Row 1, Cell 3</td>
-                      </tr>
-                      <tr>
-                        <td>Row 2, Cell 1</td>
-                        <td>Row 2, Cell 2</td>
-                        <td>Row 2, Cell 3</td>
-                      </tr>
-                      <tr>
-                        <td>Row 3, Cell 1</td>
-                        <td>Row 3, Cell 2</td>
-                        <td>Row 3, Cell 3</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-          """,
-        ),
-      ),
+    return Tagflow(
+      html: '<div>Hello, Flutter!</div>',
     );
   }
+}
 ```
 
-It will render ui as following
+🎨 **Material Design Integration**
 
-<img src="https://raw.githubusercontent.com/devaryakjha/html_to_flutter/main/screenshots/readme_example.png" width="250" />
+```dart
+Tagflow(
+  html: htmlContent,
+  theme: TagflowTheme.fromTheme(
+    Theme.of(context),
+    headingConfig: TagflowHeadingConfig(
+      baseSize: 16.0,
+      scales: [2.5, 2.0, 1.75, 1.5, 1.25, 1.0],
+    ),
+  ),
+)
+```
+
+🎯 **CSS-like Styling**
+
+```html
+<div
+  style="
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background-color: var(--surface-container);
+    border-radius: 8px;
+  "
+>
+  <h1
+    style="
+      color: var(--on-surface);
+      font-size: 2rem;
+      margin: 0;
+    "
+  >
+    Material Design
+  </h1>
+  <p class="highlight">Seamlessly integrates with your app's theme</p>
+</div>
+```
+
+📦 **Custom Themes**
+
+```dart
+Tagflow(
+  html: htmlContent,
+  theme: TagflowTheme(
+    defaultStyle: TagflowStyle(
+      textStyle: TextStyle(fontSize: 16),
+      padding: EdgeInsets.all(8),
+    ),
+    styles: {
+      'h1': TagflowStyle(
+        textStyle: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+        ),
+        margin: EdgeInsets.symmetric(vertical: 16),
+      ),
+      '.highlight': TagflowStyle(
+        backgroundColor: Colors.yellow.withOpacity(0.3),
+        padding: EdgeInsets.all(4),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    },
+    namedColors: {
+      'brand': Colors.purple,
+      'accent': Colors.amber,
+    },
+  ),
+)
+```
+
+## Installation
+
+Add `tagflow` to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0
+```
+
+## Theme System
+
+Tagflow's theme system seamlessly integrates with Flutter's Material Design while providing powerful customization options:
+
+- 🎨 **Material Integration**: Automatically uses your app's theme colors and typography
+- 🔧 **Custom Styling**: Define styles for specific HTML elements and CSS classes
+- 📏 **Responsive Units**: Supports rem, em, and percentage-based units
+- 🎯 **CSS Features**: Flexbox layout, borders, shadows, and more
+- 🌈 **Color System**: Use theme colors or define custom color palettes
+
+### Theme Configuration
+
+```dart
+// Use Material Theme
+TagflowTheme.fromTheme(
+  Theme.of(context),
+  spacingConfig: TagflowSpacingConfig(
+    baseSize: 16.0,
+    scale: 1.2,
+  ),
+)
+
+// Basic Theme
+TagflowTheme.basic(
+  textStyle: TextStyle(fontSize: 16),
+  padding: EdgeInsets.all(8),
+)
+
+// Minimal Theme
+TagflowTheme.minimal(
+  baseStyle: TextStyle(fontSize: 16),
+  linkColor: Colors.blue,
+)
+```
+
+## Documentation
+
+Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and examples.
+
+## Add-on Packages
+
+- `tagflow_table` - Enhanced table support
+- `tagflow_iframe` - IFrame rendering capabilities
+- `tagflow_media` - Media element handling

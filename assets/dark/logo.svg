@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60">
+    <!-- Background -->
+    <rect width="280" height="60" rx="12" fill="#09090b" />
+
+    <!-- Group for centering -->
+    <g transform="translate(140, 0)">
+        <!-- tagflow text -->
+        <text x="-75" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="500"
+            fill="#fafafa" letter-spacing="-0.5">tagflow</text>
+
+        <!-- HTML tag element with much more spacing -->
+        <g transform="translate(35, 20) scale(0.8)">
+            <!-- Left bracket -->
+            <path d="M 3 10 L 12 2 M 3 10 L 12 18" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+            <!-- Centered slash -->
+            <path d="M 16 18 L 22 2" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" fill="none" />
+            <!-- Right bracket -->
+            <path d="M 35 10 L 26 2 M 35 10 L 26 18" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+        </g>
+    </g>
+</svg>
