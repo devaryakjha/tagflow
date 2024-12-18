@@ -1,3 +1,7 @@
+## 0.0.1-dev.3
+
+ - **REFACTOR**: moved style enums to appropriate directories. ([af6c78f4](https://github.com/devaryakjha/tagflow/commit/af6c78f44c126d8c99e33bbe600490b998e0128a))
+
 ## 0.0.1-dev.2
 
  - **REFACTOR**: moved style enums to appropriate directories. ([af6c78f4](https://github.com/devaryakjha/tagflow/commit/af6c78f44c126d8c99e33bbe600490b998e0128a))
