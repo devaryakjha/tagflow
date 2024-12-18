@@ -6,59 +6,14 @@ import 'package:tagflow/tagflow.dart';
 
 /// Utility class to parse CSS-like values into Flutter values
 class StyleParser {
-  /// CSS named colors mapping
-  static const _namedColors = {
-    'transparent': Color(0x00000000),
-    'black': Color(0xFF000000),
-    'white': Color(0xFFFFFFFF),
-    'red': Color(0xFFFF0000),
-    'green': Color(0xFF00FF00),
-    'blue': Color(0xFF0000FF),
-    'yellow': Color(0xFFFFFF00),
-    // Add more named colors as needed
-  };
-
-  /// Default rem size in pixels
-  static const _defaultRemSize = 16.0;
-
-  /// Parse a CSS size value with optional unit
-  static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
-    final value = value0.trim().toLowerCase();
-
-    // Handle percentage values
-    if (value.endsWith('%')) {
-      final number = double.tryParse(value.replaceAll('%', ''));
-      return number != null ? number / 100 : null;
-    }
-
-    // Handle various units
-    final units = {
-      'px': 1.0,
-      'rem': remSize,
-      'em': remSize,
-      'pt': 1.333333, // 1pt = 1.333333px
-      'vh': 1.0, // TODO(devaryakjha): Implement viewport relative units
-      'vw': 1.0,
-    };
-
-    for (final unit in units.entries) {
-      if (value.endsWith(unit.key)) {
-        final number = double.tryParse(value.replaceAll(unit.key, ''));
-        return number != null ? number * unit.value : null;
-      }
-    }
-
-    // Try parsing as raw number
-    return double.tryParse(value);
-  }
-
   /// Parse a CSS color value
-  static Color? parseColor(String value0) {
+  static Color? parseColor(String value0, [Map<String, Color>? namedColors]) {
     final value = value0.trim().toLowerCase();
+    namedColors ??= const {};
 
     // Check named colors first
-    if (_namedColors.containsKey(value)) {
-      return _namedColors[value];
+    if (namedColors.containsKey(value)) {
+      return namedColors[value];
     }
 
     // Handle hex colors
@@ -93,6 +48,40 @@ class StyleParser {
     }
 
     return null;
+  }
+
+  /// Default rem size in pixels
+  static const _defaultRemSize = 16.0;
+
+  /// Parse a CSS size value with optional unit
+  static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
+    final value = value0.trim().toLowerCase();
+
+    // Handle percentage values
+    if (value.endsWith('%')) {
+      final number = double.tryParse(value.replaceAll('%', ''));
+      return number != null ? number / 100 : null;
+    }
+
+    // Handle various units
+    final units = {
+      'px': 1.0,
+      'rem': remSize,
+      'em': remSize,
+      'pt': 1.333333, // 1pt = 1.333333px
+      'vh': 1.0, // TODO(devaryakjha): Implement viewport relative units
+      'vw': 1.0,
+    };
+
+    for (final unit in units.entries) {
+      if (value.endsWith(unit.key)) {
+        final number = double.tryParse(value.replaceAll(unit.key, ''));
+        return number != null ? number * unit.value : null;
+      }
+    }
+
+    // Try parsing as raw number
+    return double.tryParse(value);
   }
 
   /// Parse CSS font-weight value
@@ -251,21 +240,22 @@ class StyleParser {
   }
 
   /// Parse inline style string into TagflowStyle
-  static TagflowStyle? parseInlineStyle(String? styleString) {
-    if (styleString == null || styleString.isEmpty) return null;
-
+  static TagflowStyle? parseInlineStyle(
+    String styleString, [
+    TagflowTheme? theme,
+  ]) {
     final styles = _parseDeclarations(styleString);
     if (styles.isEmpty) return null;
 
     return TagflowStyle(
-      textStyle: _parseTextStyle(styles),
+      textStyle: _parseTextStyle(styles, theme),
       padding: styles['padding'] != null
           ? parseEdgeInsets(styles['padding']!)
           : null,
       margin:
           styles['margin'] != null ? parseEdgeInsets(styles['margin']!) : null,
       backgroundColor: styles['background-color'] != null
-          ? parseColor(styles['background-color']!)
+          ? parseColor(styles['background-color']!, theme?.namedColors)
           : null,
       alignment: _parseAlignment(styles),
       textAlign: styles['text-align'] != null
@@ -301,9 +291,14 @@ class StyleParser {
   }
 
   /// Parse text-related styles into TextStyle
-  static TextStyle? _parseTextStyle(Map<String, String> styles) {
+  static TextStyle? _parseTextStyle(
+    Map<String, String> styles,
+    TagflowTheme? theme,
+  ) {
     return TextStyle(
-      color: styles['color'] != null ? parseColor(styles['color']!) : null,
+      color: styles['color'] != null
+          ? parseColor(styles['color']!, theme?.namedColors)
+          : null,
       fontSize:
           styles['font-size'] != null ? parseSize(styles['font-size']!) : null,
       fontWeight: styles['font-weight'] != null

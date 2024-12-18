@@ -37,6 +37,7 @@ class TagflowTheme extends Equatable {
   /// Create a new [TagflowTheme]
   const TagflowTheme({
     required this.styles,
+    this.namedColors = const {},
   });
 
   /// Create a new theme from a Flutter theme
@@ -59,6 +60,25 @@ class TagflowTheme extends Equatable {
         ),
         // ... other default styles
       },
+      namedColors: {
+        'transparent': const Color(0x00000000),
+        'black': Colors.black,
+        'white': Colors.white,
+        'red': Colors.red,
+        'green': Colors.green,
+        'blue': Colors.blue,
+        'yellow': Colors.yellow,
+        'gray': Colors.grey,
+        'grey': Colors.grey,
+        'purple': Colors.purple,
+        'pink': Colors.pink,
+        'orange': Colors.orange,
+        'brown': Colors.brown,
+        // Add theme colors
+        'primary': theme.colorScheme.primary,
+        'secondary': theme.colorScheme.secondary,
+        'error': theme.colorScheme.error,
+      },
     );
   }
 
@@ -68,6 +88,9 @@ class TagflowTheme extends Equatable {
   /// - Universal selector ('*')
   /// - Class selectors (e.g., '.highlight')
   final Map<String, TagflowStyle> styles;
+
+  /// Custom named colors mapping
+  final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
   TagflowStyle resolveStyle(TagflowElement element) {
@@ -89,8 +112,10 @@ class TagflowTheme extends Equatable {
     }
 
     // Add inline styles last using StyleParser
-    final inlineStyle =
-        StyleParser.parseInlineStyle(element.attributes['style']);
+    final inlineStyle = StyleParser.parseInlineStyle(
+      element.attributes['style'] ?? '',
+      this,
+    );
     if (inlineStyle != null) {
       result = result.merge(inlineStyle);
     }
@@ -98,8 +123,28 @@ class TagflowTheme extends Equatable {
     return result;
   }
 
+  /// Create a copy with some properties replaced
+  TagflowTheme copyWith({
+    Map<String, TagflowStyle>? styles,
+    Map<String, Color>? namedColors,
+  }) {
+    return TagflowTheme(
+      styles: styles ?? this.styles,
+      namedColors: namedColors ?? this.namedColors,
+    );
+  }
+
+  /// Merge two themes
+  TagflowTheme merge(TagflowTheme? other) {
+    if (other == null) return this;
+    return TagflowTheme(
+      styles: {...styles, ...other.styles},
+      namedColors: {...namedColors, ...other.namedColors},
+    );
+  }
+
   @override
-  List<Object?> get props => [styles];
+  List<Object?> get props => [styles, namedColors];
 }
 
 /// Provider for accessing current theme
