@@ -1,12 +1,13 @@
 name: tagflow
-description: "A new Flutter package project."
-version: 0.0.1+dev.1
-homepage: https://tagflow.arya.run
-license: ../../LICENSE
+description: Transform HTML markup into native Flutter widgets with an elegant, customizable converter.
+version: 0.0.1-dev.1
+repository: https://github.com/devaryakjha/tagflow
+homepage: https://docs.arya.run/tagflow
+issue_tracker: https://github.com/devaryakjha/tagflow/issues
 
 environment:
-  sdk: ^3.6.0
-  flutter: ">=1.17.0"
+  sdk:  '^3.6.0'
+  flutter: ">=3.10.0"
 
 resolution: workspace
 
