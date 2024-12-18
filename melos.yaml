@@ -3,6 +3,8 @@ name: tagflow
 packages:
   - packages/**
 
+repository: https://github.com/devaryakjha/tagflow
+
 command:
   version:
     # Generate commit links in changelog
