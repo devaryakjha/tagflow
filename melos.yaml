@@ -63,7 +63,7 @@ scripts:
 
   version:dev:
     # Version packages with dev tag
-    run: melos version --prerelease=dev --yes
+    run: melos version --prerelease --preid=dev --yes
     description: Version packages with dev tag
 
   version:stable:
