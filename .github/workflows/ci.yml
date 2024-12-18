@@ -1,0 +1,56 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    branches:
+      - main
+      - stable
+
+jobs:
+  prerelease:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: subosito/flutter-action@v2
+
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-versioning-prerelease: true
+          tag: true
+          git-email: "actions@github.com"
+          git-name: "GitHub Actions Bot"
+          create-pr: true
+          publish-dry-run: true
+
+  stable:
+    if: github.ref == 'refs/heads/stable'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: subosito/flutter-action@v2
+
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-versioning: true
+          tag: true
+          git-email: "actions@github.com"
+          git-name: "GitHub Actions Bot"
+          create-pr: true
+          publish-dry-run: true
