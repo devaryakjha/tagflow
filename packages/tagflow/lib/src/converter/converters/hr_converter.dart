@@ -19,17 +19,15 @@ final class HrConverter extends ElementConverter {
     return StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        decoration: BoxDecoration(
-          color: style.backgroundColor,
-          border: Border(
-            bottom: BorderSide(
-              color: style.textStyle?.color ?? Colors.grey,
-              width: element.height ?? 1,
-            ),
+        width: double.infinity,
+        backgroundColor: style.backgroundColor,
+        border: Border(
+          bottom: BorderSide(
+            color: style.textStyle?.color ?? Colors.grey,
+            width: element.height ?? 1,
           ),
         ),
       ),
-      width: double.infinity,
     );
   }
 }

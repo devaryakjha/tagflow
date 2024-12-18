@@ -1,4 +1,3 @@
-// lib/src/style/style_parser.dart
 // ignore_for_file: unused_element, lines_longer_than_80_chars
 
 import 'package:flutter/widgets.dart';
@@ -171,73 +170,150 @@ class StyleParser {
 
   /// Parse CSS border-radius value
   static BorderRadius? parseBorderRadius(String value) {
-    final parts = value.split(' ').map(parseSize).toList();
+    final size = parseSize(value);
+    return size != null ? BorderRadius.circular(size) : null;
+  }
 
-    return switch (parts.length) {
-      1 when parts[0] != null => BorderRadius.circular(parts[0]!),
-      2 when parts.every((e) => e != null) => BorderRadius.only(
-          topLeft: Radius.circular(parts[0]!),
-          topRight: Radius.circular(parts[1]!),
-          bottomRight: Radius.circular(parts[1]!),
-          bottomLeft: Radius.circular(parts[0]!),
-        ),
-      4 when parts.every((e) => e != null) => BorderRadius.only(
-          topLeft: Radius.circular(parts[0]!),
-          topRight: Radius.circular(parts[1]!),
-          bottomRight: Radius.circular(parts[2]!),
-          bottomLeft: Radius.circular(parts[3]!),
-        ),
-      _ => null,
-    };
+  /// Parse CSS border
+  static BorderSide? parseBorderSide(String value) {
+    final parts = value.split(' ');
+    if (parts.length < 2) return null;
+
+    final width = parseSize(parts[0]);
+    final color =
+        parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]);
+
+    if (width == null || color == null) return null;
+
+    return BorderSide(
+      width: width,
+      color: color,
+      style: parts[1] == 'dashed' ? BorderStyle.none : BorderStyle.solid,
+    );
+  }
+
+  /// Parse CSS box shadow
+  static List<BoxShadow>? parseBoxShadow(String value) {
+    final shadows = <BoxShadow>[];
+    final shadowStrings = value.split(',');
+
+    for (final shadow in shadowStrings) {
+      final parts = shadow.trim().split(' ');
+      if (parts.length < 4) continue;
+
+      try {
+        final x = parseSize(parts[0]) ?? 0;
+        final y = parseSize(parts[1]) ?? 0;
+        final blur = parseSize(parts[2]) ?? 0;
+        final spread = parts.length > 4 ? parseSize(parts[3]) ?? 0 : 0;
+        final color =
+            parts.length > 5 ? parseColor(parts[4]) : const Color(0x40000000);
+
+        shadows.add(
+          BoxShadow(
+            color: color ?? const Color(0x40000000),
+            offset: Offset(x, y),
+            blurRadius: blur,
+            spreadRadius: spread.toDouble(),
+          ),
+        );
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return shadows.isEmpty ? null : shadows;
+  }
+
+  /// Parse CSS transform
+  static Matrix4? parseTransform(String value) {
+    final transform = Matrix4.identity();
+    final transforms = value.split(' ');
+
+    for (final t in transforms) {
+      final match = RegExp(r'(\w+)\((.*?)\)').firstMatch(t);
+      if (match == null) continue;
+
+      final function = match.group(1);
+      final args = match
+          .group(2)!
+          .split(',')
+          .map((s) => parseSize(s.trim()) ?? 0)
+          .toList();
+
+      switch (function) {
+        case 'translate':
+          if (args.length >= 2) {
+            transform.translate(
+              args[0],
+              args[1],
+              args.length > 2 ? args[2] : 0,
+            );
+          }
+        case 'scale':
+          if (args.isNotEmpty) {
+            transform.scale(
+              args[0],
+              args.length > 1 ? args[1] : args[0],
+              args.length > 2 ? args[2] : 1,
+            );
+          }
+        case 'rotate':
+          if (args.isNotEmpty) {
+            transform.rotateZ(args[0] * (3.1415926535897932 / 180));
+          }
+        case 'skew':
+          if (args.length >= 2) {
+            transform.setEntry(1, 0, args[0]);
+            transform.setEntry(0, 1, args[1]);
+          }
+      }
+    }
+
+    return transform;
   }
 
   /// Parse CSS display value
-  static Display? parseDisplay(String value) {
-    return switch (value.toLowerCase()) {
-      'block' => Display.block,
-      'inline' => Display.inline,
-      'inline-block' => Display.inlineBlock,
-      'flex' => Display.flex,
-      'none' => Display.none,
-      _ => null,
-    };
-  }
+  static Display parseDisplay(String value) => switch (value.toLowerCase()) {
+        'block' => Display.block,
+        'inline' => Display.inline,
+        'flex' => Display.flex,
+        'none' => Display.none,
+        _ => Display.block,
+      };
 
   /// Parse CSS flex-direction value
-  static FlexDirection? parseFlexDirection(String value) {
-    return switch (value.toLowerCase()) {
-      'row' => FlexDirection.row,
-      'row-reverse' => FlexDirection.rowReverse,
-      'column' => FlexDirection.column,
-      'column-reverse' => FlexDirection.columnReverse,
-      _ => null,
-    };
-  }
+  static FlexDirection? parseFlexDirection(String value) =>
+      switch (value.toLowerCase()) {
+        'row' => FlexDirection.row,
+        'row-reverse' => FlexDirection.rowReverse,
+        'column' => FlexDirection.column,
+        'column-reverse' => FlexDirection.columnReverse,
+        _ => null,
+      };
 
   /// Parse CSS justify-content value
-  static MainAxisAlignment? parseJustifyContent(String value) {
-    return switch (value.toLowerCase()) {
-      'flex-start' || 'start' => MainAxisAlignment.start,
-      'flex-end' || 'end' => MainAxisAlignment.end,
-      'center' => MainAxisAlignment.center,
-      'space-between' => MainAxisAlignment.spaceBetween,
-      'space-around' => MainAxisAlignment.spaceAround,
-      'space-evenly' => MainAxisAlignment.spaceEvenly,
-      _ => null,
-    };
-  }
+  static JustifyContent? parseJustifyContent(String value) =>
+      switch (value.toLowerCase()) {
+        'flex-start' || 'start' => JustifyContent.start,
+        'flex-end' || 'end' => JustifyContent.end,
+        'center' => JustifyContent.center,
+        'space-between' => JustifyContent.spaceBetween,
+        'space-around' => JustifyContent.spaceAround,
+        'space-evenly' => JustifyContent.spaceEvenly,
+        _ => null,
+      };
 
   /// Parse CSS align-items value
-  static CrossAxisAlignment? parseAlignItems(String value) {
-    return switch (value.toLowerCase()) {
-      'flex-start' || 'start' => CrossAxisAlignment.start,
-      'flex-end' || 'end' => CrossAxisAlignment.end,
-      'center' => CrossAxisAlignment.center,
-      'stretch' => CrossAxisAlignment.stretch,
-      'baseline' => CrossAxisAlignment.baseline,
-      _ => null,
-    };
-  }
+  static AlignItems? parseAlignItems(String value) =>
+      switch (value.toLowerCase()) {
+        'flex-start' || 'start' => AlignItems.start,
+        'flex-end' || 'end' => AlignItems.end,
+        'center' => AlignItems.center,
+        'stretch' => AlignItems.stretch,
+        'baseline' => AlignItems.baseline,
+        _ => null,
+      };
 
   /// Parse inline style string into TagflowStyle
   static TagflowStyle? parseInlineStyle(
@@ -257,22 +333,76 @@ class StyleParser {
       backgroundColor: styles['background-color'] != null
           ? parseColor(styles['background-color']!, theme?.namedColors)
           : null,
+      borderRadius: styles['border-radius'] != null
+          ? parseBorderRadius(styles['border-radius']!)
+          : null,
+      border: styles['border'] != null
+          ? Border.all(
+              width: parseSize(styles['border-width'] ?? '1px') ?? 1,
+              color: parseColor(
+                    styles['border-color'] ?? 'currentColor',
+                    theme?.namedColors,
+                  ) ??
+                  const Color(0xFF000000),
+            )
+          : null,
+      borderLeft: styles['border-left'] != null
+          ? parseBorderSide(styles['border-left']!)
+          : null,
+      borderRight: styles['border-right'] != null
+          ? parseBorderSide(styles['border-right']!)
+          : null,
+      borderTop: styles['border-top'] != null
+          ? parseBorderSide(styles['border-top']!)
+          : null,
+      borderBottom: styles['border-bottom'] != null
+          ? parseBorderSide(styles['border-bottom']!)
+          : null,
+      boxShadow: styles['box-shadow'] != null
+          ? parseBoxShadow(styles['box-shadow']!)
+          : null,
       alignment: _parseAlignment(styles),
       textAlign: styles['text-align'] != null
           ? parseTextAlign(styles['text-align']!)
           : null,
-      // Add layout property parsing
-      display: parseDisplay(styles['display'] ?? 'block') ?? Display.block,
+      display: parseDisplay(styles['display'] ?? 'block'),
       flexDirection: styles['flex-direction'] != null
           ? _parseFlexDirection(styles['flex-direction']!)
           : null,
       justifyContent: styles['justify-content'] != null
           ? parseJustifyContent(styles['justify-content']!)
+              ?.toMainAxisAlignment()
           : null,
       alignItems: styles['align-items'] != null
-          ? parseAlignItems(styles['align-items']!)
+          ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
           : null,
       gap: styles['gap'] != null ? parseSize(styles['gap']!) : null,
+      width: styles['width'] != null ? parseSize(styles['width']!) : null,
+      height: styles['height'] != null ? parseSize(styles['height']!) : null,
+      minWidth:
+          styles['min-width'] != null ? parseSize(styles['min-width']!) : null,
+      minHeight: styles['min-height'] != null
+          ? parseSize(styles['min-height']!)
+          : null,
+      maxWidth:
+          styles['max-width'] != null ? parseSize(styles['max-width']!) : null,
+      maxHeight: styles['max-height'] != null
+          ? parseSize(styles['max-height']!)
+          : null,
+      aspectRatio: styles['aspect-ratio'] != null
+          ? double.tryParse(styles['aspect-ratio']!)
+          : null,
+      opacity: styles['opacity'] != null
+          ? double.tryParse(styles['opacity']!)
+          : null,
+      overflow: styles['overflow'] == 'visible' ? Clip.none : Clip.hardEdge,
+      transform: styles['transform'] != null
+          ? parseTransform(styles['transform']!)
+          : null,
+      boxFit: styles['object-fit'] != null
+          ? parseBoxFit(styles['object-fit']!)
+          : null,
+      cursor: styles['cursor'] != null ? _parseCursor(styles['cursor']!) : null,
     );
   }
 
@@ -326,32 +456,18 @@ class StyleParser {
     return null;
   }
 
-  /// Parse transform-related styles
-  static Matrix4? _parseTransform(Map<String, String> styles) {
-    // TODO(devaryakjha): Implement transform parsing (rotate, scale, translate, etc.)
-    return null;
-  }
-
-  /// Parse decoration-related styles
-  static BoxDecoration? _parseDecoration(Map<String, String> styles) {
-    final hasDecoration = styles.keys.any(
-      (key) =>
-          key.startsWith('border') ||
-          key == 'background-color' ||
-          key == 'border-radius',
-    );
-
-    if (!hasDecoration) return null;
-
-    return BoxDecoration(
-      color: styles['background-color'] != null
-          ? parseColor(styles['background-color']!)
-          : null,
-      borderRadius: styles['border-radius'] != null
-          ? parseBorderRadius(styles['border-radius']!)
-          : null,
-      // TODO(devaryakjha): Add border parsing
-    );
+  /// Parse cursor
+  static MouseCursor? _parseCursor(String value) {
+    return switch (value) {
+      'pointer' => SystemMouseCursors.click,
+      'text' => SystemMouseCursors.text,
+      'none' => SystemMouseCursors.none,
+      'help' => SystemMouseCursors.help,
+      'wait' => SystemMouseCursors.wait,
+      'move' => SystemMouseCursors.move,
+      'not-allowed' => SystemMouseCursors.forbidden,
+      _ => null,
+    };
   }
 
   /// Parse flex-direction into Axis

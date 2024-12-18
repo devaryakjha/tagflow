@@ -39,25 +39,71 @@ class StyledContainer extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Apply text style
-    if (style.textStyle != null) {
-      current = DefaultTextStyle.merge(
-        style: style.textStyle,
+    // Apply basic styling
+    current = DefaultTextStyle.merge(
+      style: style.textStyle ?? const TextStyle(),
+      textAlign: style.textAlign,
+      child: current,
+    );
+
+    // Apply padding and margin
+    if (style.padding != null || style.margin != null) {
+      current = Padding(
+        padding: style.margin ?? EdgeInsets.zero,
+        child: Padding(
+          padding: style.padding ?? EdgeInsets.zero,
+          child: current,
+        ),
+      );
+    }
+
+    // Apply background, borders, and shadows
+    if (style.backgroundColor != null ||
+        style.borderRadius != null ||
+        style.border != null ||
+        style.boxShadow != null) {
+      current = DecoratedBox(
+        decoration: BoxDecoration(
+          color: style.backgroundColor,
+          borderRadius: style.borderRadius,
+          border: style.border,
+          boxShadow: style.boxShadow,
+        ),
         child: current,
       );
     }
 
-    // Create constraints
-    final constraints = BoxConstraints(
-      maxWidth: width ?? double.infinity,
-      maxHeight: height ?? double.infinity,
-    );
+    // Apply individual borders
+    if (style.borderLeft != null ||
+        style.borderRight != null ||
+        style.borderTop != null ||
+        style.borderBottom != null) {
+      current = Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: style.borderLeft ?? BorderSide.none,
+            right: style.borderRight ?? BorderSide.none,
+            top: style.borderTop ?? BorderSide.none,
+            bottom: style.borderBottom ?? BorderSide.none,
+          ),
+        ),
+        child: current,
+      );
+    }
 
-    // Apply styling based on display type
+    // Apply alignment
+    if (style.alignment != null) {
+      current = Align(
+        alignment: style.alignment!,
+        child: current,
+      );
+    }
+
+    // Apply display-specific styling
     switch (style.display) {
       case Display.flex:
         current = Flex(
-          direction: style.flexDirection ?? Axis.vertical,
+          direction: style.flexDirection ?? Axis.horizontal,
           mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
           crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -66,44 +112,68 @@ class StyledContainer extends StatelessWidget {
       case Display.inline:
         // Inline elements don't create new blocks
         break;
-      case Display.inlineBlock:
-        current = IntrinsicWidth(child: current);
       case Display.block:
       case Display.none:
-        if (style.alignment != null) {
-          current = Align(
-            alignment: style.alignment!,
-            child: current,
-          );
-        }
+        // Already handled
+        break;
     }
 
-    // Apply container styling if needed
-    final hasDecoration =
-        style.decoration != null || style.backgroundColor != null;
-    final hasSpacing = style.padding != null || style.margin != null;
-    final hasTransform = style.transform != null;
+    // Apply size constraints
+    current = ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: style.minWidth ?? 0.0,
+        maxWidth: style.maxWidth ?? width ?? double.infinity,
+        minHeight: style.minHeight ?? 0.0,
+        maxHeight: style.maxHeight ?? height ?? double.infinity,
+      ),
+      child: SizedBox(
+        width: style.width ?? width,
+        height: style.height ?? height,
+        child: current,
+      ),
+    );
 
-    if (hasDecoration || hasSpacing || hasTransform) {
-      current = Container(
-        padding: style.padding,
-        margin: style.margin,
-        transform: style.transform,
-        decoration: style.decoration?.copyWith(
-              color: style.backgroundColor,
-            ) ??
-            (style.backgroundColor != null
-                ? BoxDecoration(color: style.backgroundColor)
-                : null),
-        clipBehavior: hasDecoration ? Clip.antiAlias : Clip.none,
+    // Apply aspect ratio
+    if (style.aspectRatio != null) {
+      current = AspectRatio(
+        aspectRatio: style.aspectRatio!,
         child: current,
       );
     }
 
-    // Apply constraints
-    return ConstrainedBox(
-      constraints: constraints,
-      child: current,
-    );
+    // Apply opacity
+    if (style.opacity != null) {
+      current = Opacity(
+        opacity: style.opacity!,
+        child: current,
+      );
+    }
+
+    // Apply overflow
+    if (style.overflow != Clip.hardEdge) {
+      current = ClipRect(
+        clipBehavior: style.overflow,
+        child: current,
+      );
+    }
+
+    // Apply transform
+    if (style.transform != null) {
+      current = Transform(
+        transform: style.transform!,
+        alignment: style.transformAlignment,
+        child: current,
+      );
+    }
+
+    // Apply mouse cursor
+    if (style.cursor != null) {
+      current = MouseRegion(
+        cursor: style.cursor!,
+        child: current,
+      );
+    }
+
+    return current;
   }
 }
