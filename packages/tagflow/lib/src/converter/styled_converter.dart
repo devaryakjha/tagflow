@@ -10,8 +10,6 @@ class StyledContainer extends StatelessWidget {
     required this.style,
     required this.tag,
     this.child,
-    this.width,
-    this.height,
     super.key,
   });
 
@@ -21,32 +19,40 @@ class StyledContainer extends StatelessWidget {
   /// HTML tag this container represents
   final String tag;
 
-  /// Explicit width constraint
-  final double? width;
-
-  /// Explicit height constraint
-  final double? height;
-
   /// Child widget
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    var current = child ?? const SizedBox.shrink();
-
-    // Handle display none
     if (style.display == Display.none) {
       return const SizedBox.shrink();
     }
 
-    // Apply basic styling
-    current = DefaultTextStyle.merge(
-      style: style.textStyle ?? const TextStyle(),
-      textAlign: style.textAlign,
-      child: current,
+    return _buildStyledWidget(
+      _buildLayoutWidget(
+        child ?? const SizedBox.shrink(),
+      ),
     );
+  }
 
-    // Apply padding and margin
+  Widget _buildStyledWidget(Widget child) {
+    // Early return if no visual styles are applied
+    if (!_hasVisualStyles) {
+      return child;
+    }
+
+    var current = child;
+
+    // Apply text styling
+    if (style.textStyle != null || style.textAlign != null) {
+      current = DefaultTextStyle.merge(
+        style: style.textStyle ?? const TextStyle(),
+        textAlign: style.textAlign,
+        child: current,
+      );
+    }
+
+    // Apply spacing
     if (style.padding != null || style.margin != null) {
       current = Padding(
         padding: style.margin ?? EdgeInsets.zero,
@@ -57,11 +63,8 @@ class StyledContainer extends StatelessWidget {
       );
     }
 
-    // Apply background, borders, and shadows
-    if (style.backgroundColor != null ||
-        style.borderRadius != null ||
-        style.border != null ||
-        style.boxShadow != null) {
+    // Apply visual styles
+    if (_hasDecoration) {
       current = DecoratedBox(
         decoration: BoxDecoration(
           color: style.backgroundColor,
@@ -74,10 +77,7 @@ class StyledContainer extends StatelessWidget {
     }
 
     // Apply individual borders
-    if (style.borderLeft != null ||
-        style.borderRight != null ||
-        style.borderTop != null ||
-        style.borderBottom != null) {
+    if (_hasIndividualBorders) {
       current = Container(
         decoration: BoxDecoration(
           border: Border(
@@ -91,6 +91,13 @@ class StyledContainer extends StatelessWidget {
       );
     }
 
+    // Apply effects
+    return _applyEffects(current);
+  }
+
+  Widget _buildLayoutWidget(Widget child) {
+    var current = child;
+
     // Apply alignment
     if (style.alignment != null) {
       current = Align(
@@ -99,39 +106,35 @@ class StyledContainer extends StatelessWidget {
       );
     }
 
-    // Apply display-specific styling
-    switch (style.display) {
-      case Display.flex:
-        current = Flex(
+    // Apply display-specific layout
+    current = switch (style.display) {
+      Display.flex => Flex(
           direction: style.flexDirection ?? Axis.horizontal,
           mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
           crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [current],
-        );
-      case Display.inline:
-        // Inline elements don't create new blocks
-        break;
-      case Display.block:
-      case Display.none:
-        // Already handled
-        break;
-    }
+        ),
+      Display.inline => current, // Inline elements don't create new blocks
+      _ => current, // block and none are handled elsewhere
+    };
 
-    // Apply size constraints
-    current = ConstrainedBox(
-      constraints: BoxConstraints(
-        minWidth: style.minWidth ?? 0.0,
-        maxWidth: style.maxWidth ?? width ?? double.infinity,
-        minHeight: style.minHeight ?? 0.0,
-        maxHeight: style.maxHeight ?? height ?? double.infinity,
-      ),
-      child: SizedBox(
-        width: style.width ?? width,
-        height: style.height ?? height,
-        child: current,
-      ),
-    );
+    // Apply size constraints if any exist
+    if (_hasSizeConstraints) {
+      current = ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: style.minWidth ?? 0.0,
+          maxWidth: style.maxWidth ?? double.infinity,
+          minHeight: style.minHeight ?? 0.0,
+          maxHeight: style.maxHeight ?? double.infinity,
+        ),
+        child: SizedBox(
+          width: style.width,
+          height: style.height,
+          child: current,
+        ),
+      );
+    }
 
     // Apply aspect ratio
     if (style.aspectRatio != null) {
@@ -140,6 +143,12 @@ class StyledContainer extends StatelessWidget {
         child: current,
       );
     }
+
+    return current;
+  }
+
+  Widget _applyEffects(Widget child) {
+    var current = child;
 
     // Apply opacity
     if (style.opacity != null) {
@@ -176,4 +185,37 @@ class StyledContainer extends StatelessWidget {
 
     return current;
   }
+
+  // Optimization helpers
+  bool get _hasVisualStyles =>
+      style.textStyle != null ||
+      style.textAlign != null ||
+      style.padding != null ||
+      style.margin != null ||
+      _hasDecoration ||
+      _hasIndividualBorders ||
+      style.opacity != null ||
+      style.overflow != Clip.hardEdge ||
+      style.transform != null ||
+      style.cursor != null;
+
+  bool get _hasDecoration =>
+      style.backgroundColor != null ||
+      style.borderRadius != null ||
+      style.border != null ||
+      style.boxShadow != null;
+
+  bool get _hasIndividualBorders =>
+      style.borderLeft != null ||
+      style.borderRight != null ||
+      style.borderTop != null ||
+      style.borderBottom != null;
+
+  bool get _hasSizeConstraints =>
+      style.width != null ||
+      style.height != null ||
+      style.minWidth != null ||
+      style.minHeight != null ||
+      style.maxWidth != null ||
+      style.maxHeight != null;
 }
