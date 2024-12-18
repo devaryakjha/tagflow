@@ -13,6 +13,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -23,13 +24,12 @@ jobs:
 
       - uses: bluefireteam/melos-action@v3
         with:
-          run-bootstrap: true
           run-versioning-prerelease: true
-          publish: true
           tag: true
           git-email: "actions@github.com"
           git-name: "GitHub Actions Bot"
           create-pr: true
+          publish-dry-run: true
 
   stable:
     if: github.ref == 'refs/heads/stable'
@@ -37,6 +37,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -47,9 +48,9 @@ jobs:
 
       - uses: bluefireteam/melos-action@v3
         with:
-          run-bootstrap: true
           run-versioning: true
-          publish: true
           tag: true
           git-email: "actions@github.com"
           git-name: "GitHub Actions Bot"
+          create-pr: true
+          publish-dry-run: true
