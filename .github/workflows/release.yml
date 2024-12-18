@@ -43,7 +43,7 @@ jobs:
           melos run version:dev
           melos run publish
         env:
-          PUB_CREDENTIALS: ${{ secrets.PUB_CREDENTIALS }}
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
 
       - name: Version & Publish (stable)
         if: github.ref == 'refs/heads/stable'
@@ -51,4 +51,4 @@ jobs:
           melos run version:stable
           melos run publish
         env:
-          PUB_CREDENTIALS: ${{ secrets.PUB_CREDENTIALS }}
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
