@@ -3,6 +3,7 @@ export 'src/converter/converter.dart';
 export 'src/converter/converters/converters.dart';
 export 'src/converter/styled_container.dart';
 export 'src/core/core.dart';
+export 'src/core/models/models.dart';
 // Styles
 export 'src/style/style.dart';
 export 'src/style/style_parser.dart';
