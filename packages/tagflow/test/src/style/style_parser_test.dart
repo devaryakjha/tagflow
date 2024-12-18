@@ -50,9 +50,23 @@ void main() {
       });
 
       test('parses named colors', () {
-        expect(StyleParser.parseColor('black'), const Color(0xFF000000));
-        expect(StyleParser.parseColor('white'), const Color(0xFFFFFFFF));
-        expect(StyleParser.parseColor('red'), const Color(0xFFFF0000));
+        const namedColors = {
+          'black': Color(0xFF000000),
+          'white': Color(0xFFFFFFFF),
+          'red': Color(0xFFFF0000),
+        };
+        expect(
+          StyleParser.parseColor('black', namedColors),
+          const Color(0xFF000000),
+        );
+        expect(
+          StyleParser.parseColor('white', namedColors),
+          const Color(0xFFFFFFFF),
+        );
+        expect(
+          StyleParser.parseColor('red', namedColors),
+          const Color(0xFFFF0000),
+        );
       });
 
       test('handles invalid values', () {
@@ -66,6 +80,11 @@ void main() {
       test('parses basic styles', () {
         final style = StyleParser.parseInlineStyle(
           'color: red; padding: 10px; margin: 5px;',
+          const TagflowTheme(
+            namedColors: {
+              'red': Color(0xFFFF0000),
+            },
+          ),
         );
 
         expect(style?.textStyle?.color, const Color(0xFFFF0000));

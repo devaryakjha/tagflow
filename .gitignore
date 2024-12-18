@@ -41,3 +41,6 @@ doc/api/
 
 # migration
 migrate_working_dir/
+
+# code coverage
+coverage/
