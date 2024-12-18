@@ -20,7 +20,6 @@ final class HrConverter extends ElementConverter {
       tag: element.tag,
       style: style.copyWith(
         width: double.infinity,
-        backgroundColor: style.backgroundColor,
         border: Border(
           bottom: BorderSide(
             color: style.textStyle?.color ?? Colors.grey,
