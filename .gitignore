@@ -44,3 +44,7 @@ migrate_working_dir/
 
 # code coverage
 coverage/
+
+
+# IDE
+.idea/
