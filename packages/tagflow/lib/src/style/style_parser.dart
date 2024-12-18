@@ -83,13 +83,15 @@ class StyleParser {
         final g = int.parse(parts[1]);
         final b = int.parse(parts[2]);
         final a = parts.length > 3 ? double.parse(parts[3]) : 1.0;
-        return Color.fromRGBO(r, g, b, a);
+
+        // Convert alpha from 0-1 to 0-255 and ensure it's rounded properly
+        final alpha = (a * 255).round();
+        return Color.fromARGB(alpha, r, g, b);
       } catch (_) {
         return null;
       }
     }
 
-    // Handle hsl/hsla (TODO)
     return null;
   }
 

@@ -11,14 +11,15 @@ environment:
 resolution: workspace
 
 dependencies:
-  collection: ^1.18.0
-  csslib: ^1.0.2
+  collection: ^1.19.0
   equatable: ^2.0.7
   flutter:
     sdk: flutter
   html: ^0.15.5
-  nanoid: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter:
+  uses-material-design: true

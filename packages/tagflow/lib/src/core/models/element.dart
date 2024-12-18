@@ -11,10 +11,11 @@ class TagflowElement {
   TagflowElement({
     required this.tag,
     this.textContent,
-    this.children = const [],
+    List<TagflowElement>? children,
     LinkedHashMap<String, String>? attributes,
     this.parent,
-  }) : _attributes = attributes ?? LinkedHashMap.from({});
+  })  : _children = children ?? [],
+        _attributes = attributes ?? LinkedHashMap.from({});
 
   /// Factory constructor for text nodes
   factory TagflowElement.text(String content) {
@@ -39,8 +40,11 @@ class TagflowElement {
   /// Element's attributes
   final LinkedHashMap<String, String> _attributes;
 
-  /// Child elements
-  final List<TagflowElement> children;
+  /// Internal children list
+  final List<TagflowElement> _children;
+
+  /// Child elements (unmodifiable view)
+  List<TagflowElement> get children => List.unmodifiable(_children);
 
   /// Returns the value of the attribute with the given name
   String? operator [](String name) => _attributes[name];
@@ -72,7 +76,7 @@ class TagflowElement {
 
   /// Adds a child element and sets its parent
   void addChild(TagflowElement child) {
-    children.add(child);
+    _children.add(child);
     child.parent = this;
   }
 
