@@ -24,7 +24,7 @@ Transform HTML markup into native Flutter widgets with an elegant, customizable 
 🚀 **Simple Integration**
 
 ```dart
-class MyWidget extends StatelessWidget {
+class MyHtmlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tagflow(
@@ -157,6 +157,4 @@ Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and
 
 ## Add-on Packages
 
-- `tagflow_table` - Enhanced table support
-- `tagflow_iframe` - IFrame rendering capabilities
-- `tagflow_media` - Media element handling
+- `tagflow_tailwind` - Tailwind CSS integration
