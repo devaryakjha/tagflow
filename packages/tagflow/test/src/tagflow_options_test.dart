@@ -25,11 +25,13 @@ void main() {
     test('copyWith works correctly', () {
       const options = TagflowOptions(
         maxImageWidth: 100,
+        maxImageHeight: 100,
       );
 
       final copied = options.copyWith(
         debug: true,
         maxImageWidth: 200,
+        maxImageHeight: 200,
       );
 
       expect(copied.debug, true);
