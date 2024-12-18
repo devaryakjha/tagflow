@@ -1,5 +1,3 @@
-// ignore_for_file: unused_element, lines_longer_than_80_chars
-
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -264,8 +262,9 @@ class StyleParser {
           }
         case 'skew':
           if (args.length >= 2) {
-            transform.setEntry(1, 0, args[0]);
-            transform.setEntry(0, 1, args[1]);
+            transform
+              ..setEntry(1, 0, args[0])
+              ..setEntry(0, 1, args[1]);
           }
       }
     }

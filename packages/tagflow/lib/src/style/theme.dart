@@ -71,7 +71,7 @@ class TagflowTheme extends Equatable {
           textStyle: textTheme.bodyMedium?.copyWith(
             fontFamily: 'monospace',
             backgroundColor:
-                colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           ),
           padding: spacing.inlineCodePadding,
         ),
@@ -80,14 +80,16 @@ class TagflowTheme extends Equatable {
         'pre': TagflowStyle(
           padding: spacing.blockPadding,
           margin: spacing.blockMargin,
-          backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.1),
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
         ),
         'blockquote': TagflowStyle(
           padding: spacing.blockPadding,
           margin: spacing.blockMargin,
-          backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.1),
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
           borderLeft: BorderSide(
-            color: colorScheme.primary.withOpacity(0.5),
+            color: colorScheme.primary.withValues(alpha: 0.5),
             width: spacing.borderWidth,
           ),
         ),
@@ -112,7 +114,8 @@ class TagflowTheme extends Equatable {
         ),
         'th': TagflowStyle(
           padding: spacing.tableCellPadding,
-          backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.1),
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
           textStyle: textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
