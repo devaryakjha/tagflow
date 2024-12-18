@@ -1,0 +1,26 @@
+name: Publish to pub.dev
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: subosito/flutter-action@v2
+
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: true
+          publish: true
+          git-email: "actions@github.com"
+          git-name: "GitHub Actions Bot"
