@@ -1,4 +1,6 @@
 // lib/src/style/style_parser.dart
+// ignore_for_file: unused_element, lines_longer_than_80_chars
+
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -20,8 +22,8 @@ class StyleParser {
   static const _defaultRemSize = 16.0;
 
   /// Parse a CSS size value with optional unit
-  static double? parseSize(String value, [double remSize = _defaultRemSize]) {
-    value = value.trim().toLowerCase();
+  static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
+    final value = value0.trim().toLowerCase();
 
     // Handle percentage values
     if (value.endsWith('%')) {
@@ -35,7 +37,7 @@ class StyleParser {
       'rem': remSize,
       'em': remSize,
       'pt': 1.333333, // 1pt = 1.333333px
-      'vh': 1.0, // TODO: Implement viewport relative units
+      'vh': 1.0, // TODO(devaryakjha): Implement viewport relative units
       'vw': 1.0,
     };
 
@@ -51,8 +53,8 @@ class StyleParser {
   }
 
   /// Parse a CSS color value
-  static Color? parseColor(String value) {
-    value = value.trim().toLowerCase();
+  static Color? parseColor(String value0) {
+    final value = value0.trim().toLowerCase();
 
     // Check named colors first
     if (_namedColors.containsKey(value)) {
@@ -329,7 +331,7 @@ class StyleParser {
 
   /// Parse transform-related styles
   static Matrix4? _parseTransform(Map<String, String> styles) {
-    // TODO: Implement transform parsing (rotate, scale, translate, etc.)
+    // TODO(devaryakjha): Implement transform parsing (rotate, scale, translate, etc.)
     return null;
   }
 
@@ -351,7 +353,7 @@ class StyleParser {
       borderRadius: styles['border-radius'] != null
           ? parseBorderRadius(styles['border-radius']!)
           : null,
-      // TODO: Add border parsing
+      // TODO(devaryakjha): Add border parsing
     );
   }
 

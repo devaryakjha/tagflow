@@ -55,8 +55,9 @@ final class CodeConverter extends ElementConverter {
     TagflowElement element,
     BuildContext context,
     TagflowConverter converter,
-    TagflowStyle style,
+    TagflowStyle style0,
   ) {
+    var style = style0;
     // For inline code within pre, remove redundant styling
     if (element.parentTag == 'pre') {
       style = style.copyWith(
