@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main # for dev releases
+      - stable # for stable releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Setup Melos
+        run: dart pub global activate melos
+
+      - name: Clean & Bootstrap
+        run: melos bootstrap:clean
+
+      - name: Get Dependencies
+        run: melos run pub:get
+
+      - name: Validate
+        run: melos run validate
+
+      - name: Version & Publish (dev)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          melos run version:dev
+          melos run publish
+        env:
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
+
+      - name: Version & Publish (stable)
+        if: github.ref == 'refs/heads/stable'
+        run: |
+          melos run version:stable
+          melos run publish
+        env:
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
