@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-12-18
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`tagflow` - `v0.0.1-dev.3`](#tagflow---v001-dev3)
+
+---
+
+#### `tagflow` - `v0.0.1-dev.3`
+
+ - **REFACTOR**: moved style enums to appropriate directories. ([af6c78f4](https://github.com/devaryakjha/tagflow/commit/af6c78f44c126d8c99e33bbe600490b998e0128a))
+ - **DOCS**: update add on packages list. ([044c527a](https://github.com/devaryakjha/tagflow/commit/044c527a2f3a84b4aa9ed1782f9e450316be8f0f))
+
+
 ## 2024-12-19
 
 ### Changes
