@@ -3,13 +3,80 @@ name: tagflow
 packages:
   - packages/**
 
+command:
+  version:
+    # Generate commit links in changelog
+    linkToCommits: true
+    # Only allow versioning to happen on main branch
+    branch: main
+    # Additionally build a changelog at the root of the project
+    workspaceChangelog: true
+
 scripts:
-  docs:
-    exec: dartdoc
-    description: Generate documentation
   analyze:
-    exec: dart analyze .
-    description: Analyze the project
+    # Run analysis on all packages
+    run: melos exec -- "dart analyze . --fatal-infos"
+    description: Run analyzer in all packages
+
   test:
-    exec: flutter test
-    description: Run tests
+    # Run tests on all packages that have tests
+    run: melos exec -c 1 --fail-fast -- "flutter test --coverage"
+    description: Run tests for all packages
+    packageFilters:
+      dirExists: test
+
+  format:
+    # Format all .dart files in the project
+    run: melos exec -- "dart format ."
+    description: Format all .dart files
+
+  format:check:
+    # Check if all files are formatted
+    run: melos exec -- "dart format --set-exit-if-changed ."
+    description: Check if all files are formatted
+
+  lint:all:
+    # Run all static analysis checks
+    run: |
+      melos run analyze && \
+      melos run format:check
+    description: Run all static analysis checks
+
+  build:clean:
+    # Clean all build outputs
+    run: melos exec -- "flutter clean"
+    description: Clean all build outputs
+
+  pub:get:
+    # Get packages in all packages
+    run: melos exec -- "flutter pub get"
+    description: Get packages in all packages
+
+  validate:
+    # Verify that packages pass all checks
+    run: |
+      melos run lint:all && \
+      melos run test
+    description: Run all validations (analyze, format, test)
+
+  version:dev:
+    # Version packages with dev tag
+    run: melos version --prerelease=dev --yes
+    description: Version packages with dev tag
+
+  version:stable:
+    # Version packages for stable release
+    run: melos version --yes
+    description: Version packages for stable release
+
+  publish:
+    # Publish all packages
+    run: melos publish --yes --no-dry-run
+    description: Publish all packages to pub.dev
+
+  bootstrap:clean:
+    # Clean and bootstrap workspace
+    run: |
+      melos clean && \
+      melos bootstrap
+    description: Clean and bootstrap workspace
