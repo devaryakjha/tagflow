@@ -149,7 +149,7 @@ linter:
     - prefer_spread_collections
     - prefer_typing_uninitialized_variables
     - provide_deprecation_message
-    - public_member_api_docs
+    # - public_member_api_docs
     - recursive_getters
     - require_trailing_commas
     - secure_pubspec_urls

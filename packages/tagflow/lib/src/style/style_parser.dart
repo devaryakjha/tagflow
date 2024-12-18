@@ -1,21 +1,97 @@
 // lib/src/style/style_parser.dart
 import 'package:flutter/widgets.dart';
+import 'package:tagflow/tagflow.dart';
 
 /// Utility class to parse CSS-like values into Flutter values
 class StyleParser {
-  /// Parse a CSS font-size value
-  static double? parseFontSize(String value) {
-    if (value.endsWith('px')) {
-      return double.tryParse(value.replaceAll('px', ''));
+  /// CSS named colors mapping
+  static const _namedColors = {
+    'transparent': Color(0x00000000),
+    'black': Color(0xFF000000),
+    'white': Color(0xFFFFFFFF),
+    'red': Color(0xFFFF0000),
+    'green': Color(0xFF00FF00),
+    'blue': Color(0xFF0000FF),
+    'yellow': Color(0xFFFFFF00),
+    // Add more named colors as needed
+  };
+
+  /// Default rem size in pixels
+  static const _defaultRemSize = 16.0;
+
+  /// Parse a CSS size value with optional unit
+  static double? parseSize(String value, [double remSize = _defaultRemSize]) {
+    value = value.trim().toLowerCase();
+
+    // Handle percentage values
+    if (value.endsWith('%')) {
+      final number = double.tryParse(value.replaceAll('%', ''));
+      return number != null ? number / 100 : null;
     }
-    if (value.endsWith('rem')) {
-      final size = double.tryParse(value.replaceAll('rem', ''));
-      return size != null ? size * 16 : null; // 1rem = 16px
+
+    // Handle various units
+    final units = {
+      'px': 1.0,
+      'rem': remSize,
+      'em': remSize,
+      'pt': 1.333333, // 1pt = 1.333333px
+      'vh': 1.0, // TODO: Implement viewport relative units
+      'vw': 1.0,
+    };
+
+    for (final unit in units.entries) {
+      if (value.endsWith(unit.key)) {
+        final number = double.tryParse(value.replaceAll(unit.key, ''));
+        return number != null ? number * unit.value : null;
+      }
     }
+
+    // Try parsing as raw number
     return double.tryParse(value);
   }
 
-  /// Parse a CSS font-weight value
+  /// Parse a CSS color value
+  static Color? parseColor(String value) {
+    value = value.trim().toLowerCase();
+
+    // Check named colors first
+    if (_namedColors.containsKey(value)) {
+      return _namedColors[value];
+    }
+
+    // Handle hex colors
+    if (value.startsWith('#')) {
+      var hex = value.substring(1);
+      if (hex.length == 3) {
+        hex = hex.split('').map((c) => '$c$c').join();
+      }
+      if (hex.length == 6) {
+        hex = 'ff$hex'; // Add full opacity
+      }
+      final intValue = int.tryParse(hex, radix: 16);
+      return intValue != null ? Color(intValue) : null;
+    }
+
+    // Handle rgb/rgba
+    final rgbMatch = RegExp(r'rgba?\((.*?)\)').firstMatch(value);
+    if (rgbMatch != null) {
+      final parts = rgbMatch.group(1)!.split(',').map((s) => s.trim()).toList();
+      try {
+        final r = int.parse(parts[0]);
+        final g = int.parse(parts[1]);
+        final b = int.parse(parts[2]);
+        final a = parts.length > 3 ? double.parse(parts[3]) : 1.0;
+        return Color.fromRGBO(r, g, b, a);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // Handle hsl/hsla (TODO)
+    return null;
+  }
+
+  /// Parse CSS font-weight value
   static FontWeight? parseFontWeight(String value) {
     return switch (value.toLowerCase()) {
       '100' || 'thin' => FontWeight.w100,
@@ -31,48 +107,50 @@ class StyleParser {
     };
   }
 
-  /// Parse a CSS color value
-  static Color? parseColor(String value) {
-    if (value.startsWith('#')) {
-      var colorValue = value.replaceAll('#', '');
-      if (colorValue.length == 3) {
-        colorValue = colorValue.split('').map((e) => '$e$e').join();
-      }
-      final intValue = int.tryParse(colorValue, radix: 16);
-      return intValue != null ? Color(0xFF000000 | intValue) : null;
-    }
-
-    // handle rgb and rgba colors, where the last value is optional,
-    // but if present it can be a number between 0 and 1.
-    // e.g. rgba(255, 0, 0, 0.5)
-    if (value.startsWith('rgb')) {
-      // Remove rgb/rgba prefix and parentheses, then split by comma
-      final rawValues = value
-          .replaceAll(RegExp(r'rgba?\(|\)'), '')
-          .split(',')
-          .map((s) => s.trim());
-
-      try {
-        final values = rawValues.take(3).map(int.parse).toList();
-        if (values.length == 3) {
-          // Handle alpha if present (rgba)
-          if (rawValues.length > 3) {
-            final alpha = double.parse(rawValues.elementAt(3));
-            final alphaInt = (alpha * 255).round();
-            return Color.fromARGB(alphaInt, values[0], values[1], values[2]);
-          }
-          return Color.fromRGBO(values[0], values[1], values[2], 1);
-        }
-      } catch (e) {
-        return null; // Return null if parsing fails
-      }
-    }
-
-    // Add named colors if needed
-    return null;
+  /// Parse CSS font-style value
+  static FontStyle? parseFontStyle(String value) {
+    return switch (value.toLowerCase()) {
+      'italic' => FontStyle.italic,
+      'normal' => FontStyle.normal,
+      _ => null,
+    };
   }
 
-  /// Parse a CSS size value (for margin, padding, etc)
+  /// Parse CSS text-decoration value
+  static TextDecoration? parseTextDecoration(String value) {
+    final decorations = value.toLowerCase().split(' ');
+    final result = <TextDecoration>[];
+
+    for (final decoration in decorations) {
+      switch (decoration) {
+        case 'underline':
+          result.add(TextDecoration.underline);
+        case 'line-through':
+          result.add(TextDecoration.lineThrough);
+        case 'overline':
+          result.add(TextDecoration.overline);
+        case 'none':
+          return TextDecoration.none;
+      }
+    }
+
+    return result.isEmpty ? null : TextDecoration.combine(result);
+  }
+
+  /// Parse CSS text-align value
+  static TextAlign? parseTextAlign(String value) {
+    return switch (value.toLowerCase()) {
+      'left' => TextAlign.left,
+      'right' => TextAlign.right,
+      'center' => TextAlign.center,
+      'justify' => TextAlign.justify,
+      'start' => TextAlign.start,
+      'end' => TextAlign.end,
+      _ => null,
+    };
+  }
+
+  /// Parse CSS edge insets (margin, padding)
   static EdgeInsets? parseEdgeInsets(String value) {
     final parts = value.split(' ').map(parseSize).toList();
 
@@ -81,6 +159,12 @@ class StyleParser {
       2 when parts.every((e) => e != null) => EdgeInsets.symmetric(
           vertical: parts[0]!,
           horizontal: parts[1]!,
+        ),
+      3 when parts.every((e) => e != null) => EdgeInsets.only(
+          top: parts[0]!,
+          right: parts[1]!,
+          left: parts[1]!,
+          bottom: parts[2]!,
         ),
       4 when parts.every((e) => e != null) => EdgeInsets.fromLTRB(
           parts[0]!,
@@ -92,52 +176,195 @@ class StyleParser {
     };
   }
 
-  /// Parse a CSS size value
-  // TODO(Arya): Add support for em, ex, ch, rem, vw, vh, vmin, vmax, etc.
-  static double? parseSize(String value, [double remSize = 16]) {
-    if (value.endsWith('rem')) {
-      final size = double.tryParse(value.replaceAll('rem', ''));
-      return size != null ? size * remSize : null; // 1rem = remSize
+  /// Parse CSS border-radius value
+  static BorderRadius? parseBorderRadius(String value) {
+    final parts = value.split(' ').map(parseSize).toList();
+
+    return switch (parts.length) {
+      1 when parts[0] != null => BorderRadius.circular(parts[0]!),
+      2 when parts.every((e) => e != null) => BorderRadius.only(
+          topLeft: Radius.circular(parts[0]!),
+          topRight: Radius.circular(parts[1]!),
+          bottomRight: Radius.circular(parts[1]!),
+          bottomLeft: Radius.circular(parts[0]!),
+        ),
+      4 when parts.every((e) => e != null) => BorderRadius.only(
+          topLeft: Radius.circular(parts[0]!),
+          topRight: Radius.circular(parts[1]!),
+          bottomRight: Radius.circular(parts[2]!),
+          bottomLeft: Radius.circular(parts[3]!),
+        ),
+      _ => null,
+    };
+  }
+
+  /// Parse CSS display value
+  static Display? parseDisplay(String value) {
+    return switch (value.toLowerCase()) {
+      'block' => Display.block,
+      'inline' => Display.inline,
+      'inline-block' => Display.inlineBlock,
+      'flex' => Display.flex,
+      'none' => Display.none,
+      _ => null,
+    };
+  }
+
+  /// Parse CSS flex-direction value
+  static FlexDirection? parseFlexDirection(String value) {
+    return switch (value.toLowerCase()) {
+      'row' => FlexDirection.row,
+      'row-reverse' => FlexDirection.rowReverse,
+      'column' => FlexDirection.column,
+      'column-reverse' => FlexDirection.columnReverse,
+      _ => null,
+    };
+  }
+
+  /// Parse CSS justify-content value
+  static MainAxisAlignment? parseJustifyContent(String value) {
+    return switch (value.toLowerCase()) {
+      'flex-start' || 'start' => MainAxisAlignment.start,
+      'flex-end' || 'end' => MainAxisAlignment.end,
+      'center' => MainAxisAlignment.center,
+      'space-between' => MainAxisAlignment.spaceBetween,
+      'space-around' => MainAxisAlignment.spaceAround,
+      'space-evenly' => MainAxisAlignment.spaceEvenly,
+      _ => null,
+    };
+  }
+
+  /// Parse CSS align-items value
+  static CrossAxisAlignment? parseAlignItems(String value) {
+    return switch (value.toLowerCase()) {
+      'flex-start' || 'start' => CrossAxisAlignment.start,
+      'flex-end' || 'end' => CrossAxisAlignment.end,
+      'center' => CrossAxisAlignment.center,
+      'stretch' => CrossAxisAlignment.stretch,
+      'baseline' => CrossAxisAlignment.baseline,
+      _ => null,
+    };
+  }
+
+  /// Parse inline style string into TagflowStyle
+  static TagflowStyle? parseInlineStyle(String? styleString) {
+    if (styleString == null || styleString.isEmpty) return null;
+
+    final styles = _parseDeclarations(styleString);
+    if (styles.isEmpty) return null;
+
+    return TagflowStyle(
+      textStyle: _parseTextStyle(styles),
+      padding: styles['padding'] != null
+          ? parseEdgeInsets(styles['padding']!)
+          : null,
+      margin:
+          styles['margin'] != null ? parseEdgeInsets(styles['margin']!) : null,
+      backgroundColor: styles['background-color'] != null
+          ? parseColor(styles['background-color']!)
+          : null,
+      alignment: _parseAlignment(styles),
+      textAlign: styles['text-align'] != null
+          ? parseTextAlign(styles['text-align']!)
+          : null,
+      // Add layout property parsing
+      display: parseDisplay(styles['display'] ?? 'block') ?? Display.block,
+      flexDirection: styles['flex-direction'] != null
+          ? _parseFlexDirection(styles['flex-direction']!)
+          : null,
+      justifyContent: styles['justify-content'] != null
+          ? parseJustifyContent(styles['justify-content']!)
+          : null,
+      alignItems: styles['align-items'] != null
+          ? parseAlignItems(styles['align-items']!)
+          : null,
+      gap: styles['gap'] != null ? parseSize(styles['gap']!) : null,
+    );
+  }
+
+  /// Parse CSS declarations into a map
+  static Map<String, String> _parseDeclarations(String styleString) {
+    return Map.fromEntries(
+      styleString
+          .split(';')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .map((declaration) {
+        final parts = declaration.split(':').map((s) => s.trim()).toList();
+        return parts.length == 2 ? MapEntry(parts[0], parts[1]) : null;
+      }).whereType<MapEntry<String, String>>(),
+    );
+  }
+
+  /// Parse text-related styles into TextStyle
+  static TextStyle? _parseTextStyle(Map<String, String> styles) {
+    return TextStyle(
+      color: styles['color'] != null ? parseColor(styles['color']!) : null,
+      fontSize:
+          styles['font-size'] != null ? parseSize(styles['font-size']!) : null,
+      fontWeight: styles['font-weight'] != null
+          ? parseFontWeight(styles['font-weight']!)
+          : null,
+      fontStyle: styles['font-style'] != null
+          ? parseFontStyle(styles['font-style']!)
+          : null,
+      decoration: styles['text-decoration'] != null
+          ? parseTextDecoration(styles['text-decoration']!)
+          : null,
+    );
+  }
+
+  /// Parse alignment-related styles
+  static Alignment? _parseAlignment(Map<String, String> styles) {
+    if (styles['text-align'] != null) {
+      return switch (styles['text-align']!.toLowerCase()) {
+        'left' => Alignment.centerLeft,
+        'right' => Alignment.centerRight,
+        'center' => Alignment.center,
+        _ => null,
+      };
     }
-
-    if (value.endsWith('px')) {
-      return double.tryParse(value.replaceAll('px', ''));
-    }
-    return double.tryParse(value);
+    return null;
   }
 
-  /// Parse a CSS font-style value
-  static FontStyle? parseFontStyle(String value) {
+  /// Parse transform-related styles
+  static Matrix4? _parseTransform(Map<String, String> styles) {
+    // TODO: Implement transform parsing (rotate, scale, translate, etc.)
+    return null;
+  }
+
+  /// Parse decoration-related styles
+  static BoxDecoration? _parseDecoration(Map<String, String> styles) {
+    final hasDecoration = styles.keys.any(
+      (key) =>
+          key.startsWith('border') ||
+          key == 'background-color' ||
+          key == 'border-radius',
+    );
+
+    if (!hasDecoration) return null;
+
+    return BoxDecoration(
+      color: styles['background-color'] != null
+          ? parseColor(styles['background-color']!)
+          : null,
+      borderRadius: styles['border-radius'] != null
+          ? parseBorderRadius(styles['border-radius']!)
+          : null,
+      // TODO: Add border parsing
+    );
+  }
+
+  /// Parse flex-direction into Axis
+  static Axis? _parseFlexDirection(String value) {
     return switch (value.toLowerCase()) {
-      'italic' => FontStyle.italic,
-      'normal' => FontStyle.normal,
+      'row' || 'row-reverse' => Axis.horizontal,
+      'column' || 'column-reverse' => Axis.vertical,
       _ => null,
     };
   }
 
-  /// Parse CSS text-decoration value
-  static TextDecoration? parseTextDecoration(String value) {
-    return switch (value.toLowerCase()) {
-      'underline' => TextDecoration.underline,
-      'line-through' => TextDecoration.lineThrough,
-      'overline' => TextDecoration.overline,
-      'none' => TextDecoration.none,
-      _ => null,
-    };
-  }
-
-  /// Parse text-align value
-  static TextAlign? parseTextAlign(String value) {
-    return switch (value.toLowerCase()) {
-      'left' => TextAlign.left,
-      'right' => TextAlign.right,
-      'center' => TextAlign.center,
-      'justify' => TextAlign.justify,
-      _ => null,
-    };
-  }
-
-  /// Parse object-fit value
+  /// Parse CSS object-fit value into BoxFit
   static BoxFit? parseBoxFit(String value) {
     return switch (value.toLowerCase()) {
       'contain' => BoxFit.contain,
@@ -145,107 +372,10 @@ class StyleParser {
       'fill' => BoxFit.fill,
       'none' => BoxFit.none,
       'scale-down' => BoxFit.scaleDown,
-      'scale-down-x' => BoxFit.scaleDown,
-      'scale-down-y' => BoxFit.scaleDown,
+      'fit' => BoxFit.fitWidth, // Non-standard, but useful
+      'width' => BoxFit.fitWidth,
+      'height' => BoxFit.fitHeight,
       _ => null,
     };
-  }
-
-  /// Parse a CSS flex-direction value
-  static Axis parseFlexDirection(String value) {
-    return switch (value.toLowerCase()) {
-      'column' => Axis.vertical,
-      'column-reverse' => Axis.vertical,
-      _ => Axis.horizontal,
-    };
-  }
-
-  /// Parse a CSS justify-content value
-  static MainAxisAlignment parseMainAxisAlignment(String value) {
-    return switch (value.toLowerCase()) {
-      'start' => MainAxisAlignment.start,
-      'end' => MainAxisAlignment.end,
-      'center' => MainAxisAlignment.center,
-      'space-between' => MainAxisAlignment.spaceBetween,
-      'space-around' => MainAxisAlignment.spaceAround,
-      'space-evenly' => MainAxisAlignment.spaceEvenly,
-      _ => MainAxisAlignment.start,
-    };
-  }
-
-  /// Parse a CSS flex-direction value
-  static CrossAxisAlignment parseCrossAxisAlignment(String value) {
-    return switch (value.toLowerCase()) {
-      'start' => CrossAxisAlignment.start,
-      'end' => CrossAxisAlignment.end,
-      'center' => CrossAxisAlignment.center,
-      'stretch' => CrossAxisAlignment.stretch,
-      'baseline' => CrossAxisAlignment.baseline,
-      _ => CrossAxisAlignment.start,
-    };
-  }
-
-  /// Parse a CSS border-style value
-  static BorderStyle? parseBorderStyle(String value) {
-    return switch (value.toLowerCase()) {
-      'none' => BorderStyle.none,
-      _ => BorderStyle.solid,
-    };
-  }
-
-  /// Parse a CSS border value
-  static BoxBorder? parseBoxBorder(String value) {
-    final parts = value.split(' ');
-    final width = parseSize(parts[0]);
-    final style = parseBorderStyle(parts[1]) ?? BorderStyle.solid;
-    final color = parseColor(parts[2]);
-    return width != null && color != null
-        ? Border.all(width: width, color: color, style: style)
-        : null;
-  }
-
-  /// Parse a CSS border-radius value
-  static BorderRadius? parseBorderRadius(String value) {
-    final parts = value.split(' ');
-    if (parts.length == 1) {
-      final size = parseSize(parts[0]);
-      return BorderRadius.circular(size ?? 0);
-    }
-    if (parts.length == 2) {
-      final topLeft = parseSize(parts[0]);
-      final bottomRight = parseSize(parts[1]);
-      return BorderRadius.only(
-        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
-        bottomRight:
-            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
-      );
-    }
-    if (parts.length == 3) {
-      final topLeft = parseSize(parts[0]);
-      final bottomRight = parseSize(parts[1]);
-      final bottomLeft = parseSize(parts[2]);
-      return BorderRadius.only(
-        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
-        bottomRight:
-            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
-        bottomLeft:
-            bottomLeft != null ? Radius.circular(bottomLeft) : Radius.zero,
-      );
-    }
-    if (parts.length == 4) {
-      final topLeft = parseSize(parts[0]);
-      final topRight = parseSize(parts[1]);
-      final bottomRight = parseSize(parts[2]);
-      final bottomLeft = parseSize(parts[3]);
-      return BorderRadius.only(
-        topLeft: topLeft != null ? Radius.circular(topLeft) : Radius.zero,
-        topRight: topRight != null ? Radius.circular(topRight) : Radius.zero,
-        bottomRight:
-            bottomRight != null ? Radius.circular(bottomRight) : Radius.zero,
-        bottomLeft:
-            bottomLeft != null ? Radius.circular(bottomLeft) : Radius.zero,
-      );
-    }
-    return null;
   }
 }

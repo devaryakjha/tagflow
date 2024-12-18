@@ -2,265 +2,104 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// Theme that provides default styles for all elements
+/// A theme that provides default styles for all HTML elements in Tagflow.
+///
+/// The theme system follows a cascading model similar to CSS, where styles are
+/// applied in the following order of precedence (from lowest to highest):
+///
+/// 1. Base style (applies to all elements)
+/// 2. Universal selector (*) styles
+/// 3. Element-specific styles (e.g., styles for 'p', 'h1', etc.)
+/// 4. Class styles (styles applied via class attributes)
+/// 5. Inline styles (styles defined in the style attribute)
+///
+/// Example usage:
+/// ```dart
+/// TagflowTheme.fromTheme(
+///   Theme.of(context),
+///   classStyles: {
+///     'highlight': TagflowStyle(
+///       elementStyles: {
+///         '*': ElementStyle(  // Applies to all elements with class 'highlight'
+///           decoration: BoxDecoration(
+///             color: Colors.yellow,
+///           ),
+///         ),
+///         'p': ElementStyle(  // Only applies to <p> with class 'highlight'
+///           padding: EdgeInsets.all(8),
+///         ),
+///       },
+///     ),
+///   },
+/// )
+/// ```
 class TagflowTheme extends Equatable {
-  /// Create a new theme with the given base style
+  /// Create a new [TagflowTheme]
   const TagflowTheme({
-    required this.baseStyle,
-    this.classStyles = const {},
+    required this.styles,
   });
 
-  /// Create a theme from a Flutter theme
-  ///
-  /// `fontFamily` and `codeFontFamily` are used to set the font family for the
-  /// text and code elements.
-  ///
-  /// Here is how to text styles are picked up from the theme:
-  ///
-  /// - `bodyMedium` is used for `p` elements
-  /// - `displayLarge` is used for `h1` elements
-  /// - `displayMedium` is used for `h2` elements
-  /// - `displaySmall` is used for `h3` elements
-  /// - `headlineMedium` is used for `h4` elements
-  /// - `headlineSmall` is used for `h5` elements
-  /// - `titleLarge` is used for `h6` elements
-  factory TagflowTheme.fromTheme(
-    ThemeData theme, {
-    String? fontFamily,
-    String? codeFontFamily,
-  }) = _TagflowFromTheme;
-
-  /// Base style for all elements (e.g., text, headings, etc.)
-  final TagflowStyle baseStyle;
-
-  /// Styles for specific classes (e.g., '.my-class')
-  final Map<String, TagflowStyle> classStyles;
-
-  /// Get style for a specific class (e.g., '.my-class')
-  TagflowStyle? getClassStyle(String className) => classStyles[className];
-
-  @override
-  List<Object?> get props => [baseStyle, classStyles];
-}
-
-class _TagflowFromTheme extends TagflowTheme {
-  _TagflowFromTheme(
-    this.theme, {
-    String? fontFamily,
-    String? codeFontFamily,
-  }) : super(
-          baseStyle: _createBaseStyle(theme, fontFamily, codeFontFamily),
-          classStyles: _createClassStyles(theme.textTheme),
-        );
-
-  final ThemeData theme;
-
-  static TagflowStyle _createBaseStyle(
-    ThemeData theme,
-    String? fontFamily,
-    String? codeFontFamily,
-  ) {
+  /// Create a new theme from a Flutter theme
+  factory TagflowTheme.fromTheme(ThemeData theme) {
     final textTheme = theme.textTheme;
     final rem = textTheme.bodyMedium?.fontSize ?? 14.0;
 
-    return TagflowStyle(
-      textStyle: textTheme.bodyMedium,
-      elementStyles: {
-        'h1': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem * 0.67),
+    return TagflowTheme(
+      styles: {
+        '*': TagflowStyle(
+          textStyle: textTheme.bodyMedium,
+          padding: EdgeInsets.all(rem * 0.5),
+        ),
+        'h1': TagflowStyle(
           textStyle: textTheme.displayLarge?.copyWith(
             fontSize: rem * 2,
             fontWeight: FontWeight.w800,
-            height: 1.2,
           ),
-        ),
-        'h2': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem * 0.83),
-          textStyle: textTheme.displayMedium?.copyWith(
-            fontSize: rem * 1.5,
-            fontWeight: FontWeight.w700,
-            height: 1.2,
-          ),
-        ),
-        'h3': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem),
-          textStyle: textTheme.displaySmall?.copyWith(
-            fontSize: rem * 1.17,
-            fontWeight: FontWeight.w600,
-            height: 1.2,
-          ),
-        ),
-        'h4': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem),
-          textStyle: textTheme.headlineMedium?.copyWith(
-            fontSize: rem,
-            fontWeight: FontWeight.w600,
-            height: 1.2,
-          ),
-        ),
-        'h5': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem),
-          textStyle: textTheme.headlineSmall?.copyWith(
-            fontSize: rem * 0.83,
-            fontWeight: FontWeight.w600,
-            height: 1.2,
-          ),
-        ),
-        'h6': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem),
-          textStyle: textTheme.titleLarge?.copyWith(
-            fontSize: rem * 0.67,
-            fontWeight: FontWeight.w600,
-            height: 1.2,
-          ),
-        ),
-        'p': ElementStyle(
           margin: EdgeInsets.symmetric(vertical: rem),
         ),
-        'span': const ElementStyle(),
-        'a': ElementStyle(
-          textStyle: TextStyle(
-            color: theme.colorScheme.primary,
-            decoration: TextDecoration.underline,
-            decorationColor: theme.colorScheme.primary,
-          ),
-        ),
-        // CODE THEMING
-        'code': ElementStyle(
-          textStyle: TextStyle(
-            fontFamily: codeFontFamily ?? 'monospace',
-            height: 1.2,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: rem * 0.375,
-            vertical: rem * 0.125,
-          ),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest
-                .withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        'pre': ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: rem),
-          padding: EdgeInsets.all(rem),
-          textStyle: TextStyle(
-            fontFamily: codeFontFamily ?? 'monospace',
-            height: 1.5,
-            color: theme.colorScheme.onSurfaceVariant,
-            fontSize: textTheme.bodyMedium?.fontSize ?? 14.0,
-          ),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest
-                .withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.outlineVariant,
-            ),
-          ),
-        ),
-        'blockquote': ElementStyle(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: Colors.grey.withValues(alpha: 0.5),
-                width: 5,
-              ),
-            ),
-          ),
-        ),
-        'q': ElementStyle(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: Colors.grey.withValues(alpha: 0.5),
-                width: 5,
-              ),
-            ),
-          ),
-        ),
-        //
-        'img': ElementStyle(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        // styles
-        'b': const ElementStyle(
-          textStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        'strong': const ElementStyle(
-          textStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        'i': const ElementStyle(
-          textStyle: TextStyle(
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-        'em': const ElementStyle(
-          textStyle: TextStyle(
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-        'u': const ElementStyle(
-          textStyle: TextStyle(
-            decoration: TextDecoration.underline,
-          ),
-        ),
-        's': const ElementStyle(
-          textStyle: TextStyle(
-            decoration: TextDecoration.lineThrough,
-          ),
-        ),
-        'small': ElementStyle(
-          textStyle: TextStyle(
-            fontSize: rem * 0.85,
-          ),
-        ),
-        'mark': ElementStyle(
-          padding: EdgeInsets.all(rem * 0.2),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        'del': const ElementStyle(
-          textStyle: TextStyle(
-            decoration: TextDecoration.lineThrough,
-          ),
-        ),
-        'ins': const ElementStyle(
-          textStyle: TextStyle(
-            decoration: TextDecoration.underline,
-          ),
-        ),
-        'sub': ElementStyle(
-          transform: Matrix4.translationValues(0, rem * 0.35, 0),
-          textStyle: TextStyle(fontSize: rem * 0.65),
-        ),
-        'sup': ElementStyle(
-          transform: Matrix4.translationValues(0, -rem * 0.35, 0),
-          textStyle: TextStyle(fontSize: rem * 0.65),
-        ),
-        'hr': const ElementStyle(
-          margin: EdgeInsets.symmetric(vertical: 20),
-        ),
+        // ... other default styles
       },
     );
   }
 
-  static Map<String, TagflowStyle> _createClassStyles(TextTheme textTheme) {
-    return {};
+  /// Map of selectors to styles
+  /// Keys can be:
+  /// - Tag names (e.g., 'p', 'h1')
+  /// - Universal selector ('*')
+  /// - Class selectors (e.g., '.highlight')
+  final Map<String, TagflowStyle> styles;
+
+  /// Get style for an element, merging all applicable styles
+  TagflowStyle resolveStyle(TagflowElement element) {
+    // Start with universal style if exists
+    var result = styles['*'] ?? const TagflowStyle();
+
+    // Add tag style
+    if (styles.containsKey(element.tag)) {
+      result = result.merge(styles[element.tag]);
+    }
+
+    // Add class styles
+    final classes = element.attributes['class']?.split(' ') ?? [];
+    for (final className in classes) {
+      final classStyle = styles['.${className.trim()}'];
+      if (classStyle != null) {
+        result = result.merge(classStyle);
+      }
+    }
+
+    // Add inline styles last using StyleParser
+    final inlineStyle =
+        StyleParser.parseInlineStyle(element.attributes['style']);
+    if (inlineStyle != null) {
+      result = result.merge(inlineStyle);
+    }
+
+    return result;
   }
+
+  @override
+  List<Object?> get props => [styles];
 }
 
 /// Provider for accessing current theme

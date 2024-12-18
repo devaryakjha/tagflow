@@ -22,34 +22,29 @@ abstract class ElementConverter {
     TagflowConverter converter,
   );
 
-  @override
-  String toString() {
-    return '$runtimeType(supportedTags: $supportedTags)';
+  /// Get the computed style for an element
+  TagflowStyle resolveStyle(TagflowElement element, BuildContext context) {
+    return TagflowThemeProvider.of(context).resolveStyle(element);
   }
+
+  @override
+  String toString() => '$runtimeType(supportedTags: $supportedTags)';
 }
 
 /// Main converter that orchestrates the conversion process
 class TagflowConverter {
-  /// Create a new converter
-  TagflowConverter() {
-    // Register built-in converters
-    _registerBuiltIns([
-      const ContainerConverter(),
-      const TextConverter(),
-      const ImgConverter(),
-      const BasicCodeConverter(),
-      const BlockquoteConverter(),
-      const HrConverter(),
-    ]);
+  /// Create a new converter with optional custom converters
+  TagflowConverter([List<ElementConverter>? customConverters]) {
+    if (customConverters != null) {
+      _customConverters.addAll(customConverters);
+    }
+    _registerBuiltIns();
   }
 
-  /// Custom converters take precedence over built-in ones
   final List<ElementConverter> _customConverters = [];
-
-  /// Built-in converters as fallback
   final List<ElementConverter> _builtInConverters = [];
 
-  /// Add a custom converter that takes precedence over built-in ones
+  /// Add a custom converter
   void addConverter(ElementConverter converter) {
     _customConverters.add(converter);
   }
@@ -59,25 +54,37 @@ class TagflowConverter {
     _customConverters.addAll(converters);
   }
 
-  /// Internal method to register built-in converters
-  void _registerBuiltIns(List<ElementConverter> converters) {
-    _builtInConverters.addAll(converters);
+  void _registerBuiltIns() {
+    _builtInConverters.addAll([
+      const ContainerConverter(),
+      const TextConverter(),
+      const ImgConverter(),
+      const CodeConverter(),
+      const BlockquoteConverter(),
+      const HrConverter(),
+    ]);
   }
 
   /// Convert a TagflowElement to a Widget
   Widget convert(TagflowElement element, BuildContext context) {
-    // Combine custom and built-in converters for a single iteration
-    final allConverters = [..._customConverters, ..._builtInConverters];
-
-    for (final converter in allConverters) {
+    // Try custom converters first
+    for (final converter in _customConverters) {
       if (converter.canHandle(element)) {
-        log('Using converter: $converter');
+        log('Using custom converter: $converter');
+        return converter.convert(element, context, this);
+      }
+    }
+
+    // Then try built-in converters
+    for (final converter in _builtInConverters) {
+      if (converter.canHandle(element)) {
+        log('Using built-in converter: $converter');
         return converter.convert(element, context, this);
       }
     }
 
     // Fallback to default converter
-    return DefaultConverter().convert(element, context, this);
+    return const DefaultConverter().convert(element, context, this);
   }
 
   /// Convert a list of elements to widgets
@@ -89,10 +96,12 @@ class TagflowConverter {
   }
 }
 
-/// Default fallback converter
+/// Default fallback converter for unknown elements
 class DefaultConverter extends ElementConverter {
+  const DefaultConverter();
+
   @override
-  Set<String> get supportedTags => {};
+  Set<String> get supportedTags => const {};
 
   @override
   bool canHandle(TagflowElement element) => true;
@@ -104,137 +113,13 @@ class DefaultConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     if (element.isTextNode) {
-      return Text(element.textContent ?? '');
-    }
-    return const SizedBox.shrink();
-  }
-}
-
-/// Extension to help with style resolution
-// lib/src/converter/converter.dart
-extension StyleResolution on ElementConverter {
-  /// Get the computed style for an element
-  TagflowStyle resolveStyle(
-    TagflowElement element,
-    BuildContext context,
-  ) {
-    final theme = TagflowThemeProvider.of(context);
-
-    // Start with base style
-    var style = theme.baseStyle;
-
-    // Add element-specific style
-    final elementStyle = style.getElementStyle(element.tag);
-    if (elementStyle != null) {
-      style = style.merge(
-        TagflowStyle(
-          textStyle: elementStyle.textStyle,
-          padding: elementStyle.padding,
-          margin: elementStyle.margin,
-          decoration: elementStyle.decoration,
-          alignment: elementStyle.alignment,
-          backgroundColor: elementStyle.decoration?.color,
-          textAlign: elementStyle.textAlign,
-          transform: elementStyle.transform,
-        ),
+      final style = resolveStyle(element, context);
+      return Text(
+        element.textContent ?? '',
+        style: style.textStyle,
+        textAlign: style.textAlign,
       );
     }
-
-    // Add class-specific styles
-    for (final className in element.classList) {
-      final classStyle = theme.getClassStyle(className);
-      if (classStyle != null) {
-        style = style.merge(classStyle);
-      }
-    }
-
-    // Finally, add inline styles
-    if (element.styles != null) {
-      style = style.merge(_parseInlineStyles(element.styles!));
-    }
-
-    return style;
-  }
-
-  /// Parse inline styles into TagflowStyle
-  TagflowStyle _parseInlineStyles(Map<Object, String> styles) {
-    var textStyle = const TextStyle();
-    EdgeInsets? padding;
-    EdgeInsets? margin;
-    Color? backgroundColor;
-    BoxDecoration? decoration;
-    Alignment? alignment;
-    TextAlign? textAlign;
-
-    for (final entry in styles.entries) {
-      final property = entry.key.toString();
-      final value = entry.value;
-
-      switch (property) {
-        // Font styles
-        case 'font-size':
-          final size = StyleParser.parseFontSize(value);
-          if (size != null) {
-            textStyle = textStyle.copyWith(fontSize: size);
-          }
-        case 'font-weight':
-          final weight = StyleParser.parseFontWeight(value);
-          if (weight != null) {
-            textStyle = textStyle.copyWith(fontWeight: weight);
-          }
-        case 'font-style':
-          final style = StyleParser.parseFontStyle(value);
-          if (style != null) {
-            textStyle = textStyle.copyWith(fontStyle: style);
-          }
-        case 'color':
-          final color = StyleParser.parseColor(value);
-          if (color != null) {
-            textStyle = textStyle.copyWith(color: color);
-          }
-        case 'text-decoration':
-          final decoration = StyleParser.parseTextDecoration(value);
-          if (decoration != null) {
-            textStyle = textStyle.copyWith(decoration: decoration);
-          }
-        case 'text-align':
-          textAlign = StyleParser.parseTextAlign(value);
-
-        // Layout
-        case 'padding':
-          padding = StyleParser.parseEdgeInsets(value);
-        case 'margin':
-          margin = StyleParser.parseEdgeInsets(value);
-        case 'background-color':
-          backgroundColor = StyleParser.parseColor(value);
-          if (decoration == null) {
-            decoration = BoxDecoration(color: backgroundColor);
-          } else {
-            decoration = decoration.copyWith(color: backgroundColor);
-          }
-        case 'border':
-          final border = StyleParser.parseBoxBorder(value);
-          if (border != null) {
-            decoration = decoration?.copyWith(border: border);
-          }
-        case 'border-radius':
-          final radius = StyleParser.parseBorderRadius(value);
-          if (radius != null) {
-            decoration = decoration?.copyWith(borderRadius: radius);
-          }
-
-        // Add more properties as needed
-      }
-    }
-
-    return TagflowStyle(
-      textStyle: textStyle,
-      padding: padding,
-      margin: margin,
-      backgroundColor: backgroundColor,
-      decoration: decoration,
-      alignment: alignment,
-      textAlign: textAlign,
-    );
+    return const SizedBox.shrink();
   }
 }

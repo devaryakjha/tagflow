@@ -3,7 +3,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
+/// A container that applies TagflowStyle to its child
 class StyledContainer extends StatelessWidget {
+  /// Create a new styled container
   const StyledContainer({
     required this.style,
     required this.tag,
@@ -13,41 +15,95 @@ class StyledContainer extends StatelessWidget {
     super.key,
   });
 
+  /// Style to apply
   final TagflowStyle style;
+
+  /// HTML tag this container represents
   final String tag;
+
+  /// Explicit width constraint
   final double? width;
+
+  /// Explicit height constraint
   final double? height;
+
+  /// Child widget
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    final hasDecoration = style.decoration != null;
-    final hasAlignment = style.alignment != null;
-    final hasPadding = style.padding != null;
-    final hasMargin = style.margin != null;
+    var current = child ?? const SizedBox.shrink();
+
+    // Handle display none
+    if (style.display == Display.none) {
+      return const SizedBox.shrink();
+    }
+
+    // Apply text style
+    if (style.textStyle != null) {
+      current = DefaultTextStyle.merge(
+        style: style.textStyle,
+        child: current,
+      );
+    }
+
+    // Create constraints
+    final constraints = BoxConstraints(
+      maxWidth: width ?? double.infinity,
+      maxHeight: height ?? double.infinity,
+    );
+
+    // Apply styling based on display type
+    switch (style.display) {
+      case Display.flex:
+        current = Flex(
+          direction: style.flexDirection ?? Axis.vertical,
+          mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
+          crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [current],
+        );
+      case Display.inline:
+        // Inline elements don't create new blocks
+        break;
+      case Display.inlineBlock:
+        current = IntrinsicWidth(child: current);
+      case Display.block:
+      case Display.none:
+        if (style.alignment != null) {
+          current = Align(
+            alignment: style.alignment!,
+            child: current,
+          );
+        }
+    }
+
+    // Apply container styling if needed
+    final hasDecoration =
+        style.decoration != null || style.backgroundColor != null;
+    final hasSpacing = style.padding != null || style.margin != null;
     final hasTransform = style.transform != null;
-    final needsStyling = hasDecoration ||
-        hasAlignment ||
-        hasPadding ||
-        hasMargin ||
-        hasTransform;
 
-    final constraints = BoxConstraints.tightFor(width: width, height: height);
+    if (hasDecoration || hasSpacing || hasTransform) {
+      current = Container(
+        padding: style.padding,
+        margin: style.margin,
+        transform: style.transform,
+        decoration: style.decoration?.copyWith(
+              color: style.backgroundColor,
+            ) ??
+            (style.backgroundColor != null
+                ? BoxDecoration(color: style.backgroundColor)
+                : null),
+        clipBehavior: hasDecoration ? Clip.antiAlias : Clip.none,
+        child: current,
+      );
+    }
 
-    return DefaultTextStyle.merge(
-      style: style.textStyle,
-      child: needsStyling
-          ? Container(
-              transform: style.transform,
-              clipBehavior: hasDecoration ? Clip.antiAlias : Clip.none,
-              alignment: style.alignment,
-              padding: style.padding,
-              margin: style.margin,
-              decoration: style.decoration,
-              constraints: constraints,
-              child: child,
-            )
-          : ConstrainedBox(constraints: constraints, child: child),
+    // Apply constraints
+    return ConstrainedBox(
+      constraints: constraints,
+      child: current,
     );
   }
 }

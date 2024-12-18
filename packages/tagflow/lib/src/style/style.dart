@@ -13,8 +13,12 @@ class TagflowStyle extends Equatable {
     this.alignment,
     this.transform,
     this.textAlign,
-    this.elementStyles = const {},
-    this.defaultElementStyle,
+    this.display = Display.block,
+    this.flexDirection,
+    this.justifyContent,
+    this.alignItems,
+    this.flexWrap,
+    this.gap,
   });
 
   /// Base text style
@@ -41,39 +45,23 @@ class TagflowStyle extends Equatable {
   /// Text alignment
   final TextAlign? textAlign;
 
-  /// Style applied to all elements (like CSS *)
-  final ElementStyle? defaultElementStyle;
+  /// Display type (block, flex, etc.)
+  final Display display;
 
-  /// Styles for specific HTML elements
-  /// Keys are HTML element names (e.g., 'p', 'h1', 'strong', 'em')
-  final Map<String, ElementStyle> elementStyles;
+  /// Flex direction (for flex containers)
+  final Axis? flexDirection;
 
-  /// Create a copy of this style with specific overrides
-  TagflowStyle copyWith({
-    TextStyle? textStyle,
-    EdgeInsets? padding,
-    EdgeInsets? margin,
-    Color? backgroundColor,
-    BoxDecoration? decoration,
-    Alignment? alignment,
-    Matrix4? transform,
-    Map<String, ElementStyle>? elementStyles,
-    ElementStyle? defaultElementStyle,
-    TextAlign? textAlign,
-  }) {
-    return TagflowStyle(
-      textStyle: textStyle ?? this.textStyle,
-      padding: padding ?? this.padding,
-      margin: margin ?? this.margin,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      decoration: decoration ?? this.decoration,
-      alignment: alignment ?? this.alignment,
-      transform: transform ?? this.transform,
-      elementStyles: elementStyles ?? this.elementStyles,
-      defaultElementStyle: defaultElementStyle ?? this.defaultElementStyle,
-      textAlign: textAlign ?? this.textAlign,
-    );
-  }
+  /// Main axis alignment (for flex containers)
+  final MainAxisAlignment? justifyContent;
+
+  /// Cross axis alignment (for flex containers)
+  final CrossAxisAlignment? alignItems;
+
+  /// Flex wrap behavior
+  final Wrap? flexWrap;
+
+  /// Gap between flex items
+  final double? gap;
 
   /// Merge two styles, with other taking precedence
   TagflowStyle merge(TagflowStyle? other) {
@@ -88,39 +76,49 @@ class TagflowStyle extends Equatable {
       decoration: other.decoration ?? decoration,
       alignment: other.alignment ?? alignment,
       transform: other.transform ?? transform,
-      elementStyles: {
-        ...elementStyles,
-        for (final entry in other.elementStyles.entries)
-          entry.key:
-              elementStyles[entry.key]?.merge(entry.value) ?? entry.value,
-      },
-      defaultElementStyle:
-          other.defaultElementStyle?.merge(defaultElementStyle) ??
-              defaultElementStyle,
       textAlign: other.textAlign ?? textAlign,
+      display: other.display,
+      flexDirection: other.flexDirection ?? flexDirection,
+      justifyContent: other.justifyContent ?? justifyContent,
+      alignItems: other.alignItems ?? alignItems,
+      flexWrap: other.flexWrap ?? flexWrap,
+      gap: other.gap ?? gap,
     );
   }
 
-  /// Get style for a specific HTML element
-  ElementStyle? getElementStyle(String tag) {
-    final resolvedTag = tag.toLowerCase();
-
-    if (resolvedTag == '#text') {
-      return null;
-    }
-
-    // Start with default style if exists
-    final baseStyle = defaultElementStyle;
-
-    // Get tag-specific style
-    final tagStyle = elementStyles[resolvedTag];
-
-    // If we have both, merge them, otherwise return whichever exists
-    if (baseStyle != null && tagStyle != null) {
-      return baseStyle.merge(tagStyle);
-    }
-
-    return tagStyle ?? baseStyle;
+  /// Create a copy of this style with specific overrides
+  TagflowStyle copyWith({
+    TextStyle? textStyle,
+    EdgeInsets? padding,
+    EdgeInsets? margin,
+    Color? backgroundColor,
+    BoxDecoration? decoration,
+    Alignment? alignment,
+    Matrix4? transform,
+    TextAlign? textAlign,
+    Display? display,
+    Axis? flexDirection,
+    MainAxisAlignment? justifyContent,
+    CrossAxisAlignment? alignItems,
+    Wrap? flexWrap,
+    double? gap,
+  }) {
+    return TagflowStyle(
+      textStyle: textStyle ?? this.textStyle,
+      padding: padding ?? this.padding,
+      margin: margin ?? this.margin,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      decoration: decoration ?? this.decoration,
+      alignment: alignment ?? this.alignment,
+      transform: transform ?? this.transform,
+      textAlign: textAlign ?? this.textAlign,
+      display: display ?? this.display,
+      flexDirection: flexDirection ?? this.flexDirection,
+      justifyContent: justifyContent ?? this.justifyContent,
+      alignItems: alignItems ?? this.alignItems,
+      flexWrap: flexWrap ?? this.flexWrap,
+      gap: gap ?? this.gap,
+    );
   }
 
   @override
@@ -132,90 +130,45 @@ class TagflowStyle extends Equatable {
         decoration,
         alignment,
         transform,
-        elementStyles,
-        defaultElementStyle,
         textAlign,
+        display,
+        flexDirection,
+        justifyContent,
+        alignItems,
+        flexWrap,
+        gap,
       ];
 }
 
-/// Style configuration for a specific HTML element
-class ElementStyle extends Equatable {
-  /// Create a new element style
-  const ElementStyle({
-    this.textStyle,
-    this.padding,
-    this.margin,
-    this.decoration,
-    this.alignment,
-    this.transform,
-    this.textAlign,
-  });
+/// Display options for elements
+enum Display {
+  /// Block display
+  block,
 
-  /// Text style
-  final TextStyle? textStyle;
+  /// Inline display
+  inline,
 
-  /// element's padding
-  final EdgeInsets? padding;
+  /// Inline block display
+  inlineBlock,
 
-  /// element's margin
-  final EdgeInsets? margin;
+  /// Flex display
+  flex,
 
-  /// element's decoration
-  final BoxDecoration? decoration;
+  /// None display
+  none,
+}
 
-  /// element's alignment
-  final Alignment? alignment;
+/// Flex direction options
+enum FlexDirection {
+  /// Row direction
+  row,
 
-  /// Transform matrix (e.g. for superscripts and subscripts)
-  final Matrix4? transform;
+  /// Row reverse direction
+  rowReverse,
 
-  /// Text alignment
-  final TextAlign? textAlign;
+  /// Column direction
+  column,
 
-  /// Merge two element styles
-  ElementStyle merge(ElementStyle? other) {
-    if (other == null) return this;
-    return ElementStyle(
-      textStyle:
-          textStyle?.merge(other.textStyle) ?? other.textStyle ?? textStyle,
-      padding: other.padding ?? padding,
-      margin: other.margin ?? margin,
-      decoration: other.decoration ?? decoration,
-      alignment: other.alignment ?? alignment,
-      transform: other.transform ?? transform,
-      textAlign: other.textAlign ?? textAlign,
-    );
-  }
-
-  /// Create a new element style with specific overrides
-  ElementStyle copyWith({
-    TextStyle? textStyle,
-    EdgeInsets? padding,
-    EdgeInsets? margin,
-    BoxDecoration? decoration,
-    Alignment? alignment,
-    Matrix4? transform,
-    TextAlign? textAlign,
-  }) {
-    return ElementStyle(
-      textStyle: textStyle ?? this.textStyle,
-      padding: padding ?? this.padding,
-      margin: margin ?? this.margin,
-      decoration: decoration ?? this.decoration,
-      alignment: alignment ?? this.alignment,
-      transform: transform ?? this.transform,
-      textAlign: textAlign ?? this.textAlign,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-        textStyle,
-        padding,
-        margin,
-        decoration,
-        alignment,
-        transform,
-        textAlign,
-      ];
+  /// Column reverse direction
+  columnReverse,
 }

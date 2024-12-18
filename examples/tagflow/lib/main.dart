@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tagflow_example/pages/home_page.dart';
 
 void main() {
   runApp(const TagflowExample());
@@ -79,7 +78,11 @@ class TagflowExample extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: const HomePage(),
+      home: const Scaffold(
+        body: Center(
+          child: Text('Hello, World!'),
+        ),
+      ),
     );
   }
 }

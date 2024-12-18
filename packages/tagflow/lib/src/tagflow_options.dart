@@ -61,6 +61,11 @@ final class TagflowOptions extends Equatable {
     this.debug = false,
     this.linkTapCallback,
     this.selectable = const TagflowSelectableOptions(),
+    this.imageLoadingBuilder,
+    this.imageErrorBuilder,
+    this.maxImageWidth,
+    this.maxImageHeight,
+    this.enableImageCache = true,
   });
 
   /// Enable debug mode
@@ -69,59 +74,99 @@ final class TagflowOptions extends Equatable {
   /// Callback for handling link taps
   final TagflowLinkTapCallback? linkTapCallback;
 
-  /// Options for configuring the selectable behavior of the Tagflow widget
+  /// Options for configuring the selectable behavior
   final TagflowSelectableOptions selectable;
 
-  /// Default options for configuring the Tagflow widget
-  static const TagflowOptions defaultOptions = TagflowOptions();
+  /// Custom image loading widget builder
+  final ImageLoadingBuilder? imageLoadingBuilder;
 
-  /// Get the [TagflowOptions] from the context
-  static TagflowOptions? maybeOf(BuildContext context) {
-    return TagflowScope.maybeOf(context)?.options;
+  /// Custom image error widget builder
+  final ImageErrorWidgetBuilder? imageErrorBuilder;
+
+  /// Maximum width for images
+  final double? maxImageWidth;
+
+  /// Maximum height for images
+  final double? maxImageHeight;
+
+  /// Whether to cache images
+  final bool enableImageCache;
+
+  /// Create a copy with some properties replaced
+  TagflowOptions copyWith({
+    bool? debug,
+    TagflowLinkTapCallback? linkTapCallback,
+    TagflowSelectableOptions? selectable,
+    ImageLoadingBuilder? imageLoadingBuilder,
+    ImageErrorWidgetBuilder? imageErrorBuilder,
+    double? maxImageWidth,
+    double? maxImageHeight,
+    bool? enableImageCache,
+  }) {
+    return TagflowOptions(
+      debug: debug ?? this.debug,
+      linkTapCallback: linkTapCallback ?? this.linkTapCallback,
+      selectable: selectable ?? this.selectable,
+      imageLoadingBuilder: imageLoadingBuilder ?? this.imageLoadingBuilder,
+      imageErrorBuilder: imageErrorBuilder ?? this.imageErrorBuilder,
+      maxImageWidth: maxImageWidth ?? this.maxImageWidth,
+      maxImageHeight: maxImageHeight ?? this.maxImageHeight,
+      enableImageCache: enableImageCache ?? this.enableImageCache,
+    );
   }
 
-  /// Get the [TagflowOptions] from the context
+  /// Default options
+  static const defaultOptions = TagflowOptions();
+
+  /// Get options from context
   static TagflowOptions of(BuildContext context) {
     return TagflowScope.of(context).options;
   }
 
+  /// Get options from context if available
+  static TagflowOptions? maybeOf(BuildContext context) {
+    return TagflowScope.maybeOf(context)?.options;
+  }
+
   @override
-  List<Object?> get props => [debug, linkTapCallback];
+  List<Object?> get props => [
+        debug,
+        linkTapCallback,
+        selectable,
+        imageLoadingBuilder,
+        imageErrorBuilder,
+        maxImageWidth,
+        maxImageHeight,
+        enableImageCache,
+      ];
 }
 
-/// Inherited widget for configuring the Tagflow widget
-final class TagflowScope extends InheritedWidget {
-  /// Creates a new [TagflowScope] instance.
+/// Scope for providing options to descendants
+class TagflowScope extends InheritedWidget {
+  /// Creates a new [TagflowScope].
   const TagflowScope({
     required this.options,
     required super.child,
     super.key,
   });
 
-  /// The options for configuring the Tagflow widget
+  /// The options to provide
   final TagflowOptions options;
 
-  @override
-  bool updateShouldNotify(covariant TagflowScope oldWidget) {
-    return options != oldWidget.options;
-  }
-
-  /// Get the [TagflowOptions] from the context
+  /// Get scope from context
   static TagflowScope? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<TagflowScope>();
   }
 
-  /// Get the [TagflowOptions] from the context
+  /// Get scope from context
   static TagflowScope of(BuildContext context) {
     final scope = maybeOf(context);
-    if (scope == null) {
-      throw FlutterError(
-        'TagflowOptions.of() called with a context that does not contain a TagflowOptions.\n'
-        'No TagflowOptions ancestor could be found starting from the context that was passed to '
-        'TagflowOptions.of(). This can happen if the context you used comes from a widget that '
-        'was not placed under a Tagflow widget.',
-      );
-    }
-    return scope;
+    assert(scope != null, 'No TagflowScope found in context');
+    return scope!;
+  }
+
+  @override
+  bool updateShouldNotify(TagflowScope oldWidget) {
+    return options != oldWidget.options;
   }
 }

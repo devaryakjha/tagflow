@@ -12,9 +12,9 @@ class TagflowElement {
     required this.tag,
     this.textContent,
     this.children = const [],
-    LinkedHashMap<Object, String>? attributes,
+    LinkedHashMap<String, String>? attributes,
     this.parent,
-  }) : _attributes = attributes ?? LinkedHashMap.identity();
+  }) : _attributes = attributes ?? LinkedHashMap.from({});
 
   /// Factory constructor for text nodes
   factory TagflowElement.text(String content) {
@@ -36,44 +36,20 @@ class TagflowElement {
   /// Element's text content
   final String? textContent;
 
-  // Element's attributes
-  final LinkedHashMap<Object, String> _attributes;
+  /// Element's attributes
+  final LinkedHashMap<String, String> _attributes;
 
   /// Child elements
   final List<TagflowElement> children;
 
-  @override
-  String toString() {
-    return 'TagflowElement{tag: $tag, textContent: $textContent,'
-        ' children: $children'
-        ' attributes: $_attributes}';
-  }
-}
-
-/// Put all the getters and setters in this extension
-extension TagflowElementExtensions on TagflowElement {
-  /// Returns the value of the attribute with the given name.
+  /// Returns the value of the attribute with the given name
   String? operator [](String name) => _attributes[name];
 
-  /// Returns the value of the attribute with the given name.
-  String? get(String name) => _attributes[name];
-
-  /// Returns true if the element has the given attribute.
+  /// Returns true if the element has the given attribute
   bool hasAttribute(String name) => _attributes.containsKey(name);
 
-  /// Return class attribute value
-  String get className => _attributes['class'] ?? '';
-
-  /// Returns the list of class names
-  List<String> get classList => className.split(' ');
-
-  /// Sets the class attribute value
-  set className(String value) => _attributes['class'] = value;
-
-  /// Sets the class attribute value
-  set classList(List<String> value) {
-    _attributes['class'] = value.join(' ');
-  }
+  /// Returns all attributes as an immutable map
+  Map<String, String> get attributes => Map.unmodifiable(_attributes);
 
   /// Whether this element represents a text node
   bool get isTextNode => tag == '#text' && textContent != null;
@@ -87,18 +63,20 @@ extension TagflowElementExtensions on TagflowElement {
   /// The tag name of the parent element
   String get parentTag => parent?.tag ?? '';
 
-  /// Adds a child element to this element.
+  /// Adds multiple child elements
   void addAllChildren(Iterable<TagflowElement> children) {
-    this.children.addAll(children);
+    for (final child in children) {
+      addChild(child);
+    }
   }
 
-  /// Adds a child element to this element.
+  /// Adds a child element and sets its parent
   void addChild(TagflowElement child) {
     children.add(child);
+    child.parent = this;
   }
 
-  /// Adds a parent element to this element.
-  /// and recursively adds all children of this element to the new parent.
+  /// Sets the parent element and updates all children
   void reparent([TagflowElement? newParent]) {
     parent = newParent;
     for (final child in children) {
@@ -106,88 +84,99 @@ extension TagflowElementExtensions on TagflowElement {
     }
   }
 
-  // create a simplified map of attributes
-  /// The attributes of the element
-  Map<String, String> get attributes => Map.fromEntries(
-        _attributes.entries.map((e) => MapEntry(e.key as String, e.value)),
-      );
+  @override
+  String toString() {
+    return 'TagflowElement{tag: $tag, textContent: $textContent, '
+        'attributes: $_attributes, children: $children}';
+  }
 }
 
-/// All extensions for [TagflowElement] that are specific to anchor elements
-extension TagflowAnchorElement on TagflowElement {
-  /// Whether this element represents an anchor element
-  bool get isAnchor => tag == 'a';
-
-  /// The anchor's href attribute
-  String? get href => _attributes['href'];
-
-  /// The anchor's target attribute
-  String? get parentHref => parent?.href;
-}
-
-/// All extensions for [TagflowElement] that are specific to img elements
-extension TagflowImgElement on TagflowElement {
-  /// The image's src attribute
-  String get src => _attributes['src']!;
-
-  /// The image's alt attribute
-  String get alt => _attributes['alt']!;
-
-  /// Image's fit attribute
-  // convert css fit values to flutter fit values
-  BoxFit? get fit => StyleParser.parseBoxFit(styles?['object-fit'] ?? '');
-}
-
-/// All extensions for [TagflowElement] that are specific to style attributes
-extension TagflowElementStyleExtensions on TagflowElement {
-  /// The style of the element
+/// Style-related extensions for TagflowElement
+extension TagflowElementStyle on TagflowElement {
+  /// Returns the inline style string
   String? get style => _attributes['style'];
 
-  /// The styles of the element
-  LinkedHashMap<Object, String>? get styles {
-    if (style == null) {
-      return null;
-    }
-    return LinkedHashMap.fromEntries(
-      style!
-          .split(';')
-          .map((e) {
-            final parts = e.split(':');
-            if (parts.length != 2) {
-              return null;
-            }
-            return MapEntry(parts[0].trim(), parts[1].trim());
-          })
-          .nonNulls
-          .toList(),
+  /// Returns parsed inline styles
+  Map<String, String>? get styles {
+    final styleStr = style;
+    if (styleStr == null || styleStr.isEmpty) return null;
+
+    return Map.fromEntries(
+      styleStr.split(';').map((declaration) {
+        final parts = declaration.split(':').map((s) => s.trim()).toList();
+        return parts.length == 2 ? MapEntry(parts[0], parts[1]) : null;
+      }).whereType<MapEntry<String, String>>(),
     );
   }
 
-  /// Whether the element has the given style
-  bool hasStyle(String name) => styles?.containsKey(name) ?? false;
+  /// Returns class names as a list
+  List<String> get classList =>
+      _attributes['class']
+          ?.split(' ')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList() ??
+      const [];
+
+  /// Returns the class attribute value
+  String get className => _attributes['class'] ?? '';
+
+  /// Sets the class attribute value
+  set className(String value) => _attributes['class'] = value;
+
+  /// Sets class names from a list
+  set classList(List<String> value) => _attributes['class'] = value.join(' ');
 }
 
-/// All extensions for [TagflowElement] that are specific to sizing attributes
-extension TagflowElementSizeExtensions on TagflowElement {
-  String? get _width => _attributes['width'] ?? styles?['width'];
+/// Media-related extensions for TagflowElement
+extension TagflowElementMedia on TagflowElement {
+  /// Returns true if this is an image element
+  bool get isImage => tag == 'img';
 
-  /// The width of the element
-  double? get width => _width != null ? StyleParser.parseSize(_width!) : null;
+  /// Returns the src attribute for media elements
+  String? get src => _attributes['src'];
 
-  String? get _height => _attributes['height'] ?? styles?['height'];
+  /// Returns the alt text for media elements
+  String? get alt => _attributes['alt'];
 
-  /// The height of the element
-  double? get height =>
-      _height != null ? StyleParser.parseSize(_height!) : null;
-
-  /// The spacing of the element
-  ///
-  /// can be used with [Flex] to set the spacing between children
-  double? get spacing =>
-      styles?['gap'] != null ? StyleParser.parseSize(styles!['gap']!) : null;
-
-  /// The color of the element
-  Color? get color => styles?['color'] != null
-      ? StyleParser.parseColor(styles!['color']!)
+  /// Returns the object-fit style as BoxFit
+  BoxFit? get fit => styles?['object-fit'] != null
+      ? StyleParser.parseBoxFit(styles!['object-fit']!)
       : null;
+}
+
+/// Link-related extensions for TagflowElement
+extension TagflowElementLink on TagflowElement {
+  /// Returns true if this is an anchor element
+  bool get isAnchor => tag == 'a';
+
+  /// Returns the href attribute
+  String? get href => _attributes['href'];
+
+  /// Returns the target attribute
+  String? get target => _attributes['target'];
+
+  /// Returns the parent's href if it exists
+  String? get parentHref => parent?.href;
+}
+
+/// Size-related extensions for TagflowElement
+extension TagflowElementSize on TagflowElement {
+  /// Returns the width as a double
+  double? get width {
+    final value = _attributes['width'] ?? styles?['width'];
+    return value != null ? StyleParser.parseSize(value) : null;
+  }
+
+  /// Returns the height as a double
+  double? get height {
+    final value = _attributes['height'] ?? styles?['height'];
+    return value != null ? StyleParser.parseSize(value) : null;
+  }
+
+  /// Returns the gap between flex items
+  double? get gap {
+    final value = styles?['gap'];
+    return value != null ? StyleParser.parseSize(value) : null;
+  }
 }

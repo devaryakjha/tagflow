@@ -26,118 +26,114 @@ class Tagflow extends StatefulWidget {
   /// Creates a new [Tagflow] widget.
   const Tagflow({
     required this.html,
+    this.theme,
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
-    this.loadingBuilder,
-    this.options,
+    this.loadingBuilder = _defaultLoadingWidget,
+    this.options = TagflowOptions.defaultOptions,
     super.key,
   });
 
   /// The HTML content to render.
   final String html;
 
+  /// Custom theme for styling HTML elements
+  final TagflowTheme? theme;
+
   /// Additional converters to use
   final List<ElementConverter> converters;
 
   /// Error builder for handling parsing/conversion errors
-  final ErrorWidgetBuilder? errorBuilder;
+  final ErrorWidgetBuilder errorBuilder;
 
   /// Loading widget shown while parsing
-  final WidgetBuilder? loadingBuilder;
+  final WidgetBuilder loadingBuilder;
 
   /// Options for configuring the Tagflow widget
-  final TagflowOptions? options;
+  final TagflowOptions options;
 
   @override
   State<Tagflow> createState() => _TagflowState();
 }
 
-Future<TagflowElement> _parseHtml(String html) async {
-  final parser = TagflowParser();
-  return parser.parse(html);
-}
-
 class _TagflowState extends State<Tagflow> {
-  late final TagflowConverter converter;
-  TagflowElement? element;
+  late final TagflowConverter _converter;
+  TagflowElement? _element;
+  Object? _error;
 
   @override
   void initState() {
     super.initState();
-    converter = TagflowConverter()..addAllConverters(widget.converters);
+    _converter = TagflowConverter(widget.converters);
+    _parseHtml();
   }
 
   @override
-  void didUpdateWidget(covariant Tagflow oldWidget) {
-    if (oldWidget.html != widget.html) {
-      _parseHtml(widget.html).then((e) {
-        element = e;
-        setState(() {});
-      });
-    }
+  void didUpdateWidget(Tagflow oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.html != widget.html) {
+      _parseHtml();
+    }
+
+    if (!listEquals(oldWidget.converters, widget.converters)) {
+      _converter = TagflowConverter(widget.converters);
+      if (_element != null) setState(() {});
+    }
   }
 
-  Widget _wrapWithScope(Widget child) {
-    if (widget.options == null) {
-      return child;
+  Future<void> _parseHtml() async {
+    try {
+      final parser = TagflowParser();
+      _element = await compute(parser.parse, widget.html);
+      _error = null;
+    } catch (e, stack) {
+      _error = e;
+      if (widget.options.debug) {
+        debugPrint('Error parsing HTML: $e\n$stack');
+      }
     }
-    return TagflowScope(
-      options: widget.options ?? TagflowOptions.defaultOptions,
-      child: Builder(builder: (context) => child),
-    );
+    if (mounted) setState(() {});
+  }
+
+  Widget _buildContent(BuildContext context) {
+    if (_error != null) {
+      return widget.errorBuilder(context, _error);
+    }
+
+    if (_element == null) {
+      return widget.loadingBuilder(context);
+    }
+
+    final content = _converter.convert(_element!, context);
+
+    return widget.options.selectable.enabled
+        ? SelectionArea(child: content)
+        : content;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _wrapWithScope(
-      FutureBuilder(
-        future: Future.microtask(
-          () async => element ??= await _parseHtml(widget.html),
-        ),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return (widget.loadingBuilder ?? _defaultLoadingWidget)(context);
-          }
-
-          if (snapshot.hasError) {
-            return (widget.errorBuilder ?? _defaultErrorWidget)(
-              context,
-              snapshot.error,
-            );
-          }
-
-          final element = snapshot.data!;
-          if (widget.options?.selectable.enabled == false) {
-            return converter.convert(element, context);
-          }
-          return SelectionArea(
-            child: converter.convert(element, context),
-          );
-        },
-      ),
+    return TagflowScope(
+      options: widget.options,
+      child: widget.theme != null
+          ? TagflowThemeProvider(
+              theme: widget.theme!,
+              child: Builder(builder: _buildContent),
+            )
+          : Builder(builder: _buildContent),
     );
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-
     properties
-      ..add(DiagnosticsProperty<String>('html', widget.html))
-      ..add(
-        DiagnosticsProperty<List<ElementConverter>>(
-          'converters',
-          widget.converters,
-        ),
-      )
-      ..add(
-        DiagnosticsProperty<TagflowElement>(
-          'element',
-          element,
-          defaultValue: null,
-          missingIfNull: true,
-        ),
-      );
+      ..add(StringProperty('html', widget.html))
+      ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
+      ..add(IterableProperty<ElementConverter>('converters', widget.converters))
+      ..add(DiagnosticsProperty<TagflowOptions>('options', widget.options))
+      ..add(DiagnosticsProperty<TagflowElement>('element', _element))
+      ..add(DiagnosticsProperty<Object>('error', _error));
   }
 }

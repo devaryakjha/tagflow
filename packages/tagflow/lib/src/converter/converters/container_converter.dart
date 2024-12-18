@@ -1,13 +1,21 @@
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// Converter for container elements
+/// Converts container elements (div, section, article, etc.)
 class ContainerConverter extends ElementConverter {
-  /// Create a new container converter
   const ContainerConverter();
 
   @override
-  Set<String> get supportedTags => {'div', 'section', 'article'};
+  Set<String> get supportedTags => {
+        'div',
+        'section',
+        'article',
+        'aside',
+        'nav',
+        'header',
+        'footer',
+        'main',
+      };
 
   @override
   Widget convert(
@@ -15,29 +23,30 @@ class ContainerConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final children = converter.convertChildren(element.children, context);
-    final dir = StyleParser.parseFlexDirection(
-      element.styles?['flex-direction'] ?? 'row',
-    );
-    final mainAxisAlignment = StyleParser.parseMainAxisAlignment(
-      element.styles?['justify-content'] ?? 'start',
-    );
-    final crossAxisAlignment = StyleParser.parseCrossAxisAlignment(
-      element.styles?['align-items'] ?? 'start',
-    );
     final style = resolveStyle(element, context);
+    final children = converter.convertChildren(element.children, context);
+
+    // Handle flex display
+    if (style.display == Display.flex) {
+      return StyledContainer(
+        style: style,
+        tag: element.tag,
+        child: Flex(
+          direction: style.flexDirection ?? Axis.vertical,
+          mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
+          crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
+          children: children,
+        ),
+      );
+    }
+
+    // Default to Column for block elements
     return StyledContainer(
       style: style,
       tag: element.tag,
-      width: element.width ?? double.maxFinite,
-      // this is a hack to make the container expand to the width of the parent
-      height: element.height,
-      child: Flex(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        direction: dir,
-        mainAxisAlignment: mainAxisAlignment,
-        crossAxisAlignment: crossAxisAlignment,
-        spacing: element.spacing ?? 0,
         children: children,
       ),
     );

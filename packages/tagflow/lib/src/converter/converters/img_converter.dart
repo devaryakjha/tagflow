@@ -19,11 +19,11 @@ final class ImgConverter extends ElementConverter {
         final buffer = StringBuffer();
 
         // Maintain semantic structure: alt text first, then URL
-        if (altText.isNotEmpty) {
+        if (altText?.isNotEmpty ?? false) {
           buffer.write(altText);
         }
 
-        if (url.isNotEmpty) {
+        if (url?.isNotEmpty ?? false) {
           if (buffer.isNotEmpty) {
             // Add semantic separator for screen readers
             buffer.write(' — '); // Em dash for visual separation
@@ -59,7 +59,7 @@ final class ImgConverter extends ElementConverter {
       child: TagflowSelectableAdapter(
         text: _createSelectionText(element, context),
         child: Image.network(
-          element.src,
+          element.src ?? '',
           semanticLabel: element.alt,
           width: element.width,
           height: element.height,
