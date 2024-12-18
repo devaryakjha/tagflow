@@ -1,0 +1,48 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    branches:
+      - main
+      - stable
+
+jobs:
+  prerelease:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: true
+          run-versioning-prerelease: true
+          publish: true
+          tag: true
+          git-email: "actions@github.com"
+          git-name: "GitHub Actions Bot"
+
+  stable:
+    if: github.ref == 'refs/heads/stable'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: true
+          run-versioning: true
+          publish: true
+          tag: true
+          git-email: "actions@github.com"
+          git-name: "GitHub Actions Bot"
