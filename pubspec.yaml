@@ -3,9 +3,10 @@ publish_to: none
 
 environment: 
   sdk: ^3.6.0
-  flutter: 3.27.1
+
 dev_dependencies:
   melos: ^6.2.0
+  
 workspace:
   - packages/tagflow
   - examples/tagflow
