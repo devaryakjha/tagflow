@@ -25,6 +25,7 @@ jobs:
       - uses: subosito/flutter-action@v2
 
       - uses: bluefireteam/melos-action@v3
+        continue-on-error: true
         with:
           run-versioning-prerelease: true
           tag: true
