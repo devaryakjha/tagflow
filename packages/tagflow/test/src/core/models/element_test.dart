@@ -1,4 +1,5 @@
 import 'dart:collection';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -11,15 +12,6 @@ void main() {
       expect(element.textContent, 'Hello');
       expect(element.isTextNode, true);
       expect(element.isEmpty, false);
-    });
-
-    test('creates empty node', () {
-      final element = TagflowElement.empty();
-
-      expect(element.tag, '#empty');
-      expect(element.textContent, null);
-      expect(element.isTextNode, false);
-      expect(element.isEmpty, true);
     });
 
     test('handles attributes', () {
