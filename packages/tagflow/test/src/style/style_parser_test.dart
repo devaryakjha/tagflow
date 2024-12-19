@@ -47,6 +47,10 @@ void main() {
           StyleParser.parseColor('rgba(0,0,0,0.5)'),
           const Color(0x80000000),
         );
+        expect(
+          StyleParser.parseColor('rgba(0,0,0,0.25)'),
+          const Color(0x40000000),
+        );
       });
 
       test('parses named colors', () {
