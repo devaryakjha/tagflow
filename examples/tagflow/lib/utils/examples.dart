@@ -37,4 +37,11 @@ final allExamples = <Example>[
     builder: (context) => const GenericExample(),
     icon: Icons.code,
   ),
+  Example(
+    title: 'Placeholder Example',
+    description: 'A placeholder example',
+    path: '/placeholder',
+    builder: (context) => const ExamplePage.placeholder(title: 'Placeholder'),
+    icon: Icons.code,
+  ),
 ];

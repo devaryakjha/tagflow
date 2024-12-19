@@ -116,7 +116,7 @@ final class TagflowOptions extends Equatable {
   }
 
   /// Default options
-  static const defaultOptions = TagflowOptions();
+  static const defaults = TagflowOptions();
 
   /// Get options from context
   static TagflowOptions of(BuildContext context) {

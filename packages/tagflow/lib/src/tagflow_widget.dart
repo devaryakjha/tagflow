@@ -30,7 +30,7 @@ class Tagflow extends StatefulWidget {
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
-    this.options = TagflowOptions.defaultOptions,
+    this.options = TagflowOptions.defaults,
     super.key,
   });
 

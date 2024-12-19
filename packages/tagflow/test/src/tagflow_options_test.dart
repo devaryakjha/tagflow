@@ -44,7 +44,7 @@ void main() {
 
       await tester.pumpWidget(
         TagflowScope(
-          options: TagflowOptions.defaultOptions,
+          options: TagflowOptions.defaults,
           child: Builder(
             builder: (context) {
               buildCount++;
