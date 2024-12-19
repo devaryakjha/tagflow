@@ -12,6 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  go_router: ^14.6.2
   google_fonts: ^6.2.1
   tagflow: ^0.0.1-dev.1
   url_launcher: ^6.3.1
