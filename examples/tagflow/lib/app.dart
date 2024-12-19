@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:tagflow_example/utils/router.dart';
 import 'package:tagflow_example/utils/style/theme.dart';
 
@@ -37,7 +36,7 @@ class _TagflowExampleState extends State<TagflowExample> {
             child: CircularProgressIndicator(),
           );
         }
-        return ShadApp.router(
+        return MaterialApp.router(
           theme: AppTheme.theme,
           darkTheme: AppTheme.darkTheme,
           title: 'Tagflow Example',

@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 
 final class AppTheme {
-  static final theme = ShadThemeData(
+  static final theme = ThemeData(
     brightness: Brightness.light,
-    colorScheme: const ShadZincColorScheme.light(),
-    textTheme: ShadTextTheme.fromGoogleFont(
-      GoogleFonts.dmSans,
+    colorScheme: const ColorScheme.light(),
+    textTheme: TextTheme(
+      bodyMedium: GoogleFonts.dmSans(),
     ),
   );
 
-  static final darkTheme = ShadThemeData(
+  static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ShadZincColorScheme.dark(),
-    textTheme: ShadTextTheme.fromGoogleFont(
-      GoogleFonts.dmSans,
+    colorScheme: const ColorScheme.dark(),
+    textTheme: TextTheme(
+      bodyMedium: GoogleFonts.dmSans(),
     ),
   );
 }

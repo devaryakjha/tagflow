@@ -1,4 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:tagflow_example/screens/generic_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
 /// A class that represents an example
@@ -28,4 +29,12 @@ final class Example {
 }
 
 /// A list of all examples
-final allExamples = [];
+final allExamples = <Example>[
+  Example(
+    title: 'Generic Example',
+    description: 'A generic example',
+    path: '/generic',
+    builder: (context) => const GenericExample(),
+    icon: Icons.code,
+  ),
+];
