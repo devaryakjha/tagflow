@@ -233,11 +233,11 @@ class TagflowTheme extends Equatable {
           textStyle: baseTextStyle.copyWith(
             fontFamily: codeFontFamily ?? 'monospace',
           ),
+          backgroundColor: codeBackground,
           padding: EdgeInsets.symmetric(
             horizontal: baseFontSize * 0.25,
             vertical: baseFontSize * 0.125,
           ),
-          backgroundColor: codeBackground,
         ),
         'a': TagflowStyle(
           textStyle: TextStyle(
@@ -330,6 +330,7 @@ class TagflowTheme extends Equatable {
 }
 
 /// Provides theme to descendant widgets
+@protected
 class TagflowThemeProvider extends InheritedWidget {
   /// Creates a [TagflowThemeProvider]
   const TagflowThemeProvider({

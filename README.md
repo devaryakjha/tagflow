@@ -157,4 +157,4 @@ Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and
 
 ## Add-on Packages
 
-- `tagflow_tailwind` - Tailwind CSS integration
+- WIP
