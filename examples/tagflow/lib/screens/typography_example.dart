@@ -4,7 +4,7 @@ const _html = '''
 <h1>Typography Examples</h1>
 
 <h2>Text Styles</h2>
-<p>This is a regular paragraph with <strong>bold text</strong>, <em>italic text</em>, and <u>underlined text</u>. Check out our <a href="https://github.com/blaugold/tagflow">GitHub repository</a>!</p>
+<p>This is a regular paragraph with <strong>bold text</strong>, <em>italic text</em>, and <u>underlined text</u>. Check out our <a href="https://github.com/devaryakjha/tagflow">GitHub repository</a>!</p>
 <p>You can also use <mark>highlighted text</mark>, <del>strikethrough</del>, and <ins>inserted text</ins>.</p>
 <p>For scientific notation, you can use <sub>subscript</sub> and <sup>superscript</sup>. Visit <a href="https://google.com">Google</a> to learn more.</p>
 

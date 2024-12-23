@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tagflow/tagflow.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 abstract class ExamplePage extends StatelessWidget {
   const ExamplePage({required this.title, super.key});
@@ -40,8 +41,10 @@ abstract class ExamplePage extends StatelessWidget {
             selectable: const TagflowSelectableOptions(
               enabled: true,
             ),
-            linkTapCallback: (url, attributes) {
-              print('linkTapCallback: $url, $attributes');
+            linkTapCallback: (url, attributes) async {
+              if (await canLaunchUrlString(url)) {
+                await launchUrlString(url);
+              }
             },
           ),
         ),
