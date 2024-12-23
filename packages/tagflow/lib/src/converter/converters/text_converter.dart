@@ -27,6 +27,7 @@ final class TextConverter extends ElementConverter {
         'ins',
         'sub',
         'sup',
+        'a',
       };
 
   Widget _wrapInContainerIfNeeded(
