@@ -11,14 +11,16 @@ abstract class ExamplePage extends StatelessWidget {
   final String title;
   String get html;
 
-  TagflowTheme createTheme(BuildContext context) => TagflowTheme.article(
-        baseTextStyle: Theme.of(context).textTheme.bodyMedium!,
-        headingTextStyle: Theme.of(context).textTheme.headlineMedium!,
-        codeTextStyle:
-            GoogleFonts.spaceMonoTextTheme(Theme.of(context).textTheme)
-                .bodyMedium,
-        codeFontFamily: GoogleFonts.spaceMono().fontFamily,
-      );
+  TagflowTheme createTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    final codeTextTheme = GoogleFonts.spaceMonoTextTheme(theme.textTheme);
+    return TagflowTheme.fromTheme(
+      theme,
+      codeStyle: codeTextTheme.bodyMedium,
+      inlineCodePadding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
