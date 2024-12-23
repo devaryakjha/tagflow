@@ -64,6 +64,7 @@ final class TextConverter extends ElementConverter {
           recognizer: _getGestures(element, context),
           mouseCursor: _getMouseCursor(element, context),
         ),
+        textScaler: _getTextScaler(style),
       ),
       element,
       context,
@@ -87,21 +88,20 @@ final class TextConverter extends ElementConverter {
           mouseCursor: _getMouseCursor(child, context),
         );
       } else {
-        // create a text span for supported elements
-        if (canHandle(child)) {
-          return TextSpan(
-            children: _convertChildren(child, context, converter),
-            style: _getTextStyle(child, resolvedStyle),
-            recognizer: _getGestures(child, context),
-            mouseCursor: _getMouseCursor(child, context),
+        if (!canHandle(child) || child.tag == 'sub' || child.tag == 'sup') {
+          // create a widget span for unsupported elements
+          return WidgetSpan(
+            child: converter.convert(child, context),
+            alignment: PlaceholderAlignment.middle,
           );
         }
 
-        // create a widget span for unsupported elements
-        return WidgetSpan(
-          child: converter.convert(child, context),
+        // create a text span for supported elements
+        return TextSpan(
+          children: _convertChildren(child, context, converter),
           style: _getTextStyle(child, resolvedStyle),
-          alignment: PlaceholderAlignment.middle,
+          recognizer: _getGestures(child, context),
+          mouseCursor: _getMouseCursor(child, context),
         );
       }
     }).toList();
@@ -135,6 +135,12 @@ final class TextConverter extends ElementConverter {
           ),
         _ => null,
       };
+
+  TextScaler? _getTextScaler(TagflowStyle style) {
+    return style.textScaleFactor != null
+        ? TextScaler.linear(style.textScaleFactor!)
+        : null;
+  }
 
   /// Get the text style for a given element
   TextStyle? _getTextStyle(

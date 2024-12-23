@@ -428,6 +428,14 @@ class TagflowTheme extends Equatable {
           decorationColor: linkColor,
         ),
       ),
+      'sub': TagflowStyle(
+        textScaleFactor: 0.65,
+        padding: EdgeInsets.only(top: baseFontSize * 0.35),
+      ),
+      'sup': TagflowStyle(
+        textScaleFactor: 0.65,
+        padding: EdgeInsets.only(bottom: baseFontSize * 0.35),
+      ),
     };
   }
 

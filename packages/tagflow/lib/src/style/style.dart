@@ -7,6 +7,7 @@ class TagflowStyle extends Equatable {
   /// Creates a new [TagflowStyle]
   const TagflowStyle({
     this.textStyle,
+    this.textScaleFactor,
     this.padding,
     this.margin,
     this.backgroundColor,
@@ -41,6 +42,9 @@ class TagflowStyle extends Equatable {
 
   /// Text style
   final TextStyle? textStyle;
+
+  /// Text scale factor
+  final double? textScaleFactor;
 
   /// Padding around the content
   final EdgeInsets? padding;
@@ -165,6 +169,7 @@ class TagflowStyle extends Equatable {
     AlignmentGeometry? transformAlignment,
     BoxFit? boxFit,
     MouseCursor? cursor,
+    double? textScaleFactor,
   }) {
     return TagflowStyle(
       textStyle: textStyle ?? this.textStyle,
@@ -198,6 +203,7 @@ class TagflowStyle extends Equatable {
       transformAlignment: transformAlignment ?? this.transformAlignment,
       boxFit: boxFit ?? this.boxFit,
       cursor: cursor ?? this.cursor,
+      textScaleFactor: textScaleFactor ?? this.textScaleFactor,
     );
   }
 
@@ -238,6 +244,7 @@ class TagflowStyle extends Equatable {
       transformAlignment: other.transformAlignment ?? transformAlignment,
       boxFit: other.boxFit ?? boxFit,
       cursor: other.cursor ?? cursor,
+      textScaleFactor: other.textScaleFactor ?? textScaleFactor,
     );
   }
 
@@ -274,5 +281,6 @@ class TagflowStyle extends Equatable {
         transformAlignment,
         boxFit,
         cursor,
+        textScaleFactor,
       ];
 }
