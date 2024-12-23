@@ -206,7 +206,8 @@ class TagflowStyle extends Equatable {
     if (other == null) return this;
 
     return TagflowStyle(
-      textStyle: other.textStyle?.merge(textStyle) ?? textStyle,
+      textStyle:
+          textStyle?.merge(other.textStyle) ?? textStyle ?? other.textStyle,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
       backgroundColor: other.backgroundColor ?? backgroundColor,

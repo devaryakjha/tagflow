@@ -1,8 +1,10 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
-/// Converts text-based elements (p, h1-h6, span, etc.)
-class TextConverter extends ElementConverter {
+/// Converter for text elements
+final class TextConverter extends ElementConverter {
+  /// Create a new text converter
   const TextConverter();
 
   @override
@@ -27,6 +29,23 @@ class TextConverter extends ElementConverter {
         'sup',
       };
 
+  Widget _wrapInContainerIfNeeded(
+    Widget child,
+    TagflowElement element,
+    BuildContext context,
+    TagflowStyle style,
+  ) {
+    // text nodes are already wrapped,
+    // wrapping them again will break the text style
+    if (element.isTextNode) return child;
+
+    return StyledContainer(
+      style: style,
+      tag: element.tag,
+      child: child,
+    );
+  }
+
   @override
   Widget convert(
     TagflowElement element,
@@ -34,26 +53,96 @@ class TextConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final style = resolveStyle(element, context);
-    final children = converter.convertChildren(element.children, context);
+    final children = _convertChildren(element, context, converter);
 
-    final textWidget = children.isEmpty
-        ? const SizedBox.shrink()
-        : children.length == 1
-            ? children.first
-            : Text.rich(
-                TextSpan(
-                  children: children
-                      .map((child) => TextSpan(text: child.toString()))
-                      .toList(),
-                ),
-                style: style.textStyle,
-                textAlign: style.textAlign,
-              );
-
-    return StyledContainer(
-      style: style,
-      tag: element.tag,
-      child: textWidget,
+    return _wrapInContainerIfNeeded(
+      Text.rich(
+        TextSpan(
+          text: element.textContent,
+          children: children,
+          recognizer: _getGestures(element, context),
+          mouseCursor: _getMouseCursor(element, context),
+        ),
+      ),
+      element,
+      context,
+      style,
     );
+  }
+
+  List<InlineSpan> _convertChildren(
+    TagflowElement element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    return element.children.map((child) {
+      final resolvedStyle =
+          child.isTextNode ? null : resolveStyle(child, context);
+      // create a text span for text nodes
+      if (child.isTextNode) {
+        return TextSpan(
+          text: child.textContent,
+          recognizer: _getGestures(child, context),
+          mouseCursor: _getMouseCursor(child, context),
+        );
+      } else {
+        // create a text span for supported elements
+        if (canHandle(child)) {
+          return TextSpan(
+            children: _convertChildren(child, context, converter),
+            style: _getTextStyle(child, resolvedStyle),
+            recognizer: _getGestures(child, context),
+            mouseCursor: _getMouseCursor(child, context),
+          );
+        }
+
+        // create a widget span for unsupported elements
+        return WidgetSpan(
+          child: converter.convert(child, context),
+          style: _getTextStyle(child, resolvedStyle),
+          alignment: PlaceholderAlignment.middle,
+        );
+      }
+    }).toList();
+  }
+
+  MouseCursor? _getMouseCursor(
+    TagflowElement element,
+    BuildContext context,
+  ) =>
+      switch (element.parentTag) {
+        'a' => SystemMouseCursors.click,
+        _ => null,
+      };
+
+  GestureRecognizer? _getGestures(
+    TagflowElement element,
+    BuildContext context,
+  ) =>
+      switch (element.parentTag) {
+        'a' => TapGestureRecognizer()
+          ..onTap = Feedback.wrapForTap(
+            () {
+              final link = element.parentHref;
+              final options = TagflowOptions.of(context);
+              final cb = options.linkTapCallback;
+              if (cb != null && link != null) {
+                cb(link, element.attributes);
+              }
+            },
+            context,
+          ),
+        _ => null,
+      };
+
+  /// Get the text style for a given element
+  TextStyle? _getTextStyle(
+    TagflowElement element,
+    TagflowStyle? resolvedStyle,
+  ) {
+    if (element.tag == '#text') {
+      return null;
+    }
+    return resolvedStyle?.textStyle;
   }
 }

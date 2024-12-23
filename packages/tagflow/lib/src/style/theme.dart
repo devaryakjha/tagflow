@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
@@ -31,18 +33,41 @@ class TagflowTheme extends Equatable {
   ///     textStyle: TextStyle(fontSize: 16),
   ///   ),
   /// );
+  /// ```
   ///
   /// See also:
   /// - [TagflowTheme.fromTheme] for creating a theme from a Flutter theme.
   /// - [TagflowTheme.article] for creating a theme optimized for article/blog content.
-  /// ```
   const TagflowTheme.raw({
     required this.styles,
     required this.defaultStyle,
     this.namedColors = const {},
   });
 
-  /// Create a new theme from a Flutter theme with customization options
+  /// Creates a theme from a Flutter [ThemeData] with extensive customization options.
+  ///
+  /// Uses the Flutter theme's text styles and colors as a base, while allowing overrides for:
+  /// - Text styles for headings, code, emphasis, etc.
+  /// - Spacing and padding for blocks, lists, and tables
+  /// - Border widths and colors
+  /// - Additional custom styles and colors
+  ///
+  /// The [useSystemColors] parameter determines whether to use the Flutter theme's
+  /// color scheme for named colors. Set to false to only use custom colors.
+  ///
+  /// Example:
+  /// ```dart
+  /// final theme = TagflowTheme.fromTheme(
+  ///   Theme.of(context),
+  ///   baseFontSize: 16.0,
+  ///   h1Style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
+  ///   additionalColors: {'accent': Colors.purple},
+  /// );
+  /// ```
+  ///
+  /// See also:
+  /// - [TagflowTheme.article] for creating a theme optimized for article/blog content.
+  /// - [TagflowTheme.raw] for creating a theme with raw style definitions.
   factory TagflowTheme.fromTheme(
     ThemeData theme, {
     Map<String, TagflowStyle>? additionalStyles,
@@ -138,6 +163,7 @@ class TagflowTheme extends Equatable {
             width: borderWidth ?? defaultBorderWidth,
           ),
         ),
+        ..._defaultStyles(baseFontSize),
 
         // Lists
         'ul': TagflowStyle(
@@ -197,10 +223,30 @@ class TagflowTheme extends Equatable {
     );
   }
 
-  /// Create a theme optimized for article/blog content
+  /// Creates a theme optimized for article and blog content with comfortable reading styles.
+  ///
+  /// Configures text styles, spacing, and colors suitable for long-form content:
+  /// - Larger base font size and line height for readability
+  /// - Hierarchical heading styles
+  /// - Distinct blockquote and code formatting
+  /// - Optional maximum content width
+  /// - Customizable link colors and padding
+  ///
+  /// Example:
+  /// ```dart
+  /// final theme = TagflowTheme.article(
+  ///   baseTextStyle: Theme.of(context).textTheme.bodyMedium!,
+  ///   headingTextStyle: Theme.of(context).textTheme.headlineMedium!,
+  /// );
+  /// ```
+  ///
+  /// See also:
+  /// - [TagflowTheme.fromTheme] for creating a theme from a Flutter theme.
+  /// - [TagflowTheme.raw] for creating a theme with raw style definitions.
   factory TagflowTheme.article({
     required TextStyle baseTextStyle,
     required TextStyle headingTextStyle,
+    TextStyle? codeTextStyle,
     double baseFontSize = 18.0,
     double? maxWidth,
     Color? linkColor,
@@ -261,9 +307,10 @@ class TagflowTheme extends Equatable {
           borderRadius: BorderRadius.circular(baseFontSize * 0.25),
         ),
         'code': TagflowStyle(
-          textStyle: baseTextStyle.copyWith(
-            fontFamily: codeFontFamily ?? 'monospace',
-          ),
+          textStyle: codeTextStyle ??
+              baseTextStyle.copyWith(
+                fontFamily: codeFontFamily ?? 'monospace',
+              ),
           backgroundColor: codeBackground,
           padding: EdgeInsets.symmetric(
             horizontal: baseFontSize * 0.25,
@@ -276,6 +323,7 @@ class TagflowTheme extends Equatable {
             decoration: TextDecoration.underline,
           ),
         ),
+        ..._defaultStyles(baseFontSize),
         if (additionalStyles != null) ...additionalStyles,
       },
     );
@@ -355,6 +403,21 @@ class TagflowTheme extends Equatable {
         'error': scheme.error,
         'onError': scheme.onError,
       };
+
+  static Map<String, TagflowStyle> _defaultStyles(double baseFontSize) {
+    const boldStyle = TextStyle(fontWeight: FontWeight.bold);
+    const italicStyle = TextStyle(fontStyle: FontStyle.italic);
+    return {
+      'small': TagflowStyle(textStyle: TextStyle(fontSize: baseFontSize * 0.8)),
+      'b': const TagflowStyle(textStyle: boldStyle),
+      'strong': const TagflowStyle(textStyle: boldStyle),
+      'i': const TagflowStyle(textStyle: italicStyle),
+      'em': const TagflowStyle(textStyle: italicStyle),
+      'u': const TagflowStyle(
+        textStyle: TextStyle(decoration: TextDecoration.underline),
+      ),
+    };
+  }
 
   @override
   List<Object?> get props => [defaultStyle, styles, namedColors];

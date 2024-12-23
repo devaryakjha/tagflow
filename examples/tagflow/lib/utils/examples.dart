@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow_example/screens/generic_example.dart';
+import 'package:tagflow_example/screens/typography_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
 /// A class that represents an example
@@ -31,11 +31,11 @@ final class Example {
 /// A list of all examples
 final allExamples = <Example>[
   Example(
-    title: 'Generic Example',
-    description: 'A generic example',
-    path: '/generic',
-    builder: (context) => const GenericExample(),
-    icon: Icons.code,
+    title: 'Typography',
+    description: 'A simple example of typography',
+    path: '/typography',
+    builder: (context) => const TypographyExample(),
+    icon: Icons.text_fields,
   ),
   Example(
     title: 'Placeholder Example',

@@ -77,7 +77,7 @@ final class CodeConverter extends ElementConverter {
         tag: element.tag,
         child: Text(
           text.data ?? '',
-          style: style.textStyle?.merge(text.style) ?? text.style,
+          style: style.textStyle,
           textAlign: style.textAlign,
         ),
       );

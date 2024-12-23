@@ -107,7 +107,7 @@ class TagflowParser {
 
   /// Normalize whitespace in text content
   String _normalizeWhitespace(String text) {
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   /// Normalize style declarations
