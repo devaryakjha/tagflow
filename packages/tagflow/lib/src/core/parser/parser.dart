@@ -55,7 +55,9 @@ class TagflowParser {
     // Handle text nodes
     if (node is dom.Text) {
       final text = _normalizeWhitespace(node.text);
-      return text.isEmpty ? TagflowElement.empty() : TagflowElement.text(text);
+      return text.isEmpty || text.trim().isEmpty
+          ? TagflowElement.empty()
+          : TagflowElement.text(text);
     }
 
     // Handle element nodes
