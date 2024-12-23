@@ -409,6 +409,7 @@ class TagflowTheme extends Equatable {
   static Map<String, TagflowStyle> _defaultStyles(
     double baseFontSize, {
     Color linkColor = Colors.blue,
+    Color markColor = Colors.yellow,
   }) {
     const boldStyle = TextStyle(fontWeight: FontWeight.bold);
     const italicStyle = TextStyle(fontStyle: FontStyle.italic);
@@ -427,6 +428,24 @@ class TagflowTheme extends Equatable {
           decoration: TextDecoration.underline,
           decorationColor: linkColor,
         ),
+      ),
+      'del': const TagflowStyle(
+        textStyle: TextStyle(
+          decoration: TextDecoration.lineThrough,
+        ),
+      ),
+      'ins': const TagflowStyle(
+        textStyle: TextStyle(
+          decoration: TextDecoration.underline,
+        ),
+      ),
+      'mark': TagflowStyle(
+        padding: EdgeInsets.symmetric(
+          horizontal: baseFontSize * 0.25,
+          vertical: baseFontSize * 0.05,
+        ),
+        borderRadius: BorderRadius.circular(baseFontSize * 0.125),
+        backgroundColor: markColor.withValues(alpha: 0.2),
       ),
       'sub': TagflowStyle(
         textScaleFactor: 0.65,

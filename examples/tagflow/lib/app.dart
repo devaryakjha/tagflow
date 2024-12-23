@@ -39,6 +39,7 @@ class _TagflowExampleState extends State<TagflowExample> {
         return MaterialApp.router(
           theme: AppTheme.theme,
           darkTheme: AppTheme.darkTheme,
+          debugShowCheckedModeBanner: false,
           title: 'Tagflow Example',
           routerConfig: router,
         );

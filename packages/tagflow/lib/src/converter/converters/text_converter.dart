@@ -88,7 +88,7 @@ final class TextConverter extends ElementConverter {
           mouseCursor: _getMouseCursor(child, context),
         );
       } else {
-        if (!canHandle(child) || child.tag == 'sub' || child.tag == 'sup') {
+        if (!canHandle(child) || ['sub', 'sup', 'mark'].contains(child.tag)) {
           // create a widget span for unsupported elements
           return WidgetSpan(
             child: converter.convert(child, context),
