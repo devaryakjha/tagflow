@@ -13,11 +13,22 @@ abstract class ExamplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.refresh),
+      ),
       appBar: AppBar(
         title: Text(title),
       ),
       body: Tagflow(
         html: html,
+        theme: TagflowTheme.fromTheme(
+          Theme.of(context),
+          h1Style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

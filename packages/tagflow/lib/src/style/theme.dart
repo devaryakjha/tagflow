@@ -5,10 +5,41 @@ import 'package:tagflow/tagflow.dart';
 /// A theme that provides default styles for all HTML elements in Tagflow.
 class TagflowTheme extends Equatable {
   /// Create a new [TagflowTheme]
-  const TagflowTheme({
+  const TagflowTheme._({
     this.styles = const {},
     this.namedColors = const {},
     this.defaultStyle = const TagflowStyle(),
+  });
+
+  /// Create a new [TagflowTheme] with raw style definitions.
+  ///
+  /// This constructor allows complete control over styles without any defaults.
+  /// Useful for creating specialized themes or when you need full
+  /// control over styling.
+  ///
+  /// Example:
+  /// ```dart
+  /// final theme = TagflowTheme.raw(
+  ///   styles: {
+  ///     'p': TagflowStyle(margin: EdgeInsets.all(8)),
+  ///     '.primary': TagflowStyle(textStyle: TextStyle(color: Colors.blue)),
+  ///   },
+  ///   namedColors: {
+  ///     'brand': Color(0xFF123456),
+  ///   },
+  ///   defaultStyle: TagflowStyle(
+  ///     textStyle: TextStyle(fontSize: 16),
+  ///   ),
+  /// );
+  ///
+  /// See also:
+  /// - [TagflowTheme.fromTheme] for creating a theme from a Flutter theme.
+  /// - [TagflowTheme.article] for creating a theme optimized for article/blog content.
+  /// ```
+  const TagflowTheme.raw({
+    required this.styles,
+    required this.defaultStyle,
+    this.namedColors = const {},
   });
 
   /// Create a new theme from a Flutter theme with customization options
@@ -54,7 +85,7 @@ class TagflowTheme extends Equatable {
     );
     final defaultBorderWidth = baseFontSize * 0.25;
 
-    return TagflowTheme(
+    return TagflowTheme._(
       defaultStyle: TagflowStyle(
         textStyle: textTheme.bodyMedium,
         padding: defaultPadding ?? defaultSpacing,
@@ -180,7 +211,7 @@ class TagflowTheme extends Equatable {
     EdgeInsets? contentPadding,
     Map<String, TagflowStyle>? additionalStyles,
   }) {
-    return TagflowTheme(
+    return TagflowTheme._(
       defaultStyle: TagflowStyle(
         textStyle: baseTextStyle,
         padding: contentPadding ?? EdgeInsets.all(baseFontSize * 0.5),
@@ -295,7 +326,7 @@ class TagflowTheme extends Equatable {
     Map<String, TagflowStyle>? styles,
     Map<String, Color>? namedColors,
   }) {
-    return TagflowTheme(
+    return TagflowTheme._(
       defaultStyle: defaultStyle ?? this.defaultStyle,
       styles: styles ?? this.styles,
       namedColors: namedColors ?? this.namedColors,
@@ -305,7 +336,7 @@ class TagflowTheme extends Equatable {
   /// Merge two themes
   TagflowTheme merge(TagflowTheme? other) {
     if (other == null) return this;
-    return TagflowTheme(
+    return TagflowTheme._(
       defaultStyle: defaultStyle.merge(other.defaultStyle),
       styles: {...styles, ...other.styles},
       namedColors: {...namedColors, ...other.namedColors},
