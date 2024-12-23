@@ -93,6 +93,7 @@ class TagflowTheme extends Equatable {
     EdgeInsets? listPadding,
     EdgeInsets? tableCellPadding,
     EdgeInsets? inlineCodePadding,
+    EdgeInsets? inlineCodeMargin,
     double? borderWidth,
   }) {
     final textTheme = theme.textTheme;
@@ -102,6 +103,9 @@ class TagflowTheme extends Equatable {
     final defaultSpacing = EdgeInsets.all(baseFontSize * 0.5);
     final defaultBlockPadding = EdgeInsets.all(baseFontSize);
     final defaultBlockMargin = EdgeInsets.symmetric(vertical: baseFontSize);
+    final defaultInlineCodeMargin = EdgeInsets.symmetric(
+      vertical: baseFontSize * 0.25,
+    );
     final defaultListPadding = EdgeInsets.only(left: baseFontSize * 1.5);
     final defaultTableCellPadding = EdgeInsets.all(baseFontSize * 0.5);
     final defaultInlineCodePadding = EdgeInsets.symmetric(
@@ -163,7 +167,10 @@ class TagflowTheme extends Equatable {
             width: borderWidth ?? defaultBorderWidth,
           ),
         ),
-        ..._defaultStyles(baseFontSize),
+        ..._defaultStyles(
+          baseFontSize,
+          linkColor: theme.colorScheme.primary,
+        ),
 
         // Lists
         'ul': TagflowStyle(
@@ -207,10 +214,11 @@ class TagflowTheme extends Equatable {
           textStyle: codeStyle ??
               textTheme.bodyMedium?.copyWith(
                 fontFamily: 'monospace',
-                backgroundColor:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               ),
+          backgroundColor:
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           padding: inlineCodePadding ?? defaultInlineCodePadding,
+          margin: inlineCodeMargin ?? defaultInlineCodeMargin,
         ),
 
         // Add any additional styles
@@ -317,13 +325,7 @@ class TagflowTheme extends Equatable {
             vertical: baseFontSize * 0.125,
           ),
         ),
-        'a': TagflowStyle(
-          textStyle: TextStyle(
-            color: linkColor ?? Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-        ..._defaultStyles(baseFontSize),
+        ..._defaultStyles(baseFontSize, linkColor: linkColor ?? Colors.blue),
         if (additionalStyles != null) ...additionalStyles,
       },
     );
@@ -404,7 +406,10 @@ class TagflowTheme extends Equatable {
         'onError': scheme.onError,
       };
 
-  static Map<String, TagflowStyle> _defaultStyles(double baseFontSize) {
+  static Map<String, TagflowStyle> _defaultStyles(
+    double baseFontSize, {
+    Color linkColor = Colors.blue,
+  }) {
     const boldStyle = TextStyle(fontWeight: FontWeight.bold);
     const italicStyle = TextStyle(fontStyle: FontStyle.italic);
     return {
@@ -415,6 +420,13 @@ class TagflowTheme extends Equatable {
       'em': const TagflowStyle(textStyle: italicStyle),
       'u': const TagflowStyle(
         textStyle: TextStyle(decoration: TextDecoration.underline),
+      ),
+      'a': TagflowStyle(
+        textStyle: TextStyle(
+          color: linkColor,
+          decoration: TextDecoration.underline,
+          decorationColor: linkColor,
+        ),
       ),
     };
   }
