@@ -24,8 +24,11 @@ class TagflowParser {
     }
 
     // Filter out empty nodes and normalize whitespace
-    final validNodes =
-        body.nodes.map(_convertNode).where(_isValidNode).toList();
+    final validNodes = body.nodes
+        .where((n) => n is dom.Element || (n is dom.Text && n.text.isNotEmpty))
+        .map(_convertNode)
+        .where(_isValidNode)
+        .toList();
 
     // If there's exactly one valid node, return it directly
     if (validNodes.length == 1) {
@@ -55,9 +58,7 @@ class TagflowParser {
     // Handle text nodes
     if (node is dom.Text) {
       final text = _normalizeWhitespace(node.text);
-      return text.isEmpty || text.trim().isEmpty
-          ? TagflowElement.empty()
-          : TagflowElement.text(text);
+      return text.isEmpty ? TagflowElement.empty() : TagflowElement.text(text);
     }
 
     // Handle element nodes
@@ -109,7 +110,16 @@ class TagflowParser {
 
   /// Normalize whitespace in text content
   String _normalizeWhitespace(String text) {
-    return text.replaceAll(RegExp(r'\s+'), ' ');
+    // Collapse spaces/tabs within each line
+    String replaceSpaces(String lines) {
+      return lines.replaceAll(RegExp(r'[ \t]+'), ' ');
+    }
+
+    // Preserve newlines but collapse multiple spaces between words
+    return text
+        .split('\n') // Split on newlines to preserve them
+        .map(replaceSpaces)
+        .join('\n'); // Rejoin with newlines
   }
 
   /// Normalize style declarations
