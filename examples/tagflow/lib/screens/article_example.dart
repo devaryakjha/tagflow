@@ -68,7 +68,6 @@ final class ArticleExample extends ExamplePage {
       resolveAdditionalStyles: (theme) {
         final blockquoteStyle =
             theme.styles['blockquote'] ?? const TagflowStyle();
-        final footerStyle = theme.styles['footer'] ?? const TagflowStyle();
 
         final effectiveQuoteStyle = blockquoteStyle.merge(
           const TagflowStyle(
@@ -79,13 +78,9 @@ final class ArticleExample extends ExamplePage {
         return {
           'blockquote': effectiveQuoteStyle,
           'q': effectiveQuoteStyle,
-          'blockquote footer': footerStyle.merge(
-            const TagflowStyle(
-              padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
-              textStyle: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
+          'blockquote footer': const TagflowStyle(
+            padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
+            textStyle: TextStyle(color: Colors.grey),
           ),
           'blockquote p': const TagflowStyle(
             margin: EdgeInsets.zero,

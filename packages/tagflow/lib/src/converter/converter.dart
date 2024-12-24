@@ -10,10 +10,64 @@ abstract class ElementConverter {
   const ElementConverter();
 
   /// Supported tags for this converter
+  /// Format:
+  /// - "p" -> supports p tag
+  /// - "blockquote footer" -> supports footer tag only inside blockquote
+  /// - "ul > li" -> supports li tag only as direct child of ul
   Set<String> get supportedTags;
 
   /// Whether this converter can handle the given element
-  bool canHandle(TagflowElement element) => supportedTags.contains(element.tag);
+  bool canHandle(TagflowElement element) {
+    for (final selector in supportedTags) {
+      if (_matchesSelector(element, selector)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Check if element matches a selector
+  bool _matchesSelector(TagflowElement element, String selector) {
+    // Simple tag match
+    if (!selector.contains(' ')) {
+      return selector == element.tag;
+    }
+
+    // Handle direct child selector (>)
+    if (selector.contains('>')) {
+      final parts = selector.split('>').map((e) => e.trim()).toList();
+      var current = element;
+
+      // Match from right to left
+      for (var i = parts.length - 1; i >= 0; i--) {
+        if (current.tag != parts[i]) return false;
+        if (i > 0) {
+          current = current.parent!;
+        }
+      }
+      return true;
+    }
+
+    // Handle ancestor-descendant selector
+    final parts = selector.split(' ').map((e) => e.trim()).toList();
+    if (element.tag != parts.last) return false;
+
+    // Check ancestors
+    var parent = element.parent;
+    for (var i = parts.length - 2; i >= 0; i--) {
+      while (parent != null) {
+        if (parent.tag == parts[i]) {
+          if (i == 0) return true;
+          break;
+        }
+        parent = parent.parent;
+      }
+      if (parent == null) return false;
+      parent = parent.parent;
+    }
+
+    return false;
+  }
 
   /// Convert the element to a widget
   Widget convert(

@@ -36,13 +36,7 @@ final class BlockquoteFooterConverter extends ElementConverter {
   const BlockquoteFooterConverter();
 
   @override
-  Set<String> get supportedTags => {'footer'};
-
-  @override
-  bool canHandle(TagflowElement element) {
-    return super.canHandle(element) &&
-        ['blockquote', 'q'].contains(element.parentTag);
-  }
+  Set<String> get supportedTags => {'blockquote footer'};
 
   @override
   Widget convert(
