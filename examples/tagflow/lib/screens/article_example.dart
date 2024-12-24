@@ -51,6 +51,10 @@ function Welcome(props) {
   <li><a href="https://developer.mozilla.org">MDN Web Docs</a></li>
   <li><a href="https://web.dev">web.dev</a></li>
 </ul>
+
+<footer>
+  <p>© 2024 My Company Name</p>
+</footer>
 </article>
 ''';
 
@@ -81,6 +85,14 @@ final class ArticleExample extends ExamplePage {
           'blockquote footer': const TagflowStyle(
             padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
             textStyle: TextStyle(color: Colors.grey),
+          ),
+          'footer': const TagflowStyle(
+            padding: EdgeInsets.only(right: 8, bottom: 8, left: 16),
+          ),
+          'footer p': const TagflowStyle(
+            textStyle: TextStyle(fontSize: 12),
+            margin: EdgeInsets.zero,
+            padding: EdgeInsets.zero,
           ),
           'blockquote p': const TagflowStyle(
             margin: EdgeInsets.zero,
