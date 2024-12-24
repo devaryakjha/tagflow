@@ -87,9 +87,8 @@ final class ArticleExample extends ExamplePage {
               ),
             ),
           ),
-          // TODO: Add support for this kind of nested styles
           'blockquote p': const TagflowStyle(
-            margin: EdgeInsets.only(bottom: 8),
+            margin: EdgeInsets.zero,
           ),
         };
       },

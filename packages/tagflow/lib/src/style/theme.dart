@@ -366,6 +366,16 @@ class TagflowTheme extends Equatable {
       result = result.merge(styles[element.tag]);
     }
 
+    // Add nested styles
+    var parent = element.parent;
+    while (parent != null) {
+      final nestedSelector = '${parent.tag} ${element.tag}';
+      if (styles.containsKey(nestedSelector)) {
+        result = result.merge(styles[nestedSelector]);
+      }
+      parent = parent.parent;
+    }
+
     // Add class styles
     final classes = element.attributes['class']?.split(' ') ?? [];
     for (final className in classes) {
