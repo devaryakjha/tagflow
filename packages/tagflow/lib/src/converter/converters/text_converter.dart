@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for text elements
-final class TextConverter extends ElementConverter {
+class TextConverter extends ElementConverter {
   /// Create a new text converter
   const TextConverter();
 
@@ -55,12 +55,18 @@ final class TextConverter extends ElementConverter {
   ) {
     final style = resolveStyle(element, context);
     final children = _convertChildren(element, context, converter);
+    final prefix = getPrefix(element);
+    final suffix = getSuffix(element);
 
     return _wrapInContainerIfNeeded(
       Text.rich(
         TextSpan(
           text: element.textContent,
-          children: children,
+          children: [
+            if (prefix != null) prefix,
+            ...children,
+            if (suffix != null) suffix,
+          ],
           recognizer: _getGestures(element, context),
           mouseCursor: _getMouseCursor(element, context),
         ),
@@ -70,6 +76,16 @@ final class TextConverter extends ElementConverter {
       context,
       style,
     );
+  }
+
+  /// Get the prefix for a given element
+  InlineSpan? getPrefix(TagflowElement element) {
+    return null;
+  }
+
+  /// Get the suffix for a given element
+  InlineSpan? getSuffix(TagflowElement element) {
+    return null;
   }
 
   List<InlineSpan> _convertChildren(
@@ -147,7 +163,7 @@ final class TextConverter extends ElementConverter {
     TagflowElement element,
     TagflowStyle? resolvedStyle,
   ) {
-    if (element.tag == '#text') {
+    if (element.isTextNode) {
       return null;
     }
     return resolvedStyle?.textStyle;

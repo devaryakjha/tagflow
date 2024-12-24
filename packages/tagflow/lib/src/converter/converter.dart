@@ -131,6 +131,8 @@ class TagflowConverter {
       const BlockquoteFooterConverter(),
       const HrConverter(),
       const ContainerConverter(),
+      const ListConverter(),
+      const ListItemConverter(),
     ]);
   }
 
