@@ -1,4 +1,25 @@
-## 0.0.1-dev.5
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## 2024-12-25
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`tagflow` - `v0.0.1-dev.5`](#tagflow---v001-dev5)
+
+---
+
+#### `tagflow` - `v0.0.1-dev.5`
 
  - **REFACTOR**: enhance blockquote handling and styling in ArticleExample and converters. ([f0ea898b](https://github.com/devaryakjha/tagflow/commit/f0ea898b027d948be2a3b1182408de9f683d9794))
  - **REFACTOR**: improve whitespace handling and node validation in TagflowParser. ([685f611d](https://github.com/devaryakjha/tagflow/commit/685f611da0ba98d112422d367bb1755025fc15d2))
@@ -27,6 +48,3 @@
  - **FEAT**: add Makefile for package creation and update README. ([854129af](https://github.com/devaryakjha/tagflow/commit/854129af0ff8e746de719fcba09e1ddd242a0bbe))
  - **FEAT**: enhance Tagflow example app with new example and improved theming. ([94455e3c](https://github.com/devaryakjha/tagflow/commit/94455e3caeb74d6aecd7f2eb1ec9d00558b5b622))
 
-## 0.0.1-dev.4
-
-- Inital version after renaming from `html_to_flutter` to `tagflow`.
