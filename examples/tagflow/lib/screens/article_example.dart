@@ -79,7 +79,7 @@ final class ArticleExample extends ExamplePage {
         return {
           'blockquote': effectiveQuoteStyle,
           'q': effectiveQuoteStyle,
-          'footer': footerStyle.merge(
+          'blockquote footer': footerStyle.merge(
             const TagflowStyle(
               padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
               textStyle: TextStyle(
