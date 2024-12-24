@@ -1,8 +1,48 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow/tagflow.dart';
 
 void main() {
+  group('TagflowSelectableOptions', () {
+    test('can be created with default values', () {
+      const options = TagflowSelectableOptions();
+      expect(options.enabled, false);
+      expect(
+        options.imageSelectionBehavior,
+        TagflowImageSelectionBehavior.altTextOnly,
+      );
+    });
+
+    test('can be created with custom values', () {
+      final options = TagflowSelectableOptions(
+        enabled: true,
+        imageSelectionBehavior: TagflowImageSelectionBehavior.urlAndAlt,
+        imageSelectionBehaviorTextBuilder: (element, context) => 'Custom Text',
+      );
+
+      expect(options.enabled, true);
+      expect(
+        options.imageSelectionBehavior,
+        TagflowImageSelectionBehavior.urlAndAlt,
+      );
+      expect(options.imageSelectionBehaviorTextBuilder, isNotNull);
+    });
+
+    test(
+        'fails when imageSelectionBehavior is custom and imageSelectionBehaviorTextBuilder is null',
+        () {
+      expect(
+        () => TagflowSelectableOptions(
+          enabled: true,
+          imageSelectionBehavior: TagflowImageSelectionBehavior.custom,
+        ),
+        throwsAssertionError,
+      );
+    });
+  });
+
   group('TagflowOptions', () {
     testWidgets('provides options through context', (tester) async {
       late TagflowOptions capturedOptions;

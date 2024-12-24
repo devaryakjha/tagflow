@@ -54,7 +54,6 @@ final class TagflowSelectableOptions extends Equatable {
 /// [debug] Enable debug mode
 ///
 /// [linkTapCallback] Callback for handling link taps
-@immutable
 final class TagflowOptions extends Equatable {
   /// Creates a new [TagflowOptions] instance.
   const TagflowOptions({
@@ -120,7 +119,9 @@ final class TagflowOptions extends Equatable {
 
   /// Get options from context
   static TagflowOptions of(BuildContext context) {
-    return TagflowScope.of(context).options;
+    final options = maybeOf(context);
+    assert(options != null, 'No TagflowScope found in context');
+    return options!;
   }
 
   /// Get options from context if available
