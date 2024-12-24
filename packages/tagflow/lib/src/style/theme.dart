@@ -154,16 +154,14 @@ class TagflowTheme extends Equatable {
               ),
           padding: blockPadding ?? defaultBlockPadding,
           margin: blockMargin ?? defaultBlockMargin,
-          backgroundColor:
-              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
         ),
         'blockquote': TagflowStyle(
           padding: blockPadding ?? defaultBlockPadding,
           margin: blockMargin ?? defaultBlockMargin,
-          backgroundColor:
-              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
           borderLeft: BorderSide(
-            color: colorScheme.primary.withValues(alpha: 0.5),
+            color: colorScheme.primary.withAlpha(50),
             width: borderWidth ?? defaultBorderWidth,
           ),
         ),
@@ -192,8 +190,7 @@ class TagflowTheme extends Equatable {
         ),
         'th': TagflowStyle(
           padding: tableCellPadding ?? defaultTableCellPadding,
-          backgroundColor:
-              colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
           textStyle: textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -215,8 +212,7 @@ class TagflowTheme extends Equatable {
               textTheme.bodyMedium?.copyWith(
                 fontFamily: 'monospace',
               ),
-          backgroundColor:
-              colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(30),
           padding: inlineCodePadding ?? defaultInlineCodePadding,
           margin: inlineCodeMargin ?? defaultInlineCodeMargin,
         ),
@@ -321,7 +317,7 @@ class TagflowTheme extends Equatable {
           backgroundColor: codeBackground,
           borderRadius: BorderRadius.circular(baseFontSize * 0.25),
           border: Border.all(
-            color: codeBackground?.withValues(alpha: 0.5) ?? Colors.grey,
+            color: codeBackground?.withAlpha(50) ?? Colors.grey,
           ),
           textStyle: codeTextStyle,
           width: maxWidth ?? double.infinity,
@@ -483,7 +479,7 @@ class TagflowTheme extends Equatable {
           vertical: baseFontSize * 0.05,
         ),
         borderRadius: BorderRadius.circular(baseFontSize * 0.125),
-        backgroundColor: markColor.withValues(alpha: 0.2),
+        backgroundColor: markColor.withAlpha(20),
       ),
       'sub': TagflowStyle(
         textScaleFactor: 0.65,
