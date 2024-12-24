@@ -88,6 +88,10 @@ class TextConverter extends ElementConverter {
     return null;
   }
 
+  bool shouldForceWidgetSpan(TagflowElement element) {
+    return ['sub', 'sup', 'mark'].contains(element.tag);
+  }
+
   List<InlineSpan> _convertChildren(
     TagflowElement element,
     BuildContext context,
@@ -104,7 +108,7 @@ class TextConverter extends ElementConverter {
           mouseCursor: _getMouseCursor(child, context),
         );
       } else {
-        if (!canHandle(child) || ['sub', 'sup', 'mark'].contains(child.tag)) {
+        if (!canHandle(child) || shouldForceWidgetSpan(child)) {
           // create a widget span for unsupported elements
           return WidgetSpan(
             child: converter.convert(child, context),
