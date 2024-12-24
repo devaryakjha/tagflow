@@ -324,6 +324,7 @@ class TagflowTheme extends Equatable {
             color: codeBackground?.withValues(alpha: 0.5) ?? Colors.grey,
           ),
           textStyle: codeTextStyle,
+          width: maxWidth ?? double.infinity,
         ),
         'code': TagflowStyle(
           textStyle: codeTextStyle ??
@@ -335,6 +336,12 @@ class TagflowTheme extends Equatable {
             horizontal: baseFontSize * 0.25,
             vertical: baseFontSize * 0.125,
           ),
+          width: maxWidth ?? double.infinity,
+        ),
+        'pre code': const TagflowStyle(
+          backgroundColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          margin: EdgeInsets.zero,
         ),
         'li': TagflowStyle(
           margin: EdgeInsets.only(bottom: baseFontSize),
