@@ -55,6 +55,14 @@
 - [x] Element-specific styles
 - [x] Class-based styling
 - [x] Inline style parsing
+- [ ] CSS-like Features
+  - [ ] Pseudo-classes (:first-child, :last-child, etc.)
+  - [ ] Media queries support
+  - [ ] Attribute selectors
+  - [ ] State management (hover, focus, etc.)
+  - [ ] CSS variables (custom properties)
+  - [ ] Cascade selectors (parent > child)
+  - [ ] Animation/transition support
 - [ ] Advanced CSS Properties
   - [ ] Flexbox layout
   - [ ] Grid layout
