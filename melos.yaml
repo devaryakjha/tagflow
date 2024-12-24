@@ -82,3 +82,13 @@ scripts:
       melos clean && \
       melos bootstrap
     description: Clean and bootstrap workspace
+
+  coverage:
+    run: melos exec -c 1 --fail-fast -- "flutter test --coverage"
+    description: Run tests with coverage and generate coverage report
+    
+  combine-coverage:
+    run: |
+      mkdir -p coverage
+      lcov --add-tracefile packages/tagflow/coverage/lcov.info -o coverage/lcov.info
+    description: Combine coverage reports from all packages
