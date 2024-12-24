@@ -117,5 +117,64 @@ void main() {
         );
       });
     });
+
+    group('parseFontWeight', () {
+      test('parses numeric weights', () {
+        expect(StyleParser.parseFontWeight('100'), FontWeight.w100);
+        expect(StyleParser.parseFontWeight('400'), FontWeight.w400);
+        expect(StyleParser.parseFontWeight('900'), FontWeight.w900);
+      });
+
+      test('parses named weights', () {
+        expect(StyleParser.parseFontWeight('normal'), FontWeight.w400);
+        expect(StyleParser.parseFontWeight('bold'), FontWeight.w700);
+        expect(StyleParser.parseFontWeight('lighter'), null);
+      });
+    });
+
+    group('parseBoxFit', () {
+      test('parses valid values', () {
+        expect(StyleParser.parseBoxFit('contain'), BoxFit.contain);
+        expect(StyleParser.parseBoxFit('cover'), BoxFit.cover);
+        expect(StyleParser.parseBoxFit('fill'), BoxFit.fill);
+      });
+
+      test('handles invalid values', () {
+        expect(StyleParser.parseBoxFit('invalid'), null);
+        expect(StyleParser.parseBoxFit(''), null);
+      });
+    });
+
+    group('parseBorderRadius', () {
+      test('parses pixel values', () {
+        expect(
+          StyleParser.parseBorderRadius('10px'),
+          BorderRadius.circular(10),
+        );
+      });
+
+      test('handles invalid values', () {
+        expect(StyleParser.parseBorderRadius('invalid'), null);
+        expect(StyleParser.parseBorderRadius(''), null);
+      });
+    });
+
+    group('parseBorderSide', () {
+      test('parses valid border definitions', () {
+        expect(
+          StyleParser.parseBorderSide('1px solid rgb(0,0,0)'),
+          const BorderSide(),
+        );
+        expect(
+          StyleParser.parseBorderSide('2px solid #FF0000'),
+          const BorderSide(width: 2, color: Color(0xFFFF0000)),
+        );
+      });
+
+      test('handles invalid values', () {
+        expect(StyleParser.parseBorderSide('invalid'), null);
+        expect(StyleParser.parseBorderSide('1px'), null);
+      });
+    });
   });
 }

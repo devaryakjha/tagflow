@@ -66,5 +66,85 @@ void main() {
       element.classList = ['four', 'five'];
       expect(element['class'], 'four five');
     });
+
+    group('link operations', () {
+      test('identifies anchor elements', () {
+        final link = TagflowElement(
+          tag: 'a',
+          attributes: LinkedHashMap.from({'href': 'https://example.com'}),
+        );
+        final div = TagflowElement(tag: 'div');
+
+        expect(link.isAnchor, true);
+        expect(div.isAnchor, false);
+        expect(link.href, 'https://example.com');
+        expect(div.href, null);
+      });
+
+      test('handles nested link elements', () {
+        final parent = TagflowElement(
+          tag: 'a',
+          attributes: LinkedHashMap.from({'href': 'https://example.com'}),
+        );
+        final child = TagflowElement(tag: 'span');
+        parent.addChild(child);
+
+        expect(child.parentHref, 'https://example.com');
+      });
+    });
+
+    group('size operations', () {
+      test('parses width and height attributes', () {
+        final element = TagflowElement(
+          tag: 'div',
+          attributes: LinkedHashMap.from({
+            'width': '100px',
+            'height': '50px',
+          }),
+        );
+
+        expect(element.width, 100.0);
+        expect(element.height, 50.0);
+      });
+
+      test('handles percentage values', () {
+        final element = TagflowElement(
+          tag: 'div',
+          attributes: LinkedHashMap.from({
+            'width': '50%',
+            'height': '25%',
+          }),
+        );
+
+        expect(element.width, 0.5);
+        expect(element.height, 0.25);
+      });
+
+      test('handles invalid size values', () {
+        final element = TagflowElement(
+          tag: 'div',
+          attributes: LinkedHashMap.from({
+            'width': 'invalid',
+            'height': '',
+          }),
+        );
+
+        expect(element.width, null);
+        expect(element.height, null);
+      });
+    });
+
+    group('style operations', () {
+      test('parses gap from styles', () {
+        final element = TagflowElement(
+          tag: 'div',
+          attributes: LinkedHashMap.from({
+            'style': 'gap: 10px',
+          }),
+        );
+
+        expect(element.gap, 10.0);
+      });
+    });
   });
 }
