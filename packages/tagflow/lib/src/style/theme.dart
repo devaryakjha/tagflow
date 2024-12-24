@@ -336,6 +336,10 @@ class TagflowTheme extends Equatable {
             vertical: baseFontSize * 0.125,
           ),
         ),
+        'li': TagflowStyle(
+          margin: EdgeInsets.only(bottom: baseFontSize),
+          padding: EdgeInsets.only(left: baseFontSize * 1.5),
+        ),
         ..._defaultStyles(baseFontSize, linkColor: linkColor ?? Colors.blue),
         if (additionalStyles != null) ...additionalStyles,
       },
