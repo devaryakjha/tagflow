@@ -12,7 +12,7 @@
 
 # tagflow
 
-Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports tables, iframes, and other HTML elements through optional add-on packages.
+Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports rich text formatting, lists, code blocks, and blockquotes with extensive styling options.
 
 [![pub package](https://img.shields.io/pub/v/tagflow.svg?label=tagflow&color=orange)](https://pub.dev/packages/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
@@ -50,6 +50,20 @@ Tagflow(
 )
 ```
 
+📝 **Article-Optimized Theme**
+
+```dart
+Tagflow(
+  html: articleContent,
+  theme: TagflowTheme.article(
+    baseTextStyle: Theme.of(context).textTheme.bodyMedium!,
+    headingTextStyle: Theme.of(context).textTheme.headlineMedium!,
+    codeTextStyle: GoogleFonts.spaceMonoTextTheme(context).bodyMedium,
+    codeBackground: Theme.of(context).colorScheme.surfaceContainerHigh,
+  ),
+)
+```
+
 🎯 **CSS-like Styling**
 
 ```html
@@ -76,46 +90,38 @@ Tagflow(
 </div>
 ```
 
-📦 **Custom Themes**
-
-```dart
-Tagflow(
-  html: htmlContent,
-  theme: TagflowTheme(
-    defaultStyle: TagflowStyle(
-      textStyle: TextStyle(fontSize: 16),
-      padding: EdgeInsets.all(8),
-    ),
-    styles: {
-      'h1': TagflowStyle(
-        textStyle: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-        ),
-        margin: EdgeInsets.symmetric(vertical: 16),
-      ),
-      '.highlight': TagflowStyle(
-        backgroundColor: Colors.yellow.withOpacity(0.3),
-        padding: EdgeInsets.all(4),
-        borderRadius: BorderRadius.circular(4),
-      ),
-    },
-    namedColors: {
-      'brand': Colors.purple,
-      'accent': Colors.amber,
-    },
-  ),
-)
-```
-
 ## Installation
 
 Add `tagflow` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0
+  tagflow: ^0.0.1-dev.6
 ```
+
+## Supported Features
+
+- 📝 **Rich Text Elements**
+
+  - Headings (h1-h6)
+  - Paragraphs
+  - Lists (ordered and unordered)
+  - Blockquotes
+  - Code blocks
+  - Inline formatting (bold, italic, underline)
+
+- 🎨 **Styling**
+
+  - Material Design integration
+  - Custom themes
+  - CSS-like style attributes
+  - Flexbox layout support
+  - Responsive design
+
+- 🔗 **Interactive Elements**
+  - Clickable links
+  - Selectable text
+  - Custom tap callbacks
 
 ## Theme System
 
@@ -139,16 +145,12 @@ TagflowTheme.fromTheme(
   ),
 )
 
-// Basic Theme
-TagflowTheme.basic(
-  textStyle: TextStyle(fontSize: 16),
-  padding: EdgeInsets.all(8),
-)
-
-// Minimal Theme
-TagflowTheme.minimal(
-  baseStyle: TextStyle(fontSize: 16),
-  linkColor: Colors.blue,
+// Article Theme
+TagflowTheme.article(
+  baseTextStyle: Theme.of(context).textTheme.bodyMedium!,
+  headingTextStyle: Theme.of(context).textTheme.headlineMedium!,
+  maxWidth: 800,
+  baseFontSize: 18.0,
 )
 ```
 
@@ -156,6 +158,10 @@ TagflowTheme.minimal(
 
 Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and examples.
 
-## Add-on Packages
+## Contributing
 
-- WIP
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
