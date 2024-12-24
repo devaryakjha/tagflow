@@ -31,7 +31,8 @@ const articleHtml = r'''
 
 <h3>Code Example</h3>
 
-<pre><code>// Simple React component
+<pre>
+<code>// Simple React component
 function Welcome(props) {
   return React.createElement('h1', null, `Hello, ${props.name}`);
 }</code></pre>
@@ -69,6 +70,7 @@ final class ArticleExample extends ExamplePage {
       baseTextStyle: theme.textTheme.bodyMedium!,
       headingTextStyle: theme.textTheme.headlineMedium!,
       codeTextStyle: codeTextTheme.bodyMedium,
+      codeBackground: theme.colorScheme.surfaceContainerHigh,
       resolveAdditionalStyles: (theme) {
         final blockquoteStyle =
             theme.styles['blockquote'] ?? const TagflowStyle();
