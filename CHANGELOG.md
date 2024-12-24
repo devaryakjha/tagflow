@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow` - `v0.0.1-dev.7`](#tagflow---v001-dev7)
+
+---
+
+#### `tagflow` - `v0.0.1-dev.7`
+
+ - **DOCS**: update documentation properly. ([28323aa9](https://github.com/devaryakjha/tagflow/commit/28323aa9116eba7f58c679cb221cfc7c7616dabd))
+
+
+## 2024-12-25
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.6`](#tagflow---v001-dev6)
 
 ---

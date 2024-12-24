@@ -1,3 +1,7 @@
+## 0.0.1-dev.7
+
+ - **DOCS**: update documentation properly. ([28323aa9](https://github.com/devaryakjha/tagflow/commit/28323aa9116eba7f58c679cb221cfc7c7616dabd))
+
 ## 0.0.1-dev.6
 
  - **REFACTOR**: enhance blockquote handling and styling in ArticleExample and converters. ([f0ea898b](https://github.com/devaryakjha/tagflow/commit/f0ea898b027d948be2a3b1182408de9f683d9794))
