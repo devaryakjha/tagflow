@@ -15,23 +15,22 @@ final class CodeConverter extends ElementConverter {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    final style = resolveStyle(element, context);
-
     // Handle pre tag (code block)
     if (element.tag == 'pre') {
-      return _buildPreElement(element, context, converter, style);
+      return _buildPreElement(element, context, converter);
     }
 
     // Handle inline code
-    return _buildInlineCode(element, context, converter, style);
+    return _buildInlineCode(element, context, converter);
   }
 
   Widget _buildPreElement(
     TagflowElement element,
     BuildContext context,
     TagflowConverter converter,
-    TagflowStyle style,
   ) {
+    final style = resolveStyle(element, context);
+
     // Pre elements typically contain a code element
     final codeElement = element.children.firstWhere(
       (e) => e.tag == 'code',
@@ -55,17 +54,8 @@ final class CodeConverter extends ElementConverter {
     TagflowElement element,
     BuildContext context,
     TagflowConverter converter,
-    TagflowStyle style0,
   ) {
-    var style = style0;
-    // For inline code within pre, remove redundant styling
-    if (element.parentTag == 'pre') {
-      style = style.copyWith(
-        backgroundColor: Colors.transparent,
-        padding: EdgeInsets.zero,
-        margin: EdgeInsets.zero,
-      );
-    }
+    final style = resolveStyle(element, context);
 
     final children = converter.convertChildren(element.children, context);
 

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// A converter for the `blockquote` tag.
@@ -16,12 +16,51 @@ final class BlockquoteConverter extends ElementConverter {
     TagflowConverter converter,
   ) {
     final style = resolveStyle(element, context);
-    final child = converter.convert(element.children.first, context);
+    final children = converter.convertChildren(element.children, context);
 
     return StyledContainer(
       style: style,
       tag: element.tag,
-      child: child,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
+    );
+  }
+}
+
+final class BlockquoteFooterConverter extends ElementConverter {
+  const BlockquoteFooterConverter();
+
+  @override
+  Set<String> get supportedTags => {'footer'};
+
+  @override
+  bool canHandle(TagflowElement element) {
+    return super.canHandle(element) &&
+        ['blockquote', 'q'].contains(element.parent?.parentTag);
+  }
+
+  @override
+  Widget convert(
+    TagflowElement element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    final style = resolveStyle(element, context);
+    final children = converter.convertChildren(element.children, context);
+
+    return StyledContainer(
+      style: style,
+      tag: element.tag,
+      child: Row(
+        children: [
+          const Text('—'),
+          const SizedBox(width: 8),
+          ...children,
+        ],
+      ),
     );
   }
 }

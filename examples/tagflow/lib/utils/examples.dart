@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagflow_example/screens/article_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
@@ -37,11 +38,12 @@ final allExamples = <Example>[
     builder: (context) => const TypographyExample(),
     icon: Icons.text_fields,
   ),
+  // article example
   Example(
-    title: 'Placeholder Example',
-    description: 'A placeholder example',
-    path: '/placeholder',
-    builder: (context) => const ExamplePage.placeholder(title: 'Placeholder'),
-    icon: Icons.code,
+    title: 'Article',
+    description: 'A simple example of an article',
+    path: '/article',
+    builder: (context) => const ArticleExample(),
+    icon: Icons.article,
   ),
 ];

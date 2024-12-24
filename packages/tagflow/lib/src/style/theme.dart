@@ -314,6 +314,16 @@ class TagflowTheme extends Equatable {
           ),
           borderRadius: BorderRadius.circular(baseFontSize * 0.25),
         ),
+        'pre': TagflowStyle(
+          margin: EdgeInsets.symmetric(vertical: baseFontSize),
+          padding: EdgeInsets.all(baseFontSize),
+          backgroundColor: codeBackground,
+          borderRadius: BorderRadius.circular(baseFontSize * 0.25),
+          border: Border.all(
+            color: codeBackground?.withValues(alpha: 0.5) ?? Colors.grey,
+          ),
+          textStyle: codeTextStyle,
+        ),
         'code': TagflowStyle(
           textStyle: codeTextStyle ??
               baseTextStyle.copyWith(
