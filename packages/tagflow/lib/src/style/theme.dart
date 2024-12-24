@@ -264,8 +264,10 @@ class TagflowTheme extends Equatable {
     Color? blockquoteBorderColor,
     EdgeInsets? contentPadding,
     Map<String, TagflowStyle>? additionalStyles,
+    Map<String, TagflowStyle> Function(TagflowTheme theme)?
+        resolveAdditionalStyles,
   }) {
-    return TagflowTheme._(
+    final theme = TagflowTheme._(
       defaultStyle: TagflowStyle(
         textStyle: baseTextStyle,
         padding: contentPadding ?? EdgeInsets.all(baseFontSize * 0.5),
@@ -312,7 +314,6 @@ class TagflowTheme extends Equatable {
             color: blockquoteBorderColor ?? Colors.grey,
             width: baseFontSize * 0.25,
           ),
-          borderRadius: BorderRadius.circular(baseFontSize * 0.25),
         ),
         'pre': TagflowStyle(
           margin: EdgeInsets.symmetric(vertical: baseFontSize),
@@ -339,6 +340,12 @@ class TagflowTheme extends Equatable {
         if (additionalStyles != null) ...additionalStyles,
       },
     );
+
+    if (resolveAdditionalStyles != null) {
+      theme.styles.addAll(resolveAdditionalStyles(theme));
+    }
+
+    return theme;
   }
 
   /// Default style applied to all elements

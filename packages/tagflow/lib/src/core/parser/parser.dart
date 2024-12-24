@@ -1,3 +1,5 @@
+// ignore_for_file: cascade_invocations
+
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -11,6 +13,8 @@ import 'package:tagflow/src/core/models/element.dart';
 class TagflowParser {
   /// Parses HTML string into TagflowElement
   TagflowElement parse(String htmlString) {
+    var element = TagflowElement.empty();
+
     final document = html.parse(htmlString);
 
     if (kDebugMode) {
@@ -32,17 +36,21 @@ class TagflowParser {
 
     // If there's exactly one valid node, return it directly
     if (validNodes.length == 1) {
-      return validNodes.first;
+      element = validNodes.first;
+    } else {
+      // Otherwise wrap all nodes in a container
+      element = TagflowElement(
+        tag: 'div',
+        attributes: LinkedHashMap.from({
+          'style': 'display: flex; flex-direction: column; gap: 1rem;',
+        }),
+        children: validNodes,
+      );
     }
 
-    // Otherwise wrap all nodes in a container
-    return TagflowElement(
-      tag: 'div',
-      attributes: LinkedHashMap.from({
-        'style': 'display: flex; flex-direction: column; gap: 1rem;',
-      }),
-      children: validNodes,
-    )..reparent();
+    element.reparent();
+
+    return element;
   }
 
   bool _isValidNode(TagflowElement element) {

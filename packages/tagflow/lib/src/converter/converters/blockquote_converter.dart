@@ -21,11 +21,13 @@ final class BlockquoteConverter extends ElementConverter {
     return StyledContainer(
       style: style,
       tag: element.tag,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
+      child: children.length == 1
+          ? children.first
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: children,
+            ),
     );
   }
 }
@@ -39,7 +41,7 @@ final class BlockquoteFooterConverter extends ElementConverter {
   @override
   bool canHandle(TagflowElement element) {
     return super.canHandle(element) &&
-        ['blockquote', 'q'].contains(element.parent?.parentTag);
+        ['blockquote', 'q'].contains(element.parentTag);
   }
 
   @override
@@ -56,8 +58,7 @@ final class BlockquoteFooterConverter extends ElementConverter {
       tag: element.tag,
       child: Row(
         children: [
-          const Text('—'),
-          const SizedBox(width: 8),
+          const Text('\u2014'),
           ...children,
         ],
       ),

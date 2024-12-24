@@ -56,13 +56,13 @@ class TagflowConverter {
 
   void _registerBuiltIns() {
     _builtInConverters.addAll([
-      const ContainerConverter(),
       const TextConverter(),
       const ImgConverter(),
       const CodeConverter(),
       const BlockquoteConverter(),
       const BlockquoteFooterConverter(),
       const HrConverter(),
+      const ContainerConverter(),
     ]);
   }
 

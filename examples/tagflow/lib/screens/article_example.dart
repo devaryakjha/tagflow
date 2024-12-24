@@ -65,6 +65,34 @@ final class ArticleExample extends ExamplePage {
       baseTextStyle: theme.textTheme.bodyMedium!,
       headingTextStyle: theme.textTheme.headlineMedium!,
       codeTextStyle: codeTextTheme.bodyMedium,
+      resolveAdditionalStyles: (theme) {
+        final blockquoteStyle =
+            theme.styles['blockquote'] ?? const TagflowStyle();
+        final footerStyle = theme.styles['footer'] ?? const TagflowStyle();
+
+        final effectiveQuoteStyle = blockquoteStyle.merge(
+          const TagflowStyle(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+          ),
+        );
+
+        return {
+          'blockquote': effectiveQuoteStyle,
+          'q': effectiveQuoteStyle,
+          'footer': footerStyle.merge(
+            const TagflowStyle(
+              padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              textStyle: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          // TODO: Add support for this kind of nested styles
+          'blockquote p': const TagflowStyle(
+            margin: EdgeInsets.only(bottom: 8),
+          ),
+        };
+      },
     );
   }
 
