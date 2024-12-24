@@ -14,6 +14,8 @@ abstract class ElementConverter {
   /// - "p" -> supports p tag
   /// - "blockquote footer" -> supports footer tag only inside blockquote
   /// - "ul > li" -> supports li tag only as direct child of ul
+  /// - "!blockquote footer" -> supports footer tag except when inside blockquote
+  /// - "!ul > li" -> supports li tag except when direct child of ul
   Set<String> get supportedTags;
 
   /// Whether this converter can handle the given element
@@ -28,6 +30,18 @@ abstract class ElementConverter {
 
   /// Check if element matches a selector
   bool _matchesSelector(TagflowElement element, String selector) {
+    // Handle negation
+    if (selector.startsWith('!')) {
+      log('Negation selector: $selector');
+      final baseSelector = selector.substring(1);
+      return element.tag == baseSelector.split(' ').last &&
+          !_matchPositiveSelector(element, baseSelector);
+    }
+    return _matchPositiveSelector(element, selector);
+  }
+
+  /// Match positive selectors (without negation)
+  bool _matchPositiveSelector(TagflowElement element, String selector) {
     // Simple tag match
     if (!selector.contains(' ')) {
       return selector == element.tag;
