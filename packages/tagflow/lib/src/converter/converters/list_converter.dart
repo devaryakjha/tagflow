@@ -36,7 +36,7 @@ final class ListItemConverter extends TextConverter {
 
   @override
   InlineSpan? getPrefix(TagflowElement element) {
-    final isOrdered = element.parent?.tag == 'ol';
+    final isOrdered = element.parentTag == 'ol';
     final index = element.parent?.children.indexOf(element) ?? 0;
     const noSpace = '\u00A0\u00A0';
     return TextSpan(
