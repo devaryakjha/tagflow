@@ -38,9 +38,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
 
-      # Add a separate step for tagging after version bump
+      # Fixed tagging command
       - name: Create Git Tags
         run: |
           melos version --yes --no-git-tag-version --prerelease
-          melos exec -c 1 --no-private -- "git tag \${MELOS_PACKAGE_NAME}-v\${MELOS_PACKAGE_VERSION}"
-          git push --tags
+          melos exec -c 1 --no-private -- "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION"
+          git push origin --tags
