@@ -3,12 +3,13 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - "tagflow-v[0-9]+.[0-9]+.[0-9]+*"
+      - "tagflow-v[0-9]+.[0-9]+.[0-9]+*" # This matches tags like tagflow-v1.2.3
+      - "tagflow-v[0-9]+.[0-9]+.[0-9]+-dev.[0-9]+" # This matches tags like tagflow-v0.0.1-dev.10
 
 jobs:
   publish:
     permissions:
-      id-token: write # Required for authentication using OIDC
+      id-token: write
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
     with:
       working-directory: packages/tagflow
