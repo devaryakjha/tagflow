@@ -1,0 +1,44 @@
+name: Publish Dev Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Setup Git User
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Setup Melos
+        uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: true
+          tag: true
+          run-versioning-prerelease: true
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
+
+      - name: Push Tags
+        run: |
+          git push --follow-tags
