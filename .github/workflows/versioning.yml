@@ -1,4 +1,4 @@
-name: Publish Dev Release
+name: Create Dev Release
 
 on:
   push:
@@ -34,12 +34,6 @@ jobs:
           run-bootstrap: true
           tag: true
           run-versioning-prerelease: true
-          create-pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
-
-      - name: Publish
-        run: melos run publish
-        env:
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
