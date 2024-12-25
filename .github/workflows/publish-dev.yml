@@ -35,6 +35,7 @@ jobs:
           tag: true
           run-versioning-prerelease: true
           publish: true
+          create-pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
