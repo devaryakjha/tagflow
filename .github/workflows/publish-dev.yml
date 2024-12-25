@@ -32,11 +32,9 @@ jobs:
         uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: true
-
-      - name: Create Dev Release
-        run: |
-          melos version --prerelease="dev" --preid="dev" --yes
-          melos publish --yes --no-dry-run
+          tag: true
+          run-versioning-prerelease: true
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
