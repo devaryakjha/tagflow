@@ -34,6 +34,7 @@ jobs:
           run-bootstrap: true
           tag: true
           run-versioning-prerelease: true
+          create-pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
