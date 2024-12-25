@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Allows manual triggering from GitHub UI
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -32,9 +32,15 @@ jobs:
         uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: true
-          tag: true
           run-versioning-prerelease: true
           create-pr: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
+
+      # Add a separate step for tagging after version bump
+      - name: Create Git Tags
+        run: |
+          melos version --yes --no-git-tag-version --prerelease
+          melos exec -c 1 --no-private -- "git tag \${MELOS_PACKAGE_NAME}-v\${MELOS_PACKAGE_VERSION}"
+          git push --tags
