@@ -39,7 +39,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
-
-      - name: Push Tags
-        run: |
-          git push --follow-tags
