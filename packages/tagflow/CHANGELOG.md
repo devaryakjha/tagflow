@@ -1,3 +1,8 @@
+## 0.0.1-dev.11
+
+ - **FIX**(style_parser): improve percentage handling in parseSize method. ([74333732](https://github.com/devaryakjha/tagflow/commit/74333732fd930f68d8138ea3ccc8ac819129f72e))
+ - **FIX**(style_parser): update percentage handling in parseSize method. ([bdac976c](https://github.com/devaryakjha/tagflow/commit/bdac976cdcc79ae28d6ee2a718981c1bb7cc7cf7))
+
 ## 0.0.1-dev.8
 
  - **REFACTOR**(theme): update background color methods for consistency. ([dce0e447](https://github.com/devaryakjha/tagflow/commit/dce0e4473efbabb6f4dbadcec405a5706d5f1451))
