@@ -54,12 +54,11 @@ class StyleParser {
   static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
     final value = value0.trim().toLowerCase();
 
-    // Handle percentage
-    // TODO(devaryakjha): Implement percentage values
+    // Handle percentage values
+    // TODO(devaryakjha): Fix percentage values
     if (value.endsWith('%')) {
       final number = double.tryParse(value.replaceAll('%', ''));
-      if (number == 100) return double.infinity;
-      return null;
+      return number != null ? number / 100 : null;
     }
 
     // Handle various units
