@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow` - `v0.0.1-dev.10`](#tagflow---v001-dev10)
+
+---
+
+#### `tagflow` - `v0.0.1-dev.10`
+
+ - **FIX**(style_parser): improve percentage handling in parseSize method. ([74333732](https://github.com/devaryakjha/tagflow/commit/74333732fd930f68d8138ea3ccc8ac819129f72e))
+
+
+## 2024-12-25
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.8`](#tagflow---v001-dev8)
 
 ---
