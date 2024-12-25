@@ -8,12 +8,15 @@ on:
 
 jobs:
   publish:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
           fetch-tags: true
 
@@ -35,10 +38,9 @@ jobs:
           run-versioning-prerelease: true
           create-pr: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
 
-      # Fixed tagging command
       - name: Create Git Tags
         run: |
           melos version --yes --no-git-tag-version --prerelease
