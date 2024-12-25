@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow_example/screens/article_example.dart';
+import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
@@ -46,4 +47,44 @@ final allExamples = <Example>[
     builder: (context) => const ArticleExample(),
     icon: Icons.article,
   ),
+  // table example
+  // Example(
+  //   title: 'Table',
+  //   description: 'A demonstration of HTML table rendering',
+  //   path: '/table',
+  //   builder: (context) => const TableExample(),
+  //   icon: Icons.table_chart,
+  // ),
+  // // list example
+  // Example(
+  //   title: 'Lists',
+  //   description: 'Examples of ordered and unordered lists',
+  //   path: '/lists',
+  //   builder: (context) => const ListExample(),
+  //   icon: Icons.format_list_bulleted,
+  // ),
+  // // form example
+  // Example(
+  //   title: 'Forms',
+  //   description: 'Interactive form elements and inputs',
+  //   path: '/forms',
+  //   builder: (context) => const FormExample(),
+  //   icon: Icons.input,
+  // ),
+  // // image example
+  Example(
+    title: 'Images',
+    description: 'Image handling and responsive layouts',
+    path: '/images',
+    builder: (context) => const ImageExample(),
+    icon: Icons.image,
+  ),
+  // code example
+  // Example(
+  //   title: 'Code Blocks',
+  //   description: 'Syntax highlighting and code formatting',
+  //   path: '/code',
+  //   builder: (context) => const CodeExample(),
+  //   icon: Icons.code,
+  // )
 ];
