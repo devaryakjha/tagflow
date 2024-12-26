@@ -365,7 +365,7 @@ class TagflowTheme extends Equatable {
   final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
-  TagflowStyle resolveStyle(TagflowElement element) {
+  TagflowStyle resolveStyle(TagflowNode element) {
     var result = defaultStyle;
 
     // Add tag style
@@ -384,7 +384,7 @@ class TagflowTheme extends Equatable {
     }
 
     // Add class styles
-    final classes = element.attributes['class']?.split(' ') ?? [];
+    final classes = element.attributes?['class']?.split(' ') ?? [];
     for (final className in classes) {
       final classStyle = styles['.${className.trim()}'];
       if (classStyle != null) {
@@ -394,7 +394,7 @@ class TagflowTheme extends Equatable {
 
     // Add inline styles last
     final inlineStyle = StyleParser.parseInlineStyle(
-      element.attributes['style'] ?? '',
+      element.attributes?['style'] ?? '',
       this,
     );
     if (inlineStyle != null) {

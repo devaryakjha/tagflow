@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tagflow/tagflow.dart';
 
-final class ListConverter extends ElementConverter {
+final class ListConverter extends ElementConverter<TagflowElement> {
   const ListConverter();
 
   @override

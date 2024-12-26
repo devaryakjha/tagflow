@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for horizontal rules
-final class HrConverter extends ElementConverter {
+final class HrConverter extends ElementConverter<TagflowElement> {
   /// Create a new horizontal rule converter
   const HrConverter();
 

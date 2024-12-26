@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// A converter for the `blockquote` tag.
-final class BlockquoteConverter extends ElementConverter {
+final class BlockquoteConverter extends ElementConverter<TagflowElement> {
   /// Create a new blockquote converter
   const BlockquoteConverter();
 
@@ -32,7 +32,7 @@ final class BlockquoteConverter extends ElementConverter {
   }
 }
 
-final class BlockquoteFooterConverter extends ElementConverter {
+final class BlockquoteFooterConverter extends ElementConverter<TagflowElement> {
   const BlockquoteFooterConverter();
 
   @override

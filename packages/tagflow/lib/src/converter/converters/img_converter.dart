@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for img elements
-final class ImgConverter extends ElementConverter {
+final class ImgConverter extends ElementConverter<TagflowElement> {
   /// Create a new img converter
   const ImgConverter();
 

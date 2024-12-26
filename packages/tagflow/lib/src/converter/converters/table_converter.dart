@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
-final class TableConverter extends ElementConverter {
+final class TableConverter extends ElementConverter<TagflowTableElement> {
   const TableConverter();
 
   @override
   Widget convert(
-    TagflowElement element,
+    TagflowTableElement element,
     BuildContext context,
     TagflowConverter converter,
   ) {
