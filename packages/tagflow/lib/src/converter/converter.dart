@@ -1,4 +1,5 @@
-// lib/src/converter/converter.dart
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
