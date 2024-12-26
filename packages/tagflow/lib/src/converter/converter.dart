@@ -133,6 +133,7 @@ class TagflowConverter {
       const ContainerConverter(),
       const ListConverter(),
       const ListItemConverter(),
+      const TableConverter(),
     ]);
   }
 

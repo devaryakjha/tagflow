@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Represents an HTML element in the tagflow tree.
@@ -54,6 +55,10 @@ class TagflowElement {
 
   /// Returns all attributes as an immutable map
   Map<String, String> get attributes => Map.unmodifiable(_attributes);
+
+  /// Returns all attributes as a linked hash map
+  @internal
+  LinkedHashMap<String, String> get linkedAttributes => _attributes;
 
   /// Whether this element represents a text node
   bool get isTextNode => tag == '#text' && textContent != null;

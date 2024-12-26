@@ -17,11 +17,10 @@
   - [x] Paragraphs (`<p>`)
   - [x] Headings (`<h1>` to `<h6>`)
   - [x] Divisions (`<div>`)
-  - [ ] Articles (`<article>`)
-  - [ ] Sections (`<section>`)
-  - [ ] Aside (`<aside>`)
+  - [x] Articles (`<article>`)
+  - [x] Sections (`<section>`)
 
-- [ ] Text Elements
+- [x] Text Elements
 
   - [x] Basic text nodes
   - [x] Emphasis (`<em>`, `<i>`)
@@ -30,21 +29,21 @@
   - [x] Subscript/Superscript (`<sub>`, `<sup>`)
   - [x] Quotes (`<blockquote>`, `<q>`)
 
-- [ ] Lists
+- [x] Lists
 
-  - [ ] Unordered lists (`<ul>`, `<li>`)
-  - [ ] Ordered lists (`<ol>`, `<li>`)
+  - [x] Unordered lists (`<ul>`, `<li>`)
+  - [x] Ordered lists (`<ol>`, `<li>`)
   - [ ] Description lists (`<dl>`, `<dt>`, `<dd>`)
 
 - [ ] Tables
 
-  - [ ] Basic table structure
+  - [x] Basic table structure
   - [ ] Table headers
   - [ ] Colspan/Rowspan support
   - [ ] Responsive table layout
 
 - [ ] Media
-  - [ ] Images with `NetworkImage`
+  - [x] Images with `NetworkImage`
   - [ ] Responsive image sizing
   - [ ] Image loading states
   - [ ] Lazy loading implementation
