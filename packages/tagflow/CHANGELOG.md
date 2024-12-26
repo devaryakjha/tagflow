@@ -1,3 +1,21 @@
+## 0.0.1-dev.12
+
+ - **REFACTOR**(parser): clean up and enhance TableParser functionality. ([5e2f943d](https://github.com/devaryakjha/tagflow/commit/5e2f943d5b6c9db62d3eabc75cd42b093d78420d))
+ - **REFACTOR**(element_test): improve parent-child relationship management in tests. ([8bfa6e01](https://github.com/devaryakjha/tagflow/commit/8bfa6e0192bad10a0d2bf08d9243285550bd8b39))
+ - **REFACTOR**(table): improve table styling and border handling in converters and theme. ([f80edb36](https://github.com/devaryakjha/tagflow/commit/f80edb366a2ca88bf300bfe9c883fb4d0b5cd7f9))
+ - **REFACTOR**(table): update table structure and styling in examples and converters. ([f31c51cf](https://github.com/devaryakjha/tagflow/commit/f31c51cfd701a51aedd2040387794864cd4336b6))
+ - **REFACTOR**(converter): clean up logging and improve element properties. ([ccd443ae](https://github.com/devaryakjha/tagflow/commit/ccd443ae450c495a6c80785c3658292959b55884))
+ - **REFACTOR**(tagflow): update element models and parsers for improved structure. ([3fb10303](https://github.com/devaryakjha/tagflow/commit/3fb10303f67033447c45a9b4b537eb987d50f53b))
+ - **FIX**(converter): add line length ignore and update TODO comment. ([6550ad2b](https://github.com/devaryakjha/tagflow/commit/6550ad2bc704c909cafe7b6046f2ab466325a507))
+ - **FEAT**(table): add TableConverter tests and export parser. ([1d12545a](https://github.com/devaryakjha/tagflow/commit/1d12545acbd0c4732e76edeb99589141c0ba8d9d))
+ - **FEAT**(img_parser): add unit tests for ImgParser functionality. ([4026ee45](https://github.com/devaryakjha/tagflow/commit/4026ee45049f05534487804ae70504216cd84143))
+ - **FEAT**(table): enhance table styling and structure in converters and examples. ([5b88f481](https://github.com/devaryakjha/tagflow/commit/5b88f48157851d1ea6489633d365bf9fe0d62174))
+ - **FEAT**(parser): enhance node parsing and attribute handling. ([f7213efd](https://github.com/devaryakjha/tagflow/commit/f7213efd9b2d941d24d9c50b5e852221e50da03e))
+ - **FEAT**(node): add hasAttribute method to TagflowNode. ([7b15a4d1](https://github.com/devaryakjha/tagflow/commit/7b15a4d1a70a60872011c287d5c9accb974bcf2d))
+ - **FEAT**(img): introduce TagflowImgElement and update converters. ([97d47762](https://github.com/devaryakjha/tagflow/commit/97d4776244dce5aa2ac2c77df0ad9a1d7ac5f5fb))
+ - **FEAT**(tagflow): refactor element handling and introduce TagflowNode. ([a6a617f1](https://github.com/devaryakjha/tagflow/commit/a6a617f151023b50793647dacd2455bce535db3d))
+ - **FEAT**(table): implement TableConverter and update roadmap. ([60047676](https://github.com/devaryakjha/tagflow/commit/6004767657de88468b2c6c4c46f0a2498be90bd5))
+
 ## 0.0.1-dev.11
 
  - **FIX**(style_parser): improve percentage handling in parseSize method. ([74333732](https://github.com/devaryakjha/tagflow/commit/74333732fd930f68d8138ea3ccc8ac819129f72e))
