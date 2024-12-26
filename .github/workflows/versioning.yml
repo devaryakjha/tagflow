@@ -45,5 +45,5 @@ jobs:
       - name: Create Git Tags
         run: |
           melos version --yes --no-git-tag-version --prerelease -r
-          melos exec -c 1 --no-private -- "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION"
-          git push origin --tags
+          melos exec -c 1 "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION"
+          git push --follow-tags
