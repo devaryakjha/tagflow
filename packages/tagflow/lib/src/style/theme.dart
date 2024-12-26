@@ -115,6 +115,7 @@ class TagflowTheme extends Equatable {
       vertical: baseFontSize * 0.125,
     );
     final defaultBorderWidth = baseFontSize * 0.25;
+    final defaultTableBorderWidth = baseFontSize * 0.125;
 
     return TagflowTheme._(
       defaultStyle: TagflowStyle(
@@ -186,6 +187,10 @@ class TagflowTheme extends Equatable {
         // Tables
         'table': TagflowStyle(
           margin: blockMargin ?? defaultBlockMargin,
+          border: Border.all(
+            color: colorScheme.outlineVariant,
+            width: borderWidth ?? defaultTableBorderWidth,
+          ),
         ),
         'th': TagflowStyle(
           padding: tableCellPadding ?? defaultTableCellPadding,

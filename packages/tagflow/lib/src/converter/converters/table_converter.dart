@@ -13,8 +13,21 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
     final style = resolveStyle(element, context);
     return StyledContainer(
       tag: element.tag,
-      style: style,
+      style: style.copyWith(
+        border: Border.all(
+          width: 0,
+          style: BorderStyle.none,
+        ),
+      ),
       child: Table(
+        border: TableBorder(
+          left: style.effectiveBorder.left,
+          right: style.effectiveBorder.right,
+          top: style.effectiveBorder.top,
+          bottom: style.effectiveBorder.bottom,
+          horizontalInside: style.effectiveBorder.bottom,
+          verticalInside: style.effectiveBorder.right,
+        ),
         children: element.rows.map((e) {
           final style = resolveStyle(e, context);
           return TableRow(
