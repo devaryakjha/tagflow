@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tagflow/tagflow.dart';
 
-final class ListConverter extends ElementConverter {
+final class ListConverter extends ElementConverter<TagflowElement> {
   const ListConverter();
 
   @override
@@ -37,10 +37,13 @@ final class ListItemConverter extends TextConverter {
   @override
   InlineSpan? getPrefix(TagflowElement element) {
     final isOrdered = element.parentTag == 'ol';
-    final index = element.parent?.children.indexOf(element) ?? 0;
     const noSpace = '\u00A0\u00A0';
-    return TextSpan(
-      text: isOrdered ? '${index + 1}.$noSpace' : '•$noSpace',
-    );
+    if (isOrdered) {
+      final index = element.parent?.children.indexOf(element) ?? 0;
+      return TextSpan(
+        text: '${index + 1}.$noSpace',
+      );
+    }
+    return const TextSpan(text: '•$noSpace');
   }
 }

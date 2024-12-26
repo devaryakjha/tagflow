@@ -6,7 +6,7 @@ final class CodeConverter extends TextConverter {
   const CodeConverter();
 
   @override
-  bool shouldForceWidgetSpan(TagflowElement element) {
+  bool shouldForceWidgetSpan(TagflowNode element) {
     return super.shouldForceWidgetSpan(element) ||
         ['code', 'pre'].contains(element.tag);
   }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for text elements
-class TextConverter extends ElementConverter {
+class TextConverter extends ElementConverter<TagflowElement> {
   /// Create a new text converter
   const TextConverter();
 
@@ -32,7 +32,7 @@ class TextConverter extends ElementConverter {
 
   Widget _wrapInContainerIfNeeded(
     Widget child,
-    TagflowElement element,
+    TagflowNode element,
     BuildContext context,
     TagflowStyle style,
   ) {
@@ -57,7 +57,6 @@ class TextConverter extends ElementConverter {
     final children = _convertChildren(element, context, converter);
     final prefix = getPrefix(element);
     final suffix = getSuffix(element);
-
     return _wrapInContainerIfNeeded(
       Text.rich(
         TextSpan(
@@ -71,6 +70,7 @@ class TextConverter extends ElementConverter {
           mouseCursor: _getMouseCursor(element, context),
         ),
         textScaler: _getTextScaler(style),
+        style: getTextStyle(element, style, context),
       ),
       element,
       context,
@@ -88,12 +88,12 @@ class TextConverter extends ElementConverter {
     return null;
   }
 
-  bool shouldForceWidgetSpan(TagflowElement element) {
+  bool shouldForceWidgetSpan(TagflowNode element) {
     return ['sub', 'sup', 'mark'].contains(element.tag);
   }
 
   List<InlineSpan> _convertChildren(
-    TagflowElement element,
+    TagflowNode element,
     BuildContext context,
     TagflowConverter converter,
   ) {
@@ -106,12 +106,14 @@ class TextConverter extends ElementConverter {
           text: child.textContent,
           recognizer: _getGestures(child, context),
           mouseCursor: _getMouseCursor(child, context),
+          style: getTextStyle(child, resolvedStyle, context),
         );
       } else {
         if (!canHandle(child) || shouldForceWidgetSpan(child)) {
           // create a widget span for unsupported elements
           return WidgetSpan(
             child: converter.convert(child, context),
+            style: getTextStyle(child, resolvedStyle, context),
             alignment: PlaceholderAlignment.middle,
           );
         }
@@ -119,7 +121,7 @@ class TextConverter extends ElementConverter {
         // create a text span for supported elements
         return TextSpan(
           children: _convertChildren(child, context, converter),
-          style: _getTextStyle(child, resolvedStyle),
+          style: getTextStyle(child, resolvedStyle, context),
           recognizer: _getGestures(child, context),
           mouseCursor: _getMouseCursor(child, context),
         );
@@ -128,7 +130,7 @@ class TextConverter extends ElementConverter {
   }
 
   MouseCursor? _getMouseCursor(
-    TagflowElement element,
+    TagflowNode element,
     BuildContext context,
   ) =>
       switch (element.parentTag) {
@@ -137,7 +139,7 @@ class TextConverter extends ElementConverter {
       };
 
   GestureRecognizer? _getGestures(
-    TagflowElement element,
+    TagflowNode element,
     BuildContext context,
   ) =>
       switch (element.parentTag) {
@@ -163,13 +165,14 @@ class TextConverter extends ElementConverter {
   }
 
   /// Get the text style for a given element
-  TextStyle? _getTextStyle(
-    TagflowElement element,
+  TextStyle? getTextStyle(
+    TagflowNode element,
     TagflowStyle? resolvedStyle,
+    BuildContext context,
   ) {
     if (element.isTextNode) {
       return null;
     }
-    return resolvedStyle?.textStyle;
+    return resolvedStyle?.textStyleWithColor;
   }
 }

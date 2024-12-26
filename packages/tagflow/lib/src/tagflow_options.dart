@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:collection';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
@@ -7,7 +9,7 @@ import 'package:tagflow/tagflow.dart';
 /// Callback for handling link taps
 typedef TagflowLinkTapCallback = void Function(
   String url,
-  Map<String, String> attributes,
+  LinkedHashMap<String, String>? attributes,
 );
 
 /// Behavior for selecting images
@@ -42,7 +44,7 @@ final class TagflowSelectableOptions extends Equatable {
   final TagflowImageSelectionBehavior imageSelectionBehavior;
 
   /// Custom behavior for selecting images
-  final String? Function(TagflowElement, BuildContext)?
+  final String? Function(TagflowImgElement, BuildContext)?
       imageSelectionBehaviorTextBuilder;
 
   @override

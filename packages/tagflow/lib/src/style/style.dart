@@ -11,6 +11,7 @@ class TagflowStyle extends Equatable {
     this.padding,
     this.margin,
     this.backgroundColor,
+    this.color,
     this.borderRadius,
     this.border,
     this.borderLeft,
@@ -54,6 +55,9 @@ class TagflowStyle extends Equatable {
 
   /// Background color
   final Color? backgroundColor;
+
+  /// Text color
+  final Color? color;
 
   /// Border radius
   final BorderRadius? borderRadius;
@@ -142,6 +146,7 @@ class TagflowStyle extends Equatable {
     EdgeInsets? padding,
     EdgeInsets? margin,
     Color? backgroundColor,
+    Color? color,
     BorderRadius? borderRadius,
     Border? border,
     BorderSide? borderLeft,
@@ -176,6 +181,7 @@ class TagflowStyle extends Equatable {
       padding: padding ?? this.padding,
       margin: margin ?? this.margin,
       backgroundColor: backgroundColor ?? this.backgroundColor,
+      color: color ?? this.color,
       borderRadius: borderRadius ?? this.borderRadius,
       border: border ?? this.border,
       borderLeft: borderLeft ?? this.borderLeft,
@@ -217,6 +223,7 @@ class TagflowStyle extends Equatable {
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
       backgroundColor: other.backgroundColor ?? backgroundColor,
+      color: other.color ?? color,
       borderRadius: other.borderRadius ?? borderRadius,
       border: other.border ?? border,
       borderLeft: other.borderLeft ?? borderLeft,
@@ -254,6 +261,7 @@ class TagflowStyle extends Equatable {
         padding,
         margin,
         backgroundColor,
+        color,
         borderRadius,
         border,
         borderLeft,

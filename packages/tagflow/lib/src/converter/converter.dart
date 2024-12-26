@@ -1,11 +1,12 @@
-// lib/src/converter/converter.dart
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Base interface for element converters
-abstract class ElementConverter {
+abstract class ElementConverter<T extends TagflowNode> {
   /// Create a new element converter
   const ElementConverter();
 
@@ -19,7 +20,7 @@ abstract class ElementConverter {
   Set<String> get supportedTags;
 
   /// Whether this converter can handle the given element
-  bool canHandle(TagflowElement element) {
+  bool canHandle(TagflowNode element) {
     for (final selector in supportedTags) {
       if (_matchesSelector(element, selector)) {
         return true;
@@ -29,7 +30,7 @@ abstract class ElementConverter {
   }
 
   /// Check if element matches a selector
-  bool _matchesSelector(TagflowElement element, String selector) {
+  bool _matchesSelector(TagflowNode element, String selector) {
     // Handle negation
     if (selector.startsWith('!')) {
       log('Negation selector: $selector');
@@ -41,7 +42,7 @@ abstract class ElementConverter {
   }
 
   /// Match positive selectors (without negation)
-  bool _matchPositiveSelector(TagflowElement element, String selector) {
+  bool _matchPositiveSelector(TagflowNode element, String selector) {
     // Simple tag match
     if (!selector.contains(' ')) {
       return selector == element.tag;
@@ -85,18 +86,28 @@ abstract class ElementConverter {
 
   /// Convert the element to a widget
   Widget convert(
-    TagflowElement element,
+    T element,
     BuildContext context,
     TagflowConverter converter,
   );
 
   /// Get the computed style for an element
-  TagflowStyle resolveStyle(TagflowElement element, BuildContext context) {
+  TagflowStyle resolveStyle(TagflowNode element, BuildContext context) {
     return TagflowThemeProvider.of(context).resolveStyle(element);
   }
 
   @override
   String toString() => '$runtimeType(supportedTags: $supportedTags)';
+
+  /// Lookup the first parent of the given tag
+  TagflowNode? lookupParent(TagflowNode element, String tag) {
+    var parent = element.parent;
+    while (parent != null) {
+      if (parent.tag == tag) return parent;
+      parent = parent.parent;
+    }
+    return null;
+  }
 }
 
 /// Main converter that orchestrates the conversion process
@@ -133,15 +144,16 @@ class TagflowConverter {
       const ContainerConverter(),
       const ListConverter(),
       const ListItemConverter(),
+      const TableConverter(),
+      const TableCellConverter(),
     ]);
   }
 
   /// Convert a TagflowElement to a Widget
-  Widget convert(TagflowElement element, BuildContext context) {
+  Widget convert(TagflowNode element, BuildContext context) {
     // Try custom converters first
     for (final converter in _customConverters) {
       if (converter.canHandle(element)) {
-        log('Using custom converter: $converter');
         return converter.convert(element, context, this);
       }
     }
@@ -149,7 +161,6 @@ class TagflowConverter {
     // Then try built-in converters
     for (final converter in _builtInConverters) {
       if (converter.canHandle(element)) {
-        log('Using built-in converter: $converter');
         return converter.convert(element, context, this);
       }
     }
@@ -160,7 +171,7 @@ class TagflowConverter {
 
   /// Convert a list of elements to widgets
   List<Widget> convertChildren(
-    List<TagflowElement> elements,
+    List<TagflowNode> elements,
     BuildContext context,
   ) {
     return elements.map((e) => convert(e, context)).toList();
@@ -175,19 +186,20 @@ class DefaultConverter extends ElementConverter {
   Set<String> get supportedTags => const {};
 
   @override
-  bool canHandle(TagflowElement element) => true;
+  bool canHandle(TagflowNode element) => true;
 
   @override
   Widget convert(
-    TagflowElement element,
+    TagflowNode element,
     BuildContext context,
     TagflowConverter converter,
   ) {
     if (element.isTextNode) {
       final style = resolveStyle(element, context);
+
       return Text(
         element.textContent ?? '',
-        style: style.textStyle,
+        style: style.textStyleWithColor,
         textAlign: style.textAlign,
       );
     }

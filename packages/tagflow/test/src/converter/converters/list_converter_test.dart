@@ -10,7 +10,7 @@ void main() {
     });
 
     testWidgets('renders unordered list', (tester) async {
-      final element = TagflowElement(
+      const element = TagflowElement(
         tag: 'ul',
         children: [
           TagflowElement(tag: 'li', textContent: 'Item 1'),

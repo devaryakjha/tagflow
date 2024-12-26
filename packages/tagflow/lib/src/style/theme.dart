@@ -95,6 +95,8 @@ class TagflowTheme extends Equatable {
     EdgeInsets? inlineCodePadding,
     EdgeInsets? inlineCodeMargin,
     double? borderWidth,
+    // Colors
+    Color? codeBackground,
   }) {
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
@@ -113,6 +115,7 @@ class TagflowTheme extends Equatable {
       vertical: baseFontSize * 0.125,
     );
     final defaultBorderWidth = baseFontSize * 0.25;
+    final defaultTableBorderWidth = baseFontSize * 0.125;
 
     return TagflowTheme._(
       defaultStyle: TagflowStyle(
@@ -154,14 +157,15 @@ class TagflowTheme extends Equatable {
               ),
           padding: blockPadding ?? defaultBlockPadding,
           margin: blockMargin ?? defaultBlockMargin,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
+          backgroundColor: codeBackground ??
+              colorScheme.surfaceContainerHighest.withAlpha(77),
         ),
         'blockquote': TagflowStyle(
           padding: blockPadding ?? defaultBlockPadding,
           margin: blockMargin ?? defaultBlockMargin,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
+          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(26),
           borderLeft: BorderSide(
-            color: colorScheme.primary.withAlpha(50),
+            color: colorScheme.primary.withAlpha(128),
             width: borderWidth ?? defaultBorderWidth,
           ),
         ),
@@ -184,13 +188,13 @@ class TagflowTheme extends Equatable {
         'table': TagflowStyle(
           margin: blockMargin ?? defaultBlockMargin,
           border: Border.all(
-            color: colorScheme.outline,
-            width: borderWidth ?? defaultBorderWidth,
+            color: colorScheme.outlineVariant,
+            width: borderWidth ?? defaultTableBorderWidth,
           ),
         ),
         'th': TagflowStyle(
           padding: tableCellPadding ?? defaultTableCellPadding,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(10),
+          backgroundColor: colorScheme.surfaceContainerHighest,
           textStyle: textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -212,9 +216,15 @@ class TagflowTheme extends Equatable {
               textTheme.bodyMedium?.copyWith(
                 fontFamily: 'monospace',
               ),
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(30),
+          backgroundColor: codeBackground ??
+              colorScheme.surfaceContainerHighest.withAlpha(77),
           padding: inlineCodePadding ?? defaultInlineCodePadding,
           margin: inlineCodeMargin ?? defaultInlineCodeMargin,
+        ),
+        'pre code': const TagflowStyle(
+          backgroundColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          margin: EdgeInsets.zero,
         ),
 
         // Add any additional styles
@@ -317,7 +327,7 @@ class TagflowTheme extends Equatable {
           backgroundColor: codeBackground,
           borderRadius: BorderRadius.circular(baseFontSize * 0.25),
           border: Border.all(
-            color: codeBackground?.withAlpha(50) ?? Colors.grey,
+            color: codeBackground?.withAlpha(128) ?? Colors.grey,
           ),
           textStyle: codeTextStyle,
           width: maxWidth ?? double.infinity,
@@ -365,7 +375,7 @@ class TagflowTheme extends Equatable {
   final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
-  TagflowStyle resolveStyle(TagflowElement element) {
+  TagflowStyle resolveStyle(TagflowNode element) {
     var result = defaultStyle;
 
     // Add tag style
@@ -384,7 +394,7 @@ class TagflowTheme extends Equatable {
     }
 
     // Add class styles
-    final classes = element.attributes['class']?.split(' ') ?? [];
+    final classes = element.attributes?['class']?.split(' ') ?? [];
     for (final className in classes) {
       final classStyle = styles['.${className.trim()}'];
       if (classStyle != null) {
@@ -394,7 +404,7 @@ class TagflowTheme extends Equatable {
 
     // Add inline styles last
     final inlineStyle = StyleParser.parseInlineStyle(
-      element.attributes['style'] ?? '',
+      element.attributes?['style'] ?? '',
       this,
     );
     if (inlineStyle != null) {
@@ -479,7 +489,7 @@ class TagflowTheme extends Equatable {
           vertical: baseFontSize * 0.05,
         ),
         borderRadius: BorderRadius.circular(baseFontSize * 0.125),
-        backgroundColor: markColor.withAlpha(20),
+        backgroundColor: markColor.withAlpha(51),
       ),
       'sub': TagflowStyle(
         textScaleFactor: 0.65,
