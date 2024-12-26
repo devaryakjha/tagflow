@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/dom_parsing.dart';
 import 'package:html/parser.dart' as html;
-import 'package:tagflow/src/core/parser/parsers.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Parses HTML string into TagflowElement

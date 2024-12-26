@@ -1,5 +1,4 @@
 import 'package:html/dom.dart' as dom;
-import 'package:tagflow/src/core/parser/base_parser.dart';
 import 'package:tagflow/tagflow.dart';
 
 class ImgParser extends NodeParser<TagflowImgElement> {

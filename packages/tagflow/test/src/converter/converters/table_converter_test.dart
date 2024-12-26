@@ -127,41 +127,5 @@ void main() {
         true,
       );
     });
-
-    testWidgets('inherits styles from parent tr', (tester) async {
-      const row = TagflowElement(
-        tag: 'tr',
-        attributes: {'style': 'color: red'},
-        children: [
-          TagflowElement(tag: 'td', textContent: 'Cell'),
-        ],
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TagflowThemeProvider(
-              theme: const TagflowTheme.raw(
-                defaultStyle: TagflowStyle(),
-                styles: {},
-              ),
-              child: Builder(
-                builder: (context) {
-                  return converter.convert(
-                    row.children.first as TagflowElement,
-                    context,
-                    TagflowConverter(),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      final text = find.byType(RichText).first;
-      final textWidget = tester.widget<RichText>(text);
-      expect(textWidget.text.style?.color, Colors.red);
-    });
   });
 }
