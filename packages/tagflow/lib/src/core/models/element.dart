@@ -60,5 +60,5 @@ class TagflowElement extends TagflowNode {
   }
 
   @override
-  List<Object?> get props => [tag, textContent, children, parent, attributes];
+  List<Object?> get props => [tag, textContent, children, attributes];
 }

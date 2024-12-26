@@ -60,7 +60,7 @@ abstract class TagflowNode extends Equatable {
       attributes?.containsKey(attribute) ?? false;
 
   @override
-  List<Object?> get props => [tag, children, textContent, parent, attributes];
+  List<Object?> get props => [tag, children, textContent, attributes];
 
   TagflowNode reparent([TagflowNode? newParent]);
 }

@@ -143,7 +143,6 @@ class TagflowConverter {
     // Try custom converters first
     for (final converter in _customConverters) {
       if (converter.canHandle(element)) {
-        log('Using custom converter: $converter');
         return converter.convert(element, context, this);
       }
     }
@@ -151,7 +150,6 @@ class TagflowConverter {
     // Then try built-in converters
     for (final converter in _builtInConverters) {
       if (converter.canHandle(element)) {
-        log('Using built-in converter: $converter');
         return converter.convert(element, context, this);
       }
     }

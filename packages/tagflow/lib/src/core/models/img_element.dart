@@ -44,4 +44,7 @@ class TagflowImgElement extends TagflowNode {
       attributes: attributes,
     );
   }
+
+  @override
+  List<Object?> get props => [tag, attributes, src, alt, fit];
 }
