@@ -42,32 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
 
-      - name: Create Git Tags and Generate Changelog
-        id: release
+      - name: Create Git Tags
         run: |
-          # Run version command and capture new version
-          melos version --yes --no-git-tag-version --prerelease
-
-          # Generate the changelog
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          melos changelog >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-          # Get the version for the release title
-          VERSION=$(melos list --json | jq -r '.[0].version')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-          # Create and push tag
+          melos version --yes --no-git-tag-version --prerelease -r
           melos exec -c 1 --no-private -- "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION"
           git push origin --tags
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: tagflow-v${{ env.VERSION }} # set by previous step
-          name: Release v${{ env.VERSION }} # set by previous step
-          body: ${{ env.CHANGELOG }} # set by previous step
-          prerelease: true # Since these are dev releases
-          draft: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}

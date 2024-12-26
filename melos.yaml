@@ -7,10 +7,9 @@ repository: https://github.com/devaryakjha/tagflow
 
 command:
   version:
-    # Generate commit links in changelog
     linkToCommits: true
-    # Additionally build a changelog at the root of the project
     workspaceChangelog: true
+    releaseUrl: true 
 
 scripts:
   analyze:
