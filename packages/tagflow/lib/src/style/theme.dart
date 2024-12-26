@@ -186,14 +186,10 @@ class TagflowTheme extends Equatable {
         // Tables
         'table': TagflowStyle(
           margin: blockMargin ?? defaultBlockMargin,
-          border: Border.all(
-            color: colorScheme.outline,
-            width: borderWidth ?? defaultBorderWidth,
-          ),
         ),
         'th': TagflowStyle(
           padding: tableCellPadding ?? defaultTableCellPadding,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(26),
+          backgroundColor: colorScheme.surfaceContainerHighest,
           textStyle: textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),

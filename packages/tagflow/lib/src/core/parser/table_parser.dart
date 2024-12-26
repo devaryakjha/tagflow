@@ -24,7 +24,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
       rows: structure.rows,
       columns: structure.columns,
       cells: List.empty(growable: true),
-      spans: const {},
+      spans: Map.from({}),
       attributes: parseAttributes(node),
     );
 

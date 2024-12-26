@@ -28,6 +28,9 @@ class TextConverter extends ElementConverter<TagflowElement> {
         'sub',
         'sup',
         'a',
+        'tr',
+        'td',
+        'th',
       };
 
   Widget _wrapInContainerIfNeeded(

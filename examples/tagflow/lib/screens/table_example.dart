@@ -1,7 +1,7 @@
 import 'package:tagflow_example/widgets/example_page.dart';
 
 const _html = r'''
-<h2>Basic Table</h2>
+<h3>Basic Table</h3>
 <table>
   <tr>
     <th>Header 1</th>
@@ -20,7 +20,7 @@ const _html = r'''
   </tr>
 </table>
 
-<h2>Table with Colspan and Rowspan</h2>
+<h3>Table with Colspan and Rowspan</h3>
 <table>
   <tr>
     <th colspan="2">Merged Header</th>
@@ -37,7 +37,7 @@ const _html = r'''
   </tr>
 </table>
 
-<h2>Styled Table</h2>
+<h3>Styled Table</h3>
 <table style="border: 1px solid #ddd; width: 100%;">
   <tr style="background-color: #f5f5f5;">
     <th style="padding: 8px; text-align: left;">Product</th>

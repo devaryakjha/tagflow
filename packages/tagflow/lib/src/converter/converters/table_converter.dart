@@ -10,9 +10,19 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    return const Text('Table');
+    final style = resolveStyle(element, context);
+
+    return StyledContainer(
+      tag: element.tag,
+      style: style,
+      child: Table(
+        children: element.cells.map((e) {
+          return TableRow(children: converter.convertChildren(e, context));
+        }).toList(),
+      ),
+    );
   }
 
   @override
-  Set<String> get supportedTags => {'table', 'tr', 'td', 'th'};
+  Set<String> get supportedTags => {'table'};
 }

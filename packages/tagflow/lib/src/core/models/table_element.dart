@@ -52,6 +52,9 @@ class TagflowTableElement extends TagflowNode {
       attributes: attributes,
     );
   }
+
+  @override
+  List<TagflowNode> get children => cells.expand((e) => e).toList();
 }
 
 class CellSpan {
