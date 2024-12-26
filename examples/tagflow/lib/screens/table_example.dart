@@ -49,7 +49,7 @@ const _html = r'''
     <td style="padding: 8px; text-align: right;">$10.00</td>
     <td style="padding: 8px; text-align: center;">In Stock</td>
   </tr>
-  <tr style="background-color: #f9f9f9;">
+  <tr style="background-color: #f9f9f9; color: #333;">
     <td style="padding: 8px;">Widget B</td>
     <td style="padding: 8px; text-align: right;">$15.00</td>
     <td style="padding: 8px; text-align: center;">Low Stock</td>

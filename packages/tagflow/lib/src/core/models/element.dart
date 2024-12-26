@@ -35,6 +35,14 @@ class TagflowElement extends TagflowNode {
   @override
   List<TagflowNode> get children => List.unmodifiable(_children);
 
+  /// Set child elements
+  @override
+  set children(List<TagflowNode> value) {
+    _children
+      ..clear()
+      ..addAll(value);
+  }
+
   @override
   LinkedHashMap<String, String>? get attributes =>
       LinkedHashMap.from(_attributes);

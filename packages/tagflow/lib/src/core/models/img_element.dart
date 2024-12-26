@@ -46,5 +46,13 @@ class TagflowImgElement extends TagflowNode {
   }
 
   @override
+  List<TagflowNode> get children => [];
+
+  @override
+  set children(List<TagflowNode> value) {
+    throw UnimplementedError('Img element does not have children');
+  }
+
+  @override
   List<Object?> get props => [tag, attributes, src, alt, fit];
 }

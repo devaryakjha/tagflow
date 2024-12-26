@@ -28,9 +28,6 @@ class TextConverter extends ElementConverter<TagflowElement> {
         'sub',
         'sup',
         'a',
-        'tr',
-        'td',
-        'th',
       };
 
   Widget _wrapInContainerIfNeeded(
@@ -73,6 +70,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
           mouseCursor: _getMouseCursor(element, context),
         ),
         textScaler: _getTextScaler(style),
+        style: getTextStyle(element, style, context),
       ),
       element,
       context,
@@ -108,12 +106,14 @@ class TextConverter extends ElementConverter<TagflowElement> {
           text: child.textContent,
           recognizer: _getGestures(child, context),
           mouseCursor: _getMouseCursor(child, context),
+          style: getTextStyle(child, resolvedStyle, context),
         );
       } else {
         if (!canHandle(child) || shouldForceWidgetSpan(child)) {
           // create a widget span for unsupported elements
           return WidgetSpan(
             child: converter.convert(child, context),
+            style: getTextStyle(child, resolvedStyle, context),
             alignment: PlaceholderAlignment.middle,
           );
         }
@@ -121,7 +121,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
         // create a text span for supported elements
         return TextSpan(
           children: _convertChildren(child, context, converter),
-          style: _getTextStyle(child, resolvedStyle),
+          style: getTextStyle(child, resolvedStyle, context),
           recognizer: _getGestures(child, context),
           mouseCursor: _getMouseCursor(child, context),
         );
@@ -165,13 +165,14 @@ class TextConverter extends ElementConverter<TagflowElement> {
   }
 
   /// Get the text style for a given element
-  TextStyle? _getTextStyle(
+  TextStyle? getTextStyle(
     TagflowNode element,
     TagflowStyle? resolvedStyle,
+    BuildContext context,
   ) {
     if (element.isTextNode) {
       return null;
     }
-    return resolvedStyle?.textStyle;
+    return resolvedStyle?.textStyleWithColor;
   }
 }

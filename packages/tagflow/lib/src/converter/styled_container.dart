@@ -55,18 +55,7 @@ class StyledContainer extends StatelessWidget {
         maxHeight: style.maxHeight ?? double.infinity,
       ),
       alignment: style.alignment,
-      decoration: BoxDecoration(
-        color: style.backgroundColor,
-        borderRadius: style.borderRadius,
-        border: style.border ??
-            Border(
-              left: style.borderLeft ?? BorderSide.none,
-              right: style.borderRight ?? BorderSide.none,
-              top: style.borderTop ?? BorderSide.none,
-              bottom: style.borderBottom ?? BorderSide.none,
-            ),
-        boxShadow: style.boxShadow,
-      ),
+      decoration: style.toBoxDecoration(),
       clipBehavior: style.overflow,
       transform: style.transform,
       transformAlignment: style.transformAlignment,
@@ -75,7 +64,7 @@ class StyledContainer extends StatelessWidget {
         child: Opacity(
           opacity: style.opacity ?? 1.0,
           child: DefaultTextStyle.merge(
-            style: style.textStyle ?? const TextStyle(),
+            style: style.textStyleWithColor ?? const TextStyle(),
             textAlign: style.textAlign,
             child: style.aspectRatio != null
                 ? AspectRatio(

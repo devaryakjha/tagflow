@@ -93,7 +93,7 @@ void main() {
           ),
         );
 
-        expect(style?.textStyle?.color, const Color(0xFFFF0000));
+        expect(style?.textStyleWithColor?.color, const Color(0xFFFF0000));
         expect(style?.padding, const EdgeInsets.all(10));
         expect(style?.margin, const EdgeInsets.all(5));
       });
@@ -112,7 +112,7 @@ void main() {
         expect(StyleParser.parseInlineStyle(''), null);
         expect(StyleParser.parseInlineStyle('invalid'), null);
         expect(
-          StyleParser.parseInlineStyle('color:')?.textStyle?.color,
+          StyleParser.parseInlineStyle('color:')?.textStyleWithColor?.color,
           null,
         );
       });

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Style-related extensions for TagflowNode
@@ -71,4 +72,26 @@ extension TagflowNodeSize on TagflowNode {
     final value = styles?['gap'];
     return value != null ? StyleParser.parseSize(value) : null;
   }
+}
+
+extension StyleExtension on TagflowStyle {
+  Border get effectiveBorder =>
+      border ??
+      Border(
+        left: borderLeft ?? BorderSide.none,
+        right: borderRight ?? BorderSide.none,
+        top: borderTop ?? BorderSide.none,
+        bottom: borderBottom ?? BorderSide.none,
+      );
+
+  BoxDecoration toBoxDecoration() => BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+        border: effectiveBorder,
+        boxShadow: boxShadow,
+      );
+
+  TextStyle? get textStyleWithColor => textStyle == null && color != null
+      ? TextStyle(color: color)
+      : textStyle?.copyWith(color: color);
 }

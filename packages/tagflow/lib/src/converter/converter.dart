@@ -98,6 +98,16 @@ abstract class ElementConverter<T extends TagflowNode> {
 
   @override
   String toString() => '$runtimeType(supportedTags: $supportedTags)';
+
+  /// Lookup the first parent of the given tag
+  TagflowNode? lookupParent(TagflowNode element, String tag) {
+    var parent = element.parent;
+    while (parent != null) {
+      if (parent.tag == tag) return parent;
+      parent = parent.parent;
+    }
+    return null;
+  }
 }
 
 /// Main converter that orchestrates the conversion process
@@ -135,6 +145,7 @@ class TagflowConverter {
       const ListConverter(),
       const ListItemConverter(),
       const TableConverter(),
+      const TableCellConverter(),
     ]);
   }
 
@@ -185,9 +196,10 @@ class DefaultConverter extends ElementConverter {
   ) {
     if (element.isTextNode) {
       final style = resolveStyle(element, context);
+
       return Text(
         element.textContent ?? '',
-        style: style.textStyle,
+        style: style.textStyleWithColor,
         textAlign: style.textAlign,
       );
     }

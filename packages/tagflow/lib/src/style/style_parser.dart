@@ -333,6 +333,9 @@ class StyleParser {
       backgroundColor: styles['background-color'] != null
           ? parseColor(styles['background-color']!, theme?.namedColors)
           : null,
+      color: styles['color'] != null
+          ? parseColor(styles['color']!, theme?.namedColors)
+          : null,
       borderRadius: styles['border-radius'] != null
           ? parseBorderRadius(styles['border-radius']!)
           : null,

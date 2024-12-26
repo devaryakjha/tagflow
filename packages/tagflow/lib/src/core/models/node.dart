@@ -5,7 +5,6 @@ import 'package:equatable/equatable.dart';
 abstract class TagflowNode extends Equatable {
   const TagflowNode({
     required this.tag,
-    this.children = const [],
     this.textContent,
     this.parent,
     this.attributes,
@@ -18,7 +17,10 @@ abstract class TagflowNode extends Equatable {
   final TagflowNode? parent;
 
   /// Children nodes
-  final List<TagflowNode> children;
+  List<TagflowNode> get children;
+
+  /// Set children nodes
+  set children(List<TagflowNode> value);
 
   /// Element's attributes
   final LinkedHashMap<String, String>? attributes;

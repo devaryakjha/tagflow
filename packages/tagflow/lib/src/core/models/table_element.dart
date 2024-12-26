@@ -3,27 +3,27 @@ import 'package:tagflow/tagflow.dart';
 class TagflowTableElement extends TagflowNode {
   const TagflowTableElement({
     required super.tag,
+    required this.rowCount,
+    required this.columnCount,
     required this.rows,
-    required this.columns,
-    required this.cells,
     required this.spans,
     Map<String, String>? attributes,
     super.parent,
   }) : _attributes = attributes ?? const {};
 
-  final int rows;
-  final int columns;
-  final List<List<TagflowNode>> cells;
+  final int rowCount;
+  final int columnCount;
+  final List<TagflowNode> rows;
   final Map<String, CellSpan> spans;
 
   /// Element's attributes
   final Map<String, String> _attributes;
 
-  void addRow(List<TagflowNode> row) {
-    if (row.length != columns) {
+  void addRow(TagflowNode row) {
+    if (row.children.length != columnCount) {
       throw Exception('Row length must match number of columns');
     }
-    cells.add(row);
+    rows.add(row);
   }
 
   CellSpan? getSpan(int row, int column) => spans['$row:$column'];
@@ -44,9 +44,9 @@ class TagflowTableElement extends TagflowNode {
   TagflowNode reparent([TagflowNode? newParent]) {
     return TagflowTableElement(
       tag: tag,
-      rows: rows,
-      columns: columns,
-      cells: cells.map((e) => e.map((c) => c.reparent(this)).toList()).toList(),
+      rowCount: rowCount,
+      columnCount: columnCount,
+      rows: rows.map((e) => e.reparent(this)).toList(),
       spans: spans,
       parent: newParent,
       attributes: attributes,
@@ -54,7 +54,14 @@ class TagflowTableElement extends TagflowNode {
   }
 
   @override
-  List<TagflowNode> get children => cells.expand((e) => e).toList();
+  List<TagflowNode> get children => rows;
+
+  @override
+  set children(List<TagflowNode> value) {
+    rows
+      ..clear()
+      ..addAll(value);
+  }
 }
 
 class CellSpan {

@@ -22,7 +22,7 @@ final class HrConverter extends ElementConverter<TagflowElement> {
         width: double.infinity,
         border: Border(
           bottom: BorderSide(
-            color: style.textStyle?.color ?? Colors.grey,
+            color: style.textStyleWithColor?.color ?? Colors.grey,
             width: element.height ?? 1,
           ),
         ),

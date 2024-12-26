@@ -21,9 +21,9 @@ class TableParser extends NodeParser<TagflowTableElement> {
     final structure = _analyzeStructure(node);
     final table = TagflowTableElement(
       tag: 'table',
-      rows: structure.rows,
-      columns: structure.columns,
-      cells: List.empty(growable: true),
+      rowCount: structure.rows,
+      columnCount: structure.columns,
+      rows: List.empty(growable: true),
       spans: Map.from({}),
       attributes: parseAttributes(node),
     );
@@ -68,7 +68,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
       (_) => List.filled(structure.columns, false),
     );
 
-    for (final row in element.querySelectorAll('tr')) {
+    for (final rowElement in element.querySelectorAll('tr')) {
       final cells = <TagflowNode>[];
       var colIndex = 0;
 
@@ -78,7 +78,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
         colIndex++;
       }
 
-      for (final cell in row.children) {
+      for (final cell in rowElement.children) {
         if (cell.localName?.toLowerCase() != 'td' &&
             cell.localName?.toLowerCase() != 'th') {
           continue;
@@ -126,7 +126,12 @@ class TableParser extends NodeParser<TagflowTableElement> {
         cells.add(TagflowElement.empty());
       }
 
-      table.addRow(cells);
+      // Create row element and add it to table
+      final rowNode = (_elementParser.tryParse(rowElement, parser) ??
+          TagflowElement.empty())
+        ..children = cells;
+
+      table.addRow(rowNode);
       rowIndex++;
     }
   }

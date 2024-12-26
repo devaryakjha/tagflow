@@ -11,13 +11,16 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
     TagflowConverter converter,
   ) {
     final style = resolveStyle(element, context);
-
     return StyledContainer(
       tag: element.tag,
       style: style,
       child: Table(
-        children: element.cells.map((e) {
-          return TableRow(children: converter.convertChildren(e, context));
+        children: element.rows.map((e) {
+          final style = resolveStyle(e, context);
+          return TableRow(
+            decoration: style.toBoxDecoration(),
+            children: converter.convertChildren(e.children, context),
+          );
         }).toList(),
       ),
     );
@@ -25,4 +28,36 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
 
   @override
   Set<String> get supportedTags => {'table'};
+}
+
+final class TableCellConverter extends TextConverter {
+  const TableCellConverter();
+
+  @override
+  bool shouldForceWidgetSpan(TagflowNode element) {
+    return super.shouldForceWidgetSpan(element) ||
+        ['td', 'th'].contains(element.tag);
+  }
+
+  @override
+  Set<String> get supportedTags => super.supportedTags.union({
+        'tr',
+        'td',
+        'th',
+      });
+
+  @override
+  TextStyle? getTextStyle(
+    TagflowNode element,
+    TagflowStyle? resolvedStyle,
+    BuildContext context,
+  ) {
+    final parentTr = lookupParent(element, 'tr');
+    if (parentTr != null) {
+      final parentTrStyle = resolveStyle(parentTr, context);
+      return resolvedStyle?.textStyleWithColor
+          ?.merge(parentTrStyle.textStyleWithColor);
+    }
+    return resolvedStyle?.textStyleWithColor;
+  }
 }
