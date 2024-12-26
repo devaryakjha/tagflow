@@ -1,10 +1,5 @@
 import 'package:tagflow/tagflow.dart';
 
-extension TagflowNodeExtensions on TagflowNode {
-  bool hasAttribute(String attribute) =>
-      attributes?.containsKey(attribute) ?? false;
-}
-
 /// Style-related extensions for TagflowNode
 extension TagflowNodeStyle on TagflowNode {
   /// Returns the inline style string

@@ -55,4 +55,7 @@ abstract class TagflowNode {
   }
 
   void reparent([TagflowNode? newParent]);
+
+  bool hasAttribute(String attribute) =>
+      attributes?.containsKey(attribute) ?? false;
 }
