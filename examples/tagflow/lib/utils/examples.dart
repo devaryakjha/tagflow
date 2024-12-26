@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow_example/screens/article_example.dart';
+import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
@@ -80,11 +81,11 @@ final allExamples = <Example>[
     icon: Icons.image,
   ),
   // code example
-  // Example(
-  //   title: 'Code Blocks',
-  //   description: 'Syntax highlighting and code formatting',
-  //   path: '/code',
-  //   builder: (context) => const CodeExample(),
-  //   icon: Icons.code,
-  // )
+  Example(
+    title: 'Code Blocks',
+    description: 'Syntax highlighting and code formatting',
+    path: '/code',
+    builder: (context) => const CodeExample(),
+    icon: Icons.code,
+  ),
 ];
