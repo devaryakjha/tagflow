@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow_example/screens/article_example.dart';
 import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
+import 'package:tagflow_example/screens/table_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
@@ -49,13 +50,13 @@ final allExamples = <Example>[
     icon: Icons.article,
   ),
   // table example
-  // Example(
-  //   title: 'Table',
-  //   description: 'A demonstration of HTML table rendering',
-  //   path: '/table',
-  //   builder: (context) => const TableExample(),
-  //   icon: Icons.table_chart,
-  // ),
+  Example(
+    title: 'Table',
+    description: 'A demonstration of HTML table rendering',
+    path: '/table',
+    builder: (context) => const TableExample(),
+    icon: Icons.table_chart,
+  ),
   // // list example
   // Example(
   //   title: 'Lists',
