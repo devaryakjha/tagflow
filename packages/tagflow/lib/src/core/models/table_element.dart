@@ -1,18 +1,20 @@
 import 'package:tagflow/tagflow.dart';
 
 class TagflowTableElement extends TagflowNode {
-  TagflowTableElement({
+  const TagflowTableElement({
     required super.tag,
     required this.rows,
     required this.columns,
+    required this.cells,
+    required this.spans,
     Map<String, String>? attributes,
     super.parent,
-  }) : _attributes = attributes ?? {};
+  }) : _attributes = attributes ?? const {};
 
   final int rows;
   final int columns;
-  final List<List<TagflowNode>> cells = [];
-  final Map<String, CellSpan> spans = {};
+  final List<List<TagflowNode>> cells;
+  final Map<String, CellSpan> spans;
 
   /// Element's attributes
   final Map<String, String> _attributes;
@@ -34,13 +36,21 @@ class TagflowTableElement extends TagflowNode {
   String? operator [](String key) => _attributes[key];
 
   @override
-  void reparent([TagflowNode? newParent]) {
-    // TODO(devaryakjha): implement reparent
+  void operator []=(String key, String value) {
+    _attributes[key] = value;
   }
 
   @override
-  void operator []=(String key, String value) {
-    _attributes[key] = value;
+  TagflowNode reparent([TagflowNode? newParent]) {
+    return TagflowTableElement(
+      tag: tag,
+      rows: rows,
+      columns: columns,
+      cells: cells.map((e) => e.map((c) => c.reparent(this)).toList()).toList(),
+      spans: spans,
+      parent: newParent,
+      attributes: attributes,
+    );
   }
 }
 

@@ -58,7 +58,7 @@ class Tagflow extends StatefulWidget {
 
 class _TagflowState extends State<Tagflow> {
   late final TagflowConverter _converter;
-  TagflowElement? _element;
+  TagflowNode? _element;
   Object? _error;
 
   @override
@@ -84,7 +84,7 @@ class _TagflowState extends State<Tagflow> {
 
   Future<void> _parseHtml() async {
     try {
-      final parser = TagflowParser();
+      const parser = TagflowParser();
       _element = await compute(parser.parse, widget.html);
       _error = null;
     } catch (e, stack) {
@@ -133,7 +133,7 @@ class _TagflowState extends State<Tagflow> {
       ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
       ..add(IterableProperty<ElementConverter>('converters', widget.converters))
       ..add(DiagnosticsProperty<TagflowOptions>('options', widget.options))
-      ..add(DiagnosticsProperty<TagflowElement>('element', _element))
+      ..add(DiagnosticsProperty<TagflowNode>('element', _element))
       ..add(DiagnosticsProperty<Object>('error', _error));
   }
 }

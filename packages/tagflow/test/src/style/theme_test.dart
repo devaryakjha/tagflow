@@ -30,9 +30,8 @@ void main() {
         },
       );
 
-      final blockquote = TagflowElement(tag: 'blockquote');
-      final paragraph = TagflowElement(tag: 'p');
-      blockquote.addChild(paragraph);
+      const blockquote = TagflowElement(tag: 'blockquote');
+      final paragraph = const TagflowElement(tag: 'p').reparent(blockquote);
 
       final resolvedStyle = theme.resolveStyle(paragraph);
       expect(resolvedStyle.margin, EdgeInsets.zero);

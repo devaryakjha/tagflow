@@ -1,7 +1,9 @@
 import 'dart:collection';
 
-abstract class TagflowNode {
-  TagflowNode({
+import 'package:equatable/equatable.dart';
+
+abstract class TagflowNode extends Equatable {
+  const TagflowNode({
     required this.tag,
     this.children = const [],
     this.textContent,
@@ -13,7 +15,7 @@ abstract class TagflowNode {
   final String tag;
 
   /// Parent node
-  TagflowNode? parent;
+  final TagflowNode? parent;
 
   /// Children nodes
   final List<TagflowNode> children;
@@ -54,8 +56,11 @@ abstract class TagflowNode {
     this['class'] = value.join(' ');
   }
 
-  void reparent([TagflowNode? newParent]);
-
   bool hasAttribute(String attribute) =>
       attributes?.containsKey(attribute) ?? false;
+
+  @override
+  List<Object?> get props => [tag, children, textContent, parent, attributes];
+
+  TagflowNode reparent([TagflowNode? newParent]);
 }

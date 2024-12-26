@@ -29,10 +29,9 @@ void main() {
     });
 
     test('manages parent-child relationships', () {
-      final parent = TagflowElement(tag: 'div');
-      final child = TagflowElement(tag: 'p');
+      const parent = TagflowElement(tag: 'div');
 
-      parent.addChild(child);
+      final child = const TagflowElement(tag: 'p').reparent(parent);
 
       expect(child.parent, parent);
       expect(parent.children, [child]);
@@ -73,7 +72,7 @@ void main() {
           tag: 'a',
           attributes: LinkedHashMap.from({'href': 'https://example.com'}),
         );
-        final div = TagflowElement(tag: 'div');
+        const div = TagflowElement(tag: 'div');
 
         expect(link.isAnchor, true);
         expect(div.isAnchor, false);
@@ -86,8 +85,8 @@ void main() {
           tag: 'a',
           attributes: LinkedHashMap.from({'href': 'https://example.com'}),
         );
-        final child = TagflowElement(tag: 'span');
-        parent.addChild(child);
+
+        final child = const TagflowElement(tag: 'span').reparent(parent);
 
         expect(child.parentHref, 'https://example.com');
       });

@@ -4,10 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:tagflow/tagflow.dart';
 
 class TagflowImgElement extends TagflowNode {
-  TagflowImgElement({
+  const TagflowImgElement({
     super.tag = 'img',
     Map<String, String>? attributes,
-  }) : _attributes = attributes ?? {};
+  }) : _attributes = attributes ?? const {};
 
   /// Element's attributes
   final Map<String, String> _attributes;
@@ -28,11 +28,6 @@ class TagflowImgElement extends TagflowNode {
       : null;
 
   @override
-  void reparent([TagflowNode? newParent]) {
-    parent = newParent;
-  }
-
-  @override
   void operator []=(String key, String value) {
     _attributes[key] = value;
   }
@@ -40,5 +35,13 @@ class TagflowImgElement extends TagflowNode {
   @override
   String operator [](String key) {
     return _attributes[key] ?? '';
+  }
+
+  @override
+  TagflowNode reparent([TagflowNode? newParent]) {
+    return TagflowImgElement(
+      tag: tag,
+      attributes: attributes,
+    );
   }
 }

@@ -5,14 +5,14 @@ import 'package:tagflow/tagflow.dart';
 /// Represents an HTML element in the tagflow tree.
 class TagflowElement extends TagflowNode {
   /// Creates a new [TagflowElement] instance.
-  TagflowElement({
+  const TagflowElement({
     required super.tag,
     super.textContent,
     List<TagflowNode>? children,
-    LinkedHashMap<String, String>? attributes,
+    Map<String, String>? attributes,
     super.parent,
-  })  : _children = children ?? [],
-        _attributes = attributes ?? {};
+  })  : _children = children ?? const [],
+        _attributes = attributes ?? const {};
 
   /// Factory constructor for text nodes
   factory TagflowElement.text(String content) {
@@ -23,7 +23,7 @@ class TagflowElement extends TagflowNode {
   }
 
   /// Factory constructor for empty elements
-  factory TagflowElement.empty() => TagflowElement(tag: '#empty');
+  factory TagflowElement.empty() => const TagflowElement(tag: '#empty');
 
   /// Element's attributes
   final Map<String, String> _attributes;
@@ -39,12 +39,6 @@ class TagflowElement extends TagflowNode {
   LinkedHashMap<String, String>? get attributes =>
       LinkedHashMap.from(_attributes);
 
-  /// Add a child element
-  void addChild(TagflowNode child) {
-    children.add(child);
-    child.parent = this;
-  }
-
   @override
   String? operator [](String key) => _attributes[key];
 
@@ -55,10 +49,16 @@ class TagflowElement extends TagflowNode {
   }
 
   @override
-  void reparent([TagflowNode? newParent]) {
-    parent = newParent;
-    for (final child in children) {
-      child.reparent(this);
-    }
+  TagflowNode reparent([TagflowNode? newParent]) {
+    return TagflowElement(
+      tag: tag,
+      textContent: textContent,
+      children: children.map((e) => e.reparent(this)).toList(),
+      parent: newParent,
+      attributes: attributes,
+    );
   }
+
+  @override
+  List<Object?> get props => [tag, textContent, children, parent, attributes];
 }
