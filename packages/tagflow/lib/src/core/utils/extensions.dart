@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:tagflow/tagflow.dart';
 
 extension TagflowNodeExtensions on TagflowNode {
@@ -41,23 +40,6 @@ extension TagflowNodeStyle on TagflowNode {
 
   /// Sets class names from a list
   set classList(List<String> value) => attributes?['class'] = value.join(' ');
-}
-
-/// Media-related extensions for TagflowNode
-extension TagflowNodeMedia on TagflowNode {
-  /// Returns true if this is an image element
-  bool get isImage => tag == 'img';
-
-  /// Returns the src attribute for media elements
-  String? get src => attributes?['src'];
-
-  /// Returns the alt text for media elements
-  String? get alt => attributes?['alt'];
-
-  /// Returns the object-fit style as BoxFit
-  BoxFit? get fit => styles?['object-fit'] != null
-      ? StyleParser.parseBoxFit(styles!['object-fit']!)
-      : null;
 }
 
 /// Link-related extensions for TagflowNode

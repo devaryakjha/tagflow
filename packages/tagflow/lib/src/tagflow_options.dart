@@ -44,7 +44,7 @@ final class TagflowSelectableOptions extends Equatable {
   final TagflowImageSelectionBehavior imageSelectionBehavior;
 
   /// Custom behavior for selecting images
-  final String? Function(TagflowElement, BuildContext)?
+  final String? Function(TagflowImgElement, BuildContext)?
       imageSelectionBehaviorTextBuilder;
 
   @override

@@ -2,14 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Converter for img elements
-final class ImgConverter extends ElementConverter<TagflowElement> {
+final class ImgConverter extends ElementConverter<TagflowImgElement> {
   /// Create a new img converter
   const ImgConverter();
 
   @override
   Set<String> get supportedTags => {'img'};
 
-  String? _createSelectionText(TagflowElement element, BuildContext context) {
+  String? _createSelectionText(
+    TagflowImgElement element,
+    BuildContext context,
+  ) {
     final options = TagflowOptions.maybeOf(context);
     final behavior = options?.selectable.imageSelectionBehavior;
     final altText = element.alt;
@@ -44,7 +47,7 @@ final class ImgConverter extends ElementConverter<TagflowElement> {
 
   @override
   Widget convert(
-    TagflowElement element,
+    TagflowImgElement element,
     BuildContext context,
     TagflowConverter converter,
   ) {
