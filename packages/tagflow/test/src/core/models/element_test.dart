@@ -29,10 +29,10 @@ void main() {
     });
 
     test('manages parent-child relationships', () {
-      const parent = TagflowElement(tag: 'div');
-
-      final child = const TagflowElement(tag: 'p').reparent(parent);
-
+      final parent =
+          const TagflowElement(tag: 'div', children: [TagflowElement(tag: 'p')])
+              .reparent();
+      final child = parent.children.first;
       expect(child.parent, parent);
       expect(parent.children, [child]);
       expect(child.parentTag, 'div');
