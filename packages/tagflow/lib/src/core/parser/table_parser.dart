@@ -1,7 +1,7 @@
 import 'package:html/dom.dart' as dom;
-import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/core/parser/base_parser.dart';
 import 'package:tagflow/src/core/parser/element_parser.dart';
+import 'package:tagflow/tagflow.dart';
 
 class TableParser extends NodeParser<TagflowTableElement> {
   const TableParser();
@@ -15,7 +15,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
   }
 
   @override
-  TagflowTableElement? tryParse(dom.Node node) {
+  TagflowTableElement? tryParse(dom.Node node, TagflowParser parser) {
     if (node is! dom.Element) return null;
 
     final structure = _analyzeStructure(node);
@@ -28,7 +28,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
       attributes: parseAttributes(node),
     );
 
-    _populateCells(table, node, structure);
+    _populateCells(table, node, parser, structure);
     return table;
   }
 
@@ -59,6 +59,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
   void _populateCells(
     TagflowTableElement table,
     dom.Element element,
+    TagflowParser parser,
     _TableStructure structure,
   ) {
     var rowIndex = 0;
@@ -94,7 +95,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
 
         // Create cell element
         final cellElement =
-            _elementParser.tryParse(cell) ?? TagflowElement.empty();
+            _elementParser.tryParse(cell, parser) ?? TagflowElement.empty();
         cells.add(cellElement);
 
         // Mark spans

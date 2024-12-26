@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
@@ -57,7 +59,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
     final children = _convertChildren(element, context, converter);
     final prefix = getPrefix(element);
     final suffix = getSuffix(element);
-
+    log(element.textContent ?? '');
     return _wrapInContainerIfNeeded(
       Text.rich(
         TextSpan(

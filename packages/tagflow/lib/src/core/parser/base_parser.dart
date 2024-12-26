@@ -1,10 +1,10 @@
 import 'package:html/dom.dart' as dom;
-import 'package:tagflow/src/core/models/models.dart';
+import 'package:tagflow/tagflow.dart';
 
 abstract class NodeParser<T extends TagflowNode> {
   const NodeParser();
 
-  T? tryParse(dom.Node node);
+  T? tryParse(dom.Node node, TagflowParser parser);
   bool canHandle(dom.Node node);
 
   Map<String, String> parseAttributes(dom.Element element) {
@@ -15,6 +15,8 @@ abstract class NodeParser<T extends TagflowNode> {
       final value = attr.value;
       if (key == 'style') {
         attributes[key] = _normalizeStyle(value);
+      } else if (key == 'class') {
+        attributes[key] = _normalizeClasses(value);
       } else {
         attributes[key] = value;
       }
@@ -49,7 +51,19 @@ abstract class NodeParser<T extends TagflowNode> {
         .join('; ');
   }
 
-  List<TagflowNode> parseChildren(dom.Element element) {
-    return element.nodes.map(tryParse).whereType<TagflowNode>().toList();
+  String _normalizeClasses(String classes) {
+    return classes
+        .split(' ')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .join(' ');
+  }
+
+  List<TagflowNode> parseChildren(dom.Element element, TagflowParser parser) {
+    return element.nodes
+        .map(parser.parseNode)
+        .nonNulls
+        .where(parser.isValidNode)
+        .toList();
   }
 }

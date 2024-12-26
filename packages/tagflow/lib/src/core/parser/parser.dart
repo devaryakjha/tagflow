@@ -35,7 +35,7 @@ class TagflowParser {
       throw const FormatException('Invalid HTML: no body element found');
     }
 
-    final validNodes = _parseNodes(body.nodes).where(_isValidNode).toList();
+    final validNodes = parseNodes(body.nodes).where(isValidNode).toList();
 
     TagflowNode element;
     if (validNodes.length == 1) {
@@ -53,20 +53,24 @@ class TagflowParser {
     return element.reparent();
   }
 
-  List<TagflowNode> _parseNodes(List<dom.Node> nodes) {
-    return nodes.map(_parseNode).whereType<TagflowNode>().toList();
+  List<TagflowNode> parseNodes(List<dom.Node> nodes) {
+    return nodes
+        .where((n) => n is dom.Element || (n is dom.Text && n.text.isNotEmpty))
+        .map(parseNode)
+        .nonNulls
+        .toList();
   }
 
-  TagflowNode? _parseNode(dom.Node node) {
+  TagflowNode? parseNode(dom.Node node) {
     for (final parser in _parsers) {
       if (parser.canHandle(node)) {
-        return parser.tryParse(node);
+        return parser.tryParse(node, this);
       }
     }
     return null;
   }
 
-  bool _isValidNode(TagflowNode node) {
+  bool isValidNode(TagflowNode node) {
     if (node.isEmpty) return false;
     if (node.isTextNode) {
       return node.textContent?.trim().isNotEmpty ?? false;

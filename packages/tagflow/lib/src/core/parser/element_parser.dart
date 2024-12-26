@@ -1,6 +1,6 @@
 import 'package:html/dom.dart' as dom;
-import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/core/parser/base_parser.dart';
+import 'package:tagflow/tagflow.dart';
 
 class ElementParser extends NodeParser<TagflowElement> {
   const ElementParser();
@@ -16,7 +16,7 @@ class ElementParser extends NodeParser<TagflowElement> {
   }
 
   @override
-  TagflowElement? tryParse(dom.Node node) {
+  TagflowElement? tryParse(dom.Node node, TagflowParser parser) {
     if (node is dom.Text) {
       final text = normalizeWhitespace(node.text);
       return text.isEmpty ? TagflowElement.empty() : TagflowElement.text(text);
@@ -26,6 +26,7 @@ class ElementParser extends NodeParser<TagflowElement> {
       return TagflowElement(
         tag: node.localName?.toLowerCase() ?? 'div',
         attributes: parseAttributes(node),
+        children: parseChildren(node, parser),
       );
     }
 
