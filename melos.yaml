@@ -84,9 +84,13 @@ scripts:
   coverage:
     run: melos exec -c 1 --fail-fast -- "flutter test --coverage"
     description: Run tests with coverage and generate coverage report
-    
+    packageFilters:
+      dirExists: test
+
   combine-coverage:
     run: |
       mkdir -p coverage
       lcov --add-tracefile packages/tagflow/coverage/lcov.info -o coverage/lcov.info
     description: Combine coverage reports from all packages
+    packageFilters:
+      dirExists: coverage
