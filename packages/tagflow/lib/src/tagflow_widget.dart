@@ -57,7 +57,7 @@ class Tagflow extends StatefulWidget {
 }
 
 class _TagflowState extends State<Tagflow> {
-  late final TagflowConverter _converter;
+  late TagflowConverter _converter;
   TagflowNode? _element;
   Object? _error;
 

@@ -12,6 +12,8 @@ abstract class ExamplePage extends StatelessWidget {
   final String title;
   String get html;
 
+  List<ElementConverter<TagflowNode>> get converters => [];
+
   TagflowTheme createTheme(BuildContext context) {
     final theme = Theme.of(context);
     final codeTextTheme = GoogleFonts.spaceMonoTextTheme(theme.textTheme);
@@ -32,6 +34,7 @@ abstract class ExamplePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Tagflow(
           html: html,
+          converters: converters,
           theme: createTheme(context),
           options: TagflowOptions(
             selectable: const TagflowSelectableOptions(

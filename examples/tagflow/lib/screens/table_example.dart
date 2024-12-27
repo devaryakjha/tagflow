@@ -1,3 +1,4 @@
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 
 const _html = r'''
@@ -15,23 +16,6 @@ const _html = r'''
   </tr>
   <tr>
     <td>Row 2, Cell 1</td>
-    <td>Row 2, Cell 2</td>
-    <td>Row 2, Cell 3</td>
-  </tr>
-</table>
-
-<h3>Table with Colspan and Rowspan</h3>
-<table>
-  <tr>
-    <th colspan="2">Merged Header</th>
-    <th>Header 3</th>
-  </tr>
-  <tr>
-    <td rowspan="2">Spans 2 Rows</td>
-    <td>Row 1, Cell 2</td>
-    <td>Row 1, Cell 3</td>
-  </tr>
-  <tr>
     <td>Row 2, Cell 2</td>
     <td>Row 2, Cell 3</td>
   </tr>
@@ -66,5 +50,29 @@ final class TableExample extends ExamplePage {
   const TableExample({super.key, super.title = 'Table'});
 
   @override
+  List<ElementConverter<TagflowNode>> get converters => [
+        // TagflowTableConverter(),
+      ];
+
+  @override
   String get html => _html;
 }
+
+/**
+ * <h3>Table with Colspan and Rowspan</h3>
+<table>
+  <tr>
+    <th colspan="2">Merged Header</th>
+    <th>Header 3</th>
+  </tr>
+  <tr>
+    <td rowspan="2">Spans 2 Rows</td>
+    <td>Row 1, Cell 2</td>
+    <td>Row 1, Cell 3</td>
+  </tr>
+  <tr>
+    <td>Row 2, Cell 2</td>
+    <td>Row 2, Cell 3</td>
+  </tr>
+</table>
+ */
