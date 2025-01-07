@@ -60,7 +60,7 @@ function Welcome(props) {
 ''';
 
 final class ArticleExample extends ExamplePage {
-  const ArticleExample({super.key, super.title = 'Article'});
+  ArticleExample({super.key, super.title = 'Article'});
 
   @override
   TagflowTheme createTheme(BuildContext context) {
