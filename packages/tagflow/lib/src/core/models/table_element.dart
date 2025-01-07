@@ -20,9 +20,6 @@ class TagflowTableElement extends TagflowNode {
   final Map<String, String> _attributes;
 
   void addRow(TagflowNode row) {
-    if (row.children.length != columnCount) {
-      throw Exception('Row length must match number of columns');
-    }
     rows.add(row);
   }
 

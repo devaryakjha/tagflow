@@ -423,4 +423,69 @@ class RenderTagflowTable extends RenderBox
     }
     return height * _rowCount;
   }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    if (childCount == 0) {
+      return constraints.smallest;
+    }
+
+    // Calculate minimum column widths
+    final columnWidths = List<double>.filled(_columnCount, 0);
+    var child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as TableCellData;
+      final childWidth =
+          child.getDryLayout(BoxConstraints.loose(constraints.biggest)).width /
+              childParentData.colSpan;
+      for (var i = 0; i < childParentData.colSpan; i++) {
+        columnWidths[childParentData.column + i] =
+            columnWidths[childParentData.column + i]
+                .clamp(childWidth, double.infinity);
+      }
+      child = childParentData.nextSibling;
+    }
+
+    // Calculate total minimum width and distribute extra space
+    final totalMinWidth = columnWidths.reduce((a, b) => a + b);
+    final extraWidth =
+        (constraints.maxWidth - totalMinWidth).clamp(0.0, double.infinity);
+    if (extraWidth > 0) {
+      final widthPerColumn = extraWidth / _columnCount;
+      for (var i = 0; i < _columnCount; i++) {
+        columnWidths[i] += widthPerColumn;
+      }
+    }
+
+    // Calculate row heights
+    final rowHeights = List<double>.filled(_rowCount, 0);
+    child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as TableCellData;
+
+      // Calculate the width this cell will have
+      var cellWidth = 0.0;
+      for (var i = 0; i < childParentData.colSpan; i++) {
+        cellWidth += columnWidths[childParentData.column + i];
+      }
+
+      // Get the height needed for this width
+      final childHeight =
+          child.getDryLayout(BoxConstraints.tightFor(width: cellWidth)).height /
+              childParentData.rowSpan;
+      for (var i = 0; i < childParentData.rowSpan; i++) {
+        rowHeights[childParentData.row + i] =
+            rowHeights[childParentData.row + i]
+                .clamp(childHeight, double.infinity);
+      }
+      child = childParentData.nextSibling;
+    }
+
+    return constraints.constrain(
+      Size(
+        columnWidths.reduce((a, b) => a + b),
+        rowHeights.reduce((a, b) => a + b),
+      ),
+    );
+  }
 }

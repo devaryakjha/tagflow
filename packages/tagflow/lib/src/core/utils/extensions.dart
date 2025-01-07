@@ -107,7 +107,8 @@ extension StyleExtension on TagflowStyle {
         )
       : null;
 
-  TextStyle? get textStyleWithColor => textStyle == null && color != null
-      ? TextStyle(color: color)
-      : textStyle?.copyWith(color: color);
+  TextStyle? get textStyleWithColor =>
+      textStyle == null && (color != null || backgroundColor != null)
+          ? TextStyle(color: color)
+          : textStyle?.copyWith(color: color);
 }
