@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
+import 'package:tagflow_table/tagflow_table.dart';
 
 const _html = r'''
 <h3>Basic Table</h3>
@@ -20,7 +22,6 @@ const _html = r'''
     <td>Row 2, Cell 3</td>
   </tr>
 </table>
-
 <h3>Styled Table</h3>
 <table style="border: 1px solid #ddd; width: 100%;">
   <tr style="background-color: #f5f5f5;">
@@ -44,22 +45,7 @@ const _html = r'''
     <td style="padding: 8px; text-align: center;">Out of Stock</td>
   </tr>
 </table>
-''';
-
-final class TableExample extends ExamplePage {
-  const TableExample({super.key, super.title = 'Table'});
-
-  @override
-  List<ElementConverter<TagflowNode>> get converters => [
-        // TagflowTableConverter(),
-      ];
-
-  @override
-  String get html => _html;
-}
-
-/**
- * <h3>Table with Colspan and Rowspan</h3>
+<h3>Table with Colspan and Rowspan</h3>
 <table>
   <tr>
     <th colspan="2">Merged Header</th>
@@ -75,4 +61,39 @@ final class TableExample extends ExamplePage {
     <td>Row 2, Cell 3</td>
   </tr>
 </table>
- */
+''';
+
+final class TableExample extends ExamplePage {
+  TableExample({super.key, super.title = 'Table'});
+
+  var _useTagflowTable = true;
+
+  @override
+  List<ElementConverter<TagflowNode>> get converters =>
+      !_useTagflowTable ? super.converters : [TagflowTableConverter()];
+
+  @override
+  PreferredSizeWidget? buildAppBar(BuildContext context) {
+    return AppBar(
+      actions: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 16,
+          children: [
+            const Text('Use tagflow_table'),
+            Switch(
+              value: _useTagflowTable,
+              onChanged: (value) {
+                _useTagflowTable = value;
+                setState(() {});
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  @override
+  String get html => _html;
+}
