@@ -205,6 +205,37 @@ class StyleParser {
     return size != null ? BorderRadius.circular(size) : null;
   }
 
+  /// Parse CSS border e.g. 1px solid #ddd or 1px solid red
+  static Border? parseBorder(String value) {
+    // Try parsing as a BorderSide first
+    final borderSide = parseBorderSide(value);
+    if (borderSide != null) {
+      return Border.fromBorderSide(borderSide);
+    }
+
+    final parts = value.split(' ');
+    if (parts.length < 2) return null;
+
+    // Parse width without rounding
+    final width = parts[0].endsWith('px')
+        ? double.tryParse(parts[0].replaceAll('px', ''))
+        : parseSize(parts[0]);
+    final style = parts[1].toLowerCase();
+
+    // For dashed style, use black as default color if not specified
+    final color = style == 'dashed'
+        ? (parts.length > 2 ? parseColor(parts[2]) : const Color(0xFF000000))
+        : (parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]));
+
+    if (width == null && color == null) return null;
+
+    return Border.all(
+      width: width ?? 1.0,
+      color: color ?? const Color(0xFF000000),
+      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
+    );
+  }
+
   /// Parse CSS border
   static BorderSide? parseBorderSide(String value) {
     final parts = value.split(' ');
@@ -397,16 +428,7 @@ class StyleParser {
       borderRadius: styles['border-radius'] != null
           ? parseBorderRadius(styles['border-radius']!)
           : null,
-      border: styles['border'] != null
-          ? Border.all(
-              width: parseSize(styles['border-width'] ?? '1px') ?? 1,
-              color: parseColor(
-                    styles['border-color'] ?? 'currentColor',
-                    theme?.namedColors,
-                  ) ??
-                  const Color(0xFF000000),
-            )
-          : null,
+      border: styles['border'] != null ? parseBorder(styles['border']!) : null,
       borderLeft: styles['border-left'] != null
           ? parseBorderSide(styles['border-left']!)
           : null,
