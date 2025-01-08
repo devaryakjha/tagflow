@@ -34,7 +34,7 @@ void main() {
     });
 
     test('hasBorder returns false when no borders are set', () {
-      const style = TagflowStyle();
+      const style = TagflowStyle.empty;
       expect(style.hasBorder, isFalse);
     });
 
@@ -54,7 +54,7 @@ void main() {
     });
 
     test('effectiveBorder returns null when no borders are set', () {
-      const style = TagflowStyle();
+      const style = TagflowStyle.empty;
       expect(style.effectiveBorder, isNull);
     });
 
@@ -83,13 +83,13 @@ void main() {
 
     test('hasBoxDecoration returns false when no decoration properties are set',
         () {
-      const style = TagflowStyle();
+      const style = TagflowStyle.empty;
       expect(style.hasBoxDecoration, isFalse);
     });
 
     test('toBoxDecoration returns null when no decoration properties are set',
         () {
-      const style = TagflowStyle();
+      const style = TagflowStyle.empty;
       expect(style.toBoxDecoration(), isNull);
     });
 
