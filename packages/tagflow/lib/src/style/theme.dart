@@ -377,22 +377,32 @@ class TagflowTheme extends Equatable {
   final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
-  TagflowStyle resolveStyle(TagflowNode element) {
-    var result = defaultStyle;
+  TagflowStyle resolveStyle(TagflowNode element, {required bool inherit}) {
+    TagflowStyle result;
 
-    // Add tag style
-    if (styles.containsKey(element.tag)) {
-      result = result.merge(styles[element.tag]);
-    }
-
-    // Add nested styles
-    var parent = element.parent;
-    while (parent != null) {
-      final nestedSelector = '${parent.tag} ${element.tag}';
-      if (styles.containsKey(nestedSelector)) {
-        result = result.merge(styles[nestedSelector]);
+    if (!inherit) {
+      if (styles.containsKey(element.tag)) {
+        result = styles[element.tag]!;
       }
-      parent = parent.parent;
+
+      result = TagflowStyle.empty;
+    } else {
+      result = defaultStyle;
+
+      // Add tag style
+      if (styles.containsKey(element.tag)) {
+        result = result.merge(styles[element.tag]);
+      }
+
+      // Add nested styles
+      var parent = element.parent;
+      while (parent != null) {
+        final nestedSelector = '${parent.tag} ${element.tag}';
+        if (styles.containsKey(nestedSelector)) {
+          result = result.merge(styles[nestedSelector]);
+        }
+        parent = parent.parent;
+      }
     }
 
     // Add class styles

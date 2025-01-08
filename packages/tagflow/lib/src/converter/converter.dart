@@ -92,8 +92,18 @@ abstract class ElementConverter<T extends TagflowNode> {
   );
 
   /// Get the computed style for an element
-  TagflowStyle resolveStyle(TagflowNode element, BuildContext context) {
-    return TagflowThemeProvider.of(context).resolveStyle(element);
+  ///
+  /// If [inherit] is false, it will not inherit from parent styles
+  /// and will return an empty style if no style is found
+  ///
+  ///
+  TagflowStyle resolveStyle(
+    TagflowNode element,
+    BuildContext context, {
+    bool inherit = true,
+  }) {
+    return TagflowThemeProvider.of(context)
+        .resolveStyle(element, inherit: inherit);
   }
 
   @override
