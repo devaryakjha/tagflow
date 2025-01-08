@@ -388,9 +388,9 @@ class TagflowTheme extends Equatable {
     if (!inherit) {
       if (styles.containsKey(element.tag)) {
         result = styles[element.tag]!;
+      } else {
+        result = TagflowStyle.empty;
       }
-
-      result = TagflowStyle.empty;
     } else {
       result = defaultStyle;
 
