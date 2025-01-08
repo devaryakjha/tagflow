@@ -51,7 +51,7 @@ final class TagflowTableConverter
 
       // Filter out empty cells
       final nonEmptyCells =
-          row.children.where((cell) => cell.children.isNotEmpty).toList();
+          row.children.where((cell) => !cell.isEmpty).toList();
 
       // Process each cell in the row
       var cellIndex = 0;
