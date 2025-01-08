@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
 import 'package:tagflow/tagflow.dart';
@@ -144,3 +146,40 @@ final class TagflowTableConverter
     return converter.convert(cell, context);
   }
 }
+
+final class TagflowTableCellConverter extends TextConverter {
+  const TagflowTableCellConverter();
+
+  @override
+  bool shouldForceWidgetSpan(TagflowNode element) {
+    return super.shouldForceWidgetSpan(element) ||
+        ['td', 'th'].contains(element.tag);
+  }
+
+  @override
+  Set<String> get supportedTags => super.supportedTags.union({
+        'tr',
+        'td',
+        'th',
+      });
+
+  @override
+  TextStyle? getTextStyle(
+    TagflowNode element,
+    TagflowStyle? resolvedStyle,
+    material.BuildContext context,
+  ) {
+    final parentTr = lookupParent(element, 'tr');
+    if (parentTr != null) {
+      final parentTrStyle = resolveStyle(parentTr, context, inherit: false);
+      return resolvedStyle?.textStyleWithColor
+          ?.merge(parentTrStyle.textStyleWithColor);
+    }
+    return resolvedStyle?.textStyleWithColor;
+  }
+}
+
+// String _getColorHex(material.Color color) {
+//   // ignore: deprecated_member_use
+//   return color.value.toRadixString(16).padLeft(8, '0');
+// }

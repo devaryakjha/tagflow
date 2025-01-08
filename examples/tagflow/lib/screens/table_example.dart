@@ -240,8 +240,12 @@ final class TableExample extends ExamplePage {
   }
 
   @override
-  List<ElementConverter<TagflowNode>> get converters =>
-      !useTagflowTable ? super.converters : [TagflowTableConverter()];
+  List<ElementConverter<TagflowNode>> get converters => !useTagflowTable
+      ? super.converters
+      : [
+          TagflowTableConverter(),
+          const TagflowTableCellConverter(),
+        ];
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
