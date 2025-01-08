@@ -97,7 +97,7 @@ const _advancedTableHtml = r'''
 </table>
 
 <h3>Mixed Headers and Empty Cells</h3>
-<table style="border: 2px solid #333;">
+<table style="border: 2px solid #ddd;">
   <tr>
     <th rowspan="2">Category</th>
     <th colspan="3">Performance</th>
