@@ -166,7 +166,48 @@ const _advancedTableHtml = r'''
   <tr>
     <td>Bottom Left</td>
   </tr>
-</table>''';
+</table>
+
+<h3>Table with Caption</h3>
+<table>
+  <caption>Monthly Sales Report</caption>
+  <tr>
+    <th>Month</th>
+    <th>Sales</th>
+    <th>Growth</th>
+  </tr>
+  <tr>
+    <td>January</td>
+    <td>$10,000</td>
+    <td>+5%</td>
+  </tr>
+  <tr>
+    <td>February</td>
+    <td>$12,000</td>
+    <td>+20%</td>
+  </tr>
+</table>
+
+<h3>Styled Table with Caption</h3>
+<table style="border: 1px solid #ddd; width: 100%;">
+  <caption style="font-weight: bold; color: #ff0000;">Quarterly Performance Overview</caption>
+  <tr>
+    <th style="padding: 8px;">Quarter</th>
+    <th style="padding: 8px;">Revenue</th>
+    <th style="padding: 8px;">Status</th>
+  </tr>
+  <tr>
+    <td style="padding: 8px;">Q1</td>
+    <td style="padding: 8px;">$50,000</td>
+    <td style="padding: 8px; color: green;">On Track</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px;">Q2</td>
+    <td style="padding: 8px;">$65,000</td>
+    <td style="padding: 8px; color: green;">Exceeding</td>
+  </tr>
+</table>
+''';
 const _html = r'''
 
 <h3>Basic Table</h3>

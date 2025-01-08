@@ -119,11 +119,9 @@ final class TagflowTableConverter
       }
     }
 
-    return StyledContainer(
+    final tableWidget = StyledContainer(
       tag: element.tag,
-      style: style.copyWith(
-        border: const material.Border(),
-      ),
+      style: style,
       child: TagflowTable(
         rowCount: element.rowCount,
         columnCount: element.columnCount,
@@ -133,6 +131,19 @@ final class TagflowTableConverter
         children: cells,
       ),
     );
+
+    // If there's a caption, wrap the table in a column with the caption
+    if (element.caption != null) {
+      return material.Column(
+        mainAxisSize: material.MainAxisSize.min,
+        children: [
+          converter.convert(element.caption!, context),
+          tableWidget,
+        ],
+      );
+    }
+
+    return tableWidget;
   }
 
   material.Widget _convertCell(
@@ -161,6 +172,7 @@ final class TagflowTableCellConverter extends TextConverter {
         'tr',
         'td',
         'th',
+        'table caption',
       });
 
   @override

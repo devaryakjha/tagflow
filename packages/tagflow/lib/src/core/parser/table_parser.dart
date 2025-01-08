@@ -17,6 +17,16 @@ class TableParser extends NodeParser<TagflowTableElement> {
     if (node is! dom.Element) return null;
 
     final structure = _analyzeStructure(node);
+
+    // Parse caption if present
+    TagflowNode? caption;
+    for (final element in node.children.whereType<dom.Element>()) {
+      if (element.localName?.toLowerCase() == 'caption') {
+        caption = _elementParser.tryParse(element, parser);
+        break;
+      }
+    }
+
     final table = TagflowTableElement(
       tag: 'table',
       rowCount: structure.rows,
@@ -24,6 +34,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
       rows: List.empty(growable: true),
       spans: Map.from({}),
       attributes: parseAttributes(node),
+      caption: caption,
     );
 
     _populateCells(table, node, parser, structure);

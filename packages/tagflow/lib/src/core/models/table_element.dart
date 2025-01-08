@@ -7,6 +7,7 @@ class TagflowTableElement extends TagflowNode {
     required this.columnCount,
     required this.rows,
     required this.spans,
+    this.caption,
     Map<String, String>? attributes,
     super.parent,
   }) : _attributes = attributes ?? const {};
@@ -15,6 +16,7 @@ class TagflowTableElement extends TagflowNode {
   final int columnCount;
   final List<TagflowNode> rows;
   final Map<String, CellSpan> spans;
+  final TagflowNode? caption;
 
   /// Element's attributes
   final Map<String, String> _attributes;
@@ -45,6 +47,7 @@ class TagflowTableElement extends TagflowNode {
       columnCount: columnCount,
       rows: rows.map((e) => e.reparent(this)).toList(),
       spans: spans,
+      caption: caption?.reparent(this),
       parent: newParent,
       attributes: attributes,
     );

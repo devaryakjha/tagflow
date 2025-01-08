@@ -57,6 +57,7 @@ final class TableCellConverter extends TextConverter {
         'tr',
         'td',
         'th',
+        'table caption', // only support caption within table
       });
 
   @override

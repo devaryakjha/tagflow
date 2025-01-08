@@ -55,6 +55,9 @@ class TagflowTheme extends Equatable {
   /// The [useSystemColors] parameter determines whether to use the Flutter theme's
   /// color scheme for named colors. Set to false to only use custom colors.
   ///
+  /// The [useNamedDefaultColors] parameter determines whether to use the default
+  /// named colors. Set to false to only use custom colors.
+  ///
   /// Example:
   /// ```dart
   /// final theme = TagflowTheme.fromTheme(
@@ -74,6 +77,7 @@ class TagflowTheme extends Equatable {
     Map<String, Color>? additionalColors,
     double baseFontSize = 16.0,
     bool useSystemColors = true,
+    bool useNamedDefaultColors = true,
     // Text styles
     TextStyle? h1Style,
     TextStyle? h2Style,
@@ -235,6 +239,7 @@ class TagflowTheme extends Equatable {
       namedColors: {
         if (useSystemColors) ..._systemColors(colorScheme),
         if (additionalColors != null) ...additionalColors,
+        if (useNamedDefaultColors) ..._namedDefaultColors(colorScheme),
       },
     );
   }
@@ -460,6 +465,19 @@ class TagflowTheme extends Equatable {
         'onBackground': scheme.onSurface,
         'error': scheme.error,
         'onError': scheme.onError,
+      };
+
+  static Map<String, Color> _namedDefaultColors(ColorScheme scheme) => {
+        'red': Colors.red,
+        'green': Colors.green,
+        'blue': Colors.blue,
+        'yellow': Colors.yellow,
+        'purple': Colors.purple,
+        'orange': Colors.orange,
+        'pink': Colors.pink,
+        'gray': Colors.grey,
+        'black': Colors.black,
+        'white': Colors.white,
       };
 
   static Map<String, TagflowStyle> _defaultStyles(
