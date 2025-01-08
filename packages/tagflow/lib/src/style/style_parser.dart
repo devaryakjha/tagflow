@@ -75,8 +75,11 @@ class StyleParser {
     // Handle percentage values
     // TODO(devaryakjha): Fix percentage values
     if (value.endsWith('%')) {
-      final number = double.tryParse(value.replaceAll('%', ''));
-      return number != null ? number / 100 : null;
+      // final number = double.tryParse(value.replaceAll('%', ''));
+      // return number != null ? number / 100 : null;
+
+      // temporary fix
+      return null;
     }
 
     // Handle various units

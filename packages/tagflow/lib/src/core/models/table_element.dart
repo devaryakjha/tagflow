@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:tagflow/tagflow.dart';
 
 class TagflowTableElement extends TagflowNode {
@@ -40,6 +42,10 @@ class TagflowTableElement extends TagflowNode {
   }
 
   @override
+  LinkedHashMap<String, String> get attributes =>
+      LinkedHashMap.from(_attributes);
+
+  @override
   TagflowNode reparent([TagflowNode? newParent]) {
     return TagflowTableElement(
       tag: tag,
@@ -49,7 +55,7 @@ class TagflowTableElement extends TagflowNode {
       spans: spans,
       caption: caption?.reparent(this),
       parent: newParent,
-      attributes: attributes,
+      attributes: _attributes,
     );
   }
 
