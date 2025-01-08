@@ -19,7 +19,7 @@ void main() {
 
     test('resolves nested styles correctly', () {
       const theme = TagflowTheme.raw(
-        defaultStyle: TagflowStyle(),
+        defaultStyle: TagflowStyle.empty,
         styles: {
           'blockquote': TagflowStyle(
             backgroundColor: Colors.grey,
@@ -33,13 +33,13 @@ void main() {
       const blockquote = TagflowElement(tag: 'blockquote');
       final paragraph = const TagflowElement(tag: 'p').reparent(blockquote);
 
-      final resolvedStyle = theme.resolveStyle(paragraph);
+      final resolvedStyle = theme.resolveStyle(paragraph, inherit: true);
       expect(resolvedStyle.margin, EdgeInsets.zero);
     });
 
     test('merges inline styles correctly', () {
       const theme = TagflowTheme.raw(
-        defaultStyle: TagflowStyle(),
+        defaultStyle: TagflowStyle.empty,
         styles: {},
       );
 
@@ -50,7 +50,7 @@ void main() {
         }),
       );
 
-      final resolvedStyle = theme.resolveStyle(element);
+      final resolvedStyle = theme.resolveStyle(element, inherit: true);
       expect(resolvedStyle.padding, const EdgeInsets.all(10));
     });
   });

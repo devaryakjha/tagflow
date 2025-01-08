@@ -73,7 +73,7 @@ final class ArticleExample extends ExamplePage {
       codeBackground: theme.colorScheme.surfaceContainerHigh,
       resolveAdditionalStyles: (theme) {
         final blockquoteStyle =
-            theme.styles['blockquote'] ?? const TagflowStyle();
+            theme.styles['blockquote'] ?? TagflowStyle.empty;
 
         final effectiveQuoteStyle = blockquoteStyle.merge(
           const TagflowStyle(

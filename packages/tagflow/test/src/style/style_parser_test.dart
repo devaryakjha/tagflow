@@ -85,7 +85,7 @@ void main() {
         final style = StyleParser.parseInlineStyle(
           'color: red; padding: 10px; margin: 5px;',
           const TagflowTheme.raw(
-            defaultStyle: TagflowStyle(),
+            defaultStyle: TagflowStyle.empty,
             styles: {},
             namedColors: {
               'red': Color(0xFFFF0000),

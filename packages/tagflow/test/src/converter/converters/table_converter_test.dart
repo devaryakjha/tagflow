@@ -39,7 +39,7 @@ void main() {
           home: Scaffold(
             body: TagflowThemeProvider(
               theme: const TagflowTheme.raw(
-                defaultStyle: TagflowStyle(),
+                defaultStyle: TagflowStyle.empty,
                 styles: {},
               ),
               child: Builder(
@@ -83,7 +83,7 @@ void main() {
           home: Scaffold(
             body: TagflowThemeProvider(
               theme: TagflowTheme.raw(
-                defaultStyle: const TagflowStyle(),
+                defaultStyle: TagflowStyle.empty,
                 styles: {
                   'table': TagflowStyle(
                     border: Border.all(color: Colors.blue),

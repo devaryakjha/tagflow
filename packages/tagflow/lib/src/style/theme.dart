@@ -10,7 +10,7 @@ class TagflowTheme extends Equatable {
   const TagflowTheme._({
     this.styles = const {},
     this.namedColors = const {},
-    this.defaultStyle = const TagflowStyle(),
+    this.defaultStyle = TagflowStyle.empty,
   });
 
   /// Create a new [TagflowTheme] with raw style definitions.

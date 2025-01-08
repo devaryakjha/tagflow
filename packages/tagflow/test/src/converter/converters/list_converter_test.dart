@@ -23,7 +23,7 @@ void main() {
           home: Scaffold(
             body: TagflowThemeProvider(
               theme: const TagflowTheme.raw(
-                defaultStyle: TagflowStyle(),
+                defaultStyle: TagflowStyle.empty,
                 styles: {},
               ),
               child: Builder(
