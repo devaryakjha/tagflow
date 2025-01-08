@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:collection';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -17,8 +19,9 @@ class TestNode extends TagflowNode {
 
   @override
   set children(List<TagflowNode> value) {
-    _children.clear();
-    _children.addAll(value);
+    _children
+      ..clear()
+      ..addAll(value);
   }
 
   LinkedHashMap<String, String>? _attributes;
@@ -127,8 +130,7 @@ void main() {
       final node = TestNode(
         tag: 'div',
         attributes: LinkedHashMap<String, String>(),
-      );
-      node.classList = ['one', 'two', 'three'];
+      )..classList = ['one', 'two', 'three'];
       expect(node.attributes?['class'], 'one two three');
     });
   });
