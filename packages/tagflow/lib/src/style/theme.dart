@@ -193,6 +193,7 @@ class TagflowTheme extends Equatable {
           ),
         ),
         'th': TagflowStyle(
+          alignment: Alignment.center,
           padding: tableCellPadding ?? defaultTableCellPadding,
           backgroundColor: colorScheme.surfaceContainerHighest,
           textStyle: textTheme.bodyMedium?.copyWith(
@@ -200,6 +201,7 @@ class TagflowTheme extends Equatable {
           ),
         ),
         'td': TagflowStyle(
+          alignment: Alignment.center,
           padding: tableCellPadding ?? defaultTableCellPadding,
         ),
 

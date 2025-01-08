@@ -92,7 +92,7 @@ final class TagflowTableConverter
 
         // Create cell widget with styles
         final cellWidget = material.Container(
-          alignment: material.Alignment.center,
+          alignment: cellStyle.alignment,
           decoration: (cellStyle.toBoxDecoration() ??
                   rowStyle.toBoxDecoration() ??
                   const BoxDecoration())
@@ -120,23 +120,13 @@ final class TagflowTableConverter
     return StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        border: material.Border.all(
-          width: 0,
-          style: material.BorderStyle.none,
-        ),
+        border: const material.Border(),
       ),
       child: TagflowTable(
         rowCount: element.rowCount,
         columnCount: element.columnCount,
-        border: TagflowTableBorder(
-          left: style.effectiveBorder?.left ?? material.BorderSide.none,
-          right: style.effectiveBorder?.right ?? material.BorderSide.none,
-          top: style.effectiveBorder?.top ?? material.BorderSide.none,
-          bottom: style.effectiveBorder?.bottom ?? material.BorderSide.none,
-          horizontalInside:
-              style.effectiveBorder?.bottom ?? material.BorderSide.none,
-          verticalInside:
-              style.effectiveBorder?.right ?? material.BorderSide.none,
+        border: TagflowTableBorder.fromBorder(
+          style.effectiveBorder ?? const Border(),
         ),
         children: cells,
       ),

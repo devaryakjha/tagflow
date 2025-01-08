@@ -18,7 +18,26 @@ class TagflowTableBorder {
     this.verticalInside = BorderSide.none,
   });
 
+  factory TagflowTableBorder.fromBorder(Border border) {
+    return TagflowTableBorder(
+      left: border.left,
+      right: border.right,
+      top: border.top,
+      bottom: border.bottom,
+      horizontalInside: border.bottom,
+      verticalInside: border.right,
+    );
+  }
+
   static final none = TagflowTableBorder();
+
+  bool get isNone =>
+      left == BorderSide.none &&
+      right == BorderSide.none &&
+      top == BorderSide.none &&
+      bottom == BorderSide.none &&
+      horizontalInside == BorderSide.none &&
+      verticalInside == BorderSide.none;
 
   final BorderSide left;
   final BorderSide right;
