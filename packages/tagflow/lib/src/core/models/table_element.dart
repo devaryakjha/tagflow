@@ -55,7 +55,7 @@ class TagflowTableElement extends TagflowNode {
       spans: spans,
       caption: caption?.reparent(this),
       parent: newParent,
-      attributes: _attributes,
+      attributes: attributes,
     );
   }
 
