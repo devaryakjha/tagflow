@@ -10,7 +10,7 @@ typedef ErrorWidgetBuilder = Widget Function(
 
 /// Default error widget builder
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
-  return Text(
+  return SelectableText(
     'Failed to render HTML: $error',
     style: const TextStyle(color: Color(0xFFB00020)),
   );
