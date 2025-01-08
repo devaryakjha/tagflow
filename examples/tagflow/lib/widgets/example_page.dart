@@ -38,14 +38,23 @@ abstract class ExamplePage extends StatefulWidget {
 
   Widget? build(BuildContext context) => null;
 
-  // add a proxy setState method
-  void setState(VoidCallback fn) {
-    // ignore: invalid_use_of_protected_member
-    _key.currentState?.setState(fn);
+  void updateState<T>(String key, T value) {
+    _key.currentState?.updateState(key, value);
   }
+
+  T? getState<T>(String key) => _key.currentState?.getState<T>(key);
 }
 
 class _ExamplePageState extends State<ExamplePage> {
+  final Map<String, dynamic> _state = {};
+
+  T? getState<T>(String key) => _state[key] as T?;
+
+  void updateState<T>(String key, T value) {
+    _state[key] = value;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return widget.build(context) ??

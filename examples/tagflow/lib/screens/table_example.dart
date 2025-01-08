@@ -233,27 +233,39 @@ const _html = r'''
 final class TableExample extends ExamplePage {
   TableExample({super.key, super.title = 'Table'});
 
-  var _useTagflowTable = true;
+  bool get useTagflowTable => getState<bool>('useTagflowTable') ?? true;
+
+  void updateUseTagflowTable({bool? value}) {
+    updateState<bool>('useTagflowTable', value ?? !useTagflowTable);
+  }
 
   @override
   List<ElementConverter<TagflowNode>> get converters =>
-      !_useTagflowTable ? super.converters : [TagflowTableConverter()];
+      !useTagflowTable ? super.converters : [TagflowTableConverter()];
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
+      title: Text(title),
       actions: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 16,
-          children: [
-            const Text('Use tagflow_table'),
-            Switch(
-              value: _useTagflowTable,
-              onChanged: (value) {
-                _useTagflowTable = value;
-                setState(() {});
-              },
+        PopupMenuButton<void>(
+          icon: const Icon(Icons.more_vert),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Use tagflow_table'),
+                  const SizedBox(width: 16),
+                  Switch(
+                    value: useTagflowTable,
+                    onChanged: (value) {
+                      updateUseTagflowTable(value: value);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -262,5 +274,5 @@ final class TableExample extends ExamplePage {
   }
 
   @override
-  String get html => _useTagflowTable ? _advancedTableHtml : _html;
+  String get html => useTagflowTable ? _advancedTableHtml : _html;
 }
