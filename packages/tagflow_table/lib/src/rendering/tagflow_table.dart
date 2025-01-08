@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/rendering.dart';
 
 class TableCellData extends ContainerBoxParentData<RenderBox> {
@@ -8,7 +9,8 @@ class TableCellData extends ContainerBoxParentData<RenderBox> {
 }
 
 /// Defines the borders for a table
-class TagflowTableBorder {
+// ignore: must_be_immutable
+class TagflowTableBorder extends Equatable {
   TagflowTableBorder({
     this.left = BorderSide.none,
     this.right = BorderSide.none,
@@ -26,6 +28,36 @@ class TagflowTableBorder {
       bottom: border.bottom,
       horizontalInside: border.bottom,
       verticalInside: border.right,
+    );
+  }
+
+  factory TagflowTableBorder.all({
+    Color color = const Color(0xFF000000),
+    double width = 1.0,
+    BorderStyle style = BorderStyle.solid,
+  }) {
+    final side = BorderSide(color: color, width: width, style: style);
+    return TagflowTableBorder(
+      left: side,
+      right: side,
+      top: side,
+      bottom: side,
+      horizontalInside: side,
+      verticalInside: side,
+    );
+  }
+
+  factory TagflowTableBorder.symmetric({
+    BorderSide outside = BorderSide.none,
+    BorderSide inside = BorderSide.none,
+  }) {
+    return TagflowTableBorder(
+      left: outside,
+      right: outside,
+      top: outside,
+      bottom: outside,
+      horizontalInside: inside,
+      verticalInside: inside,
     );
   }
 
@@ -60,6 +92,54 @@ class TagflowTableBorder {
           ..color = side.color
           ..strokeWidth = side.width
           ..style = PaintingStyle.stroke);
+  }
+
+  static TagflowTableBorder? lerp(
+    TagflowTableBorder? a,
+    TagflowTableBorder? b,
+    double t,
+  ) {
+    if (a == null && b == null) return null;
+    if (a == null) return b!.scale(t);
+    if (b == null) return a.scale(1.0 - t);
+    return TagflowTableBorder(
+      left: BorderSide.lerp(a.left, b.left, t),
+      right: BorderSide.lerp(a.right, b.right, t),
+      top: BorderSide.lerp(a.top, b.top, t),
+      bottom: BorderSide.lerp(a.bottom, b.bottom, t),
+      horizontalInside:
+          BorderSide.lerp(a.horizontalInside, b.horizontalInside, t),
+      verticalInside: BorderSide.lerp(a.verticalInside, b.verticalInside, t),
+    );
+  }
+
+  TagflowTableBorder copyWith({
+    BorderSide? left,
+    BorderSide? right,
+    BorderSide? top,
+    BorderSide? bottom,
+    BorderSide? horizontalInside,
+    BorderSide? verticalInside,
+  }) {
+    return TagflowTableBorder(
+      left: left ?? this.left,
+      right: right ?? this.right,
+      top: top ?? this.top,
+      bottom: bottom ?? this.bottom,
+      horizontalInside: horizontalInside ?? this.horizontalInside,
+      verticalInside: verticalInside ?? this.verticalInside,
+    );
+  }
+
+  TagflowTableBorder scale(double t) {
+    return TagflowTableBorder(
+      left: left.scale(t),
+      right: right.scale(t),
+      top: top.scale(t),
+      bottom: bottom.scale(t),
+      horizontalInside: horizontalInside.scale(t),
+      verticalInside: verticalInside.scale(t),
+    );
   }
 
   void paint(
@@ -188,6 +268,16 @@ class TagflowTableBorder {
       }
     }
   }
+
+  @override
+  List<Object?> get props => [
+        left,
+        right,
+        top,
+        bottom,
+        horizontalInside,
+        verticalInside,
+      ];
 }
 
 class RenderTagflowTable extends RenderBox
