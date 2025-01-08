@@ -478,6 +478,7 @@ class TagflowTheme extends Equatable {
         'gray': Colors.grey,
         'black': Colors.black,
         'white': Colors.white,
+        'transparent': Colors.transparent,
       };
 
   static Map<String, TagflowStyle> _defaultStyles(
