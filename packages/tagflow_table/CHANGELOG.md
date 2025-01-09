@@ -1,3 +1,7 @@
+## 0.0.2-dev.1
+
+ - **REFACTOR**(tagflow_table): relaxed dart SDK constraints. ([5cba3f98](https://github.com/devaryakjha/tagflow/commit/5cba3f98a0eef120a79ca4da7ae8094abecadba5))
+
 ## 0.0.2-dev.0
 
  - **REFACTOR**(tagflow_table): improve empty cell handling in TagflowTableConverter. ([2cd288ec](https://github.com/devaryakjha/tagflow/commit/2cd288ecde7af366e0242aa555a60520dc285ebc))

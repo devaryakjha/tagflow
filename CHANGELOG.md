@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow_table` - `v0.0.2-dev.1`](#tagflow_table---v002-dev1)
+
+---
+
+#### `tagflow_table` - `v0.0.2-dev.1`
+
+ - **REFACTOR**(tagflow_table): relaxed dart SDK constraints. ([5cba3f98](https://github.com/devaryakjha/tagflow/commit/5cba3f98a0eef120a79ca4da7ae8094abecadba5))
+
+
+## 2025-01-09
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.14`](#tagflow---v001-dev14)
  - [`tagflow_table` - `v0.0.2-dev.0`](#tagflow_table---v002-dev0)
 
