@@ -1,3 +1,7 @@
+## 0.0.2-dev.2
+
+ - **REFACTOR**(tagflow_table): relaxed dart SDK constraints. ([5cba3f98](https://github.com/devaryakjha/tagflow/commit/5cba3f98a0eef120a79ca4da7ae8094abecadba5))
+
 ## 0.0.2-dev.1
 
  - **REFACTOR**(tagflow_table): relaxed dart SDK constraints. ([5cba3f98](https://github.com/devaryakjha/tagflow/commit/5cba3f98a0eef120a79ca4da7ae8094abecadba5))
