@@ -1,3 +1,27 @@
+## 0.0.1-dev.14
+
+ - **REFACTOR**(element_test): remove percentage value test for element dimensions. ([0ecbc479](https://github.com/devaryakjha/tagflow/commit/0ecbc4794b7974fdc304d0816ea14b7ebf47fee7))
+ - **REFACTOR**(node_extension_test): improve test readability and update children setter. ([6441b2a1](https://github.com/devaryakjha/tagflow/commit/6441b2a15701f1902567fff457ef3e5189269607))
+ - **REFACTOR**(table_element): update attribute assignment in TagflowTableElement constructor. ([85d02452](https://github.com/devaryakjha/tagflow/commit/85d024529ab3532027de312e232e62b973a5b969))
+ - **REFACTOR**(table_parser): optimize table row handling and improve tag checks. ([9bf99dea](https://github.com/devaryakjha/tagflow/commit/9bf99deab807edc8207a6120a33d4c1566b39cde))
+ - **REFACTOR**(style,theme): replace default TagflowStyle with TagflowStyle.empty. ([a00adaf0](https://github.com/devaryakjha/tagflow/commit/a00adaf0f61fe4f40857504ee0b93057368ad187))
+ - **REFACTOR**(styles): enhance border and decoration handling in StyledContainer and TableConverter. ([c4d582c8](https://github.com/devaryakjha/tagflow/commit/c4d582c8194e3c562c3adbe3abfe62edfc9c1db6))
+ - **FIX**(style_parser_test): update percentage value parsing to return null for invalid inputs. ([7e086796](https://github.com/devaryakjha/tagflow/commit/7e086796a0534f30a05fc99daa819f5623e33915))
+ - **FIX**(tests): update style_extension tests to use TagflowStyle.empty. ([e2781ef5](https://github.com/devaryakjha/tagflow/commit/e2781ef50252d02cd950ee77baf8f0cca1bc6960))
+ - **FIX**(tagflow_widget): replace Text with SelectableText in error widget. ([0c622c4a](https://github.com/devaryakjha/tagflow/commit/0c622c4a32056790de051e2677fde44ce1866043))
+ - **FEAT**(docs): add contributing guidelines and enhance README structure. ([579ec3d6](https://github.com/devaryakjha/tagflow/commit/579ec3d695b2af1811dff3ef52d53f9b677001e5))
+ - **FEAT**(style_parser): add border parsing functionality to StyleParser. ([7e669181](https://github.com/devaryakjha/tagflow/commit/7e669181f46f4f9121c9462305880935bec93c89))
+ - **FEAT**(table_element): enhance attribute handling and reparenting logic. ([afb723e7](https://github.com/devaryakjha/tagflow/commit/afb723e7bbb80d4a75cb836bec7637fc103b5d06))
+ - **FEAT**(theme): enhance TagflowTheme style resolution and add default named colors. ([c461e22d](https://github.com/devaryakjha/tagflow/commit/c461e22d68c5a3358f5e10f66c262c4b4d0a4ac1))
+ - **FEAT**(tests): add unit tests for TagflowTableElement and CellSpan functionality. ([9b18abb6](https://github.com/devaryakjha/tagflow/commit/9b18abb653f4dacdfab87a38077afb2e2f8c2951))
+ - **FEAT**(tests): add comprehensive tests for TagflowNode and StyleExtension. ([a8de345f](https://github.com/devaryakjha/tagflow/commit/a8de345fc930e525ef3e1f1d5f04455ff4f6a50e))
+ - **FEAT**(style_parser): enhance CSS value parsing and validation. ([021a2e4e](https://github.com/devaryakjha/tagflow/commit/021a2e4e1bbf72c9aabe9d3809ebdf9bfb8ff5c9))
+ - **FEAT**(theme): add transparent color to TagflowTheme color map. ([c7943c4c](https://github.com/devaryakjha/tagflow/commit/c7943c4c27313a20592bd30a954490f9c863c691))
+ - **FEAT**(table_example,table_converter,table_parser): add support for table captions and enhance rendering. ([76ee33fb](https://github.com/devaryakjha/tagflow/commit/76ee33fbfd4369a19a3908e57d8747770f064388))
+ - **FEAT**(style,converter,theme): enhance style resolution with inheritance support. ([f8c8ac9e](https://github.com/devaryakjha/tagflow/commit/f8c8ac9e99dd23ed811b072b73b3d92640d9f035))
+ - **FEAT**(table_example,tagflow_table): enhance table examples and rendering logic. ([ab226159](https://github.com/devaryakjha/tagflow/commit/ab226159fc4d07d88b0a8359bb3537a7d3891bb3))
+ - **FEAT**(table_example): enhance table examples with new HTML structures and rendering improvements. ([89b191bf](https://github.com/devaryakjha/tagflow/commit/89b191bfdd0a89bf710be451cc6cc4c4def6b82c))
+
 ## 0.0.1-dev.13
 
  - **REFACTOR**(parser): clean up and enhance TableParser functionality. ([5e2f943d](https://github.com/devaryakjha/tagflow/commit/5e2f943d5b6c9db62d3eabc75cd42b093d78420d))
