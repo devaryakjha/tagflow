@@ -34,6 +34,7 @@ jobs:
           run-bootstrap: true
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PUB_CREDENTIALS: ${{ secrets.CREDENTIALS_JSON }}
 
       - name: Publish to pub.dev
         run: melos run publish
