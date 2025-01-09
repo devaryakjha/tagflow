@@ -1,6 +1,6 @@
 name: tagflow_table
 description: A pluggable package for tagflow to add support for advanced HTML tables.
-version: 0.0.2-dev.0
+version: 0.0.2-dev.1
 repository: https://github.com/devaryakjha/tagflow
 homepage: https://docs.arya.run/tagflow
 issue_tracker: https://github.com/devaryakjha/tagflow/issues
