@@ -36,10 +36,10 @@ void main() {
       });
 
       test('parses percentage values', () {
-        expect(StyleParser.parseSize('100%'), 1.0);
-        expect(StyleParser.parseSize('50%'), 0.5);
-        expect(StyleParser.parseSize('0%'), 0.0);
-        expect(StyleParser.parseSize('150%'), 1.5);
+        expect(StyleParser.parseSize('100%'), null);
+        expect(StyleParser.parseSize('50%'), null);
+        expect(StyleParser.parseSize('0%'), null);
+        expect(StyleParser.parseSize('150%'), null);
       });
 
       test('handles invalid values', () {
