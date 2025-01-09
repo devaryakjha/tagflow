@@ -121,7 +121,12 @@ final class TagflowTableConverter
 
     final tableWidget = StyledContainer(
       tag: element.tag,
-      style: style,
+      style: style.copyWith(
+        border: Border.all(
+          width: 0,
+          style: BorderStyle.none,
+        ),
+      ),
       child: TagflowTable(
         rowCount: element.rowCount,
         columnCount: element.columnCount,
