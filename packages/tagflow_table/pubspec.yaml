@@ -1,5 +1,5 @@
 name: tagflow_table
-description: "A new Flutter package project."
+description: A pluggable package for tagflow to add support for advanced HTML tables.
 version: 0.0.2-dev.0
 repository: https://github.com/devaryakjha/tagflow
 homepage: https://docs.arya.run/tagflow
@@ -14,7 +14,6 @@ dependencies:
   flutter:
     sdk: flutter
   tagflow: ^0.0.1-dev.14
-  two_dimensional_scrollables: ^0.3.3
 
 dev_dependencies:
   flutter_test:
