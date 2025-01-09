@@ -3,13 +3,37 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - "tagflow-v[0-9]+.[0-9]+.[0-9]+*" # This matches tags like tagflow-v1.2.3
-      - "tagflow-v[0-9]+.[0-9]+.[0-9]+-dev.[0-9]+" # This matches tags like tagflow-v0.0.1-dev.10
+      - "tagflow-v[0-9]+.[0-9]+.[0-9]+*"
+      - "tagflow-v[0-9]+.[0-9]+.[0-9]+-dev.[0-9]+"
+      - "tagflow_table-v[0-9]+.[0-9]+.[0-9]+*"
+      - "tagflow_table-v[0-9]+.[0-9]+.[0-9]+-dev.[0-9]+"
 
 jobs:
   publish:
+    name: Publish to pub.dev
     permissions:
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: packages/tagflow
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Setup Melos
+        uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Publish to pub.dev
+        run: melos run publish
