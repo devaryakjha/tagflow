@@ -17,6 +17,16 @@ class TableParser extends NodeParser<TagflowTableElement> {
     if (node is! dom.Element) return null;
 
     final structure = _analyzeStructure(node);
+
+    // Parse caption if present
+    TagflowNode? caption;
+    for (final element in node.children.whereType<dom.Element>()) {
+      if (element.localName?.toLowerCase() == 'caption') {
+        caption = _elementParser.tryParse(element, parser);
+        break;
+      }
+    }
+
     final table = TagflowTableElement(
       tag: 'table',
       rowCount: structure.rows,
@@ -24,6 +34,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
       rows: List.empty(growable: true),
       spans: Map.from({}),
       attributes: parseAttributes(node),
+      caption: caption,
     );
 
     _populateCells(table, node, parser, structure);
@@ -34,15 +45,16 @@ class TableParser extends NodeParser<TagflowTableElement> {
     var maxColumns = 0;
     var totalRows = 0;
 
-    for (final row in table.querySelectorAll('tr')) {
+    // Cache the tag checks
+    final rows = _getTableRows(table);
+
+    for (final row in rows) {
       totalRows++;
       var columnsInRow = 0;
 
       for (final cell in row.children) {
-        if (cell.localName?.toLowerCase() != 'td' &&
-            cell.localName?.toLowerCase() != 'th') {
-          continue;
-        }
+        final tag = cell.localName?.toLowerCase();
+        if (tag != 'td' && tag != 'th') continue;
 
         final colspan = int.tryParse(cell.attributes['colspan'] ?? '1') ?? 1;
         columnsInRow += colspan;
@@ -52,6 +64,29 @@ class TableParser extends NodeParser<TagflowTableElement> {
     }
 
     return _TableStructure(rows: totalRows, columns: maxColumns);
+  }
+
+  /// Helper method to get table rows, handling tbody/thead sections
+  Iterable<dom.Element> _getTableRows(dom.Element table) {
+    // First try to get rows from tbody/thead
+    final sections = table.children.whereType<dom.Element>().where((node) {
+      final tag = node.localName?.toLowerCase();
+      return tag == 'tbody' || tag == 'thead';
+    });
+
+    if (sections.isEmpty) {
+      // If no sections, get direct tr children
+      return table.children.whereType<dom.Element>().where(
+            (node) => node.localName?.toLowerCase() == 'tr',
+          );
+    }
+
+    // Get rows from all sections
+    return sections.expand(
+      (section) => section.children.whereType<dom.Element>().where(
+            (node) => node.localName?.toLowerCase() == 'tr',
+          ),
+    );
   }
 
   void _populateCells(
@@ -66,7 +101,10 @@ class TableParser extends NodeParser<TagflowTableElement> {
       (_) => List.filled(structure.columns, false),
     );
 
-    for (final rowElement in element.querySelectorAll('tr')) {
+    // Reuse the row getter
+    final rows = _getTableRows(element);
+
+    for (final rowElement in rows) {
       final cells = <TagflowNode>[];
       var colIndex = 0;
 
@@ -77,10 +115,8 @@ class TableParser extends NodeParser<TagflowTableElement> {
       }
 
       for (final cell in rowElement.children) {
-        if (cell.localName?.toLowerCase() != 'td' &&
-            cell.localName?.toLowerCase() != 'th') {
-          continue;
-        }
+        final tag = cell.localName?.toLowerCase();
+        if (tag != 'td' && tag != 'th') continue;
 
         // Skip occupied cells
         while (colIndex < structure.columns && occupied[rowIndex][colIndex]) {

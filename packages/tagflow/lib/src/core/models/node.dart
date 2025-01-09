@@ -64,5 +64,6 @@ abstract class TagflowNode extends Equatable {
   @override
   List<Object?> get props => [tag, children, textContent, attributes];
 
+  /// Reparent the node
   TagflowNode reparent([TagflowNode? newParent]);
 }

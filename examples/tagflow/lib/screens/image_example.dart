@@ -31,7 +31,7 @@ const _html = '''
 ''';
 
 final class ImageExample extends ExamplePage {
-  const ImageExample({super.key, super.title = 'Images'});
+  ImageExample({super.key, super.title = 'Images'});
 
   @override
   String get html => _html;

@@ -10,7 +10,7 @@ class TagflowTheme extends Equatable {
   const TagflowTheme._({
     this.styles = const {},
     this.namedColors = const {},
-    this.defaultStyle = const TagflowStyle(),
+    this.defaultStyle = TagflowStyle.empty,
   });
 
   /// Create a new [TagflowTheme] with raw style definitions.
@@ -55,6 +55,9 @@ class TagflowTheme extends Equatable {
   /// The [useSystemColors] parameter determines whether to use the Flutter theme's
   /// color scheme for named colors. Set to false to only use custom colors.
   ///
+  /// The [useNamedDefaultColors] parameter determines whether to use the default
+  /// named colors. Set to false to only use custom colors.
+  ///
   /// Example:
   /// ```dart
   /// final theme = TagflowTheme.fromTheme(
@@ -74,6 +77,7 @@ class TagflowTheme extends Equatable {
     Map<String, Color>? additionalColors,
     double baseFontSize = 16.0,
     bool useSystemColors = true,
+    bool useNamedDefaultColors = true,
     // Text styles
     TextStyle? h1Style,
     TextStyle? h2Style,
@@ -193,6 +197,7 @@ class TagflowTheme extends Equatable {
           ),
         ),
         'th': TagflowStyle(
+          alignment: Alignment.center,
           padding: tableCellPadding ?? defaultTableCellPadding,
           backgroundColor: colorScheme.surfaceContainerHighest,
           textStyle: textTheme.bodyMedium?.copyWith(
@@ -200,6 +205,7 @@ class TagflowTheme extends Equatable {
           ),
         ),
         'td': TagflowStyle(
+          alignment: Alignment.center,
           padding: tableCellPadding ?? defaultTableCellPadding,
         ),
 
@@ -233,6 +239,7 @@ class TagflowTheme extends Equatable {
       namedColors: {
         if (useSystemColors) ..._systemColors(colorScheme),
         if (additionalColors != null) ...additionalColors,
+        if (useNamedDefaultColors) ..._namedDefaultColors(colorScheme),
       },
     );
   }
@@ -375,22 +382,32 @@ class TagflowTheme extends Equatable {
   final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
-  TagflowStyle resolveStyle(TagflowNode element) {
-    var result = defaultStyle;
+  TagflowStyle resolveStyle(TagflowNode element, {required bool inherit}) {
+    TagflowStyle result;
 
-    // Add tag style
-    if (styles.containsKey(element.tag)) {
-      result = result.merge(styles[element.tag]);
-    }
-
-    // Add nested styles
-    var parent = element.parent;
-    while (parent != null) {
-      final nestedSelector = '${parent.tag} ${element.tag}';
-      if (styles.containsKey(nestedSelector)) {
-        result = result.merge(styles[nestedSelector]);
+    if (!inherit) {
+      if (styles.containsKey(element.tag)) {
+        result = styles[element.tag]!;
+      } else {
+        result = TagflowStyle.empty;
       }
-      parent = parent.parent;
+    } else {
+      result = defaultStyle;
+
+      // Add tag style
+      if (styles.containsKey(element.tag)) {
+        result = result.merge(styles[element.tag]);
+      }
+
+      // Add nested styles
+      var parent = element.parent;
+      while (parent != null) {
+        final nestedSelector = '${parent.tag} ${element.tag}';
+        if (styles.containsKey(nestedSelector)) {
+          result = result.merge(styles[nestedSelector]);
+        }
+        parent = parent.parent;
+      }
     }
 
     // Add class styles
@@ -448,6 +465,20 @@ class TagflowTheme extends Equatable {
         'onBackground': scheme.onSurface,
         'error': scheme.error,
         'onError': scheme.onError,
+      };
+
+  static Map<String, Color> _namedDefaultColors(ColorScheme scheme) => {
+        'red': Colors.red,
+        'green': Colors.green,
+        'blue': Colors.blue,
+        'yellow': Colors.yellow,
+        'purple': Colors.purple,
+        'orange': Colors.orange,
+        'pink': Colors.pink,
+        'gray': Colors.grey,
+        'black': Colors.black,
+        'white': Colors.white,
+        'transparent': Colors.transparent,
       };
 
   static Map<String, TagflowStyle> _defaultStyles(

@@ -8,17 +8,26 @@
   </picture>
 </p>
 
+[![pub package](https://img.shields.io/pub/v/tagflow.svg)](https://pub.dev/packages/tagflow)
+[![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
+[![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
+
 > ⚠️ **IMPORTANT**: This package is currently undergoing a complete rewrite. For a stable version, please check out the [`stable`](https://github.com/devaryakjha/tagflow/tree/stable) branch.
 
 > 🚧 **Alpha Release**: This package is in active development. APIs may change frequently. For production use, please wait for v1.0.0.
 
-# tagflow
+# 🌊 tagflow
 
 Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports rich text formatting, lists, code blocks, and blockquotes with extensive styling options.
 
-[![pub package](https://img.shields.io/pub/v/tagflow.svg?label=tagflow&color=orange)](https://pub.dev/packages/tagflow)
-[![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
-[![codecov](https://codecov.io/gh/devaryakjha/tagflow/branch/main/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
+## ✨ Features
+
+- 🎯 Convert HTML to native Flutter widgets
+- 🎨 Extensive styling customization
+- 📱 Responsive and adaptive layouts
+- 🔌 Plugin architecture for custom elements
+- 🎭 Theme support with dark mode
+- 🧩 Modular and extensible design
 
 ---
 

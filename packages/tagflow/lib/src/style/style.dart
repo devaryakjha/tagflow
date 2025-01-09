@@ -41,6 +41,8 @@ class TagflowStyle extends Equatable {
     this.cursor,
   });
 
+  static const TagflowStyle empty = TagflowStyle();
+
   /// Text style
   final TextStyle? textStyle;
 

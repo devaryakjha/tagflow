@@ -31,7 +31,7 @@ It can be used to display source code or other preformatted text.
 ''';
 
 final class TypographyExample extends ExamplePage {
-  const TypographyExample({super.key}) : super(title: 'Typography');
+  TypographyExample({super.key}) : super(title: 'Typography');
 
   @override
   String get html => _html;

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:tagflow/tagflow.dart';
 
 class TagflowTableElement extends TagflowNode {
@@ -7,6 +9,7 @@ class TagflowTableElement extends TagflowNode {
     required this.columnCount,
     required this.rows,
     required this.spans,
+    this.caption,
     Map<String, String>? attributes,
     super.parent,
   }) : _attributes = attributes ?? const {};
@@ -15,14 +18,12 @@ class TagflowTableElement extends TagflowNode {
   final int columnCount;
   final List<TagflowNode> rows;
   final Map<String, CellSpan> spans;
+  final TagflowNode? caption;
 
   /// Element's attributes
   final Map<String, String> _attributes;
 
   void addRow(TagflowNode row) {
-    if (row.children.length != columnCount) {
-      throw Exception('Row length must match number of columns');
-    }
     rows.add(row);
   }
 
@@ -41,6 +42,10 @@ class TagflowTableElement extends TagflowNode {
   }
 
   @override
+  LinkedHashMap<String, String> get attributes =>
+      LinkedHashMap.from(_attributes);
+
+  @override
   TagflowNode reparent([TagflowNode? newParent]) {
     return TagflowTableElement(
       tag: tag,
@@ -48,6 +53,7 @@ class TagflowTableElement extends TagflowNode {
       columnCount: columnCount,
       rows: rows.map((e) => e.reparent(this)).toList(),
       spans: spans,
+      caption: caption?.reparent(this),
       parent: newParent,
       attributes: attributes,
     );

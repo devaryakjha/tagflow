@@ -11,7 +11,7 @@ No syntax highlighting is applied</code></pre>
 ''';
 
 final class CodeExample extends ExamplePage {
-  const CodeExample({super.key, super.title = 'Code Blocks'});
+  CodeExample({super.key, super.title = 'Code Blocks'});
 
   @override
   String get html => _html;

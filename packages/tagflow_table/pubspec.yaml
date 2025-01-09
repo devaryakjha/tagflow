@@ -1,0 +1,25 @@
+name: tagflow_table
+description: "A new Flutter package project."
+version: 0.0.1
+repository: https://github.com/devaryakjha/tagflow
+homepage: https://docs.arya.run/tagflow
+issue_tracker: https://github.com/devaryakjha/tagflow/issues
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  equatable: ^2.0.7
+  flutter:
+    sdk: flutter
+  tagflow: ^0.0.1-dev.13
+  two_dimensional_scrollables: ^0.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  html: any
+
+flutter:
+  uses-material-design: true

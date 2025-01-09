@@ -21,12 +21,12 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
       ),
       child: Table(
         border: TableBorder(
-          left: style.effectiveBorder.left,
-          right: style.effectiveBorder.right,
-          top: style.effectiveBorder.top,
-          bottom: style.effectiveBorder.bottom,
-          horizontalInside: style.effectiveBorder.bottom,
-          verticalInside: style.effectiveBorder.right,
+          left: style.effectiveBorder?.left ?? BorderSide.none,
+          right: style.effectiveBorder?.right ?? BorderSide.none,
+          top: style.effectiveBorder?.top ?? BorderSide.none,
+          bottom: style.effectiveBorder?.bottom ?? BorderSide.none,
+          horizontalInside: style.effectiveBorder?.bottom ?? BorderSide.none,
+          verticalInside: style.effectiveBorder?.right ?? BorderSide.none,
         ),
         children: element.rows.map((e) {
           final style = resolveStyle(e, context);
@@ -57,6 +57,7 @@ final class TableCellConverter extends TextConverter {
         'tr',
         'td',
         'th',
+        'table caption', // only support caption within table
       });
 
   @override

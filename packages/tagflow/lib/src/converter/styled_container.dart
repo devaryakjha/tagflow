@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs
+// ignore_for_file: public_member_api_docs, dead_code
 
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
@@ -42,7 +42,6 @@ class StyledContainer extends StatelessWidget {
       _ => content,
     };
 
-    // Apply all styles in a single Container
     return Container(
       padding: style.padding,
       margin: style.margin,
@@ -55,7 +54,7 @@ class StyledContainer extends StatelessWidget {
         maxHeight: style.maxHeight ?? double.infinity,
       ),
       alignment: style.alignment,
-      decoration: style.toBoxDecoration(),
+      decoration: style.toBoxDecoration() ?? const BoxDecoration(),
       clipBehavior: style.overflow,
       transform: style.transform,
       transformAlignment: style.transformAlignment,

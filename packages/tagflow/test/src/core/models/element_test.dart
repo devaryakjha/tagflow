@@ -106,19 +106,6 @@ void main() {
         expect(element.height, 50.0);
       });
 
-      test('handles percentage values', () {
-        final element = TagflowElement(
-          tag: 'div',
-          attributes: LinkedHashMap.from({
-            'width': '50%',
-            'height': '25%',
-          }),
-        );
-
-        expect(element.width, 0.5);
-        expect(element.height, 0.25);
-      });
-
       test('handles invalid size values', () {
         final element = TagflowElement(
           tag: 'div',

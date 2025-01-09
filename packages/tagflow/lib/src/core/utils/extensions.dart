@@ -75,23 +75,40 @@ extension TagflowNodeSize on TagflowNode {
 }
 
 extension StyleExtension on TagflowStyle {
-  Border get effectiveBorder =>
-      border ??
-      Border(
-        left: borderLeft ?? BorderSide.none,
-        right: borderRight ?? BorderSide.none,
-        top: borderTop ?? BorderSide.none,
-        bottom: borderBottom ?? BorderSide.none,
-      );
+  bool get hasBorder =>
+      border != null ||
+      borderLeft != null ||
+      borderRight != null ||
+      borderTop != null ||
+      borderBottom != null;
 
-  BoxDecoration toBoxDecoration() => BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius,
-        border: effectiveBorder,
-        boxShadow: boxShadow,
-      );
+  Border? get effectiveBorder => hasBorder
+      ? border ??
+          Border(
+            left: borderLeft ?? BorderSide.none,
+            right: borderRight ?? BorderSide.none,
+            top: borderTop ?? BorderSide.none,
+            bottom: borderBottom ?? BorderSide.none,
+          )
+      : null;
 
-  TextStyle? get textStyleWithColor => textStyle == null && color != null
-      ? TextStyle(color: color)
-      : textStyle?.copyWith(color: color);
+  bool get hasBoxDecoration =>
+      backgroundColor != null ||
+      borderRadius != null ||
+      effectiveBorder != null ||
+      boxShadow != null;
+
+  BoxDecoration? toBoxDecoration() => hasBoxDecoration
+      ? BoxDecoration(
+          color: backgroundColor,
+          borderRadius: borderRadius,
+          border: effectiveBorder,
+          boxShadow: boxShadow,
+        )
+      : null;
+
+  TextStyle? get textStyleWithColor =>
+      textStyle == null && (color != null || backgroundColor != null)
+          ? TextStyle(color: color)
+          : textStyle?.copyWith(color: color);
 }

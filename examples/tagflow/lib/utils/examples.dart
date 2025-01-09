@@ -38,7 +38,7 @@ final allExamples = <Example>[
     title: 'Typography',
     description: 'A simple example of typography',
     path: '/typography',
-    builder: (context) => const TypographyExample(),
+    builder: (context) => TypographyExample(),
     icon: Icons.text_fields,
   ),
   // article example
@@ -46,7 +46,7 @@ final allExamples = <Example>[
     title: 'Article',
     description: 'A simple example of an article',
     path: '/article',
-    builder: (context) => const ArticleExample(),
+    builder: (context) => ArticleExample(),
     icon: Icons.article,
   ),
   // table example
@@ -54,7 +54,7 @@ final allExamples = <Example>[
     title: 'Table',
     description: 'A demonstration of HTML table rendering',
     path: '/table',
-    builder: (context) => const TableExample(),
+    builder: (context) => TableExample(),
     icon: Icons.table_chart,
   ),
   // // list example
@@ -78,7 +78,7 @@ final allExamples = <Example>[
     title: 'Images',
     description: 'Image handling and responsive layouts',
     path: '/images',
-    builder: (context) => const ImageExample(),
+    builder: (context) => ImageExample(),
     icon: Icons.image,
   ),
   // code example
@@ -86,7 +86,7 @@ final allExamples = <Example>[
     title: 'Code Blocks',
     description: 'Syntax highlighting and code formatting',
     path: '/code',
-    builder: (context) => const CodeExample(),
+    builder: (context) => CodeExample(),
     icon: Icons.code,
   ),
 ];

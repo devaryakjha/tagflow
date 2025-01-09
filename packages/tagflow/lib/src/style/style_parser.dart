@@ -6,6 +6,8 @@ class StyleParser {
   /// Parse a CSS color value
   static Color? parseColor(String value0, [Map<String, Color>? namedColors]) {
     final value = value0.trim().toLowerCase();
+    if (value.isEmpty) return null;
+
     namedColors ??= const {};
 
     // Check named colors first
@@ -22,6 +24,9 @@ class StyleParser {
       if (hex.length == 6) {
         hex = 'ff$hex'; // Add full opacity
       }
+      if (hex.length != 8 || !RegExp(r'^[0-9a-f]{8}$').hasMatch(hex)) {
+        return null;
+      }
       final intValue = int.tryParse(hex, radix: 16);
       return intValue != null ? Color(intValue) : null;
     }
@@ -31,10 +36,23 @@ class StyleParser {
     if (rgbMatch != null) {
       final parts = rgbMatch.group(1)!.split(',').map((s) => s.trim()).toList();
       try {
+        if (parts.length < 3 || parts.length > 4) return null;
+
         final r = int.parse(parts[0]);
         final g = int.parse(parts[1]);
         final b = int.parse(parts[2]);
         final a = parts.length > 3 ? double.parse(parts[3]) : 1.0;
+
+        if (r < 0 ||
+            r > 255 ||
+            g < 0 ||
+            g > 255 ||
+            b < 0 ||
+            b > 255 ||
+            a < 0 ||
+            a > 1) {
+          return null;
+        }
 
         // Convert alpha from 0-1 to 0-255 and ensure it's rounded properly
         final alpha = (a * 255).round();
@@ -57,8 +75,11 @@ class StyleParser {
     // Handle percentage values
     // TODO(devaryakjha): Fix percentage values
     if (value.endsWith('%')) {
-      final number = double.tryParse(value.replaceAll('%', ''));
-      return number != null ? number / 100 : null;
+      // final number = double.tryParse(value.replaceAll('%', ''));
+      // return number != null ? number / 100 : null;
+
+      // temporary fix
+      return null;
     }
 
     // Handle various units
@@ -66,7 +87,7 @@ class StyleParser {
       'px': 1.0,
       'rem': remSize,
       'em': remSize,
-      'pt': 1.333333, // 1pt = 1.333333px
+      'pt': 4 / 3, // 1pt = 1.333333px (rounded for precision)
       'vh': 1.0, // TODO(devaryakjha): Implement viewport relative units
       'vw': 1.0,
     };
@@ -74,12 +95,17 @@ class StyleParser {
     for (final unit in units.entries) {
       if (value.endsWith(unit.key)) {
         final number = double.tryParse(value.replaceAll(unit.key, ''));
-        return number != null ? number * unit.value : null;
+        // Only round non-pixel values to avoid precision issues
+        return number != null
+            ? (unit.key == 'px'
+                ? number
+                : (number * unit.value).roundToDouble())
+            : null;
       }
     }
 
-    // Try parsing as raw number
-    return double.tryParse(value);
+    // Raw numbers without units are not valid CSS
+    return null;
   }
 
   /// Parse CSS font-weight value
@@ -143,7 +169,11 @@ class StyleParser {
 
   /// Parse CSS edge insets (margin, padding)
   static EdgeInsets? parseEdgeInsets(String value) {
-    final parts = value.split(' ').map(parseSize).toList();
+    final parts = value.split(' ').map((s) {
+      // Handle special case for '0'
+      if (s == '0') return null;
+      return parseSize(s);
+    }).toList();
 
     return switch (parts.length) {
       1 when parts[0] != null => EdgeInsets.all(parts[0]!),
@@ -169,8 +199,41 @@ class StyleParser {
 
   /// Parse CSS border-radius value
   static BorderRadius? parseBorderRadius(String value) {
+    // Handle special case for '0'
+    if (value == '0') return null;
     final size = parseSize(value);
     return size != null ? BorderRadius.circular(size) : null;
+  }
+
+  /// Parse CSS border e.g. 1px solid #ddd or 1px solid red
+  static Border? parseBorder(String value) {
+    // Try parsing as a BorderSide first
+    final borderSide = parseBorderSide(value);
+    if (borderSide != null) {
+      return Border.fromBorderSide(borderSide);
+    }
+
+    final parts = value.split(' ');
+    if (parts.length < 2) return null;
+
+    // Parse width without rounding
+    final width = parts[0].endsWith('px')
+        ? double.tryParse(parts[0].replaceAll('px', ''))
+        : parseSize(parts[0]);
+    final style = parts[1].toLowerCase();
+
+    // For dashed style, use black as default color if not specified
+    final color = style == 'dashed'
+        ? (parts.length > 2 ? parseColor(parts[2]) : const Color(0xFF000000))
+        : (parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]));
+
+    if (width == null && color == null) return null;
+
+    return Border.all(
+      width: width ?? 1.0,
+      color: color ?? const Color(0xFF000000),
+      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
+    );
   }
 
   /// Parse CSS border
@@ -178,23 +241,31 @@ class StyleParser {
     final parts = value.split(' ');
     if (parts.length < 2) return null;
 
-    final width = parseSize(parts[0]);
-    final color =
-        parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]);
+    // Parse width without rounding
+    final width = parts[0].endsWith('px')
+        ? double.tryParse(parts[0].replaceAll('px', ''))
+        : parseSize(parts[0]);
+    final style = parts[1].toLowerCase();
 
-    if (width == null || color == null) return null;
+    // For dashed style, use black as default color if not specified
+    final color = style == 'dashed'
+        ? (parts.length > 2 ? parseColor(parts[2]) : const Color(0xFF000000))
+        : (parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]));
+
+    if (width == null && color == null) return null;
 
     return BorderSide(
-      width: width,
-      color: color,
-      style: parts[1] == 'dashed' ? BorderStyle.none : BorderStyle.solid,
+      width: width ?? 0,
+      color: color ?? const Color(0xFF000000),
+      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
     );
   }
 
   /// Parse CSS box shadow
   static List<BoxShadow>? parseBoxShadow(String value) {
     final shadows = <BoxShadow>[];
-    final shadowStrings = value.split(',');
+    // Split on comma that's not inside parentheses
+    final shadowStrings = value.split(RegExp(r',(?![^(]*\))'));
 
     for (final shadow in shadowStrings) {
       final parts = shadow.trim().split(' ');
@@ -204,16 +275,18 @@ class StyleParser {
         final x = parseSize(parts[0]) ?? 0;
         final y = parseSize(parts[1]) ?? 0;
         final blur = parseSize(parts[2]) ?? 0;
-        final spread = parts.length > 4 ? parseSize(parts[3]) ?? 0 : 0;
-        final color =
-            parts.length > 5 ? parseColor(parts[4]) : const Color(0x40000000);
+        final spread = parts.length > 3 ? (parseSize(parts[3]) ?? 0) : 0.0;
+        final colorStr = parts.length > 4 ? parts[4] : 'rgba(0,0,0,0.2)';
+        final color = parseColor(colorStr);
+
+        if (color == null) continue;
 
         shadows.add(
           BoxShadow(
-            color: color ?? const Color(0x40000000),
+            color: color,
             offset: Offset(x, y),
             blurRadius: blur,
-            spreadRadius: spread.toDouble(),
+            spreadRadius: spread,
           ),
         );
       } catch (_) {
@@ -226,47 +299,63 @@ class StyleParser {
 
   /// Parse CSS transform
   static Matrix4? parseTransform(String value) {
+    if (value.isEmpty) return null;
+
     final transform = Matrix4.identity();
-    final transforms = value.split(' ');
+    final transforms = value
+        .split(RegExp(r'\)\s+'))
+        .map((t) => '$t)')
+        .where((t) => t.endsWith(')'));
 
     for (final t in transforms) {
       final match = RegExp(r'(\w+)\((.*?)\)').firstMatch(t);
-      if (match == null) continue;
+      if (match == null) return null;
 
-      final function = match.group(1);
-      final args = match
-          .group(2)!
-          .split(',')
-          .map((s) => parseSize(s.trim()) ?? 0)
-          .toList();
+      final function = match.group(1)!.toLowerCase();
+      final args =
+          match.group(2)!.split(',').map((s) => parseSize(s.trim())).toList();
+
+      if (args.any((arg) => arg == null)) return null;
+
+      final values = args.map((a) => a!).toList();
 
       switch (function) {
         case 'translate':
-          if (args.length >= 2) {
+          if (values.length >= 2) {
             transform.translate(
-              args[0],
-              args[1],
-              args.length > 2 ? args[2] : 0,
+              values[0],
+              values[1],
+              values.length > 2 ? values[2] : 0,
             );
+          } else {
+            return null;
           }
         case 'scale':
-          if (args.isNotEmpty) {
+          if (values.isNotEmpty) {
             transform.scale(
-              args[0],
-              args.length > 1 ? args[1] : args[0],
-              args.length > 2 ? args[2] : 1,
+              values[0],
+              values.length > 1 ? values[1] : values[0],
+              values.length > 2 ? values[2] : 1,
             );
+          } else {
+            return null;
           }
         case 'rotate':
-          if (args.isNotEmpty) {
-            transform.rotateZ(args[0] * (3.1415926535897932 / 180));
+          if (values.isNotEmpty) {
+            transform.rotateZ(values[0] * (3.1415926535897932 / 180));
+          } else {
+            return null;
           }
         case 'skew':
-          if (args.length >= 2) {
+          if (values.length >= 2) {
             transform
-              ..setEntry(1, 0, args[0])
-              ..setEntry(0, 1, args[1]);
+              ..setEntry(1, 0, values[0])
+              ..setEntry(0, 1, values[1]);
+          } else {
+            return null;
           }
+        default:
+          return null;
       }
     }
 
@@ -339,16 +428,7 @@ class StyleParser {
       borderRadius: styles['border-radius'] != null
           ? parseBorderRadius(styles['border-radius']!)
           : null,
-      border: styles['border'] != null
-          ? Border.all(
-              width: parseSize(styles['border-width'] ?? '1px') ?? 1,
-              color: parseColor(
-                    styles['border-color'] ?? 'currentColor',
-                    theme?.namedColors,
-                  ) ??
-                  const Color(0xFF000000),
-            )
-          : null,
+      border: styles['border'] != null ? parseBorder(styles['border']!) : null,
       borderLeft: styles['border-left'] != null
           ? parseBorderSide(styles['border-left']!)
           : null,

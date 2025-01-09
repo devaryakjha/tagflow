@@ -10,7 +10,7 @@ typedef ErrorWidgetBuilder = Widget Function(
 
 /// Default error widget builder
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
-  return Text(
+  return SelectableText(
     'Failed to render HTML: $error',
     style: const TextStyle(color: Color(0xFFB00020)),
   );
@@ -57,7 +57,7 @@ class Tagflow extends StatefulWidget {
 }
 
 class _TagflowState extends State<Tagflow> {
-  late final TagflowConverter _converter;
+  late TagflowConverter _converter;
   TagflowNode? _element;
   Object? _error;
 
