@@ -1,4 +1,6 @@
-# melos_managed_dependency_overrides: tagflow
+# melos_managed_dependency_overrides: tagflow,tagflow_table
 dependency_overrides:
   tagflow:
     path: ../../packages/tagflow
+  tagflow_table:
+    path: ../../packages/tagflow_table
