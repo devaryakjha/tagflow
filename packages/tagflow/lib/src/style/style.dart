@@ -39,8 +39,10 @@ class TagflowStyle extends Equatable {
     this.transformAlignment,
     this.boxFit,
     this.cursor,
+    this.inherit = true,
   });
 
+  /// Empty style
   static const TagflowStyle empty = TagflowStyle();
 
   /// Text style
@@ -142,8 +144,12 @@ class TagflowStyle extends Equatable {
   /// Mouse cursor
   final MouseCursor? cursor;
 
+  /// Inherit from parent
+  final bool inherit;
+
   /// Creates a copy with some properties replaced
   TagflowStyle copyWith({
+    bool? inherit,
     TextStyle? textStyle,
     EdgeInsets? padding,
     EdgeInsets? margin,
@@ -179,6 +185,7 @@ class TagflowStyle extends Equatable {
     double? textScaleFactor,
   }) {
     return TagflowStyle(
+      inherit: inherit ?? this.inherit,
       textStyle: textStyle ?? this.textStyle,
       padding: padding ?? this.padding,
       margin: margin ?? this.margin,
@@ -218,6 +225,11 @@ class TagflowStyle extends Equatable {
   /// Merges two styles, with properties from [other] taking precedence
   TagflowStyle merge(TagflowStyle? other) {
     if (other == null) return this;
+
+    // If the other style is not inheriting, return it immediately
+    if (!other.inherit) {
+      return other;
+    }
 
     return TagflowStyle(
       textStyle:
@@ -292,5 +304,6 @@ class TagflowStyle extends Equatable {
         boxFit,
         cursor,
         textScaleFactor,
+        inherit,
       ];
 }

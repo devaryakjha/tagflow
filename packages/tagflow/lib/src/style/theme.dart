@@ -386,18 +386,9 @@ class TagflowTheme extends Equatable {
     TagflowStyle result;
 
     if (!inherit) {
-      if (styles.containsKey(element.tag)) {
-        result = styles[element.tag]!;
-      } else {
-        result = TagflowStyle.empty;
-      }
+      result = TagflowStyle.empty;
     } else {
       result = defaultStyle;
-
-      // Add tag style
-      if (styles.containsKey(element.tag)) {
-        result = result.merge(styles[element.tag]);
-      }
 
       // Add nested styles
       var parent = element.parent;
@@ -410,6 +401,16 @@ class TagflowTheme extends Equatable {
       }
     }
 
+    // Add inline styles
+    final inlineStyle = StyleParser.parseInlineStyle(
+      element.attributes?['style'] ?? '',
+      this,
+    );
+
+    if (inlineStyle != null) {
+      result = result.merge(inlineStyle);
+    }
+
     // Add class styles
     final classes = element.attributes?['class']?.split(' ') ?? [];
     for (final className in classes) {
@@ -419,13 +420,9 @@ class TagflowTheme extends Equatable {
       }
     }
 
-    // Add inline styles last
-    final inlineStyle = StyleParser.parseInlineStyle(
-      element.attributes?['style'] ?? '',
-      this,
-    );
-    if (inlineStyle != null) {
-      result = result.merge(inlineStyle);
+    // Add tag style last
+    if (styles.containsKey(element.tag)) {
+      result = result.merge(styles[element.tag]);
     }
 
     return result;
