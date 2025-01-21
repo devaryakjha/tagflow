@@ -16,7 +16,7 @@ void main() {
         ],
       );
       converter = TagflowConverter([
-        TagflowTableConverter(),
+        const TagflowTableConverter(),
         const TagflowTableCellConverter(),
       ]);
     });

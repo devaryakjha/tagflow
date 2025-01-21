@@ -36,13 +36,35 @@ abstract class ElementConverter<T extends TagflowNode> {
       log('Negation selector: $selector');
       final baseSelector = selector.substring(1);
       return element.tag == baseSelector.split(' ').last &&
-          !_matchPositiveSelector(element, baseSelector);
+          !matchPositiveSelector(element, baseSelector);
     }
-    return _matchPositiveSelector(element, selector);
+    return matchPositiveSelector(element, selector);
   }
 
+  @protected
+  @visibleForTesting
+
   /// Match positive selectors (without negation)
-  bool _matchPositiveSelector(TagflowNode element, String selector) {
+  bool matchPositiveSelector(TagflowNode element, String selector) {
+    // Handle pseudo-selectors
+    if (selector.contains(':')) {
+      final parts = selector.split(':');
+      final baseSelector = parts[0];
+      final pseudo = parts[1];
+
+      // First check if base selector matches
+      if (!matchPositiveSelector(element, baseSelector)) {
+        return false;
+      }
+
+      // Then check pseudo selector
+      return switch (pseudo) {
+        'first-child' => element.isFirstChild,
+        'last-child' => element.isLastChild,
+        _ => false,
+      };
+    }
+
     // Simple tag match
     if (!selector.contains(' ')) {
       return selector == element.tag;

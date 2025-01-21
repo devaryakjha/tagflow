@@ -17,9 +17,12 @@ final class ListConverter extends ElementConverter<TagflowElement> {
     final children = converter.convertChildren(element.children, context);
 
     return StyledContainer(
-      style: style,
+      style: style.copyWith(
+        padding: EdgeInsets.zero,
+      ),
       tag: element.tag,
       child: ListView(
+        padding: style.padding ?? EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         children: children,

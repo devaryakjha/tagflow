@@ -100,12 +100,18 @@ class TextConverter extends ElementConverter<TagflowElement> {
     return element.children.map((child) {
       final resolvedStyle =
           child.isTextNode ? null : resolveStyle(child, context);
+
+      // Get parent gestures and cursor if the parent is an interactive element
+      final parentGestures = _getGestures(element, context);
+      final parentCursor = _getMouseCursor(element, context);
+
       // create a text span for text nodes
       if (child.isTextNode) {
         return TextSpan(
           text: child.textContent,
-          recognizer: _getGestures(child, context),
-          mouseCursor: _getMouseCursor(child, context),
+          // Use parent gestures for text nodes if available
+          recognizer: parentGestures ?? _getGestures(child, context),
+          mouseCursor: parentCursor ?? _getMouseCursor(child, context),
           style: getTextStyle(child, resolvedStyle, context),
         );
       } else {
@@ -122,8 +128,11 @@ class TextConverter extends ElementConverter<TagflowElement> {
         return TextSpan(
           children: _convertChildren(child, context, converter),
           style: getTextStyle(child, resolvedStyle, context),
-          recognizer: _getGestures(child, context),
-          mouseCursor: _getMouseCursor(child, context),
+          // Only add gestures if this node contains direct text content
+          recognizer: (child.textContent ?? '').isNotEmpty
+              ? (parentGestures ?? _getGestures(child, context))
+              : null,
+          mouseCursor: parentCursor ?? _getMouseCursor(child, context),
         );
       }
     }).toList();

@@ -1,7 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter/material.dart' as material;
-import 'package:flutter/rendering.dart';
 import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
@@ -27,6 +26,27 @@ class _GridCell {
 
 final class TagflowTableConverter
     extends ElementConverter<TagflowTableElement> {
+  const TagflowTableConverter({
+    this.headerBackgroundColor,
+    this.treatFirstRowAsHeader = false,
+    this.separatorBuilder,
+  });
+
+  /// The background color of the header row.
+  final material.Color? headerBackgroundColor;
+
+  /// If true, the first row will be treated as a header row.
+  ///
+  /// This is helpful in cases where there is no `<thead>` tag.
+  final bool treatFirstRowAsHeader;
+
+  /// A builder that creates a separator widget for each row.
+  ///
+  /// The builder is called with the row index and returns a widget to be used as a separator.
+  ///
+  /// The separator is placed between each row.
+  final material.IndexedWidgetBuilder? separatorBuilder;
+
   @override
   Set<String> get supportedTags => {'table'};
 
@@ -97,7 +117,7 @@ final class TagflowTableConverter
           alignment: cellStyle.alignment,
           decoration: (cellStyle.toBoxDecoration() ??
                   rowStyle.toBoxDecoration() ??
-                  const BoxDecoration())
+                  const material.BoxDecoration())
               .copyWith(
             color: cellStyle.backgroundColor ?? rowStyle.backgroundColor,
           ),
@@ -117,22 +137,40 @@ final class TagflowTableConverter
         cellIndex++;
         colIndex += colSpan;
       }
+
+      // Add separator after each row except the last one
+      if (separatorBuilder != null && rowIndex < element.rowCount - 1) {
+        cells.add(
+          TableCell(
+            row: rowIndex,
+            column: 0,
+            colSpan: element.columnCount,
+            isSeparator: true,
+            child: separatorBuilder!(context, rowIndex),
+          ),
+        );
+      }
     }
 
     final tableWidget = StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        border: Border.all(
+        border: material.Border.all(
           width: 0,
-          style: BorderStyle.none,
+          style: material.BorderStyle.none,
         ),
+        padding: material.EdgeInsets.zero,
       ),
       child: TagflowTable(
         rowCount: element.rowCount,
         columnCount: element.columnCount,
         border: TagflowTableBorder.fromBorder(
-          style.effectiveBorder ?? const Border(),
+          style.effectiveBorder ?? const material.Border(),
         ),
+        treatFirstRowAsHeader: treatFirstRowAsHeader,
+        headerBackgroundColor: headerBackgroundColor,
+        padding: style.padding ?? material.EdgeInsets.zero,
+        separatorBuilder: separatorBuilder,
         children: cells,
       ),
     );
@@ -181,7 +219,7 @@ final class TagflowTableCellConverter extends TextConverter {
       });
 
   @override
-  TextStyle? getTextStyle(
+  material.TextStyle? getTextStyle(
     TagflowNode element,
     TagflowStyle? resolvedStyle,
     material.BuildContext context,
