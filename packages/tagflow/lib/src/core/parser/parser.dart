@@ -53,13 +53,20 @@ class TagflowParser {
   }
 
   List<TagflowNode> parseNodes(dom.NodeList nodes) {
+    const excludeTags = ['table'];
     bool isNodeValid(dom.Node node) {
       if (node is dom.Text) {
-        return node.text.isNotEmpty;
+        return node.text.isNotEmpty ||
+            excludeTags.contains(node.parent?.localName);
       }
+
       if (node is dom.Element) {
+        if (excludeTags.contains(node.localName)) {
+          return true;
+        }
         return node.hasChildNodes() && node.nodes.every(isNodeValid);
       }
+
       return false;
     }
 
@@ -76,9 +83,15 @@ class TagflowParser {
   }
 
   bool isValidNode(TagflowNode node) {
+    const excludeTags = ['table'];
     if (node.isEmpty) return false;
-    if (node.isTextNode) {
+    if (node.isTextNode && !excludeTags.contains(node.tag)) {
       return node.textContent?.trim().isNotEmpty ?? false;
+    }
+
+    // except for table cells, empty nodes are valid
+    if (excludeTags.contains(node.tag)) {
+      return true;
     }
 
     return node.hasChildren && node.children.every(isValidNode);
