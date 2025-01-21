@@ -1,3 +1,10 @@
+## 0.0.1-dev.15
+
+ - **FIX**(list_converter): update padding in StyledContainer and ListView. ([3a0f27ef](https://github.com/devaryakjha/tagflow/commit/3a0f27efe9e251201786fd0a79849079f93f6444))
+ - **FEAT**(converter): enhance selector matching with pseudo-selectors and improve theme styling. ([9cc6e29d](https://github.com/devaryakjha/tagflow/commit/9cc6e29d9d55687d5d62b750bd540d76509222bb))
+ - **FEAT**(tagflow): add inherit property to TagflowStyle and update theme handling. ([5bfe2b66](https://github.com/devaryakjha/tagflow/commit/5bfe2b667018901db977b18f052f4c54ad894f26))
+ - **FEAT**(text_converter): enhance gesture handling for text nodes. ([a5cea0dd](https://github.com/devaryakjha/tagflow/commit/a5cea0dd039924b8ed79bc80a9bce2302fdade9c))
+
 ## 0.0.1-dev.14
 
  - **REFACTOR**(element_test): remove percentage value test for element dimensions. ([0ecbc479](https://github.com/devaryakjha/tagflow/commit/0ecbc4794b7974fdc304d0816ea14b7ebf47fee7))
