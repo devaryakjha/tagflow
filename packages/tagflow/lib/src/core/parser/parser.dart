@@ -52,12 +52,25 @@ class TagflowParser {
     return element.reparent();
   }
 
-  List<TagflowNode> parseNodes(List<dom.Node> nodes) {
-    return nodes
-        .where((n) => n is dom.Element || (n is dom.Text && n.text.isNotEmpty))
-        .map(parseNode)
-        .nonNulls
-        .toList();
+  List<TagflowNode> parseNodes(dom.NodeList nodes) {
+    const excludeTags = ['table'];
+    bool isNodeValid(dom.Node node) {
+      if (node is dom.Text) {
+        return node.text.isNotEmpty ||
+            excludeTags.contains(node.parent?.localName);
+      }
+
+      if (node is dom.Element) {
+        if (excludeTags.contains(node.localName)) {
+          return true;
+        }
+        return node.hasChildNodes() && node.nodes.every(isNodeValid);
+      }
+
+      return false;
+    }
+
+    return nodes.where(isNodeValid).map(parseNode).nonNulls.toList();
   }
 
   TagflowNode? parseNode(dom.Node node) {
@@ -70,11 +83,18 @@ class TagflowParser {
   }
 
   bool isValidNode(TagflowNode node) {
+    const excludeTags = ['table'];
     if (node.isEmpty) return false;
-    if (node.isTextNode) {
+    if (node.isTextNode && !excludeTags.contains(node.tag)) {
       return node.textContent?.trim().isNotEmpty ?? false;
     }
-    return true;
+
+    // except for table cells, empty nodes are valid
+    if (excludeTags.contains(node.tag)) {
+      return true;
+    }
+
+    return node.hasChildren && node.children.every(isValidNode);
   }
 }
 

@@ -34,6 +34,9 @@ abstract class TagflowNode extends Equatable {
   /// Whether this node is an empty node
   bool get isEmpty => tag == '#empty';
 
+  /// Whether this node has any children
+  bool get hasChildren => children.isNotEmpty;
+
   /// The tag name of the parent element
   String get parentTag => parent?.tag ?? '';
 
