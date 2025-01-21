@@ -10,17 +10,24 @@ class TableCell extends ParentDataWidget<TableCellData> {
     super.key,
     this.rowSpan = 1,
     this.colSpan = 1,
+    this.isSeparator = false,
   });
 
   final int row;
   final int column;
   final int rowSpan;
   final int colSpan;
+  final bool isSeparator;
 
   @override
   void applyParentData(RenderObject renderObject) {
     final parentData = renderObject.parentData! as TableCellData;
     var needsLayout = false;
+
+    if (parentData.isSeparator != isSeparator) {
+      parentData.isSeparator = isSeparator;
+      needsLayout = true;
+    }
 
     if (parentData.row != row) {
       parentData.row = row;
@@ -61,18 +68,30 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
     required List<TableCell> children,
     super.key,
     TagflowTableBorder? border,
+    this.treatFirstRowAsHeader = false,
+    this.headerBackgroundColor,
+    this.padding = EdgeInsets.zero,
+    this.separatorBuilder,
   })  : border = border ?? TagflowTableBorder.none,
         super(children: children);
 
   final int rowCount;
   final int columnCount;
   final TagflowTableBorder border;
+  final bool treatFirstRowAsHeader;
+  final Color? headerBackgroundColor;
+  final EdgeInsets padding;
+  final IndexedWidgetBuilder? separatorBuilder;
 
   @override
   RenderTagflowTable createRenderObject(BuildContext context) {
     return RenderTagflowTable()
       ..setTableDimensions(rowCount, columnCount)
-      ..setBorder(border);
+      ..setBorder(border)
+      ..setTreatFirstRowAsHeader(value: treatFirstRowAsHeader)
+      ..setHeaderBackgroundColor(headerBackgroundColor)
+      ..setSeparatorBuilder(separatorBuilder)
+      ..setPadding(padding);
   }
 
   @override
@@ -82,7 +101,11 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
   ) {
     renderObject
       ..setTableDimensions(rowCount, columnCount)
-      ..setBorder(border);
+      ..setBorder(border)
+      ..setTreatFirstRowAsHeader(value: treatFirstRowAsHeader)
+      ..setHeaderBackgroundColor(headerBackgroundColor)
+      ..setSeparatorBuilder(separatorBuilder)
+      ..setPadding(padding);
   }
 
   @override
@@ -92,6 +115,19 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
       ..add(IntProperty('rowCount', rowCount))
       ..add(IntProperty('columnCount', columnCount))
       ..add(DiagnosticsProperty<TagflowTableBorder>('border', border))
-      ..add(DiagnosticsProperty<List<Widget>>('children', children));
+      ..add(DiagnosticsProperty<List<Widget>>('children', children))
+      ..add(
+        DiagnosticsProperty<bool>(
+          'treatFirstRowAsHeader',
+          treatFirstRowAsHeader,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty<Color?>(
+          'headerBackgroundColor',
+          headerBackgroundColor,
+        ),
+      )
+      ..add(DiagnosticsProperty<EdgeInsets>('padding', padding));
   }
 }

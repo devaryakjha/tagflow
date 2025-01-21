@@ -1,11 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 
 class TableCellData extends ContainerBoxParentData<RenderBox> {
   int row = 0;
   int column = 0;
   int rowSpan = 1;
   int colSpan = 1;
+  bool isSeparator = false;
 }
 
 /// Defines the borders for a table
@@ -150,26 +152,64 @@ class TagflowTableBorder extends Equatable {
     required List<List<TableCellData>> cellData,
     required List<double> columnWidths,
     required List<double> rowHeights,
+    bool treatFirstRowAsHeader = false,
+    Color? headerBackgroundColor,
+    EdgeInsets padding = EdgeInsets.zero,
   }) {
+    final adjustedRect = Rect.fromLTWH(
+      rect.left + padding.left,
+      rect.top + padding.top,
+      rect.width - padding.horizontal,
+      rect.height - padding.vertical,
+    );
+
+    // Paint header background if needed
+    if (treatFirstRowAsHeader && headerBackgroundColor != null && rows > 0) {
+      // extending beyond the padding
+      // TODO: make this configurable
+      final headerRect = Rect.fromLTWH(
+        0,
+        0,
+        rect.width,
+        rowHeights[0],
+      );
+      canvas.drawRect(
+        headerRect,
+        Paint()..color = headerBackgroundColor,
+      );
+    }
+
     // Paint outer borders
     if (left != BorderSide.none) {
       _leftPaint = _getPaint(left, _leftPaint);
-      canvas.drawLine(rect.topLeft, rect.bottomLeft, _leftPaint!);
+      canvas.drawLine(
+        adjustedRect.topLeft,
+        adjustedRect.bottomLeft,
+        _leftPaint!,
+      );
     }
 
     if (right != BorderSide.none) {
       _rightPaint = _getPaint(right, _rightPaint);
-      canvas.drawLine(rect.topRight, rect.bottomRight, _rightPaint!);
+      canvas.drawLine(
+        adjustedRect.topRight,
+        adjustedRect.bottomRight,
+        _rightPaint!,
+      );
     }
 
     if (top != BorderSide.none) {
       _topPaint = _getPaint(top, _topPaint);
-      canvas.drawLine(rect.topLeft, rect.topRight, _topPaint!);
+      canvas.drawLine(adjustedRect.topLeft, adjustedRect.topRight, _topPaint!);
     }
 
     if (bottom != BorderSide.none) {
       _bottomPaint = _getPaint(bottom, _bottomPaint);
-      canvas.drawLine(rect.bottomLeft, rect.bottomRight, _bottomPaint!);
+      canvas.drawLine(
+        adjustedRect.bottomLeft,
+        adjustedRect.bottomRight,
+        _bottomPaint!,
+      );
     }
 
     // Paint inner borders
@@ -180,7 +220,7 @@ class TagflowTableBorder extends Equatable {
       for (var i = 1; i < rows; i++) {
         // Find segments where we should draw the horizontal line
         final segments = <(double, double)>[];
-        var currentStart = rect.left;
+        var currentStart = adjustedRect.left;
         var skipLine = false;
 
         var x = 0.0;
@@ -193,27 +233,27 @@ class TagflowTableBorder extends Equatable {
               (aboveCell.row + aboveCell.rowSpan > i)) {
             // Cell above spans into this row
             if (!skipLine) {
-              if (currentStart < rect.left + x) {
-                segments.add((currentStart, rect.left + x));
+              if (currentStart < adjustedRect.left + x) {
+                segments.add((currentStart, adjustedRect.left + x));
               }
               skipLine = true;
             }
           } else if (skipLine) {
-            currentStart = rect.left + x;
+            currentStart = adjustedRect.left + x;
             skipLine = false;
           }
           x += columnWidths[j];
         }
 
-        if (!skipLine && currentStart < rect.right) {
-          segments.add((currentStart, rect.right));
+        if (!skipLine && currentStart < adjustedRect.right) {
+          segments.add((currentStart, adjustedRect.right));
         }
 
         // Draw the line segments
         for (final segment in segments) {
           canvas.drawLine(
-            Offset(segment.$1, rect.top + y),
-            Offset(segment.$2, rect.top + y),
+            Offset(segment.$1, adjustedRect.top + y),
+            Offset(segment.$2, adjustedRect.top + y),
             _horizontalInsidePaint!,
           );
         }
@@ -227,7 +267,7 @@ class TagflowTableBorder extends Equatable {
       for (var i = 1; i < columns; i++) {
         // Find segments where we should draw the vertical line
         final segments = <(double, double)>[];
-        var currentStart = rect.top;
+        var currentStart = adjustedRect.top;
         var skipLine = false;
 
         var y = 0.0;
@@ -240,27 +280,27 @@ class TagflowTableBorder extends Equatable {
               (leftCell.column + leftCell.colSpan > i)) {
             // Cell to the left spans into this column
             if (!skipLine) {
-              if (currentStart < rect.top + y) {
-                segments.add((currentStart, rect.top + y));
+              if (currentStart < adjustedRect.top + y) {
+                segments.add((currentStart, adjustedRect.top + y));
               }
               skipLine = true;
             }
           } else if (skipLine) {
-            currentStart = rect.top + y;
+            currentStart = adjustedRect.top + y;
             skipLine = false;
           }
           y += rowHeights[j];
         }
 
-        if (!skipLine && currentStart < rect.bottom) {
-          segments.add((currentStart, rect.bottom));
+        if (!skipLine && currentStart < adjustedRect.bottom) {
+          segments.add((currentStart, adjustedRect.bottom));
         }
 
         // Draw the line segments
         for (final segment in segments) {
           canvas.drawLine(
-            Offset(rect.left + x, segment.$1),
-            Offset(rect.left + x, segment.$2),
+            Offset(adjustedRect.left + x, segment.$1),
+            Offset(adjustedRect.left + x, segment.$2),
             _verticalInsidePaint!,
           );
         }
@@ -289,6 +329,34 @@ class RenderTagflowTable extends RenderBox
   TagflowTableBorder _border = TagflowTableBorder();
   List<double> _columnWidths = [];
   List<double> _rowHeights = [];
+  bool _treatFirstRowAsHeader = false;
+  Color? _headerBackgroundColor;
+  EdgeInsets _padding = EdgeInsets.zero;
+  IndexedWidgetBuilder? _separatorBuilder;
+
+  void setSeparatorBuilder(IndexedWidgetBuilder? value) {
+    if (_separatorBuilder == value) return;
+    _separatorBuilder = value;
+    markNeedsLayout();
+  }
+
+  void setTreatFirstRowAsHeader({bool value = false}) {
+    if (_treatFirstRowAsHeader == value) return;
+    _treatFirstRowAsHeader = value;
+    markNeedsPaint();
+  }
+
+  void setHeaderBackgroundColor(Color? value) {
+    if (_headerBackgroundColor == value) return;
+    _headerBackgroundColor = value;
+    markNeedsPaint();
+  }
+
+  void setPadding(EdgeInsets value) {
+    if (_padding == value) return;
+    _padding = value;
+    markNeedsPaint();
+  }
 
   void setTableDimensions(int rowCount, int columnCount) {
     if (rowCount < 0 || columnCount < 0) {
@@ -326,18 +394,21 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      final childWidth =
-          child.getMinIntrinsicWidth(double.infinity) / childParentData.colSpan;
-      for (var i = 0; i < childParentData.colSpan; i++) {
-        _columnWidths[childParentData.column + i] =
-            _columnWidths[childParentData.column + i]
-                .clamp(childWidth, double.infinity);
+      if (!childParentData.isSeparator) {
+        final childWidth = child.getMinIntrinsicWidth(double.infinity) /
+            childParentData.colSpan;
+        for (var i = 0; i < childParentData.colSpan; i++) {
+          _columnWidths[childParentData.column + i] =
+              _columnWidths[childParentData.column + i]
+                  .clamp(childWidth, double.infinity);
+        }
       }
       child = childParentData.nextSibling;
     }
 
     // Calculate total minimum width and distribute extra space
-    final totalMinWidth = _columnWidths.reduce((a, b) => a + b);
+    final totalMinWidth =
+        _columnWidths.reduce((a, b) => a + b) + _padding.horizontal;
     final extraWidth =
         (constraints.maxWidth - totalMinWidth).clamp(0.0, double.infinity);
     if (extraWidth > 0) {
@@ -352,20 +423,21 @@ class RenderTagflowTable extends RenderBox
     child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
+      if (!childParentData.isSeparator) {
+        // Calculate the width this cell will have
+        var cellWidth = 0.0;
+        for (var i = 0; i < childParentData.colSpan; i++) {
+          cellWidth += _columnWidths[childParentData.column + i];
+        }
 
-      // Calculate the width this cell will have
-      var cellWidth = 0.0;
-      for (var i = 0; i < childParentData.colSpan; i++) {
-        cellWidth += _columnWidths[childParentData.column + i];
-      }
-
-      // Get the height needed for this width
-      final childHeight =
-          child.getMinIntrinsicHeight(cellWidth) / childParentData.rowSpan;
-      for (var i = 0; i < childParentData.rowSpan; i++) {
-        _rowHeights[childParentData.row + i] =
-            _rowHeights[childParentData.row + i]
-                .clamp(childHeight, double.infinity);
+        // Get the height needed for this width
+        final childHeight =
+            child.getMinIntrinsicHeight(cellWidth) / childParentData.rowSpan;
+        for (var i = 0; i < childParentData.rowSpan; i++) {
+          _rowHeights[childParentData.row + i] =
+              _rowHeights[childParentData.row + i]
+                  .clamp(childHeight, double.infinity);
+        }
       }
       child = childParentData.nextSibling;
     }
@@ -375,31 +447,46 @@ class RenderTagflowTable extends RenderBox
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
 
-      // Calculate cell width and height
-      var width = 0.0;
-      for (var i = 0; i < childParentData.colSpan; i++) {
-        width += _columnWidths[childParentData.column + i];
-      }
+      if (childParentData.isSeparator) {
+        // Layout separator with full table width (including padding)
+        child.layout(
+          BoxConstraints.tightFor(width: size.width),
+          parentUsesSize: true,
+        );
 
-      var height = 0.0;
-      for (var i = 0; i < childParentData.rowSpan; i++) {
-        height += _rowHeights[childParentData.row + i];
-      }
+        // Position separator after the current row, ignoring padding
+        var y = 0.0;
+        for (var i = 0; i <= childParentData.row; i++) {
+          y += _rowHeights[i];
+        }
+        childParentData.offset = Offset(0, y);
+      } else {
+        // Calculate cell width and height
+        var width = 0.0;
+        for (var i = 0; i < childParentData.colSpan; i++) {
+          width += _columnWidths[childParentData.column + i];
+        }
 
-      // Calculate cell position
-      var x = 0.0;
-      for (var i = 0; i < childParentData.column; i++) {
-        x += _columnWidths[i];
-      }
+        var height = 0.0;
+        for (var i = 0; i < childParentData.rowSpan; i++) {
+          height += _rowHeights[childParentData.row + i];
+        }
 
-      var y = 0.0;
-      for (var i = 0; i < childParentData.row; i++) {
-        y += _rowHeights[i];
-      }
+        // Calculate cell position
+        var x = _padding.left;
+        for (var i = 0; i < childParentData.column; i++) {
+          x += _columnWidths[i];
+        }
 
-      // Layout child with tight constraints to prevent overflow
-      child.layout(BoxConstraints.tight(Size(width, height)));
-      childParentData.offset = Offset(x, y);
+        var y = _padding.top;
+        for (var i = 0; i < childParentData.row; i++) {
+          y += _rowHeights[i];
+        }
+
+        // Layout child with tight constraints to prevent overflow
+        child.layout(BoxConstraints.tight(Size(width, height)));
+        childParentData.offset = Offset(x, y);
+      }
 
       child = childParentData.nextSibling;
     }
@@ -407,28 +494,15 @@ class RenderTagflowTable extends RenderBox
     // Set table size
     size = constraints.constrain(
       Size(
-        _columnWidths.reduce((a, b) => a + b),
-        _rowHeights.reduce((a, b) => a + b),
+        _columnWidths.reduce((a, b) => a + b) + _padding.horizontal,
+        _rowHeights.reduce((a, b) => a + b) + _padding.vertical,
       ),
     );
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    // Paint children with clipping
-    var child = firstChild;
-    while (child != null) {
-      final childParentData = child.parentData! as TableCellData;
-      context.pushClipRect(
-        needsCompositing,
-        offset + childParentData.offset,
-        Offset.zero & child.size,
-        (context, offset) => context.paintChild(child!, offset),
-      );
-      child = childAfter(child);
-    }
-
-    // Paint borders
+    // First paint the table background and borders
     _border.paint(
       context.canvas,
       Rect.fromLTWH(
@@ -442,7 +516,35 @@ class RenderTagflowTable extends RenderBox
       cellData: _buildCellDataGrid(),
       columnWidths: _columnWidths,
       rowHeights: _rowHeights,
+      treatFirstRowAsHeader: _treatFirstRowAsHeader,
+      headerBackgroundColor: _headerBackgroundColor,
+      padding: _padding,
     );
+
+    // Then paint regular cells
+    var child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as TableCellData;
+      if (!childParentData.isSeparator) {
+        context.pushClipRect(
+          needsCompositing,
+          offset + childParentData.offset,
+          Offset.zero & child.size,
+          (context, offset) => context.paintChild(child!, offset),
+        );
+      }
+      child = childAfter(child);
+    }
+
+    // Finally paint separators on top
+    child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as TableCellData;
+      if (childParentData.isSeparator) {
+        context.paintChild(child, offset + childParentData.offset);
+      }
+      child = childAfter(child);
+    }
   }
 
   List<List<TableCellData>> _buildCellDataGrid() {
@@ -457,9 +559,11 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final data = child.parentData! as TableCellData;
-      for (var r = data.row; r < data.row + data.rowSpan; r++) {
-        for (var c = data.column; c < data.column + data.colSpan; c++) {
-          grid[r][c] = data;
+      if (!data.isSeparator) {
+        for (var r = data.row; r < data.row + data.rowSpan; r++) {
+          for (var c = data.column; c < data.column + data.colSpan; c++) {
+            grid[r][c] = data;
+          }
         }
       }
       child = childAfter(child);
@@ -479,13 +583,15 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      width = width.clamp(
-        child.getMinIntrinsicWidth(height) / childParentData.colSpan,
-        double.infinity,
-      );
+      if (!childParentData.isSeparator) {
+        width = width.clamp(
+          child.getMinIntrinsicWidth(height) / childParentData.colSpan,
+          double.infinity,
+        );
+      }
       child = childParentData.nextSibling;
     }
-    return width * _columnCount;
+    return width * _columnCount + _padding.horizontal;
   }
 
   @override
@@ -494,13 +600,15 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      width = width.clamp(
-        child.getMaxIntrinsicWidth(height) / childParentData.colSpan,
-        double.infinity,
-      );
+      if (!childParentData.isSeparator) {
+        width = width.clamp(
+          child.getMaxIntrinsicWidth(height) / childParentData.colSpan,
+          double.infinity,
+        );
+      }
       child = childParentData.nextSibling;
     }
-    return width * _columnCount;
+    return width * _columnCount + _padding.horizontal;
   }
 
   @override
@@ -509,13 +617,15 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      height = height.clamp(
-        child.getMinIntrinsicHeight(width) / childParentData.rowSpan,
-        double.infinity,
-      );
+      if (!childParentData.isSeparator) {
+        height = height.clamp(
+          child.getMinIntrinsicHeight(width) / childParentData.rowSpan,
+          double.infinity,
+        );
+      }
       child = childParentData.nextSibling;
     }
-    return height * _rowCount;
+    return height * _rowCount + _padding.vertical;
   }
 
   @override
@@ -524,13 +634,15 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      height = height.clamp(
-        child.getMaxIntrinsicHeight(width) / childParentData.rowSpan,
-        double.infinity,
-      );
+      if (!childParentData.isSeparator) {
+        height = height.clamp(
+          child.getMaxIntrinsicHeight(width) / childParentData.rowSpan,
+          double.infinity,
+        );
+      }
       child = childParentData.nextSibling;
     }
-    return height * _rowCount;
+    return height * _rowCount + _padding.vertical;
   }
 
   @override
@@ -544,19 +656,23 @@ class RenderTagflowTable extends RenderBox
     var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
-      final childWidth =
-          child.getDryLayout(BoxConstraints.loose(constraints.biggest)).width /
-              childParentData.colSpan;
-      for (var i = 0; i < childParentData.colSpan; i++) {
-        columnWidths[childParentData.column + i] =
-            columnWidths[childParentData.column + i]
-                .clamp(childWidth, double.infinity);
+      if (!childParentData.isSeparator) {
+        final childWidth = child
+                .getDryLayout(BoxConstraints.loose(constraints.biggest))
+                .width /
+            childParentData.colSpan;
+        for (var i = 0; i < childParentData.colSpan; i++) {
+          columnWidths[childParentData.column + i] =
+              columnWidths[childParentData.column + i]
+                  .clamp(childWidth, double.infinity);
+        }
       }
       child = childParentData.nextSibling;
     }
 
     // Calculate total minimum width and distribute extra space
-    final totalMinWidth = columnWidths.reduce((a, b) => a + b);
+    final totalMinWidth =
+        columnWidths.reduce((a, b) => a + b) + _padding.horizontal;
     final extraWidth =
         (constraints.maxWidth - totalMinWidth).clamp(0.0, double.infinity);
     if (extraWidth > 0) {
@@ -571,29 +687,31 @@ class RenderTagflowTable extends RenderBox
     child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as TableCellData;
+      if (!childParentData.isSeparator) {
+        // Calculate the width this cell will have
+        var cellWidth = 0.0;
+        for (var i = 0; i < childParentData.colSpan; i++) {
+          cellWidth += columnWidths[childParentData.column + i];
+        }
 
-      // Calculate the width this cell will have
-      var cellWidth = 0.0;
-      for (var i = 0; i < childParentData.colSpan; i++) {
-        cellWidth += columnWidths[childParentData.column + i];
-      }
-
-      // Get the height needed for this width
-      final childHeight =
-          child.getDryLayout(BoxConstraints.tightFor(width: cellWidth)).height /
-              childParentData.rowSpan;
-      for (var i = 0; i < childParentData.rowSpan; i++) {
-        rowHeights[childParentData.row + i] =
-            rowHeights[childParentData.row + i]
-                .clamp(childHeight, double.infinity);
+        // Get the height needed for this width
+        final childHeight = child
+                .getDryLayout(BoxConstraints.tightFor(width: cellWidth))
+                .height /
+            childParentData.rowSpan;
+        for (var i = 0; i < childParentData.rowSpan; i++) {
+          rowHeights[childParentData.row + i] =
+              rowHeights[childParentData.row + i]
+                  .clamp(childHeight, double.infinity);
+        }
       }
       child = childParentData.nextSibling;
     }
 
     return constraints.constrain(
       Size(
-        columnWidths.reduce((a, b) => a + b),
-        rowHeights.reduce((a, b) => a + b),
+        columnWidths.reduce((a, b) => a + b) + _padding.horizontal,
+        rowHeights.reduce((a, b) => a + b) + _padding.vertical,
       ),
     );
   }
