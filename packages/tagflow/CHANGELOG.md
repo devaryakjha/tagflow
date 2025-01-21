@@ -1,3 +1,11 @@
+## 0.0.1-dev.16
+
+ - **FEAT**(tagflow_parser): improve node validation to exclude specific tags. ([eb0a566c](https://github.com/devaryakjha/tagflow/commit/eb0a566c86fc66c409af88db10d454eb9e0e3e8f))
+ - **FEAT**(tagflow_parser): enhance node validation in parseNodes method. ([007d978c](https://github.com/devaryakjha/tagflow/commit/007d978c0e16801e7f73a6e363195541e981d30f))
+ - **FEAT**(tagflow_node): add hasChildren property to TagflowNode. ([b8fbd4ea](https://github.com/devaryakjha/tagflow/commit/b8fbd4eabafc96d3acce23144cfb073f97c8d55a))
+ - **FEAT**(text_converter): add support for bold and italic text elements. ([78dc2d3a](https://github.com/devaryakjha/tagflow/commit/78dc2d3a5ef9bdcc6660c0c78bd1cbbf13f42ab3))
+ - **FEAT**(tagflow): add softWrap property to TagflowStyle for text elements. ([f628170e](https://github.com/devaryakjha/tagflow/commit/f628170ec7a44f1097a016983c9181091d42c12c))
+
 ## 0.0.1-dev.15
 
  - **FIX**(list_converter): update padding in StyledContainer and ListView. ([3a0f27ef](https://github.com/devaryakjha/tagflow/commit/3a0f27efe9e251201786fd0a79849079f93f6444))

@@ -1,3 +1,7 @@
+## 0.0.2-dev.5
+
+ - **FEAT**(tagflow_table): enhance column width calculation for flexible layouts. ([4c0e3d77](https://github.com/devaryakjha/tagflow/commit/4c0e3d7757b8db5d0e8a33c0b2df29c0f005baad))
+
 ## 0.0.2-dev.4
 
  - **FIX**(tagflow_table): correct separator layout width calculation. ([a4d777f9](https://github.com/devaryakjha/tagflow/commit/a4d777f9d3b4effcaf553f9bb20dc0c14b7c7c6d))
