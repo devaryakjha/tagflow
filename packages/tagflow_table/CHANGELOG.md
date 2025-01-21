@@ -1,3 +1,7 @@
+## 0.0.2-dev.4
+
+ - **FIX**(tagflow_table): correct separator layout width calculation. ([a4d777f9](https://github.com/devaryakjha/tagflow/commit/a4d777f9d3b4effcaf553f9bb20dc0c14b7c7c6d))
+
 ## 0.0.2-dev.3
 
  - **FEAT**(tagflow_table): enhance table rendering with header support and separators. ([d8307c06](https://github.com/devaryakjha/tagflow/commit/d8307c06bcb73e07f74a0cc5d0d5305ef1c8f1e9))
