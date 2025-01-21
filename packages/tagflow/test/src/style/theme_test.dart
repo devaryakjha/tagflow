@@ -128,5 +128,51 @@ void main() {
       expect(nonInheritedStyle.padding, isNull);
       expect(nonInheritedStyle.margin, const EdgeInsets.all(16));
     });
+
+    test('resolves pseudo-selector styles correctly', () {
+      const theme = TagflowTheme.raw(
+        defaultStyle: TagflowStyle.empty,
+        styles: {
+          'p': TagflowStyle(margin: EdgeInsets.all(8)),
+          'p:first-child': TagflowStyle(
+            margin: EdgeInsets.zero,
+          ),
+          'p:last-child': TagflowStyle(
+            margin: EdgeInsets.zero,
+          ),
+        },
+      );
+
+      final parent = const TagflowElement(
+        tag: 'div',
+        children: [
+          TagflowElement(tag: 'p', attributes: {'id': 'first'}),
+          TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
+          TagflowElement(tag: 'p', attributes: {'id': 'last'}),
+        ],
+      ).reparent();
+
+      final firstChild = parent.children.first;
+      final middleChild = parent.children[1];
+      final lastChild = parent.children.last;
+
+      // First child should have no top margin
+      final firstStyle = theme.resolveStyle(firstChild, inherit: true);
+      expect(
+        firstStyle.margin,
+        EdgeInsets.zero,
+      );
+
+      // Middle child should have all margins
+      final middleStyle = theme.resolveStyle(middleChild, inherit: true);
+      expect(middleStyle.margin, const EdgeInsets.all(8));
+
+      // Last child should have no bottom margin
+      final lastStyle = theme.resolveStyle(lastChild, inherit: true);
+      expect(
+        lastStyle.margin,
+        EdgeInsets.zero,
+      );
+    });
   });
 }

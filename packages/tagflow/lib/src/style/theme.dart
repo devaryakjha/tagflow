@@ -406,7 +406,6 @@ class TagflowTheme extends Equatable {
       element.attributes?['style'] ?? '',
       this,
     );
-
     if (inlineStyle != null) {
       result = result.merge(inlineStyle);
     }
@@ -420,9 +419,21 @@ class TagflowTheme extends Equatable {
       }
     }
 
-    // Add tag style last
+    // Add tag style
     if (styles.containsKey(element.tag)) {
       result = result.merge(styles[element.tag]);
+    }
+
+    // Add pseudo-selector styles
+    final pseudoSelectors = [
+      if (element.isFirstChild) '${element.tag}:first-child',
+      if (element.isLastChild) '${element.tag}:last-child',
+    ];
+
+    for (final selector in pseudoSelectors) {
+      if (styles.containsKey(selector)) {
+        result = result.merge(styles[selector]);
+      }
     }
 
     return result;

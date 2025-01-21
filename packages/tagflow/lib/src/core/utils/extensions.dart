@@ -112,3 +112,20 @@ extension StyleExtension on TagflowStyle {
           ? TextStyle(color: color)
           : textStyle?.copyWith(color: color);
 }
+
+/// Position-related extensions for TagflowNode
+extension TagflowNodePosition on TagflowNode {
+  /// Returns true if this node is the first child of its parent
+  bool get isFirstChild {
+    final parent = this.parent;
+    if (parent == null) return false;
+    return parent.children.firstOrNull == this;
+  }
+
+  /// Returns true if this node is the last child of its parent
+  bool get isLastChild {
+    final parent = this.parent;
+    if (parent == null) return false;
+    return parent.children.lastOrNull == this;
+  }
+}
