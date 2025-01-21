@@ -284,14 +284,7 @@ final class TableExample extends ExamplePage {
   List<ElementConverter<TagflowNode>> get converters => !useTagflowTable
       ? super.converters
       : [
-          TagflowTableConverter(
-            treatFirstRowAsHeader: true,
-            separatorBuilder: (context, index) => const Divider(
-              height: 1,
-              thickness: 1,
-              color: Colors.grey,
-            ),
-          ),
+          const TagflowTableConverter(),
           const TagflowTableCellConverter(),
         ];
 
