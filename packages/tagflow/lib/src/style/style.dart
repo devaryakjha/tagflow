@@ -40,6 +40,7 @@ class TagflowStyle extends Equatable {
     this.boxFit,
     this.cursor,
     this.inherit = true,
+    this.softWrap,
   });
 
   /// Empty style
@@ -147,6 +148,9 @@ class TagflowStyle extends Equatable {
   /// Inherit from parent
   final bool inherit;
 
+  /// Useful for text elements
+  final bool? softWrap;
+
   /// Creates a copy with some properties replaced
   TagflowStyle copyWith({
     bool? inherit,
@@ -183,6 +187,7 @@ class TagflowStyle extends Equatable {
     BoxFit? boxFit,
     MouseCursor? cursor,
     double? textScaleFactor,
+    bool? softWrap,
   }) {
     return TagflowStyle(
       inherit: inherit ?? this.inherit,
@@ -219,6 +224,7 @@ class TagflowStyle extends Equatable {
       boxFit: boxFit ?? this.boxFit,
       cursor: cursor ?? this.cursor,
       textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+      softWrap: softWrap ?? this.softWrap,
     );
   }
 
@@ -266,6 +272,7 @@ class TagflowStyle extends Equatable {
       boxFit: other.boxFit ?? boxFit,
       cursor: other.cursor ?? cursor,
       textScaleFactor: other.textScaleFactor ?? textScaleFactor,
+      softWrap: other.softWrap ?? softWrap,
     );
   }
 
@@ -305,5 +312,6 @@ class TagflowStyle extends Equatable {
         cursor,
         textScaleFactor,
         inherit,
+        softWrap,
       ];
 }

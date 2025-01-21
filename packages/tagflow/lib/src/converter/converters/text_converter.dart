@@ -71,6 +71,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
         ),
         textScaler: _getTextScaler(style),
         style: getTextStyle(element, style, context),
+        softWrap: style.softWrap,
       ),
       element,
       context,
