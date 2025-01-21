@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow_table` - `v0.0.2-dev.4`](#tagflow_table---v002-dev4)
+
+---
+
+#### `tagflow_table` - `v0.0.2-dev.4`
+
+ - **FIX**(tagflow_table): correct separator layout width calculation. ([a4d777f9](https://github.com/devaryakjha/tagflow/commit/a4d777f9d3b4effcaf553f9bb20dc0c14b7c7c6d))
+
+
+## 2025-01-21
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.15`](#tagflow---v001-dev15)
  - [`tagflow_table` - `v0.0.2-dev.3`](#tagflow_table---v002-dev3)
 
