@@ -1,3 +1,7 @@
+## 0.0.2-dev.3
+
+ - **FEAT**(tagflow_table): enhance table rendering with header support and separators. ([d8307c06](https://github.com/devaryakjha/tagflow/commit/d8307c06bcb73e07f74a0cc5d0d5305ef1c8f1e9))
+
 ## 0.0.2-dev.2
 
  - **REFACTOR**(tagflow_table): relaxed dart SDK constraints. ([5cba3f98](https://github.com/devaryakjha/tagflow/commit/5cba3f98a0eef120a79ca4da7ae8094abecadba5))
