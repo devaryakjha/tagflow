@@ -449,8 +449,10 @@ class RenderTagflowTable extends RenderBox
 
       if (childParentData.isSeparator) {
         // Layout separator with full table width (including padding)
+        final tableWidth =
+            _columnWidths.reduce((a, b) => a + b) + _padding.horizontal;
         child.layout(
-          BoxConstraints.tightFor(width: size.width),
+          BoxConstraints.tightFor(width: tableWidth),
           parentUsesSize: true,
         );
 
