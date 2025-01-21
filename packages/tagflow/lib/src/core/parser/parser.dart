@@ -52,12 +52,18 @@ class TagflowParser {
     return element.reparent();
   }
 
-  List<TagflowNode> parseNodes(List<dom.Node> nodes) {
-    return nodes
-        .where((n) => n is dom.Element || (n is dom.Text && n.text.isNotEmpty))
-        .map(parseNode)
-        .nonNulls
-        .toList();
+  List<TagflowNode> parseNodes(dom.NodeList nodes) {
+    bool isNodeValid(dom.Node node) {
+      if (node is dom.Text) {
+        return node.text.isNotEmpty;
+      }
+      if (node is dom.Element) {
+        return node.hasChildNodes() && node.nodes.every(isNodeValid);
+      }
+      return false;
+    }
+
+    return nodes.where(isNodeValid).map(parseNode).nonNulls.toList();
   }
 
   TagflowNode? parseNode(dom.Node node) {
@@ -74,7 +80,8 @@ class TagflowParser {
     if (node.isTextNode) {
       return node.textContent?.trim().isNotEmpty ?? false;
     }
-    return true;
+
+    return node.hasChildren && node.children.every(isValidNode);
   }
 }
 
