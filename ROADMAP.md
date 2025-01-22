@@ -38,8 +38,8 @@
 - [ ] Tables
 
   - [x] Basic table structure
-  - [ ] Table headers
-  - [ ] Colspan/Rowspan support
+  - [x] Table headers
+  - [x] Colspan/Rowspan support
   - [ ] Responsive table layout
 
 - [ ] Media
@@ -55,12 +55,12 @@
 - [x] Class-based styling
 - [x] Inline style parsing
 - [ ] CSS-like Features
-  - [ ] Pseudo-classes (:first-child, :last-child, etc.)
+  - [x] Pseudo-classes (:first-child, :last-child, etc.)
   - [ ] Media queries support
   - [ ] Attribute selectors
   - [ ] State management (hover, focus, etc.)
   - [ ] CSS variables (custom properties)
-  - [ ] Cascade selectors (parent > child)
+  - [x] Cascade selectors (parent > child)
   - [ ] Animation/transition support
 - [ ] Advanced CSS Properties
   - [ ] Flexbox layout
@@ -90,21 +90,6 @@
   - [ ] Selection support
   - [ ] Copy/paste functionality
 
-## Platform Support
-
-- [ ] Web
-  - [ ] SSR compatibility
-  - [ ] Web-specific link handling
-  - [ ] Web accessibility support
-- [ ] Desktop
-  - [ ] Mouse hover states
-  - [ ] Keyboard navigation
-  - [ ] Context menu support
-- [ ] Mobile
-  - [ ] Touch feedback
-  - [ ] Pull to refresh integration
-  - [ ] Mobile-specific gestures
-
 ## Plugin System
 
 - [ ] Plugin Registry implementation
@@ -122,8 +107,8 @@
 - [ ] Integration tests
 - [ ] Golden tests for visual regression
 - [ ] Performance benchmarks
-- [ ] API Documentation
-  - [ ] Dart doc comments
+- [x] API Documentation
+  - [x] Dart doc comments
   - [ ] Usage examples
   - [ ] Migration guides
   - [ ] Best practices
@@ -142,27 +127,15 @@
   - [ ] Performance monitor
   - [ ] Error reporting
 
-## Additional Features
-
-- [ ] RTL support
-- [ ] Accessibility (a11y)
-  - [ ] Screen reader support
-  - [ ] Semantic labels
-  - [ ] Navigation
-- [ ] Internationalization
-  - [ ] BiDi text support
-  - [ ] Language-specific rendering
-  - [ ] Custom font loading
-
 ## CI/CD
 
-- [ ] GitHub Actions workflow
-- [ ] Automated testing
-- [ ] Code coverage reporting
-- [ ] Release automation
-- [ ] Package publishing
-- [ ] Version management
-- [ ] Changelog generation
+- [x] GitHub Actions workflow
+- [x] Automated testing
+- [x] Code coverage reporting
+- [x] Release automation
+- [x] Package publishing
+- [x] Version management
+- [x] Changelog generation
 
 ## Optimization & Refinement
 
