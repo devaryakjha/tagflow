@@ -1,3 +1,7 @@
+## 0.0.1
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.1-dev.17
 
  - **FEAT**(style): enhance size handling with SizeValue integration. ([41c12f9f](https://github.com/devaryakjha/tagflow/commit/41c12f9f92a1e4a9f36030ea16244d497c7d5b76))

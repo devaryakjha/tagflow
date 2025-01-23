@@ -15,6 +15,33 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow` - `v0.0.1`](#tagflow---v001)
+ - [`tagflow_table` - `v0.0.2`](#tagflow_table---v002)
+
+Packages graduated to a stable release (see pre-releases prior to the stable version for changelog entries):
+
+ - `tagflow` - `v0.0.1`
+ - `tagflow_table` - `v0.0.2`
+
+---
+
+#### `tagflow` - `v0.0.1`
+
+#### `tagflow_table` - `v0.0.2`
+
+
+## 2025-01-23
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.17`](#tagflow---v001-dev17)
  - [`tagflow_table` - `v0.0.2-dev.6`](#tagflow_table---v002-dev6)
 
