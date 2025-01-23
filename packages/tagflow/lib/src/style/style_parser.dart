@@ -558,18 +558,21 @@ class StyleParser {
       alignItems: styles['align-items'] != null
           ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
           : null,
-      gap: styles['gap'] != null ? parseSize(styles['gap']!) : null,
-      width: styles['width'] != null ? parseSize(styles['width']!) : null,
-      height: styles['height'] != null ? parseSize(styles['height']!) : null,
-      minWidth:
-          styles['min-width'] != null ? parseSize(styles['min-width']!) : null,
-      minHeight: styles['min-height'] != null
-          ? parseSize(styles['min-height']!)
+      gap: styles['gap'] != null ? parseSizeValue(styles['gap']!) : null,
+      width: styles['width'] != null ? parseSizeValue(styles['width']!) : null,
+      height:
+          styles['height'] != null ? parseSizeValue(styles['height']!) : null,
+      minWidth: styles['min-width'] != null
+          ? parseSizeValue(styles['min-width']!)
           : null,
-      maxWidth:
-          styles['max-width'] != null ? parseSize(styles['max-width']!) : null,
+      minHeight: styles['min-height'] != null
+          ? parseSizeValue(styles['min-height']!)
+          : null,
+      maxWidth: styles['max-width'] != null
+          ? parseSizeValue(styles['max-width']!)
+          : null,
       maxHeight: styles['max-height'] != null
-          ? parseSize(styles['max-height']!)
+          ? parseSizeValue(styles['max-height']!)
           : null,
       aspectRatio: styles['aspect-ratio'] != null
           ? double.tryParse(styles['aspect-ratio']!)

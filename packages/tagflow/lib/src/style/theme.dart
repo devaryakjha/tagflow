@@ -287,7 +287,7 @@ class TagflowTheme extends Equatable {
       ),
       styles: {
         'p': TagflowStyle(
-          maxWidth: maxWidth,
+          maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           margin: EdgeInsets.only(bottom: baseFontSize),
           textStyle: baseTextStyle.copyWith(
             height: 1.6,
@@ -295,7 +295,7 @@ class TagflowTheme extends Equatable {
           ),
         ),
         'h1': TagflowStyle(
-          maxWidth: maxWidth,
+          maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           textStyle: headingTextStyle.copyWith(
             fontSize: baseFontSize * 2.0,
             fontWeight: FontWeight.w700,
@@ -303,7 +303,7 @@ class TagflowTheme extends Equatable {
           margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.8),
         ),
         'h2': TagflowStyle(
-          maxWidth: maxWidth,
+          maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           textStyle: headingTextStyle.copyWith(
             fontSize: baseFontSize * 1.5,
             fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class TagflowTheme extends Equatable {
           margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.7),
         ),
         'h3': TagflowStyle(
-          maxWidth: maxWidth,
+          maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           textStyle: headingTextStyle.copyWith(
             fontSize: baseFontSize * 1.25,
             fontWeight: FontWeight.w600,
@@ -319,7 +319,7 @@ class TagflowTheme extends Equatable {
           margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.6),
         ),
         'blockquote': TagflowStyle(
-          maxWidth: maxWidth,
+          maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           margin: EdgeInsets.symmetric(vertical: baseFontSize),
           padding: EdgeInsets.all(baseFontSize),
           backgroundColor: blockquoteBackground,
@@ -337,7 +337,7 @@ class TagflowTheme extends Equatable {
             color: codeBackground?.withAlpha(128) ?? Colors.grey,
           ),
           textStyle: codeTextStyle,
-          width: maxWidth ?? double.infinity,
+          width: SizeValue(maxWidth ?? double.infinity),
         ),
         'code': TagflowStyle(
           textStyle: codeTextStyle ??
@@ -349,7 +349,7 @@ class TagflowTheme extends Equatable {
             horizontal: baseFontSize * 0.25,
             vertical: baseFontSize * 0.125,
           ),
-          width: maxWidth ?? double.infinity,
+          width: SizeValue(maxWidth ?? double.infinity),
         ),
         'pre code': const TagflowStyle(
           backgroundColor: Colors.transparent,
@@ -382,7 +382,11 @@ class TagflowTheme extends Equatable {
   final Map<String, Color> namedColors;
 
   /// Get style for an element, merging all applicable styles
-  TagflowStyle resolveStyle(TagflowNode element, {required bool inherit}) {
+  TagflowStyle resolveStyle(
+    TagflowNode element, {
+    required bool inherit,
+    BuildContext? context,
+  }) {
     TagflowStyle result;
 
     if (!inherit) {
@@ -434,6 +438,10 @@ class TagflowTheme extends Equatable {
       if (styles.containsKey(selector)) {
         result = result.merge(styles[selector]);
       }
+    }
+
+    if (context != null) {
+      result = result.resolveSize(context);
     }
 
     return result;

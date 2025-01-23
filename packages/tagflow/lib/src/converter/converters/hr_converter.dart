@@ -19,7 +19,7 @@ final class HrConverter extends ElementConverter<TagflowElement> {
     return StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        width: double.infinity,
+        width: const SizeValue(double.infinity),
         border: Border(
           bottom: BorderSide(
             color: style.textStyleWithColor?.color ?? Colors.grey,

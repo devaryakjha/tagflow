@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 
 /// Defines the display type of an element
@@ -125,8 +126,8 @@ enum SizeUnit {
 }
 
 /// Represents a size value that can be either absolute or relative
-class SizeValue {
-  const SizeValue(this._value, this.unit);
+class SizeValue extends Equatable {
+  const SizeValue(this._value, [this.unit = SizeUnit.px]);
   final double _value;
   final SizeUnit unit;
 
@@ -163,4 +164,7 @@ class SizeValue {
         return value * mediaQuery.size.width / 100;
     }
   }
+
+  @override
+  List<Object?> get props => [value, unit];
 }
