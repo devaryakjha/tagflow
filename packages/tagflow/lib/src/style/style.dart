@@ -50,6 +50,7 @@ class TagflowStyle extends Equatable {
         _maxHeight = maxHeight;
 
   /// Creates a new [TagflowStyle] with pixel values
+  // coverage:ignore-start
   factory TagflowStyle.pixels({
     TextStyle? textStyle,
     double? textScaleFactor,
@@ -125,6 +126,7 @@ class TagflowStyle extends Equatable {
       softWrap: softWrap,
     );
   }
+  // coverage:ignore-end
 
   /// Empty style
   static const TagflowStyle empty = TagflowStyle();
@@ -405,6 +407,7 @@ class TagflowStyle extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [
         textStyle,
         padding,

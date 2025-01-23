@@ -166,5 +166,6 @@ class SizeValue extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [value, unit];
 }

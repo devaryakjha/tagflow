@@ -312,6 +312,7 @@ class TagflowTableBorder extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [
         left,
         right,

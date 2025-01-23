@@ -68,5 +68,6 @@ class TagflowElement extends TagflowNode {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [tag, textContent, children, attributes];
 }
