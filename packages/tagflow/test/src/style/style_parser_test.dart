@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -31,8 +32,8 @@ void main() {
       });
 
       test('parses viewport relative units', () {
-        expect(StyleParser.parseSize('10vh'), 10.0);
-        expect(StyleParser.parseSize('10vw'), 10.0);
+        expect(StyleParser.parseSize('10vh'), isNull);
+        expect(StyleParser.parseSize('10vw'), isNull);
       });
 
       test('parses percentage values', () {
@@ -46,7 +47,6 @@ void main() {
         expect(StyleParser.parseSize('invalid'), null);
         expect(StyleParser.parseSize(''), null);
         expect(StyleParser.parseSize('px'), null);
-        expect(StyleParser.parseSize('10'), null);
         expect(StyleParser.parseSize('10x'), null);
       });
     });
@@ -80,6 +80,10 @@ void main() {
         expect(
           StyleParser.parseColor('rgba(255,255,255,0)'),
           const Color(0x00FFFFFF),
+        );
+        expect(
+          StyleParser.parseColor('rgba(0,0,0,0.1)'),
+          const Color(0x1A000000),
         );
       });
 
@@ -370,7 +374,6 @@ void main() {
       test('handles invalid values', () {
         expect(StyleParser.parseBorderRadius('invalid'), null);
         expect(StyleParser.parseBorderRadius(''), null);
-        expect(StyleParser.parseBorderRadius('10'), null);
       });
     });
 
@@ -437,6 +440,77 @@ void main() {
         expect(StyleParser.parseBoxShadow('2px'), null);
         expect(StyleParser.parseBoxShadow('2px 4px'), null);
       });
+
+      test('parseBoxShadow handles absolute units', () {
+        // Test with explicit color
+        final shadows =
+            StyleParser.parseBoxShadow('2px 3px 4px rgba(0,0,0,0.2)');
+        expect(shadows, isNotNull);
+        expect(shadows!.length, equals(1));
+        expect(shadows.first.offset.dx, equals(2));
+        expect(shadows.first.offset.dy, equals(3));
+        expect(shadows.first.blurRadius, equals(4));
+        expect(shadows.first.color, const Color(0x33000000));
+
+        // Test with spread radius
+        final shadowsWithSpread =
+            StyleParser.parseBoxShadow('2px 3px 4px 5px rgba(0,0,0,0.2)');
+        expect(shadowsWithSpread, isNotNull);
+        expect(shadowsWithSpread!.length, equals(1));
+        expect(shadowsWithSpread.first.offset.dx, equals(2));
+        expect(shadowsWithSpread.first.offset.dy, equals(3));
+        expect(shadowsWithSpread.first.blurRadius, equals(4));
+        expect(shadowsWithSpread.first.spreadRadius, equals(5));
+        expect(shadowsWithSpread.first.color, const Color(0x33000000));
+
+        // Test with multiple shadows
+        final multipleShadows = StyleParser.parseBoxShadow(
+          '2px 3px 4px rgba(0,0,0,0.2), 4px 6px 8px rgba(0,0,0,0.1)',
+        );
+        expect(multipleShadows, isNotNull);
+        expect(multipleShadows!.length, equals(2));
+        expect(multipleShadows[0].offset.dx, equals(2));
+        expect(multipleShadows[0].offset.dy, equals(3));
+        expect(multipleShadows[0].blurRadius, equals(4));
+        expect(multipleShadows[0].color, const Color(0x33000000));
+        expect(multipleShadows[1].offset.dx, equals(4));
+        expect(multipleShadows[1].offset.dy, equals(6));
+        expect(multipleShadows[1].blurRadius, equals(8));
+        expect(multipleShadows[1].color, const Color(0x1A000000));
+
+        // Test with rem units
+        final remShadows =
+            StyleParser.parseBoxShadow('1rem 1.5rem 2rem rgba(0,0,0,0.2)');
+        expect(remShadows, isNotNull);
+        expect(remShadows!.length, equals(1));
+        expect(remShadows.first.offset.dx, equals(16)); // 1rem = 16px
+        expect(remShadows.first.offset.dy, equals(24)); // 1.5rem = 24px
+        expect(remShadows.first.blurRadius, equals(32)); // 2rem = 32px
+        expect(remShadows.first.color, const Color(0x33000000));
+      });
+
+      test('parseBoxShadow returns null for relative units', () {
+        expect(
+          StyleParser.parseBoxShadow('10% 10% 10% rgba(0,0,0,0.2)'),
+          isNull,
+        );
+        expect(
+          StyleParser.parseBoxShadow('10vh 10vh 10vh rgba(0,0,0,0.2)'),
+          isNull,
+        );
+        expect(
+          StyleParser.parseBoxShadow('10vw 10vw 10vw rgba(0,0,0,0.2)'),
+          isNull,
+        );
+      });
+
+      test('parseBoxShadow handles invalid values', () {
+        expect(StyleParser.parseBoxShadow(''), isNull);
+        expect(StyleParser.parseBoxShadow('invalid'), isNull);
+        expect(StyleParser.parseBoxShadow('2px'), isNull);
+        expect(StyleParser.parseBoxShadow('2px 3px'), isNull);
+        expect(StyleParser.parseBoxShadow('2px 3px invalid'), isNull);
+      });
     });
 
     group('parseTransform', () {
@@ -474,6 +548,189 @@ void main() {
         expect(StyleParser.parseTransform('translate()'), null);
         expect(StyleParser.parseTransform('translate(invalid)'), null);
       });
+    });
+  });
+
+  group('StyleParser - Size Value Parsing', () {
+    test('parseSizeValue handles pixel values', () {
+      final result = StyleParser.parseSizeValue('10px');
+      expect(result, isNotNull);
+      expect(result!.value, equals(10));
+      expect(result.unit, equals(SizeUnit.px));
+    });
+
+    test('parseSizeValue handles percentage values', () {
+      final result = StyleParser.parseSizeValue('50%');
+      expect(result, isNotNull);
+      expect(result!.value, equals(50));
+      expect(result.unit, equals(SizeUnit.percentage));
+    });
+
+    test('parseSizeValue handles rem values', () {
+      final result = StyleParser.parseSizeValue('2.5rem');
+      expect(result, isNotNull);
+      expect(result!.value, equals(2.5));
+      expect(result.unit, equals(SizeUnit.rem));
+    });
+
+    test('parseSizeValue handles viewport height values', () {
+      final result = StyleParser.parseSizeValue('75vh');
+      expect(result, isNotNull);
+      expect(result!.value, equals(75));
+      expect(result.unit, equals(SizeUnit.vh));
+    });
+
+    test('parseSizeValue handles viewport width values', () {
+      final result = StyleParser.parseSizeValue('25vw');
+      expect(result, isNotNull);
+      expect(result!.value, equals(25));
+      expect(result.unit, equals(SizeUnit.vw));
+    });
+
+    test('parseSizeValue handles numbers without units as pixels', () {
+      final result = StyleParser.parseSizeValue('42');
+      expect(result, isNotNull);
+      expect(result!.value, equals(42));
+      expect(result.unit, equals(SizeUnit.px));
+    });
+
+    test('parseSizeValue handles invalid values', () {
+      expect(StyleParser.parseSizeValue(''), isNull);
+      expect(StyleParser.parseSizeValue('invalid'), isNull);
+      expect(StyleParser.parseSizeValue('px'), isNull);
+      expect(StyleParser.parseSizeValue('%'), isNull);
+      expect(StyleParser.parseSizeValue('rem'), isNull);
+    });
+
+    test('parseSizeValue handles decimal values', () {
+      final result = StyleParser.parseSizeValue('10.5px');
+      expect(result, isNotNull);
+      expect(result!.value, equals(10.5));
+      expect(result.unit, equals(SizeUnit.px));
+    });
+
+    test('parseSizeValue handles whitespace', () {
+      final result = StyleParser.parseSizeValue('  15.5px  ');
+      expect(result, isNotNull);
+      expect(result!.value, equals(15.5));
+      expect(result.unit, equals(SizeUnit.px));
+    });
+  });
+
+  group('SizeValue - Resolution', () {
+    testWidgets('resolves different unit types correctly', (tester) async {
+      const screenWidth = 800.0;
+      const screenHeight = 600.0;
+      const textScaleFactor = 1.2;
+
+      late BuildContext capturedContext;
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(screenWidth, screenHeight),
+            textScaler: TextScaler.linear(textScaleFactor),
+          ),
+          child: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return Container();
+            },
+          ),
+        ),
+      );
+
+      // Test pixel values
+      const pixelSize = SizeValue(100, SizeUnit.px);
+      expect(pixelSize.resolve(capturedContext), equals(100));
+
+      // Test percentage values
+      const percentageSize = SizeValue(50, SizeUnit.percentage);
+      expect(
+        percentageSize.resolve(capturedContext, parentSize: 200),
+        equals(100),
+      );
+      expect(
+        percentageSize.resolve(capturedContext, parentSize: 400),
+        equals(200),
+      );
+      expect(
+        percentageSize.resolve(capturedContext),
+        equals(0),
+      ); // No parent size
+
+      // Test rem values
+      const remSize = SizeValue(2, SizeUnit.rem);
+      // Base size (16) * text scale factor (1.2) * rem value (2)
+      expect(remSize.resolve(capturedContext), equals(38.4));
+
+      // Test viewport height values
+      const vhSize = SizeValue(50, SizeUnit.vh);
+      expect(vhSize.resolve(capturedContext), equals(screenHeight * 0.5));
+
+      // Test viewport width values
+      const vwSize = SizeValue(50, SizeUnit.vw);
+      expect(vwSize.resolve(capturedContext), equals(screenWidth * 0.5));
+
+      // Test zero values
+      const zeroSize = SizeValue(0, SizeUnit.percentage);
+      expect(zeroSize.resolve(capturedContext, parentSize: 200), equals(0));
+
+      // Test negative values
+      const negativeSize = SizeValue(-10, SizeUnit.px);
+      expect(negativeSize.resolve(capturedContext), equals(-10));
+    });
+  });
+
+  group('StyleParser - Integration with SizeValue', () {
+    test('parseSize handles absolute units', () {
+      expect(StyleParser.parseSize('10px'), equals(10));
+      expect(StyleParser.parseSize('2rem'), equals(32)); // 16 * 2
+    });
+
+    test('parseSize returns null for relative units', () {
+      expect(StyleParser.parseSize('50%'), isNull);
+      expect(StyleParser.parseSize('50vh'), isNull);
+      expect(StyleParser.parseSize('50vw'), isNull);
+    });
+
+    test('parseBorderRadius handles absolute units', () {
+      final radius = StyleParser.parseBorderRadius('10px');
+      expect(radius, isNotNull);
+      expect(radius!.topLeft.x, equals(10));
+    });
+
+    test('parseBorderRadius returns null for relative units', () {
+      expect(StyleParser.parseBorderRadius('10%'), isNull);
+      expect(StyleParser.parseBorderRadius('10vh'), isNull);
+      expect(StyleParser.parseBorderRadius('10vw'), isNull);
+    });
+
+    test('parseBorder handles absolute units', () {
+      final border = StyleParser.parseBorder('2px solid black');
+      expect(border, isNotNull);
+      expect(border!.top.width, equals(2));
+    });
+
+    test('parseBorder returns null for relative units', () {
+      expect(StyleParser.parseBorder('10% solid black'), isNull);
+      expect(StyleParser.parseBorder('10vh solid black'), isNull);
+      expect(StyleParser.parseBorder('10vw solid black'), isNull);
+    });
+
+    test('parseBoxShadow handles absolute units', () {
+      final shadows = StyleParser.parseBoxShadow('2px 3px 4px black');
+      expect(shadows, isNotNull);
+      expect(shadows!.length, equals(1));
+      expect(shadows.first.offset.dx, equals(2));
+      expect(shadows.first.offset.dy, equals(3));
+      expect(shadows.first.blurRadius, equals(4));
+    });
+
+    test('parseBoxShadow returns null for relative units', () {
+      expect(StyleParser.parseBoxShadow('10% 10% 10% black'), isNull);
+      expect(StyleParser.parseBoxShadow('10vh 10vh 10vh black'), isNull);
+      expect(StyleParser.parseBoxShadow('10vw 10vw 10vw black'), isNull);
     });
   });
 }

@@ -168,7 +168,7 @@ class TagflowTableBorder extends Equatable {
     // Paint header background if needed
     if (treatFirstRowAsHeader && headerBackgroundColor != null && rows > 0) {
       // extending beyond the padding
-      // TODO: make this configurable
+      // TODO(devaryakjha): make this configurable
       final headerRect = Rect.fromLTWH(
         0,
         0,
@@ -312,6 +312,7 @@ class TagflowTableBorder extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [
         left,
         right,

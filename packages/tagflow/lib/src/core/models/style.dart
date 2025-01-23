@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 
 /// Defines the display type of an element
@@ -112,4 +113,59 @@ enum AlignItems {
 
   /// Items are aligned at their baselines
   baseline,
+}
+
+/// Represents different types of size units
+enum SizeUnit {
+  px,
+  pt,
+  percentage,
+  rem,
+  vh,
+  vw,
+}
+
+/// Represents a size value that can be either absolute or relative
+class SizeValue extends Equatable {
+  const SizeValue(this._value, [this.unit = SizeUnit.px]);
+  final double _value;
+  final SizeUnit unit;
+
+  /// Get the value in pixels
+  ///
+  /// pt is 1.3333333333333333 times larger than px
+  double get value => switch (unit) {
+        SizeUnit.px => _value,
+        SizeUnit.pt => _value * 1.3333333333333333,
+        SizeUnit.percentage => _value,
+        SizeUnit.rem => _value,
+        SizeUnit.vh => _value,
+        SizeUnit.vw => _value,
+      };
+
+  /// Resolves the size value to pixels based on the context
+  double resolve(BuildContext context, {double? parentSize}) {
+    switch (unit) {
+      case SizeUnit.px:
+      case SizeUnit.pt:
+        return value;
+      case SizeUnit.percentage:
+        if (parentSize == null) return 0;
+        return value * parentSize / 100;
+      case SizeUnit.rem:
+        // Get the base font size from the closest MediaQuery
+        final scaler = MediaQuery.textScalerOf(context);
+        return value * scaler.scale(16);
+      case SizeUnit.vh:
+        final mediaQuery = MediaQuery.of(context);
+        return value * mediaQuery.size.height / 100;
+      case SizeUnit.vw:
+        final mediaQuery = MediaQuery.of(context);
+        return value * mediaQuery.size.width / 100;
+    }
+  }
+
+  @override
+  // coverage:ignore-line
+  List<Object?> get props => [value, unit];
 }

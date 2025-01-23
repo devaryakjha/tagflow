@@ -48,6 +48,7 @@ final class TagflowSelectableOptions extends Equatable {
       imageSelectionBehaviorTextBuilder;
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [enabled, imageSelectionBehavior];
 }
 
@@ -132,6 +133,7 @@ final class TagflowOptions extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [
         debug,
         linkTapCallback,

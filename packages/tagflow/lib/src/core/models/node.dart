@@ -68,5 +68,6 @@ abstract class TagflowNode extends Equatable {
   List<Object?> get props => [tag, children, textContent, attributes];
 
   /// Reparent the node
+  // coverage:ignore-line
   TagflowNode reparent([TagflowNode? newParent]);
 }

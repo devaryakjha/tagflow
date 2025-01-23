@@ -4,7 +4,7 @@ import 'package:tagflow/tagflow.dart';
 
 /// Style configuration for HTML elements
 class TagflowStyle extends Equatable {
-  /// Creates a new [TagflowStyle]
+  /// Creates a new [TagflowStyle] with [SizeValue] parameters
   const TagflowStyle({
     this.textStyle,
     this.textScaleFactor,
@@ -25,13 +25,13 @@ class TagflowStyle extends Equatable {
     this.flexDirection,
     this.justifyContent,
     this.alignItems,
-    this.gap,
-    this.width,
-    this.height,
-    this.minWidth,
-    this.minHeight,
-    this.maxWidth,
-    this.maxHeight,
+    SizeValue? gap,
+    SizeValue? width,
+    SizeValue? height,
+    SizeValue? minWidth,
+    SizeValue? minHeight,
+    SizeValue? maxWidth,
+    SizeValue? maxHeight,
     this.aspectRatio,
     this.opacity,
     this.overflow = Clip.hardEdge,
@@ -41,7 +41,92 @@ class TagflowStyle extends Equatable {
     this.cursor,
     this.inherit = true,
     this.softWrap,
-  });
+  })  : _gap = gap,
+        _width = width,
+        _height = height,
+        _minWidth = minWidth,
+        _minHeight = minHeight,
+        _maxWidth = maxWidth,
+        _maxHeight = maxHeight;
+
+  /// Creates a new [TagflowStyle] with pixel values
+  // coverage:ignore-start
+  factory TagflowStyle.pixels({
+    TextStyle? textStyle,
+    double? textScaleFactor,
+    EdgeInsets? padding,
+    EdgeInsets? margin,
+    Color? backgroundColor,
+    Color? color,
+    BorderRadius? borderRadius,
+    Border? border,
+    BorderSide? borderLeft,
+    BorderSide? borderRight,
+    BorderSide? borderTop,
+    BorderSide? borderBottom,
+    List<BoxShadow>? boxShadow,
+    Alignment? alignment,
+    TextAlign? textAlign,
+    Display display = Display.block,
+    Axis? flexDirection,
+    MainAxisAlignment? justifyContent,
+    CrossAxisAlignment? alignItems,
+    double? gap,
+    double? width,
+    double? height,
+    double? minWidth,
+    double? minHeight,
+    double? maxWidth,
+    double? maxHeight,
+    double? aspectRatio,
+    double? opacity,
+    Clip overflow = Clip.hardEdge,
+    Matrix4? transform,
+    AlignmentGeometry? transformAlignment,
+    BoxFit? boxFit,
+    MouseCursor? cursor,
+    bool inherit = true,
+    bool? softWrap,
+  }) {
+    return TagflowStyle(
+      textStyle: textStyle,
+      textScaleFactor: textScaleFactor,
+      padding: padding,
+      margin: margin,
+      backgroundColor: backgroundColor,
+      color: color,
+      borderRadius: borderRadius,
+      border: border,
+      borderLeft: borderLeft,
+      borderRight: borderRight,
+      borderTop: borderTop,
+      borderBottom: borderBottom,
+      boxShadow: boxShadow,
+      alignment: alignment,
+      textAlign: textAlign,
+      display: display,
+      flexDirection: flexDirection,
+      justifyContent: justifyContent,
+      alignItems: alignItems,
+      gap: gap != null ? SizeValue(gap) : null,
+      width: width != null ? SizeValue(width) : null,
+      height: height != null ? SizeValue(height) : null,
+      minWidth: minWidth != null ? SizeValue(minWidth) : null,
+      minHeight: minHeight != null ? SizeValue(minHeight) : null,
+      maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
+      maxHeight: maxHeight != null ? SizeValue(maxHeight) : null,
+      aspectRatio: aspectRatio,
+      opacity: opacity,
+      overflow: overflow,
+      transform: transform,
+      transformAlignment: transformAlignment,
+      boxFit: boxFit,
+      cursor: cursor,
+      inherit: inherit,
+      softWrap: softWrap,
+    );
+  }
+  // coverage:ignore-end
 
   /// Empty style
   static const TagflowStyle empty = TagflowStyle();
@@ -52,7 +137,7 @@ class TagflowStyle extends Equatable {
   /// Text scale factor
   final double? textScaleFactor;
 
-  /// Padding around the content
+  /// Padding around the element
   final EdgeInsets? padding;
 
   /// Margin around the element
@@ -67,7 +152,7 @@ class TagflowStyle extends Equatable {
   /// Border radius
   final BorderRadius? borderRadius;
 
-  /// Border for all sides
+  /// Border
   final Border? border;
 
   /// Left border
@@ -85,7 +170,7 @@ class TagflowStyle extends Equatable {
   /// Box shadow
   final List<BoxShadow>? boxShadow;
 
-  /// Alignment within parent
+  /// Alignment
   final Alignment? alignment;
 
   /// Text alignment
@@ -94,35 +179,56 @@ class TagflowStyle extends Equatable {
   /// Display type
   final Display display;
 
-  /// Flex direction (for flex containers)
+  /// Flex direction
   final Axis? flexDirection;
 
-  /// Main axis alignment (for flex containers)
+  /// Main axis alignment
   final MainAxisAlignment? justifyContent;
 
-  /// Cross axis alignment (for flex containers)
+  /// Cross axis alignment
   final CrossAxisAlignment? alignItems;
 
+  /// Gap between flex items (internal)
+  final SizeValue? _gap;
+
+  /// Width (internal)
+  final SizeValue? _width;
+
+  /// Height (internal)
+  final SizeValue? _height;
+
+  /// Minimum width (internal)
+  final SizeValue? _minWidth;
+
+  /// Minimum height (internal)
+  final SizeValue? _minHeight;
+
+  /// Maximum width (internal)
+  final SizeValue? _maxWidth;
+
+  /// Maximum height (internal)
+  final SizeValue? _maxHeight;
+
   /// Gap between flex items
-  final double? gap;
+  double? get gap => _gap?.value;
 
-  /// Element width
-  final double? width;
+  /// Width
+  double? get width => _width?.value;
 
-  /// Element height
-  final double? height;
+  /// Height
+  double? get height => _height?.value;
 
   /// Minimum width
-  final double? minWidth;
+  double? get minWidth => _minWidth?.value;
 
   /// Minimum height
-  final double? minHeight;
+  double? get minHeight => _minHeight?.value;
 
   /// Maximum width
-  final double? maxWidth;
+  double? get maxWidth => _maxWidth?.value;
 
   /// Maximum height
-  final double? maxHeight;
+  double? get maxHeight => _maxHeight?.value;
 
   /// Aspect ratio
   final double? aspectRatio;
@@ -151,6 +257,35 @@ class TagflowStyle extends Equatable {
   /// Useful for text elements
   final bool? softWrap;
 
+  /// Resolves all size values in the style using the given context
+  TagflowStyle resolveSize(
+    BuildContext context, {
+    double? parentWidth0,
+    double? parentHeight0,
+  }) {
+    final size = MediaQuery.sizeOf(context);
+    final parentWidth = parentWidth0 ?? size.width;
+    final parentHeight = parentHeight0 ?? size.height;
+
+    final gap = _gap?.resolve(context, parentSize: parentWidth);
+    final width = _width?.resolve(context, parentSize: parentWidth);
+    final height = _height?.resolve(context, parentSize: parentHeight);
+    final minWidth = _minWidth?.resolve(context, parentSize: parentWidth);
+    final minHeight = _minHeight?.resolve(context, parentSize: parentHeight);
+    final maxWidth = _maxWidth?.resolve(context, parentSize: parentWidth);
+    final maxHeight = _maxHeight?.resolve(context, parentSize: parentHeight);
+
+    return copyWith(
+      gap: gap != null ? SizeValue(gap) : null,
+      width: width != null ? SizeValue(width) : null,
+      height: height != null ? SizeValue(height) : null,
+      minWidth: minWidth != null ? SizeValue(minWidth) : null,
+      minHeight: minHeight != null ? SizeValue(minHeight) : null,
+      maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
+      maxHeight: maxHeight != null ? SizeValue(maxHeight) : null,
+    );
+  }
+
   /// Creates a copy with some properties replaced
   TagflowStyle copyWith({
     bool? inherit,
@@ -172,13 +307,13 @@ class TagflowStyle extends Equatable {
     Axis? flexDirection,
     MainAxisAlignment? justifyContent,
     CrossAxisAlignment? alignItems,
-    double? gap,
-    double? width,
-    double? height,
-    double? minWidth,
-    double? minHeight,
-    double? maxWidth,
-    double? maxHeight,
+    SizeValue? gap,
+    SizeValue? width,
+    SizeValue? height,
+    SizeValue? minWidth,
+    SizeValue? minHeight,
+    SizeValue? maxWidth,
+    SizeValue? maxHeight,
     double? aspectRatio,
     double? opacity,
     Clip? overflow,
@@ -209,13 +344,13 @@ class TagflowStyle extends Equatable {
       flexDirection: flexDirection ?? this.flexDirection,
       justifyContent: justifyContent ?? this.justifyContent,
       alignItems: alignItems ?? this.alignItems,
-      gap: gap ?? this.gap,
-      width: width ?? this.width,
-      height: height ?? this.height,
-      minWidth: minWidth ?? this.minWidth,
-      minHeight: minHeight ?? this.minHeight,
-      maxWidth: maxWidth ?? this.maxWidth,
-      maxHeight: maxHeight ?? this.maxHeight,
+      gap: gap ?? _gap,
+      width: width ?? _width,
+      height: height ?? _height,
+      minWidth: minWidth ?? _minWidth,
+      minHeight: minHeight ?? _minHeight,
+      maxWidth: maxWidth ?? _maxWidth,
+      maxHeight: maxHeight ?? _maxHeight,
       aspectRatio: aspectRatio ?? this.aspectRatio,
       opacity: opacity ?? this.opacity,
       overflow: overflow ?? this.overflow,
@@ -228,18 +363,13 @@ class TagflowStyle extends Equatable {
     );
   }
 
-  /// Merges two styles, with properties from [other] taking precedence
+  /// Merges this style with another style
   TagflowStyle merge(TagflowStyle? other) {
     if (other == null) return this;
 
-    // If the other style is not inheriting, return it immediately
-    if (!other.inherit) {
-      return other;
-    }
-
-    return TagflowStyle(
-      textStyle:
-          textStyle?.merge(other.textStyle) ?? textStyle ?? other.textStyle,
+    return copyWith(
+      inherit: other.inherit,
+      textStyle: textStyle?.merge(other.textStyle) ?? other.textStyle,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
       backgroundColor: other.backgroundColor ?? backgroundColor,
@@ -257,13 +387,13 @@ class TagflowStyle extends Equatable {
       flexDirection: other.flexDirection ?? flexDirection,
       justifyContent: other.justifyContent ?? justifyContent,
       alignItems: other.alignItems ?? alignItems,
-      gap: other.gap ?? gap,
-      width: other.width ?? width,
-      height: other.height ?? height,
-      minWidth: other.minWidth ?? minWidth,
-      minHeight: other.minHeight ?? minHeight,
-      maxWidth: other.maxWidth ?? maxWidth,
-      maxHeight: other.maxHeight ?? maxHeight,
+      gap: other._gap ?? _gap,
+      width: other._width ?? _width,
+      height: other._height ?? _height,
+      minWidth: other._minWidth ?? _minWidth,
+      minHeight: other._minHeight ?? _minHeight,
+      maxWidth: other._maxWidth ?? _maxWidth,
+      maxHeight: other._maxHeight ?? _maxHeight,
       aspectRatio: other.aspectRatio ?? aspectRatio,
       opacity: other.opacity ?? opacity,
       overflow: other.overflow,
@@ -277,6 +407,7 @@ class TagflowStyle extends Equatable {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [
         textStyle,
         padding,
@@ -296,13 +427,13 @@ class TagflowStyle extends Equatable {
         flexDirection,
         justifyContent,
         alignItems,
-        gap,
-        width,
-        height,
-        minWidth,
-        minHeight,
-        maxWidth,
-        maxHeight,
+        _gap,
+        _width,
+        _height,
+        _minWidth,
+        _minHeight,
+        _maxWidth,
+        _maxHeight,
         aspectRatio,
         opacity,
         overflow,

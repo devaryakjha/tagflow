@@ -125,7 +125,7 @@ abstract class ElementConverter<T extends TagflowNode> {
     bool inherit = true,
   }) {
     return TagflowThemeProvider.of(context)
-        .resolveStyle(element, inherit: inherit);
+        .resolveStyle(element, inherit: inherit, context: context);
   }
 
   @override

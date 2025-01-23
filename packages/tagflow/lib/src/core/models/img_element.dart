@@ -54,5 +54,6 @@ class TagflowImgElement extends TagflowNode {
   }
 
   @override
+  // coverage:ignore-line
   List<Object?> get props => [tag, attributes, src, alt, fit];
 }

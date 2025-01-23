@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -68,44 +69,72 @@ class StyleParser {
   /// Default rem size in pixels
   static const _defaultRemSize = 16.0;
 
-  /// Parse a CSS size value with optional unit
-  static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
+  /// Parse a CSS size value into a SizeValue object that can handle percentage and viewport units
+  static SizeValue? parseSizeValue(
+    String value0, [
+    double remSize = _defaultRemSize,
+  ]) {
     final value = value0.trim().toLowerCase();
 
     // Handle percentage values
-    // TODO(devaryakjha): Fix percentage values
     if (value.endsWith('%')) {
-      // final number = double.tryParse(value.replaceAll('%', ''));
-      // return number != null ? number / 100 : null;
-
-      // temporary fix
-      return null;
+      final number = double.tryParse(value.replaceAll('%', ''));
+      return number != null ? SizeValue(number, SizeUnit.percentage) : null;
     }
 
-    // Handle various units
-    final units = {
-      'px': 1.0,
-      'rem': remSize,
-      'em': remSize,
-      'pt': 4 / 3, // 1pt = 1.333333px (rounded for precision)
-      'vh': 1.0, // TODO(devaryakjha): Implement viewport relative units
-      'vw': 1.0,
-    };
-
-    for (final unit in units.entries) {
-      if (value.endsWith(unit.key)) {
-        final number = double.tryParse(value.replaceAll(unit.key, ''));
-        // Only round non-pixel values to avoid precision issues
-        return number != null
-            ? (unit.key == 'px'
-                ? number
-                : (number * unit.value).roundToDouble())
-            : null;
-      }
+    // Handle rem values
+    if (value.endsWith('rem') || value.endsWith('em')) {
+      final number =
+          double.tryParse(value.replaceAll('rem', '').replaceAll('em', ''));
+      return number != null ? SizeValue(number, SizeUnit.rem) : null;
     }
 
-    // Raw numbers without units are not valid CSS
-    return null;
+    // Handle viewport height
+    if (value.endsWith('vh')) {
+      final number = double.tryParse(value.replaceAll('vh', ''));
+      return number != null ? SizeValue(number, SizeUnit.vh) : null;
+    }
+
+    // Handle viewport width
+    if (value.endsWith('vw')) {
+      final number = double.tryParse(value.replaceAll('vw', ''));
+      return number != null ? SizeValue(number, SizeUnit.vw) : null;
+    }
+
+    // Handle pixel values or raw numbers (default to pixels)
+    if (value.endsWith('px')) {
+      final number = double.tryParse(value.replaceAll('px', ''));
+      return number != null ? SizeValue(number, SizeUnit.px) : null;
+    }
+
+    if (value.endsWith('pt')) {
+      final number = double.tryParse(value.replaceAll('pt', ''));
+      return number != null ? SizeValue(number, SizeUnit.pt) : null;
+    }
+
+    final number = double.tryParse(value);
+    return number != null ? SizeValue(number, SizeUnit.px) : null;
+  }
+
+  /// Parse a CSS size value with optional unit, returning a direct pixel value
+  /// Note: This will return null for percentage and viewport-relative values
+  static double? parseSize(String value0, [double remSize = _defaultRemSize]) {
+    final sizeValue = parseSizeValue(value0, remSize);
+    if (sizeValue == null) return null;
+
+    // Only return absolute pixel values, null for relative values
+    switch (sizeValue.unit) {
+      case SizeUnit.px:
+        return sizeValue.value;
+      case SizeUnit.pt:
+        return sizeValue.value;
+      case SizeUnit.rem:
+        return sizeValue.value * remSize;
+      case SizeUnit.percentage:
+      case SizeUnit.vh:
+      case SizeUnit.vw:
+        return null;
+    }
   }
 
   /// Parse CSS font-weight value
@@ -199,97 +228,135 @@ class StyleParser {
 
   /// Parse CSS border-radius value
   static BorderRadius? parseBorderRadius(String value) {
-    // Handle special case for '0'
     if (value == '0') return null;
-    final size = parseSize(value);
-    return size != null ? BorderRadius.circular(size) : null;
+    final sizeValue = parseSizeValue(value);
+    if (sizeValue == null) return null;
+
+    // For border-radius, we can only use absolute values
+    switch (sizeValue.unit) {
+      case SizeUnit.px:
+      case SizeUnit.pt:
+        return BorderRadius.circular(sizeValue.value);
+      case SizeUnit.rem:
+        return BorderRadius.circular(sizeValue.value * _defaultRemSize);
+      case SizeUnit.percentage:
+      case SizeUnit.vh:
+      case SizeUnit.vw:
+        return null;
+    }
   }
 
-  /// Parse CSS border e.g. 1px solid #ddd or 1px solid red
+  /// Parse CSS border value
   static Border? parseBorder(String value) {
-    // Try parsing as a BorderSide first
-    final borderSide = parseBorderSide(value);
-    if (borderSide != null) {
-      return Border.fromBorderSide(borderSide);
+    final parts = value.split(' ');
+    if (parts.length < 2) return null;
+
+    final sizeValue = parseSizeValue(parts[0]);
+    if (sizeValue == null) return null;
+
+    final style = parts[1].toLowerCase();
+    final color = parts.length > 2 ? parseColor(parts[2]) : Colors.black;
+
+    // For border width, we can only use absolute values
+    double? width;
+    switch (sizeValue.unit) {
+      case SizeUnit.pt:
+      case SizeUnit.px:
+        width = sizeValue.value;
+      case SizeUnit.rem:
+        width = sizeValue.value * _defaultRemSize;
+      case SizeUnit.percentage:
+      case SizeUnit.vh:
+      case SizeUnit.vw:
+        return null;
     }
 
-    final parts = value.split(' ');
-    if (parts.length < 2) return null;
-
-    // Parse width without rounding
-    final width = parts[0].endsWith('px')
-        ? double.tryParse(parts[0].replaceAll('px', ''))
-        : parseSize(parts[0]);
-    final style = parts[1].toLowerCase();
-
-    // For dashed style, use black as default color if not specified
-    final color = style == 'dashed'
-        ? (parts.length > 2 ? parseColor(parts[2]) : const Color(0xFF000000))
-        : (parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]));
-
-    if (width == null && color == null) return null;
-
-    return Border.all(
-      width: width ?? 1.0,
-      color: color ?? const Color(0xFF000000),
-      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
-    );
+    switch (style) {
+      case 'solid':
+        return Border.all(
+          width: width,
+          color: color ?? Colors.black,
+        );
+      case 'none':
+        return null;
+      default:
+        return null;
+    }
   }
 
-  /// Parse CSS border
-  static BorderSide? parseBorderSide(String value) {
-    final parts = value.split(' ');
-    if (parts.length < 2) return null;
-
-    // Parse width without rounding
-    final width = parts[0].endsWith('px')
-        ? double.tryParse(parts[0].replaceAll('px', ''))
-        : parseSize(parts[0]);
-    final style = parts[1].toLowerCase();
-
-    // For dashed style, use black as default color if not specified
-    final color = style == 'dashed'
-        ? (parts.length > 2 ? parseColor(parts[2]) : const Color(0xFF000000))
-        : (parts.length > 2 ? parseColor(parts[2]) : parseColor(parts[1]));
-
-    if (width == null && color == null) return null;
-
-    return BorderSide(
-      width: width ?? 0,
-      color: color ?? const Color(0xFF000000),
-      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
-    );
-  }
-
-  /// Parse CSS box shadow
+  /// Parse CSS box-shadow value
   static List<BoxShadow>? parseBoxShadow(String value) {
     final shadows = <BoxShadow>[];
     // Split on comma that's not inside parentheses
     final shadowStrings = value.split(RegExp(r',(?![^(]*\))'));
 
-    for (final shadow in shadowStrings) {
-      final parts = shadow.trim().split(' ');
+    for (final shadowString in shadowStrings) {
+      final parts = shadowString.trim().split(' ');
       if (parts.length < 4) continue;
 
       try {
-        final x = parseSize(parts[0]) ?? 0;
-        final y = parseSize(parts[1]) ?? 0;
-        final blur = parseSize(parts[2]) ?? 0;
-        final spread = parts.length > 3 ? (parseSize(parts[3]) ?? 0) : 0.0;
-        final colorStr = parts.length > 4 ? parts[4] : 'rgba(0,0,0,0.2)';
-        final color = parseColor(colorStr);
+        final xValue = parseSizeValue(parts[0]);
+        final yValue = parseSizeValue(parts[1]);
+        final blurValue = parseSizeValue(parts[2]);
+        final spreadValue = parts.length > 3
+            ? parseSizeValue(parts[3]) ?? const SizeValue(0, SizeUnit.px)
+            : const SizeValue(0, SizeUnit.px);
 
-        if (color == null) continue;
+        // For box shadow, we can only use absolute values
+        double? x;
+        double? y;
+        double? blur;
+        double? spread;
+
+        if (xValue != null) {
+          if (xValue.unit == SizeUnit.px) {
+            x = xValue.value;
+          } else if (xValue.unit == SizeUnit.rem) {
+            x = xValue.value * _defaultRemSize;
+          }
+        }
+
+        if (yValue != null) {
+          if (yValue.unit == SizeUnit.px) {
+            y = yValue.value;
+          } else if (yValue.unit == SizeUnit.rem) {
+            y = yValue.value * _defaultRemSize;
+          }
+        }
+
+        if (blurValue != null) {
+          if (blurValue.unit == SizeUnit.px) {
+            blur = blurValue.value;
+          } else if (blurValue.unit == SizeUnit.rem) {
+            blur = blurValue.value * _defaultRemSize;
+          }
+        }
+
+        if (spreadValue.unit == SizeUnit.px) {
+          spread = spreadValue.value;
+        } else if (spreadValue.unit == SizeUnit.rem) {
+          spread = spreadValue.value * _defaultRemSize;
+        }
+
+        if (x == null || y == null || blur == null || spread == null) {
+          continue;
+        }
+
+        final colorStr = parts
+                .any((part) => RegExp(r'rgba?\(|#').hasMatch(part))
+            ? parts.firstWhere((part) => RegExp(r'rgba?\(|#').hasMatch(part))
+            : 'rgba(0,0,0,0.2)';
+        final color = parseColor(colorStr);
 
         shadows.add(
           BoxShadow(
-            color: color,
+            color: color ?? Colors.black.withOpacity(0.2),
             offset: Offset(x, y),
             blurRadius: blur,
             spreadRadius: spread,
           ),
         );
-      } catch (_) {
+      } catch (e) {
         continue;
       }
     }
@@ -404,6 +471,38 @@ class StyleParser {
         _ => null,
       };
 
+  /// Parse CSS border-side value (e.g., '1px solid black')
+  static BorderSide? parseBorderSide(String value) {
+    final parts = value.split(' ');
+    if (parts.length < 2) return null;
+
+    final sizeValue = parseSizeValue(parts[0]);
+    if (sizeValue == null) return null;
+
+    final style = parts[1].toLowerCase();
+    final color = parts.length > 2 ? parseColor(parts[2]) : Colors.black;
+
+    // For border width, we can only use absolute values
+    double? width;
+    switch (sizeValue.unit) {
+      case SizeUnit.px:
+      case SizeUnit.pt:
+        width = sizeValue.value;
+      case SizeUnit.rem:
+        width = sizeValue.value * _defaultRemSize;
+      case SizeUnit.percentage:
+      case SizeUnit.vh:
+      case SizeUnit.vw:
+        return null;
+    }
+
+    return BorderSide(
+      width: width,
+      color: color ?? Colors.black,
+      style: style == 'dashed' ? BorderStyle.none : BorderStyle.solid,
+    );
+  }
+
   /// Parse inline style string into TagflowStyle
   static TagflowStyle? parseInlineStyle(
     String styleString, [
@@ -459,18 +558,21 @@ class StyleParser {
       alignItems: styles['align-items'] != null
           ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
           : null,
-      gap: styles['gap'] != null ? parseSize(styles['gap']!) : null,
-      width: styles['width'] != null ? parseSize(styles['width']!) : null,
-      height: styles['height'] != null ? parseSize(styles['height']!) : null,
-      minWidth:
-          styles['min-width'] != null ? parseSize(styles['min-width']!) : null,
-      minHeight: styles['min-height'] != null
-          ? parseSize(styles['min-height']!)
+      gap: styles['gap'] != null ? parseSizeValue(styles['gap']!) : null,
+      width: styles['width'] != null ? parseSizeValue(styles['width']!) : null,
+      height:
+          styles['height'] != null ? parseSizeValue(styles['height']!) : null,
+      minWidth: styles['min-width'] != null
+          ? parseSizeValue(styles['min-width']!)
           : null,
-      maxWidth:
-          styles['max-width'] != null ? parseSize(styles['max-width']!) : null,
+      minHeight: styles['min-height'] != null
+          ? parseSizeValue(styles['min-height']!)
+          : null,
+      maxWidth: styles['max-width'] != null
+          ? parseSizeValue(styles['max-width']!)
+          : null,
       maxHeight: styles['max-height'] != null
-          ? parseSize(styles['max-height']!)
+          ? parseSizeValue(styles['max-height']!)
           : null,
       aspectRatio: styles['aspect-ratio'] != null
           ? double.tryParse(styles['aspect-ratio']!)
