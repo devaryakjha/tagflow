@@ -1,3 +1,8 @@
+## 0.0.1-dev.17
+
+ - **FEAT**(style): enhance size handling with SizeValue integration. ([41c12f9f](https://github.com/devaryakjha/tagflow/commit/41c12f9f92a1e4a9f36030ea16244d497c7d5b76))
+ - **FEAT**(style): introduce SizeValue class and enhance size parsing. ([cb7a973e](https://github.com/devaryakjha/tagflow/commit/cb7a973ec3ce0589930e8bf7c97fd7051a0fe488))
+
 ## 0.0.1-dev.16
 
  - **FEAT**(tagflow_parser): improve node validation to exclude specific tags. ([eb0a566c](https://github.com/devaryakjha/tagflow/commit/eb0a566c86fc66c409af88db10d454eb9e0e3e8f))
