@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-01-23
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`tagflow` - `v0.0.1-dev.17`](#tagflow---v001-dev17)
+ - [`tagflow_table` - `v0.0.2-dev.6`](#tagflow_table---v002-dev6)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `tagflow_table` - `v0.0.2-dev.6`
+
+---
+
+#### `tagflow` - `v0.0.1-dev.17`
+
+ - **FEAT**(style): enhance size handling with SizeValue integration. ([41c12f9f](https://github.com/devaryakjha/tagflow/commit/41c12f9f92a1e4a9f36030ea16244d497c7d5b76))
+ - **FEAT**(style): introduce SizeValue class and enhance size parsing. ([cb7a973e](https://github.com/devaryakjha/tagflow/commit/cb7a973ec3ce0589930e8bf7c97fd7051a0fe488))
+
+
 ## 2025-01-21
 
 ### Changes
