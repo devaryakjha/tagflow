@@ -1,3 +1,7 @@
+## 0.0.2-dev.6
+
+ - Update a dependency to the latest release.
+
 ## 0.0.2-dev.5
 
  - **FEAT**(tagflow_table): enhance column width calculation for flexible layouts. ([4c0e3d77](https://github.com/devaryakjha/tagflow/commit/4c0e3d7757b8db5d0e8a33c0b2df29c0f005baad))
