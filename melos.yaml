@@ -10,7 +10,7 @@ command:
   version:
     linkToCommits: true
     workspaceChangelog: true
-    releaseUrl: true 
+    releaseUrl: true
 
 scripts:
   analyze:
@@ -66,7 +66,7 @@ scripts:
 
   version:stable:
     # Version packages for stable release
-    run: melos version --yes
+    run: melos version --graduate --yes
     description: Version packages for stable release
 
   publish:

@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Git Tags
         run: |
-          melos version --yes --no-git-tag-version -r
+          melos version --graduate --yes --no-git-tag-version -r
           melos exec -c 1 "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION" || true
           git push origin --tags
 
@@ -86,6 +86,6 @@ jobs:
 
       - name: Create Git Tags
         run: |
-          melos version --yes --no-git-tag-version --prerelease -r
+          melos version --yes --no-git-tag-version --prerelease -r --preid=dev
           melos exec -c 1 "git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION" || true
           git push origin --tags
