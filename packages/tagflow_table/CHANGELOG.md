@@ -1,3 +1,8 @@
+## 0.0.2
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+ - Update a dependency to the latest release.
+
 ## 0.0.2-dev.6
 
  - Update a dependency to the latest release.
