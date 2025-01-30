@@ -69,7 +69,8 @@ class StyleParser {
   /// Default rem size in pixels
   static const _defaultRemSize = 16.0;
 
-  /// Parse a CSS size value into a SizeValue object that can handle percentage and viewport units
+  /// Parse a CSS size value into a SizeValue
+  /// object that can handle percentage and viewport units
   static SizeValue? parseSizeValue(
     String value0, [
     double remSize = _defaultRemSize,
@@ -104,7 +105,7 @@ class StyleParser {
     // Handle pixel values or raw numbers (default to pixels)
     if (value.endsWith('px')) {
       final number = double.tryParse(value.replaceAll('px', ''));
-      return number != null ? SizeValue(number, SizeUnit.px) : null;
+      return number != null ? SizeValue(number) : null;
     }
 
     if (value.endsWith('pt')) {
@@ -113,7 +114,7 @@ class StyleParser {
     }
 
     final number = double.tryParse(value);
-    return number != null ? SizeValue(number, SizeUnit.px) : null;
+    return number != null ? SizeValue(number) : null;
   }
 
   /// Parse a CSS size value with optional unit, returning a direct pixel value
@@ -299,8 +300,8 @@ class StyleParser {
         final yValue = parseSizeValue(parts[1]);
         final blurValue = parseSizeValue(parts[2]);
         final spreadValue = parts.length > 3
-            ? parseSizeValue(parts[3]) ?? const SizeValue(0, SizeUnit.px)
-            : const SizeValue(0, SizeUnit.px);
+            ? parseSizeValue(parts[3]) ?? const SizeValue(0)
+            : const SizeValue(0);
 
         // For box shadow, we can only use absolute values
         double? x;
@@ -350,6 +351,7 @@ class StyleParser {
 
         shadows.add(
           BoxShadow(
+            // ignore: deprecated_member_use
             color: color ?? Colors.black.withOpacity(0.2),
             offset: Offset(x, y),
             blurRadius: blur,
