@@ -1,3 +1,7 @@
+## 0.0.3
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.3-dev.0
 
  - **FEAT**(tagflow_table): add column and row spacing properties to TagflowTable. ([66989cf5](https://github.com/devaryakjha/tagflow/commit/66989cf5e67805c2b472dcfccd9bed84158fdf8d))
