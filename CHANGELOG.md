@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow_table` - `v0.0.3-dev.0`](#tagflow_table---v003-dev0)
+
+---
+
+#### `tagflow_table` - `v0.0.3-dev.0`
+
+ - **FEAT**(tagflow_table): add column and row spacing properties to TagflowTable. ([66989cf5](https://github.com/devaryakjha/tagflow/commit/66989cf5e67805c2b472dcfccd9bed84158fdf8d))
+
+
+## 2025-01-30
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.1-dev.0+1`](#tagflow---v001-dev01)
  - [`tagflow_table` - `v0.0.2-dev.0+1`](#tagflow_table---v002-dev01)
 
