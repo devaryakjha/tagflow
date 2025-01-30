@@ -367,8 +367,11 @@ class TagflowStyle extends Equatable {
   TagflowStyle merge(TagflowStyle? other) {
     if (other == null) return this;
 
+    if (!other.inherit) {
+      return other;
+    }
+
     return copyWith(
-      inherit: other.inherit,
       textStyle: textStyle?.merge(other.textStyle) ?? other.textStyle,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
