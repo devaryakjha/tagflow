@@ -1,3 +1,7 @@
+## 0.0.1+1
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.1-dev.0+1
 
  - **FIX**(style): simplify SizeValue instantiation by removing unit specification. ([8b58622b](https://github.com/devaryakjha/tagflow/commit/8b58622b113098eb08eb69fc1af3fef6e8994c20))
