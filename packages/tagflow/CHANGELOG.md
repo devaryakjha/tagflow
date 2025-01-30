@@ -1,3 +1,8 @@
+## 0.0.1-dev.0+1
+
+ - **FIX**(style): simplify SizeValue instantiation by removing unit specification. ([8b58622b](https://github.com/devaryakjha/tagflow/commit/8b58622b113098eb08eb69fc1af3fef6e8994c20))
+ - **FIX**(style): update merge logic to respect inherit property in TagflowStyle. ([739be1f7](https://github.com/devaryakjha/tagflow/commit/739be1f75327d2da51390473b1b02031679ac8db))
+
 ## 0.0.1
 
  - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
