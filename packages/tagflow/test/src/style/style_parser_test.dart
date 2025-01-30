@@ -641,7 +641,7 @@ void main() {
       );
 
       // Test pixel values
-      const pixelSize = SizeValue(100, SizeUnit.px);
+      const pixelSize = SizeValue(100);
       expect(pixelSize.resolve(capturedContext), equals(100));
 
       // Test percentage values
@@ -677,7 +677,7 @@ void main() {
       expect(zeroSize.resolve(capturedContext, parentSize: 200), equals(0));
 
       // Test negative values
-      const negativeSize = SizeValue(-10, SizeUnit.px);
+      const negativeSize = SizeValue(-10);
       expect(negativeSize.resolve(capturedContext), equals(-10));
     });
   });
