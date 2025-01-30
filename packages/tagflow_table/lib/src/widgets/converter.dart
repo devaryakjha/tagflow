@@ -30,6 +30,8 @@ final class TagflowTableConverter
     this.headerBackgroundColor,
     this.treatFirstRowAsHeader = false,
     this.separatorBuilder,
+    this.columnSpacing,
+    this.rowSpacing,
   });
 
   /// The background color of the header row.
@@ -46,6 +48,11 @@ final class TagflowTableConverter
   ///
   /// The separator is placed between each row.
   final material.IndexedWidgetBuilder? separatorBuilder;
+
+  final double? columnSpacing;
+
+  /// 
+  final double? rowSpacing;
 
   @override
   Set<String> get supportedTags => {'table'};
@@ -171,6 +178,8 @@ final class TagflowTableConverter
         headerBackgroundColor: headerBackgroundColor,
         padding: style.padding ?? material.EdgeInsets.zero,
         separatorBuilder: separatorBuilder,
+        columnSpacing: columnSpacing ?? 0,
+        rowSpacing: rowSpacing ?? 0,
         children: cells,
       ),
     );

@@ -72,6 +72,8 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
     this.headerBackgroundColor,
     this.padding = EdgeInsets.zero,
     this.separatorBuilder,
+    this.columnSpacing = 0.0,  // Add this
+    this.rowSpacing = 0.0,     // Add this
   })  : border = border ?? TagflowTableBorder.none,
         super(children: children);
 
@@ -82,6 +84,8 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
   final Color? headerBackgroundColor;
   final EdgeInsets padding;
   final IndexedWidgetBuilder? separatorBuilder;
+  final double columnSpacing;
+  final double rowSpacing;
 
   @override
   RenderTagflowTable createRenderObject(BuildContext context) {
@@ -91,7 +95,9 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
       ..setTreatFirstRowAsHeader(value: treatFirstRowAsHeader)
       ..setHeaderBackgroundColor(headerBackgroundColor)
       ..setSeparatorBuilder(separatorBuilder)
-      ..setPadding(padding);
+      ..setPadding(padding)
+      ..setColumnSpacing(columnSpacing)  // Add this
+      ..setRowSpacing(rowSpacing);       // Add this
   }
 
   @override
@@ -105,7 +111,9 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
       ..setTreatFirstRowAsHeader(value: treatFirstRowAsHeader)
       ..setHeaderBackgroundColor(headerBackgroundColor)
       ..setSeparatorBuilder(separatorBuilder)
-      ..setPadding(padding);
+      ..setPadding(padding)
+      ..setColumnSpacing(columnSpacing)  // Add this
+      ..setRowSpacing(rowSpacing);       // Add this
   }
 
   @override
@@ -128,6 +136,8 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
           headerBackgroundColor,
         ),
       )
-      ..add(DiagnosticsProperty<EdgeInsets>('padding', padding));
+      ..add(DiagnosticsProperty<EdgeInsets>('padding', padding))
+      ..add(DoubleProperty('columnSpacing', columnSpacing))
+      ..add(DoubleProperty('rowSpacing', rowSpacing));
   }
 }
