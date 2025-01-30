@@ -13,7 +13,7 @@ dependencies:
   go_router: ^14.6.2
   google_fonts: ^6.2.1
   tagflow: ^0.0.1-dev.0+1
-  tagflow_table: ^0.0.2-dev.0+1
+  tagflow_table: ^0.0.2-dev.1
   url_launcher: ^6.3.1
 
 dev_dependencies:
