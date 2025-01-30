@@ -336,6 +336,10 @@ class RenderTagflowTable extends RenderBox
   Color? _headerBackgroundColor;
   EdgeInsets _padding = EdgeInsets.zero;
   IndexedWidgetBuilder? _separatorBuilder;
+  double _columnSpacing = 0;
+  double _rowSpacing = 0;
+
+  static const double _minimumColumnWidth = 40; // Adjust as needed
 
   void setSeparatorBuilder(IndexedWidgetBuilder? value) {
     if (_separatorBuilder == value) return;
@@ -378,6 +382,18 @@ class RenderTagflowTable extends RenderBox
     markNeedsPaint();
   }
 
+  void setColumnSpacing(double value) {
+    if (_columnSpacing == value) return;
+    _columnSpacing = value;
+    markNeedsLayout();
+  }
+
+  void setRowSpacing(double value) {
+    if (_rowSpacing == value) return;
+    _rowSpacing = value;
+    markNeedsLayout();
+  }
+
   @override
   void setupParentData(RenderBox child) {
     if (child.parentData is! TableCellData) {
@@ -391,6 +407,12 @@ class RenderTagflowTable extends RenderBox
       size = constraints.smallest;
       return;
     }
+
+    // Calculate total spacing needed between columns
+    final totalColumnSpacing = (_columnCount - 1) * _columnSpacing;
+    
+    // Calculate available width for columns after accounting for spacing and padding
+    final availableWidth = constraints.maxWidth - totalColumnSpacing - _padding.horizontal;
 
     // First pass: Calculate minimum and preferred column widths
     _columnWidths = List<double>.filled(_columnCount, 0);
@@ -407,39 +429,47 @@ class RenderTagflowTable extends RenderBox
         // Update minimum widths
         for (var i = 0; i < childParentData.colSpan; i++) {
           final colIndex = childParentData.column + i;
-          _columnWidths[colIndex] =
-              _columnWidths[colIndex].clamp(widthPerColumn, double.infinity);
-
+          _columnWidths[colIndex] = math.max(_columnWidths[colIndex], widthPerColumn);
+          
           // Track how flexible each column is based on content
           final flexibility = (maxWidth - minWidth) / childParentData.colSpan;
-          columnFlexibility[colIndex] =
-              math.max(columnFlexibility[colIndex], flexibility);
+          columnFlexibility[colIndex] = math.max(columnFlexibility[colIndex], flexibility);
         }
       }
       child = childParentData.nextSibling;
     }
 
-    // Calculate total minimum width and distribute extra space
-    final totalMinWidth =
-        _columnWidths.reduce((a, b) => a + b) + _padding.horizontal;
-    final extraWidth =
-        (constraints.maxWidth - totalMinWidth).clamp(0.0, double.infinity);
-
-    if (extraWidth > 0) {
-      // Calculate total flexibility
+    // Calculate total current width and adjust if needed
+    final totalColumnWidth = _columnWidths.reduce((a, b) => a + b);
+    
+    if (totalColumnWidth > availableWidth) {
+      // Need to shrink columns - distribute reduction proportionally
+      final reduction = totalColumnWidth - availableWidth;
+      
+      // Calculate shrink factors based on current widths
+      final totalWidth = _columnWidths.reduce((a, b) => a + b);
+      for (var i = 0; i < _columnCount; i++) {
+        final proportion = _columnWidths[i] / totalWidth;
+        _columnWidths[i] = math.max(
+          _minimumColumnWidth,
+          _columnWidths[i] - (reduction * proportion),
+        );
+      }
+    } else if (totalColumnWidth < availableWidth) {
+      // Extra space available - distribute using flexibility
+      final extraWidth = availableWidth - totalColumnWidth;
       final totalFlexibility = columnFlexibility.reduce((a, b) => a + b);
 
       if (totalFlexibility > 0) {
-        // Distribute extra space proportionally to column flexibility
         for (var i = 0; i < _columnCount; i++) {
           final proportion = columnFlexibility[i] / totalFlexibility;
           _columnWidths[i] += extraWidth * proportion;
         }
       } else {
-        // If no flexible columns found, distribute evenly
-        final widthPerColumn = extraWidth / _columnCount;
+        // If no flexible columns, distribute evenly
+        final extraPerColumn = extraWidth / _columnCount;
         for (var i = 0; i < _columnCount; i++) {
-          _columnWidths[i] += widthPerColumn;
+          _columnWidths[i] += extraPerColumn;
         }
       }
     }
@@ -489,26 +519,32 @@ class RenderTagflowTable extends RenderBox
         }
         childParentData.offset = Offset(0, y);
       } else {
-        // Calculate cell width and height
+        // Calculate cell width and height including spacing
         var width = 0.0;
         for (var i = 0; i < childParentData.colSpan; i++) {
           width += _columnWidths[childParentData.column + i];
+          if (i < childParentData.colSpan - 1) {
+            width += _columnSpacing;
+          }
         }
 
         var height = 0.0;
         for (var i = 0; i < childParentData.rowSpan; i++) {
           height += _rowHeights[childParentData.row + i];
+          if (i < childParentData.rowSpan - 1) {
+            height += _rowSpacing;
+          }
         }
 
-        // Calculate cell position
+        // Calculate cell position with spacing
         var x = _padding.left;
         for (var i = 0; i < childParentData.column; i++) {
-          x += _columnWidths[i];
+          x += _columnWidths[i] + _columnSpacing;
         }
 
         var y = _padding.top;
         for (var i = 0; i < childParentData.row; i++) {
-          y += _rowHeights[i];
+          y += _rowHeights[i] + _rowSpacing;
         }
 
         // Layout child with tight constraints to prevent overflow
@@ -519,13 +555,15 @@ class RenderTagflowTable extends RenderBox
       child = childParentData.nextSibling;
     }
 
-    // Set table size
-    size = constraints.constrain(
-      Size(
-        _columnWidths.reduce((a, b) => a + b) + _padding.horizontal,
-        _rowHeights.reduce((a, b) => a + b) + _padding.vertical,
-      ),
-    );
+    // Update final table size to include spacing
+    final tableWidth = _columnWidths.reduce((a, b) => a + b) + 
+        (_columnCount - 1) * _columnSpacing + 
+        _padding.horizontal;
+    final tableHeight = _rowHeights.reduce((a, b) => a + b) + 
+        (_rowCount - 1) * _rowSpacing + 
+        _padding.vertical;
+
+    size = constraints.constrain(Size(tableWidth, tableHeight));
   }
 
   @override
@@ -753,6 +791,7 @@ class RenderTagflowTable extends RenderBox
               rowHeights[childParentData.row + i]
                   .clamp(childHeight, double.infinity);
         }
+      child = childParentData.nextSibling;
       }
       child = childParentData.nextSibling;
     }
