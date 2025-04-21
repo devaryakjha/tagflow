@@ -111,8 +111,11 @@ class TagflowTableBorder extends Equatable {
       right: BorderSide.lerp(a.right, b.right, t),
       top: BorderSide.lerp(a.top, b.top, t),
       bottom: BorderSide.lerp(a.bottom, b.bottom, t),
-      horizontalInside:
-          BorderSide.lerp(a.horizontalInside, b.horizontalInside, t),
+      horizontalInside: BorderSide.lerp(
+        a.horizontalInside,
+        b.horizontalInside,
+        t,
+      ),
       verticalInside: BorderSide.lerp(a.verticalInside, b.verticalInside, t),
     );
   }
@@ -169,16 +172,8 @@ class TagflowTableBorder extends Equatable {
     if (treatFirstRowAsHeader && headerBackgroundColor != null && rows > 0) {
       // extending beyond the padding
       // TODO(devaryakjha): make this configurable
-      final headerRect = Rect.fromLTWH(
-        0,
-        0,
-        rect.width,
-        rowHeights[0],
-      );
-      canvas.drawRect(
-        headerRect,
-        Paint()..color = headerBackgroundColor,
-      );
+      final headerRect = Rect.fromLTWH(0, 0, rect.width, rowHeights[0]);
+      canvas.drawRect(headerRect, Paint()..color = headerBackgroundColor);
     }
 
     // Paint outer borders
@@ -216,8 +211,10 @@ class TagflowTableBorder extends Equatable {
 
     // Paint inner borders
     if (horizontalInside != BorderSide.none && rows > 1) {
-      _horizontalInsidePaint =
-          _getPaint(horizontalInside, _horizontalInsidePaint);
+      _horizontalInsidePaint = _getPaint(
+        horizontalInside,
+        _horizontalInsidePaint,
+      );
       var y = rowHeights[0];
       for (var i = 1; i < rows; i++) {
         // Find segments where we should draw the horizontal line
@@ -314,13 +311,13 @@ class TagflowTableBorder extends Equatable {
   @override
   // coverage:ignore-line
   List<Object?> get props => [
-        left,
-        right,
-        top,
-        bottom,
-        horizontalInside,
-        verticalInside,
-      ];
+    left,
+    right,
+    top,
+    bottom,
+    horizontalInside,
+    verticalInside,
+  ];
 }
 
 class RenderTagflowTable extends RenderBox
@@ -410,9 +407,11 @@ class RenderTagflowTable extends RenderBox
 
     // Calculate total spacing needed between columns
     final totalColumnSpacing = (_columnCount - 1) * _columnSpacing;
-    
-    // Calculate available width for columns after accounting for spacing and padding
-    final availableWidth = constraints.maxWidth - totalColumnSpacing - _padding.horizontal;
+
+    // Calculate available width for columns after accounting for
+    // spacing and padding
+    final availableWidth =
+        constraints.maxWidth - totalColumnSpacing - _padding.horizontal;
 
     // First pass: Calculate minimum and preferred column widths
     _columnWidths = List<double>.filled(_columnCount, 0);
@@ -429,11 +428,17 @@ class RenderTagflowTable extends RenderBox
         // Update minimum widths
         for (var i = 0; i < childParentData.colSpan; i++) {
           final colIndex = childParentData.column + i;
-          _columnWidths[colIndex] = math.max(_columnWidths[colIndex], widthPerColumn);
-          
+          _columnWidths[colIndex] = math.max(
+            _columnWidths[colIndex],
+            widthPerColumn,
+          );
+
           // Track how flexible each column is based on content
           final flexibility = (maxWidth - minWidth) / childParentData.colSpan;
-          columnFlexibility[colIndex] = math.max(columnFlexibility[colIndex], flexibility);
+          columnFlexibility[colIndex] = math.max(
+            columnFlexibility[colIndex],
+            flexibility,
+          );
         }
       }
       child = childParentData.nextSibling;
@@ -441,11 +446,11 @@ class RenderTagflowTable extends RenderBox
 
     // Calculate total current width and adjust if needed
     final totalColumnWidth = _columnWidths.reduce((a, b) => a + b);
-    
+
     if (totalColumnWidth > availableWidth) {
       // Need to shrink columns - distribute reduction proportionally
       final reduction = totalColumnWidth - availableWidth;
-      
+
       // Calculate shrink factors based on current widths
       final totalWidth = _columnWidths.reduce((a, b) => a + b);
       for (var i = 0; i < _columnCount; i++) {
@@ -490,9 +495,11 @@ class RenderTagflowTable extends RenderBox
         final childHeight =
             child.getMinIntrinsicHeight(cellWidth) / childParentData.rowSpan;
         for (var i = 0; i < childParentData.rowSpan; i++) {
-          _rowHeights[childParentData.row + i] =
-              _rowHeights[childParentData.row + i]
-                  .clamp(childHeight, double.infinity);
+          _rowHeights[childParentData.row +
+              i] = _rowHeights[childParentData.row + i].clamp(
+            childHeight,
+            double.infinity,
+          );
         }
       }
       child = childParentData.nextSibling;
@@ -556,11 +563,13 @@ class RenderTagflowTable extends RenderBox
     }
 
     // Update final table size to include spacing
-    final tableWidth = _columnWidths.reduce((a, b) => a + b) + 
-        (_columnCount - 1) * _columnSpacing + 
+    final tableWidth =
+        _columnWidths.reduce((a, b) => a + b) +
+        (_columnCount - 1) * _columnSpacing +
         _padding.horizontal;
-    final tableHeight = _rowHeights.reduce((a, b) => a + b) + 
-        (_rowCount - 1) * _rowSpacing + 
+    final tableHeight =
+        _rowHeights.reduce((a, b) => a + b) +
+        (_rowCount - 1) * _rowSpacing +
         _padding.vertical;
 
     size = constraints.constrain(Size(tableWidth, tableHeight));
@@ -571,12 +580,7 @@ class RenderTagflowTable extends RenderBox
     // First paint the table background and borders
     _border.paint(
       context.canvas,
-      Rect.fromLTWH(
-        offset.dx,
-        offset.dy,
-        size.width,
-        size.height,
-      ),
+      Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
       rows: _rowCount,
       columns: _columnCount,
       cellData: _buildCellDataGrid(),
@@ -732,13 +736,17 @@ class RenderTagflowTable extends RenderBox
         // Update minimum widths
         for (var i = 0; i < childParentData.colSpan; i++) {
           final colIndex = childParentData.column + i;
-          _columnWidths[colIndex] =
-              _columnWidths[colIndex].clamp(widthPerColumn, double.infinity);
+          _columnWidths[colIndex] = _columnWidths[colIndex].clamp(
+            widthPerColumn,
+            double.infinity,
+          );
 
           // Track how flexible each column is based on content
           final flexibility = (maxWidth - minWidth) / childParentData.colSpan;
-          columnFlexibility[colIndex] =
-              math.max(columnFlexibility[colIndex], flexibility);
+          columnFlexibility[colIndex] = math.max(
+            columnFlexibility[colIndex],
+            flexibility,
+          );
         }
       }
       child = childParentData.nextSibling;
@@ -747,8 +755,10 @@ class RenderTagflowTable extends RenderBox
     // Calculate total minimum width and distribute extra space
     final totalMinWidth =
         _columnWidths.reduce((a, b) => a + b) + _padding.horizontal;
-    final extraWidth =
-        (constraints.maxWidth - totalMinWidth).clamp(0.0, double.infinity);
+    final extraWidth = (constraints.maxWidth - totalMinWidth).clamp(
+      0.0,
+      double.infinity,
+    );
 
     if (extraWidth > 0) {
       // Calculate total flexibility
@@ -782,16 +792,17 @@ class RenderTagflowTable extends RenderBox
         }
 
         // Get the height needed for this width
-        final childHeight = child
+        final childHeight =
+            child
                 .getDryLayout(BoxConstraints.tightFor(width: cellWidth))
                 .height /
             childParentData.rowSpan;
         for (var i = 0; i < childParentData.rowSpan; i++) {
-          rowHeights[childParentData.row + i] =
-              rowHeights[childParentData.row + i]
-                  .clamp(childHeight, double.infinity);
+          rowHeights[childParentData.row + i] = rowHeights[childParentData.row +
+                  i]
+              .clamp(childHeight, double.infinity);
         }
-      child = childParentData.nextSibling;
+        child = childParentData.nextSibling;
       }
       child = childParentData.nextSibling;
     }
