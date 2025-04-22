@@ -1,3 +1,7 @@
+## 0.0.4+1
+
+- Update `tagflow` dependency
+
 ## 0.0.4
 
 - Update flutter version to 3.29.2
