@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Error widget builder for handling parsing/conversion errors
-typedef ErrorWidgetBuilder = Widget Function(
-  BuildContext context,
-  Object? error,
-);
+typedef ErrorWidgetBuilder =
+    Widget Function(BuildContext context, Object? error);
 
 /// Default error widget builder
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
@@ -84,7 +82,7 @@ class _TagflowState extends State<Tagflow> {
 
   Future<void> _parseHtml() async {
     try {
-      const parser = TagflowParser();
+      final parser = TagflowParser(debug: widget.options.debug);
       _element = await compute(parser.parse, widget.html);
       _error = null;
     } catch (e, stack) {
@@ -116,12 +114,13 @@ class _TagflowState extends State<Tagflow> {
   Widget build(BuildContext context) {
     return TagflowScope(
       options: widget.options,
-      child: widget.theme != null
-          ? TagflowThemeProvider(
-              theme: widget.theme!,
-              child: Builder(builder: _buildContent),
-            )
-          : Builder(builder: _buildContent),
+      child:
+          widget.theme != null
+              ? TagflowThemeProvider(
+                theme: widget.theme!,
+                child: Builder(builder: _buildContent),
+              )
+              : Builder(builder: _buildContent),
     );
   }
 

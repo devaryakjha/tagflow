@@ -1,8 +1,8 @@
 // ignore_for_file: cascade_invocations
 
 import 'dart:collection';
+import 'dart:developer' show log;
 
-import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/dom_parsing.dart';
 import 'package:html/parser.dart' as html;
@@ -10,21 +10,16 @@ import 'package:tagflow/tagflow.dart';
 
 /// Parses HTML string into TagflowElement
 class TagflowParser {
-  const TagflowParser({
-    List<NodeParser>? parsers,
-  }) : _parsers = parsers ??
-            const [
-              ElementParser(),
-              TableParser(),
-              ImgParser(),
-            ];
+  const TagflowParser({List<NodeParser>? parsers, this.debug = false})
+    : _parsers = parsers ?? const [ElementParser(), TableParser(), ImgParser()];
 
   final List<NodeParser> _parsers;
+  final bool debug;
 
   TagflowNode parse(String input) {
     final document = html.parse(input);
 
-    if (kDebugMode) {
+    if (debug) {
       _Visitor().visit(document);
     }
 
@@ -100,10 +95,6 @@ class TagflowParser {
 
 class _Visitor extends TreeVisitor {
   String indent = '';
-
-  void log(String message) {
-    if (kDebugMode) print(message);
-  }
 
   @override
   void visitText(dom.Text node) {
