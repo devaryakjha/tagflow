@@ -1,5 +1,9 @@
 ## 0.0.2+1
 
+- `TagflowParser` now honors the `debug` flag from `TagflowOptions`
+
+## 0.0.2+1
+
 - Update flutter version to 3.29.2
 
 ## 0.0.1+1
