@@ -1,3 +1,8 @@
+## 0.0.3-dev.0+1
+
+ - **FIX**(tagflow): remove unnecessary whitespace in _parseHtml method. ([0598eb40](https://github.com/devaryakjha/tagflow/commit/0598eb40bcb351988c2e9dc90d82f8ff51b2b59c))
+ - **FIX**(tagflow): streamline HTML parsing by reusing parser instance. ([9f823bd8](https://github.com/devaryakjha/tagflow/commit/9f823bd86016613d76b3026bc9c525bde2857c5a))
+
 ## 0.0.3
 
  - **REFACTOR**(parser): simplify constructor and improve debug handling. ([fa5c05e1](https://github.com/devaryakjha/tagflow/commit/fa5c05e175ffae3cc067f207f92f61d15ed53677))

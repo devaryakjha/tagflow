@@ -1,3 +1,7 @@
+## 0.0.4-dev.0+3
+
+ - Update a dependency to the latest release.
+
 ## 0.0.4+2
 
  - **REFACTOR**(tagflow_table): improve code readability by formatting and simplifying expressions. ([9658521f](https://github.com/devaryakjha/tagflow/commit/9658521fb9b340c3a29af41fec1ae682bf812a35))

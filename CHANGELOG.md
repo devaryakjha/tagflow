@@ -15,6 +15,35 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow` - `v0.0.3-dev.0+1`](#tagflow---v003-dev01)
+ - [`tagflow_table` - `v0.0.4-dev.0+3`](#tagflow_table---v004-dev03)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `tagflow_table` - `v0.0.4-dev.0+3`
+
+---
+
+#### `tagflow` - `v0.0.3-dev.0+1`
+
+ - **FIX**(tagflow): remove unnecessary whitespace in _parseHtml method. ([0598eb40](https://github.com/devaryakjha/tagflow/commit/0598eb40bcb351988c2e9dc90d82f8ff51b2b59c))
+ - **FIX**(tagflow): streamline HTML parsing by reusing parser instance. ([9f823bd8](https://github.com/devaryakjha/tagflow/commit/9f823bd86016613d76b3026bc9c525bde2857c5a))
+
+
+## 2025-05-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.3`](#tagflow---v003)
  - [`tagflow_table` - `v0.0.4+2`](#tagflow_table---v0042)
 
