@@ -74,10 +74,12 @@ class TextConverter extends ElementConverter<TagflowElement> {
         textScaler: _getTextScaler(style),
         style: getTextStyle(element, style, context),
         softWrap: style.softWrap,
+        maxLines: style.maxTextLines,
       ),
       element,
       context,
       style,
+      
     );
   }
 

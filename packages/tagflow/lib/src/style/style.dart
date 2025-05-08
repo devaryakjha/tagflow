@@ -7,6 +7,7 @@ class TagflowStyle extends Equatable {
   /// Creates a new [TagflowStyle] with [SizeValue] parameters
   const TagflowStyle({
     this.textStyle,
+    this.maxTextLines,
     this.textScaleFactor,
     this.padding,
     this.margin,
@@ -53,6 +54,7 @@ class TagflowStyle extends Equatable {
   // coverage:ignore-start
   factory TagflowStyle.pixels({
     TextStyle? textStyle,
+    int? maxTextLines,
     double? textScaleFactor,
     EdgeInsets? padding,
     EdgeInsets? margin,
@@ -90,6 +92,7 @@ class TagflowStyle extends Equatable {
   }) {
     return TagflowStyle(
       textStyle: textStyle,
+      maxTextLines: maxTextLines,
       textScaleFactor: textScaleFactor,
       padding: padding,
       margin: margin,
@@ -133,6 +136,9 @@ class TagflowStyle extends Equatable {
 
   /// Text style
   final TextStyle? textStyle;
+
+  /// Maximum number of lines for text
+  final int? maxTextLines;
 
   /// Text scale factor
   final double? textScaleFactor;
@@ -290,6 +296,7 @@ class TagflowStyle extends Equatable {
   TagflowStyle copyWith({
     bool? inherit,
     TextStyle? textStyle,
+    int? maxTextLines,
     EdgeInsets? padding,
     EdgeInsets? margin,
     Color? backgroundColor,
@@ -327,6 +334,7 @@ class TagflowStyle extends Equatable {
     return TagflowStyle(
       inherit: inherit ?? this.inherit,
       textStyle: textStyle ?? this.textStyle,
+      maxTextLines: maxTextLines ?? this.maxTextLines,
       padding: padding ?? this.padding,
       margin: margin ?? this.margin,
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -373,6 +381,7 @@ class TagflowStyle extends Equatable {
 
     return copyWith(
       textStyle: textStyle?.merge(other.textStyle) ?? other.textStyle,
+      maxTextLines: other.maxTextLines ?? maxTextLines,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
       backgroundColor: other.backgroundColor ?? backgroundColor,
@@ -413,6 +422,7 @@ class TagflowStyle extends Equatable {
   // coverage:ignore-line
   List<Object?> get props => [
         textStyle,
+        maxTextLines,
         padding,
         margin,
         backgroundColor,
