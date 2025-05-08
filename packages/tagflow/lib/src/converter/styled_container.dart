@@ -60,7 +60,6 @@ class StyledContainer extends StatelessWidget {
       return content;
     }
 
-
     return Container(
       padding: style.padding,
       margin: style.margin,
