@@ -1,3 +1,7 @@
+## 0.0.4+4
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.4-dev.0+4
 
  - Update a dependency to the latest release.

@@ -1,3 +1,7 @@
+## 0.0.3+2
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.3-dev.0+2
 
  - **FIX**(styled_container): remove unnecessary blank line before container return. ([cf0b4a2d](https://github.com/devaryakjha/tagflow/commit/cf0b4a2d5ce98f6a7dfb193c7bf2b451dd1f82e7))
