@@ -45,4 +45,6 @@ publish:
 	melos run publish
 	@echo "Packages published!"
 
+release: test format version-stable publish
+
 .PHONY: create_package sync-git activate-melos
