@@ -56,6 +56,7 @@ class Tagflow extends StatefulWidget {
 
 class _TagflowState extends State<Tagflow> {
   late TagflowConverter _converter;
+  late TagflowParser parser = TagflowParser(debug: widget.options.debug);
   TagflowNode? _element;
   Object? _error;
 
@@ -80,10 +81,9 @@ class _TagflowState extends State<Tagflow> {
     }
   }
 
-  Future<void> _parseHtml() async {
+  void _parseHtml()  {
     try {
-      final parser = TagflowParser(debug: widget.options.debug);
-      _element = await compute(parser.parse, widget.html);
+      _element = parser.parse(widget.html);
       _error = null;
     } catch (e, stack) {
       _error = e;
