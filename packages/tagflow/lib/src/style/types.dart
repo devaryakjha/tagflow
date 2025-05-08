@@ -16,22 +16,22 @@ extension FlexTypeExtensions on FlexDirection {
 extension JustifyContentExtensions on JustifyContent {
   /// Convert to Flutter's [MainAxisAlignment]
   MainAxisAlignment toMainAxisAlignment() => switch (this) {
-        JustifyContent.start => MainAxisAlignment.start,
-        JustifyContent.end => MainAxisAlignment.end,
-        JustifyContent.center => MainAxisAlignment.center,
-        JustifyContent.spaceBetween => MainAxisAlignment.spaceBetween,
-        JustifyContent.spaceAround => MainAxisAlignment.spaceAround,
-        JustifyContent.spaceEvenly => MainAxisAlignment.spaceEvenly,
-      };
+    JustifyContent.start => MainAxisAlignment.start,
+    JustifyContent.end => MainAxisAlignment.end,
+    JustifyContent.center => MainAxisAlignment.center,
+    JustifyContent.spaceBetween => MainAxisAlignment.spaceBetween,
+    JustifyContent.spaceAround => MainAxisAlignment.spaceAround,
+    JustifyContent.spaceEvenly => MainAxisAlignment.spaceEvenly,
+  };
 }
 
 extension AlignItemsExtensions on AlignItems {
   /// Convert to Flutter's [CrossAxisAlignment]
   CrossAxisAlignment toCrossAxisAlignment() => switch (this) {
-        AlignItems.start => CrossAxisAlignment.start,
-        AlignItems.end => CrossAxisAlignment.end,
-        AlignItems.center => CrossAxisAlignment.center,
-        AlignItems.stretch => CrossAxisAlignment.stretch,
-        AlignItems.baseline => CrossAxisAlignment.baseline,
-      };
+    AlignItems.start => CrossAxisAlignment.start,
+    AlignItems.end => CrossAxisAlignment.end,
+    AlignItems.center => CrossAxisAlignment.center,
+    AlignItems.stretch => CrossAxisAlignment.stretch,
+    AlignItems.baseline => CrossAxisAlignment.baseline,
+  };
 }

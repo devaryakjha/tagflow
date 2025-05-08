@@ -85,8 +85,9 @@ class StyleParser {
 
     // Handle rem values
     if (value.endsWith('rem') || value.endsWith('em')) {
-      final number =
-          double.tryParse(value.replaceAll('rem', '').replaceAll('em', ''));
+      final number = double.tryParse(
+        value.replaceAll('rem', '').replaceAll('em', ''),
+      );
       return number != null ? SizeValue(number, SizeUnit.rem) : null;
     }
 
@@ -199,30 +200,31 @@ class StyleParser {
 
   /// Parse CSS edge insets (margin, padding)
   static EdgeInsets? parseEdgeInsets(String value) {
-    final parts = value.split(' ').map((s) {
-      // Handle special case for '0'
-      if (s == '0') return null;
-      return parseSize(s);
-    }).toList();
+    final parts =
+        value.split(' ').map((s) {
+          // Handle special case for '0'
+          if (s == '0') return null;
+          return parseSize(s);
+        }).toList();
 
     return switch (parts.length) {
       1 when parts[0] != null => EdgeInsets.all(parts[0]!),
       2 when parts.every((e) => e != null) => EdgeInsets.symmetric(
-          vertical: parts[0]!,
-          horizontal: parts[1]!,
-        ),
+        vertical: parts[0]!,
+        horizontal: parts[1]!,
+      ),
       3 when parts.every((e) => e != null) => EdgeInsets.only(
-          top: parts[0]!,
-          right: parts[1]!,
-          left: parts[1]!,
-          bottom: parts[2]!,
-        ),
+        top: parts[0]!,
+        right: parts[1]!,
+        left: parts[1]!,
+        bottom: parts[2]!,
+      ),
       4 when parts.every((e) => e != null) => EdgeInsets.fromLTRB(
-          parts[0]!,
-          parts[1]!,
-          parts[2]!,
-          parts[3]!,
-        ),
+        parts[0]!,
+        parts[1]!,
+        parts[2]!,
+        parts[3]!,
+      ),
       _ => null,
     };
   }
@@ -274,10 +276,7 @@ class StyleParser {
 
     switch (style) {
       case 'solid':
-        return Border.all(
-          width: width,
-          color: color ?? Colors.black,
-        );
+        return Border.all(width: width, color: color ?? Colors.black);
       case 'none':
         return null;
       default:
@@ -299,9 +298,10 @@ class StyleParser {
         final xValue = parseSizeValue(parts[0]);
         final yValue = parseSizeValue(parts[1]);
         final blurValue = parseSizeValue(parts[2]);
-        final spreadValue = parts.length > 3
-            ? parseSizeValue(parts[3]) ?? const SizeValue(0)
-            : const SizeValue(0);
+        final spreadValue =
+            parts.length > 3
+                ? parseSizeValue(parts[3]) ?? const SizeValue(0)
+                : const SizeValue(0);
 
         // For box shadow, we can only use absolute values
         double? x;
@@ -343,10 +343,12 @@ class StyleParser {
           continue;
         }
 
-        final colorStr = parts
-                .any((part) => RegExp(r'rgba?\(|#').hasMatch(part))
-            ? parts.firstWhere((part) => RegExp(r'rgba?\(|#').hasMatch(part))
-            : 'rgba(0,0,0,0.2)';
+        final colorStr =
+            parts.any((part) => RegExp(r'rgba?\(|#').hasMatch(part))
+                ? parts.firstWhere(
+                  (part) => RegExp(r'rgba?\(|#').hasMatch(part),
+                )
+                : 'rgba(0,0,0,0.2)';
         final color = parseColor(colorStr);
 
         shadows.add(
@@ -433,45 +435,45 @@ class StyleParser {
 
   /// Parse CSS display value
   static Display parseDisplay(String value) => switch (value.toLowerCase()) {
-        'block' => Display.block,
-        'inline' => Display.inline,
-        'flex' => Display.flex,
-        'none' => Display.none,
-        _ => Display.block,
-      };
+    'block' => Display.block,
+    'inline' => Display.inline,
+    'flex' => Display.flex,
+    'none' => Display.none,
+    _ => Display.block,
+  };
 
   /// Parse CSS flex-direction value
-  static FlexDirection? parseFlexDirection(String value) =>
-      switch (value.toLowerCase()) {
-        'row' => FlexDirection.row,
-        'row-reverse' => FlexDirection.rowReverse,
-        'column' => FlexDirection.column,
-        'column-reverse' => FlexDirection.columnReverse,
-        _ => null,
-      };
+  static FlexDirection? parseFlexDirection(String value) => switch (value
+      .toLowerCase()) {
+    'row' => FlexDirection.row,
+    'row-reverse' => FlexDirection.rowReverse,
+    'column' => FlexDirection.column,
+    'column-reverse' => FlexDirection.columnReverse,
+    _ => null,
+  };
 
   /// Parse CSS justify-content value
-  static JustifyContent? parseJustifyContent(String value) =>
-      switch (value.toLowerCase()) {
-        'flex-start' || 'start' => JustifyContent.start,
-        'flex-end' || 'end' => JustifyContent.end,
-        'center' => JustifyContent.center,
-        'space-between' => JustifyContent.spaceBetween,
-        'space-around' => JustifyContent.spaceAround,
-        'space-evenly' => JustifyContent.spaceEvenly,
-        _ => null,
-      };
+  static JustifyContent? parseJustifyContent(String value) => switch (value
+      .toLowerCase()) {
+    'flex-start' || 'start' => JustifyContent.start,
+    'flex-end' || 'end' => JustifyContent.end,
+    'center' => JustifyContent.center,
+    'space-between' => JustifyContent.spaceBetween,
+    'space-around' => JustifyContent.spaceAround,
+    'space-evenly' => JustifyContent.spaceEvenly,
+    _ => null,
+  };
 
   /// Parse CSS align-items value
-  static AlignItems? parseAlignItems(String value) =>
-      switch (value.toLowerCase()) {
-        'flex-start' || 'start' => AlignItems.start,
-        'flex-end' || 'end' => AlignItems.end,
-        'center' => AlignItems.center,
-        'stretch' => AlignItems.stretch,
-        'baseline' => AlignItems.baseline,
-        _ => null,
-      };
+  static AlignItems? parseAlignItems(String value) => switch (value
+      .toLowerCase()) {
+    'flex-start' || 'start' => AlignItems.start,
+    'flex-end' || 'end' => AlignItems.end,
+    'center' => AlignItems.center,
+    'stretch' => AlignItems.stretch,
+    'baseline' => AlignItems.baseline,
+    _ => null,
+  };
 
   /// Parse CSS border-side value (e.g., '1px solid black')
   static BorderSide? parseBorderSide(String value) {
@@ -515,80 +517,102 @@ class StyleParser {
 
     return TagflowStyle(
       textStyle: _parseTextStyle(styles, theme),
-      padding: styles['padding'] != null
-          ? parseEdgeInsets(styles['padding']!)
-          : null,
+      padding:
+          styles['padding'] != null
+              ? parseEdgeInsets(styles['padding']!)
+              : null,
       margin:
           styles['margin'] != null ? parseEdgeInsets(styles['margin']!) : null,
-      backgroundColor: styles['background-color'] != null
-          ? parseColor(styles['background-color']!, theme?.namedColors)
-          : null,
-      color: styles['color'] != null
-          ? parseColor(styles['color']!, theme?.namedColors)
-          : null,
-      borderRadius: styles['border-radius'] != null
-          ? parseBorderRadius(styles['border-radius']!)
-          : null,
+      backgroundColor:
+          styles['background-color'] != null
+              ? parseColor(styles['background-color']!, theme?.namedColors)
+              : null,
+      color:
+          styles['color'] != null
+              ? parseColor(styles['color']!, theme?.namedColors)
+              : null,
+      borderRadius:
+          styles['border-radius'] != null
+              ? parseBorderRadius(styles['border-radius']!)
+              : null,
       border: styles['border'] != null ? parseBorder(styles['border']!) : null,
-      borderLeft: styles['border-left'] != null
-          ? parseBorderSide(styles['border-left']!)
-          : null,
-      borderRight: styles['border-right'] != null
-          ? parseBorderSide(styles['border-right']!)
-          : null,
-      borderTop: styles['border-top'] != null
-          ? parseBorderSide(styles['border-top']!)
-          : null,
-      borderBottom: styles['border-bottom'] != null
-          ? parseBorderSide(styles['border-bottom']!)
-          : null,
-      boxShadow: styles['box-shadow'] != null
-          ? parseBoxShadow(styles['box-shadow']!)
-          : null,
+      borderLeft:
+          styles['border-left'] != null
+              ? parseBorderSide(styles['border-left']!)
+              : null,
+      borderRight:
+          styles['border-right'] != null
+              ? parseBorderSide(styles['border-right']!)
+              : null,
+      borderTop:
+          styles['border-top'] != null
+              ? parseBorderSide(styles['border-top']!)
+              : null,
+      borderBottom:
+          styles['border-bottom'] != null
+              ? parseBorderSide(styles['border-bottom']!)
+              : null,
+      boxShadow:
+          styles['box-shadow'] != null
+              ? parseBoxShadow(styles['box-shadow']!)
+              : null,
       alignment: _parseAlignment(styles),
-      textAlign: styles['text-align'] != null
-          ? parseTextAlign(styles['text-align']!)
-          : null,
+      textAlign:
+          styles['text-align'] != null
+              ? parseTextAlign(styles['text-align']!)
+              : null,
       display: parseDisplay(styles['display'] ?? 'block'),
-      flexDirection: styles['flex-direction'] != null
-          ? _parseFlexDirection(styles['flex-direction']!)
-          : null,
-      justifyContent: styles['justify-content'] != null
-          ? parseJustifyContent(styles['justify-content']!)
-              ?.toMainAxisAlignment()
-          : null,
-      alignItems: styles['align-items'] != null
-          ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
-          : null,
+      flexDirection:
+          styles['flex-direction'] != null
+              ? _parseFlexDirection(styles['flex-direction']!)
+              : null,
+      justifyContent:
+          styles['justify-content'] != null
+              ? parseJustifyContent(
+                styles['justify-content']!,
+              )?.toMainAxisAlignment()
+              : null,
+      alignItems:
+          styles['align-items'] != null
+              ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
+              : null,
       gap: styles['gap'] != null ? parseSizeValue(styles['gap']!) : null,
       width: styles['width'] != null ? parseSizeValue(styles['width']!) : null,
       height:
           styles['height'] != null ? parseSizeValue(styles['height']!) : null,
-      minWidth: styles['min-width'] != null
-          ? parseSizeValue(styles['min-width']!)
-          : null,
-      minHeight: styles['min-height'] != null
-          ? parseSizeValue(styles['min-height']!)
-          : null,
-      maxWidth: styles['max-width'] != null
-          ? parseSizeValue(styles['max-width']!)
-          : null,
-      maxHeight: styles['max-height'] != null
-          ? parseSizeValue(styles['max-height']!)
-          : null,
-      aspectRatio: styles['aspect-ratio'] != null
-          ? double.tryParse(styles['aspect-ratio']!)
-          : null,
-      opacity: styles['opacity'] != null
-          ? double.tryParse(styles['opacity']!)
-          : null,
+      minWidth:
+          styles['min-width'] != null
+              ? parseSizeValue(styles['min-width']!)
+              : null,
+      minHeight:
+          styles['min-height'] != null
+              ? parseSizeValue(styles['min-height']!)
+              : null,
+      maxWidth:
+          styles['max-width'] != null
+              ? parseSizeValue(styles['max-width']!)
+              : null,
+      maxHeight:
+          styles['max-height'] != null
+              ? parseSizeValue(styles['max-height']!)
+              : null,
+      aspectRatio:
+          styles['aspect-ratio'] != null
+              ? double.tryParse(styles['aspect-ratio']!)
+              : null,
+      opacity:
+          styles['opacity'] != null
+              ? double.tryParse(styles['opacity']!)
+              : null,
       overflow: styles['overflow'] == 'visible' ? Clip.none : Clip.hardEdge,
-      transform: styles['transform'] != null
-          ? parseTransform(styles['transform']!)
-          : null,
-      boxFit: styles['object-fit'] != null
-          ? parseBoxFit(styles['object-fit']!)
-          : null,
+      transform:
+          styles['transform'] != null
+              ? parseTransform(styles['transform']!)
+              : null,
+      boxFit:
+          styles['object-fit'] != null
+              ? parseBoxFit(styles['object-fit']!)
+              : null,
       cursor: styles['cursor'] != null ? _parseCursor(styles['cursor']!) : null,
     );
   }
@@ -601,9 +625,10 @@ class StyleParser {
           .map((s) => s.trim())
           .where((s) => s.isNotEmpty)
           .map((declaration) {
-        final parts = declaration.split(':').map((s) => s.trim()).toList();
-        return parts.length == 2 ? MapEntry(parts[0], parts[1]) : null;
-      }).whereType<MapEntry<String, String>>(),
+            final parts = declaration.split(':').map((s) => s.trim()).toList();
+            return parts.length == 2 ? MapEntry(parts[0], parts[1]) : null;
+          })
+          .whereType<MapEntry<String, String>>(),
     );
   }
 
@@ -613,20 +638,24 @@ class StyleParser {
     TagflowTheme? theme,
   ) {
     return TextStyle(
-      color: styles['color'] != null
-          ? parseColor(styles['color']!, theme?.namedColors)
-          : null,
+      color:
+          styles['color'] != null
+              ? parseColor(styles['color']!, theme?.namedColors)
+              : null,
       fontSize:
           styles['font-size'] != null ? parseSize(styles['font-size']!) : null,
-      fontWeight: styles['font-weight'] != null
-          ? parseFontWeight(styles['font-weight']!)
-          : null,
-      fontStyle: styles['font-style'] != null
-          ? parseFontStyle(styles['font-style']!)
-          : null,
-      decoration: styles['text-decoration'] != null
-          ? parseTextDecoration(styles['text-decoration']!)
-          : null,
+      fontWeight:
+          styles['font-weight'] != null
+              ? parseFontWeight(styles['font-weight']!)
+              : null,
+      fontStyle:
+          styles['font-style'] != null
+              ? parseFontStyle(styles['font-style']!)
+              : null,
+      decoration:
+          styles['text-decoration'] != null
+              ? parseTextDecoration(styles['text-decoration']!)
+              : null,
     );
   }
 

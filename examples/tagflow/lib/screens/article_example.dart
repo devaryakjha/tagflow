@@ -76,9 +76,7 @@ final class ArticleExample extends ExamplePage {
             theme.styles['blockquote'] ?? TagflowStyle.empty;
 
         final effectiveQuoteStyle = blockquoteStyle.merge(
-          const TagflowStyle(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-          ),
+          const TagflowStyle(padding: EdgeInsets.symmetric(horizontal: 8)),
         );
 
         return {
@@ -96,9 +94,7 @@ final class ArticleExample extends ExamplePage {
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
           ),
-          'blockquote p': const TagflowStyle(
-            margin: EdgeInsets.zero,
-          ),
+          'blockquote p': const TagflowStyle(margin: EdgeInsets.zero),
         };
       },
     );

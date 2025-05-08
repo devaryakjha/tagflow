@@ -21,12 +21,8 @@ void main() {
       const theme = TagflowTheme.raw(
         defaultStyle: TagflowStyle.empty,
         styles: {
-          'blockquote': TagflowStyle(
-            backgroundColor: Colors.grey,
-          ),
-          'blockquote p': TagflowStyle(
-            margin: EdgeInsets.zero,
-          ),
+          'blockquote': TagflowStyle(backgroundColor: Colors.grey),
+          'blockquote p': TagflowStyle(margin: EdgeInsets.zero),
         },
       );
 
@@ -45,9 +41,7 @@ void main() {
 
       final element = TagflowElement(
         tag: 'div',
-        attributes: LinkedHashMap.from({
-          'style': 'color: red; padding: 10px',
-        }),
+        attributes: LinkedHashMap.from({'style': 'color: red; padding: 10px'}),
       );
 
       final resolvedStyle = theme.resolveStyle(element, inherit: true);
@@ -55,9 +49,7 @@ void main() {
     });
 
     test('includes default named colors', () {
-      final theme = TagflowTheme.fromTheme(
-        ThemeData.light(),
-      );
+      final theme = TagflowTheme.fromTheme(ThemeData.light());
 
       expect(theme.namedColors['red'], Colors.red);
       expect(theme.namedColors['green'], Colors.green);
@@ -134,23 +126,20 @@ void main() {
         defaultStyle: TagflowStyle.empty,
         styles: {
           'p': TagflowStyle(margin: EdgeInsets.all(8)),
-          'p:first-child': TagflowStyle(
-            margin: EdgeInsets.zero,
-          ),
-          'p:last-child': TagflowStyle(
-            margin: EdgeInsets.zero,
-          ),
+          'p:first-child': TagflowStyle(margin: EdgeInsets.zero),
+          'p:last-child': TagflowStyle(margin: EdgeInsets.zero),
         },
       );
 
-      final parent = const TagflowElement(
-        tag: 'div',
-        children: [
-          TagflowElement(tag: 'p', attributes: {'id': 'first'}),
-          TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
-          TagflowElement(tag: 'p', attributes: {'id': 'last'}),
-        ],
-      ).reparent();
+      final parent =
+          const TagflowElement(
+            tag: 'div',
+            children: [
+              TagflowElement(tag: 'p', attributes: {'id': 'first'}),
+              TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
+              TagflowElement(tag: 'p', attributes: {'id': 'last'}),
+            ],
+          ).reparent();
 
       final firstChild = parent.children.first;
       final middleChild = parent.children[1];
@@ -158,10 +147,7 @@ void main() {
 
       // First child should have no top margin
       final firstStyle = theme.resolveStyle(firstChild, inherit: true);
-      expect(
-        firstStyle.margin,
-        EdgeInsets.zero,
-      );
+      expect(firstStyle.margin, EdgeInsets.zero);
 
       // Middle child should have all margins
       final middleStyle = theme.resolveStyle(middleChild, inherit: true);
@@ -169,10 +155,7 @@ void main() {
 
       // Last child should have no bottom margin
       final lastStyle = theme.resolveStyle(lastChild, inherit: true);
-      expect(
-        lastStyle.margin,
-        EdgeInsets.zero,
-      );
+      expect(lastStyle.margin, EdgeInsets.zero);
     });
   });
 }

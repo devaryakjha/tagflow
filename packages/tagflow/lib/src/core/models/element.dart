@@ -11,15 +11,12 @@ class TagflowElement extends TagflowNode {
     List<TagflowNode>? children,
     Map<String, String>? attributes,
     super.parent,
-  })  : _children = children ?? const [],
-        _attributes = attributes ?? const {};
+  }) : _children = children ?? const [],
+       _attributes = attributes ?? const {};
 
   /// Factory constructor for text nodes
   factory TagflowElement.text(String content) {
-    return TagflowElement(
-      tag: '#text',
-      textContent: content,
-    );
+    return TagflowElement(tag: '#text', textContent: content);
   }
 
   /// Factory constructor for empty elements

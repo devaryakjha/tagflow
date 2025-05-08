@@ -32,9 +32,7 @@ class _TagflowExampleState extends State<TagflowExample> {
       future: pendingFonts,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
         return MaterialApp.router(
           theme: AppTheme.theme,

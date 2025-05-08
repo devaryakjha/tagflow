@@ -17,9 +17,7 @@ final class ListConverter extends ElementConverter<TagflowElement> {
     final children = converter.convertChildren(element.children, context);
 
     return StyledContainer(
-      style: style.copyWith(
-        padding: EdgeInsets.zero,
-      ),
+      style: style.copyWith(padding: EdgeInsets.zero),
       tag: element.tag,
       child: ListView(
         padding: style.padding ?? EdgeInsets.zero,
@@ -43,9 +41,7 @@ final class ListItemConverter extends TextConverter {
     const noSpace = '\u00A0\u00A0';
     if (isOrdered) {
       final index = element.parent?.children.indexOf(element) ?? 0;
-      return TextSpan(
-        text: '${index + 1}.$noSpace',
-      );
+      return TextSpan(text: '${index + 1}.$noSpace');
     }
     return const TextSpan(text: '•$noSpace');
   }

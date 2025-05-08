@@ -22,15 +22,15 @@ abstract class ExamplePage extends StatefulWidget {
     return TagflowTheme.fromTheme(
       theme,
       codeStyle: codeTextTheme.bodyMedium,
-      inlineCodePadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      inlineCodePadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 4,
+      ),
     );
   }
 
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Text(title),
-    );
+    return AppBar(title: Text(title));
   }
 
   @override
@@ -66,9 +66,7 @@ class _ExamplePageState extends State<ExamplePage> {
               converters: widget.converters,
               theme: widget.createTheme(context),
               options: TagflowOptions(
-                selectable: const TagflowSelectableOptions(
-                  enabled: true,
-                ),
+                selectable: const TagflowSelectableOptions(enabled: true),
                 linkTapCallback: (url, attributes) async {
                   if (await canLaunchUrlString(url)) {
                     await launchUrlString(url);
@@ -90,9 +88,7 @@ final class _PlaceholderExample extends ExamplePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Placeholder'),
-      ),
+      appBar: AppBar(title: const Text('Placeholder')),
       body: const Placeholder(),
     );
   }

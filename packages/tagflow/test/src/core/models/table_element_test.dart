@@ -103,9 +103,7 @@ void main() {
         rows: [
           TagflowElement(
             tag: 'tr',
-            children: [
-              TagflowElement(tag: 'td', textContent: 'Cell'),
-            ],
+            children: [TagflowElement(tag: 'td', textContent: 'Cell')],
           ),
         ],
         spans: {'0:0': CellSpan(rowSpan: 1, colSpan: 1)},
@@ -153,9 +151,7 @@ void main() {
       final newRows = [
         const TagflowElement(
           tag: 'tr',
-          children: [
-            TagflowElement(tag: 'td', textContent: 'New Cell'),
-          ],
+          children: [TagflowElement(tag: 'td', textContent: 'New Cell')],
         ),
       ];
 

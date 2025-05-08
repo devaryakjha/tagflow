@@ -71,10 +71,7 @@ class TagflowTableElement extends TagflowNode {
 }
 
 class CellSpan {
-  const CellSpan({
-    required this.rowSpan,
-    required this.colSpan,
-  });
+  const CellSpan({required this.rowSpan, required this.colSpan});
 
   final int rowSpan;
   final int colSpan;

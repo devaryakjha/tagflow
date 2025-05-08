@@ -38,8 +38,10 @@ final class ImgConverter extends ElementConverter<TagflowImgElement> {
       case TagflowImageSelectionBehavior.altTextOnly:
         return element.alt;
       case TagflowImageSelectionBehavior.custom:
-        return options?.selectable.imageSelectionBehaviorTextBuilder
-            ?.call(element, context);
+        return options?.selectable.imageSelectionBehaviorTextBuilder?.call(
+          element,
+          context,
+        );
       case null:
         return null;
     }

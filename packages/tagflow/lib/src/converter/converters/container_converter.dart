@@ -7,15 +7,15 @@ class ContainerConverter extends ElementConverter<TagflowElement> {
 
   @override
   Set<String> get supportedTags => {
-        'div',
-        'section',
-        'article',
-        'aside',
-        'nav',
-        'header',
-        'footer',
-        'main',
-      };
+    'div',
+    'section',
+    'article',
+    'aside',
+    'nav',
+    'header',
+    'footer',
+    'main',
+  };
 
   @override
   Widget convert(

@@ -67,15 +67,11 @@ void main() {
         rows: [
           TagflowElement(
             tag: 'tr',
-            children: [
-              TagflowElement(tag: 'td', textContent: 'Cell'),
-            ],
+            children: [TagflowElement(tag: 'td', textContent: 'Cell')],
           ),
         ],
         spans: {},
-        attributes: {
-          'style': 'border: 1px solid black; background-color: red',
-        },
+        attributes: {'style': 'border: 1px solid black; background-color: red'},
       );
 
       await tester.pumpWidget(
@@ -85,9 +81,7 @@ void main() {
               theme: TagflowTheme.raw(
                 defaultStyle: TagflowStyle.empty,
                 styles: {
-                  'table': TagflowStyle(
-                    border: Border.all(color: Colors.blue),
-                  ),
+                  'table': TagflowStyle(border: Border.all(color: Colors.blue)),
                 },
               ),
               child: Builder(
@@ -115,15 +109,11 @@ void main() {
 
     test('forces widget span for td and th', () {
       expect(
-        converter.shouldForceWidgetSpan(
-          const TagflowElement(tag: 'td'),
-        ),
+        converter.shouldForceWidgetSpan(const TagflowElement(tag: 'td')),
         true,
       );
       expect(
-        converter.shouldForceWidgetSpan(
-          const TagflowElement(tag: 'th'),
-        ),
+        converter.shouldForceWidgetSpan(const TagflowElement(tag: 'th')),
         true,
       );
     });

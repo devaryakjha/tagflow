@@ -127,9 +127,7 @@ class TagflowTheme extends Equatable {
         padding: defaultPadding ?? defaultSpacing,
       ),
       styles: {
-        'p': TagflowStyle(
-          margin: paragraphMargin ?? defaultBlockMargin,
-        ),
+        'p': TagflowStyle(margin: paragraphMargin ?? defaultBlockMargin),
         'h1': TagflowStyle(
           textStyle: h1Style ?? textTheme.displayLarge,
           margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.8),
@@ -155,13 +153,13 @@ class TagflowTheme extends Equatable {
           margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.3),
         ),
         'pre': TagflowStyle(
-          textStyle: preStyle ??
-              textTheme.bodyMedium?.copyWith(
-                fontFamily: 'monospace',
-              ),
+          textStyle:
+              preStyle ??
+              textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
           padding: blockPadding ?? defaultBlockPadding,
           margin: blockMargin ?? defaultBlockMargin,
-          backgroundColor: codeBackground ??
+          backgroundColor:
+              codeBackground ??
               colorScheme.surfaceContainerHighest.withAlpha(77),
         ),
         'blockquote': TagflowStyle(
@@ -173,10 +171,7 @@ class TagflowTheme extends Equatable {
             width: borderWidth ?? defaultBorderWidth,
           ),
         ),
-        ..._defaultStyles(
-          baseFontSize,
-          linkColor: theme.colorScheme.primary,
-        ),
+        ..._defaultStyles(baseFontSize, linkColor: theme.colorScheme.primary),
 
         // Lists
         'ul': TagflowStyle(
@@ -218,11 +213,11 @@ class TagflowTheme extends Equatable {
           textStyle: emStyle ?? const TextStyle(fontStyle: FontStyle.italic),
         ),
         'code': TagflowStyle(
-          textStyle: codeStyle ??
-              textTheme.bodyMedium?.copyWith(
-                fontFamily: 'monospace',
-              ),
-          backgroundColor: codeBackground ??
+          textStyle:
+              codeStyle ??
+              textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
+          backgroundColor:
+              codeBackground ??
               colorScheme.surfaceContainerHighest.withAlpha(77),
           padding: inlineCodePadding ?? defaultInlineCodePadding,
           margin: inlineCodeMargin ?? defaultInlineCodeMargin,
@@ -278,7 +273,7 @@ class TagflowTheme extends Equatable {
     EdgeInsets? contentPadding,
     Map<String, TagflowStyle>? additionalStyles,
     Map<String, TagflowStyle> Function(TagflowTheme theme)?
-        resolveAdditionalStyles,
+    resolveAdditionalStyles,
   }) {
     final theme = TagflowTheme._(
       defaultStyle: TagflowStyle(
@@ -289,10 +284,7 @@ class TagflowTheme extends Equatable {
         'p': TagflowStyle(
           maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
           margin: EdgeInsets.only(bottom: baseFontSize),
-          textStyle: baseTextStyle.copyWith(
-            height: 1.6,
-            letterSpacing: 0.3,
-          ),
+          textStyle: baseTextStyle.copyWith(height: 1.6, letterSpacing: 0.3),
         ),
         'h1': TagflowStyle(
           maxWidth: maxWidth != null ? SizeValue(maxWidth) : null,
@@ -340,10 +332,9 @@ class TagflowTheme extends Equatable {
           width: SizeValue(maxWidth ?? double.infinity),
         ),
         'code': TagflowStyle(
-          textStyle: codeTextStyle ??
-              baseTextStyle.copyWith(
-                fontFamily: codeFontFamily ?? 'monospace',
-              ),
+          textStyle:
+              codeTextStyle ??
+              baseTextStyle.copyWith(fontFamily: codeFontFamily ?? 'monospace'),
           backgroundColor: codeBackground,
           padding: EdgeInsets.symmetric(
             horizontal: baseFontSize * 0.25,
@@ -471,31 +462,31 @@ class TagflowTheme extends Equatable {
   }
 
   static Map<String, Color> _systemColors(ColorScheme scheme) => {
-        'primary': scheme.primary,
-        'onPrimary': scheme.onPrimary,
-        'secondary': scheme.secondary,
-        'onSecondary': scheme.onSecondary,
-        'surface': scheme.surface,
-        'onSurface': scheme.onSurface,
-        'background': scheme.surface,
-        'onBackground': scheme.onSurface,
-        'error': scheme.error,
-        'onError': scheme.onError,
-      };
+    'primary': scheme.primary,
+    'onPrimary': scheme.onPrimary,
+    'secondary': scheme.secondary,
+    'onSecondary': scheme.onSecondary,
+    'surface': scheme.surface,
+    'onSurface': scheme.onSurface,
+    'background': scheme.surface,
+    'onBackground': scheme.onSurface,
+    'error': scheme.error,
+    'onError': scheme.onError,
+  };
 
   static Map<String, Color> _namedDefaultColors(ColorScheme scheme) => {
-        'red': Colors.red,
-        'green': Colors.green,
-        'blue': Colors.blue,
-        'yellow': Colors.yellow,
-        'purple': Colors.purple,
-        'orange': Colors.orange,
-        'pink': Colors.pink,
-        'gray': Colors.grey,
-        'black': Colors.black,
-        'white': Colors.white,
-        'transparent': Colors.transparent,
-      };
+    'red': Colors.red,
+    'green': Colors.green,
+    'blue': Colors.blue,
+    'yellow': Colors.yellow,
+    'purple': Colors.purple,
+    'orange': Colors.orange,
+    'pink': Colors.pink,
+    'gray': Colors.grey,
+    'black': Colors.black,
+    'white': Colors.white,
+    'transparent': Colors.transparent,
+  };
 
   static Map<String, TagflowStyle> _defaultStyles(
     double baseFontSize, {
@@ -521,14 +512,10 @@ class TagflowTheme extends Equatable {
         ),
       ),
       'del': const TagflowStyle(
-        textStyle: TextStyle(
-          decoration: TextDecoration.lineThrough,
-        ),
+        textStyle: TextStyle(decoration: TextDecoration.lineThrough),
       ),
       'ins': const TagflowStyle(
-        textStyle: TextStyle(
-          decoration: TextDecoration.underline,
-        ),
+        textStyle: TextStyle(decoration: TextDecoration.underline),
       ),
       'mark': TagflowStyle(
         padding: EdgeInsets.symmetric(

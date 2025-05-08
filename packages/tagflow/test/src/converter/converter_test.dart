@@ -22,24 +22,16 @@ void main() {
       final converter = TestConverter();
 
       // Create a parent with multiple children
-      final parent = const TagflowElement(
-        tag: 'div',
-        attributes: {'id': 'parent'},
-        children: [
-          TagflowElement(
-            tag: 'p',
-            attributes: {'id': 'first'},
-          ),
-          TagflowElement(
-            tag: 'p',
-            attributes: {'id': 'middle'},
-          ),
-          TagflowElement(
-            tag: 'p',
-            attributes: {'id': 'last'},
-          ),
-        ],
-      ).reparent();
+      final parent =
+          const TagflowElement(
+            tag: 'div',
+            attributes: {'id': 'parent'},
+            children: [
+              TagflowElement(tag: 'p', attributes: {'id': 'first'}),
+              TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
+              TagflowElement(tag: 'p', attributes: {'id': 'last'}),
+            ],
+          ).reparent();
 
       final firstChild = parent.children.first;
       final middleChild = parent.children[1];

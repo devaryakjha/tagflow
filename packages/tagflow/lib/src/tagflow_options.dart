@@ -7,10 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
 /// Callback for handling link taps
-typedef TagflowLinkTapCallback = void Function(
-  String url,
-  LinkedHashMap<String, String>? attributes,
-);
+typedef TagflowLinkTapCallback =
+    void Function(String url, LinkedHashMap<String, String>? attributes);
 
 /// Behavior for selecting images
 enum TagflowImageSelectionBehavior {
@@ -21,7 +19,7 @@ enum TagflowImageSelectionBehavior {
   urlAndAlt,
 
   /// Custom behavior for selecting images
-  custom;
+  custom,
 }
 
 /// Options for configuring the selectable behavior of the Tagflow widget
@@ -32,10 +30,10 @@ final class TagflowSelectableOptions extends Equatable {
     this.imageSelectionBehavior = TagflowImageSelectionBehavior.altTextOnly,
     this.imageSelectionBehaviorTextBuilder,
   }) : assert(
-          imageSelectionBehavior != TagflowImageSelectionBehavior.custom ||
-              imageSelectionBehaviorTextBuilder != null,
-          'imageSelectionBehaviorTextBuilder must be provided when imageSelectionBehavior is custom',
-        );
+         imageSelectionBehavior != TagflowImageSelectionBehavior.custom ||
+             imageSelectionBehaviorTextBuilder != null,
+         'imageSelectionBehaviorTextBuilder must be provided when imageSelectionBehavior is custom',
+       );
 
   /// Whether the selectable behavior is enabled
   final bool enabled;
@@ -45,7 +43,7 @@ final class TagflowSelectableOptions extends Equatable {
 
   /// Custom behavior for selecting images
   final String? Function(TagflowImgElement, BuildContext)?
-      imageSelectionBehaviorTextBuilder;
+  imageSelectionBehaviorTextBuilder;
 
   @override
   // coverage:ignore-line
@@ -135,25 +133,21 @@ final class TagflowOptions extends Equatable {
   @override
   // coverage:ignore-line
   List<Object?> get props => [
-        debug,
-        linkTapCallback,
-        selectable,
-        imageLoadingBuilder,
-        imageErrorBuilder,
-        maxImageWidth,
-        maxImageHeight,
-        enableImageCache,
-      ];
+    debug,
+    linkTapCallback,
+    selectable,
+    imageLoadingBuilder,
+    imageErrorBuilder,
+    maxImageWidth,
+    maxImageHeight,
+    enableImageCache,
+  ];
 }
 
 /// Scope for providing options to descendants
 class TagflowScope extends InheritedWidget {
   /// Creates a new [TagflowScope].
-  const TagflowScope({
-    required this.options,
-    required super.child,
-    super.key,
-  });
+  const TagflowScope({required this.options, required super.child, super.key});
 
   /// The options to provide
   final TagflowOptions options;

@@ -5,31 +5,21 @@ import 'package:tagflow/tagflow.dart';
 void main() {
   group('StyleExtension', () {
     test('hasBorder returns true when border is set', () {
-      final style = TagflowStyle(
-        border: Border.all(),
-      );
+      final style = TagflowStyle(border: Border.all());
       expect(style.hasBorder, isTrue);
     });
 
     test('hasBorder returns true when individual borders are set', () {
-      const style = TagflowStyle(
-        borderLeft: BorderSide(),
-      );
+      const style = TagflowStyle(borderLeft: BorderSide());
       expect(style.hasBorder, isTrue);
 
-      const style2 = TagflowStyle(
-        borderRight: BorderSide(),
-      );
+      const style2 = TagflowStyle(borderRight: BorderSide());
       expect(style2.hasBorder, isTrue);
 
-      const style3 = TagflowStyle(
-        borderTop: BorderSide(),
-      );
+      const style3 = TagflowStyle(borderTop: BorderSide());
       expect(style3.hasBorder, isTrue);
 
-      const style4 = TagflowStyle(
-        borderBottom: BorderSide(),
-      );
+      const style4 = TagflowStyle(borderBottom: BorderSide());
       expect(style4.hasBorder, isTrue);
     });
 
@@ -58,40 +48,38 @@ void main() {
       expect(style.effectiveBorder, isNull);
     });
 
-    test('hasBoxDecoration returns true when decoration properties are set',
-        () {
-      const style = TagflowStyle(
-        backgroundColor: Colors.red,
-      );
-      expect(style.hasBoxDecoration, isTrue);
+    test(
+      'hasBoxDecoration returns true when decoration properties are set',
+      () {
+        const style = TagflowStyle(backgroundColor: Colors.red);
+        expect(style.hasBoxDecoration, isTrue);
 
-      final style2 = TagflowStyle(
-        borderRadius: BorderRadius.circular(8),
-      );
-      expect(style2.hasBoxDecoration, isTrue);
+        final style2 = TagflowStyle(borderRadius: BorderRadius.circular(8));
+        expect(style2.hasBoxDecoration, isTrue);
 
-      final style3 = TagflowStyle(
-        border: Border.all(),
-      );
-      expect(style3.hasBoxDecoration, isTrue);
+        final style3 = TagflowStyle(border: Border.all());
+        expect(style3.hasBoxDecoration, isTrue);
 
-      const style4 = TagflowStyle(
-        boxShadow: [BoxShadow(blurRadius: 4)],
-      );
-      expect(style4.hasBoxDecoration, isTrue);
-    });
+        const style4 = TagflowStyle(boxShadow: [BoxShadow(blurRadius: 4)]);
+        expect(style4.hasBoxDecoration, isTrue);
+      },
+    );
 
-    test('hasBoxDecoration returns false when no decoration properties are set',
-        () {
-      const style = TagflowStyle.empty;
-      expect(style.hasBoxDecoration, isFalse);
-    });
+    test(
+      'hasBoxDecoration returns false when no decoration properties are set',
+      () {
+        const style = TagflowStyle.empty;
+        expect(style.hasBoxDecoration, isFalse);
+      },
+    );
 
-    test('toBoxDecoration returns null when no decoration properties are set',
-        () {
-      const style = TagflowStyle.empty;
-      expect(style.toBoxDecoration(), isNull);
-    });
+    test(
+      'toBoxDecoration returns null when no decoration properties are set',
+      () {
+        const style = TagflowStyle.empty;
+        expect(style.toBoxDecoration(), isNull);
+      },
+    );
 
     test('toBoxDecoration includes all decoration properties', () {
       final style = TagflowStyle(
@@ -109,9 +97,7 @@ void main() {
     });
 
     test('textStyleWithColor handles null textStyle', () {
-      const style = TagflowStyle(
-        color: Colors.red,
-      );
+      const style = TagflowStyle(color: Colors.red);
       final textStyle = style.textStyleWithColor;
       expect(textStyle, isNotNull);
       expect(textStyle!.color, Colors.red);

@@ -82,15 +82,16 @@ extension StyleExtension on TagflowStyle {
       borderTop != null ||
       borderBottom != null;
 
-  Border? get effectiveBorder => hasBorder
-      ? border ??
-          Border(
-            left: borderLeft ?? BorderSide.none,
-            right: borderRight ?? BorderSide.none,
-            top: borderTop ?? BorderSide.none,
-            bottom: borderBottom ?? BorderSide.none,
-          )
-      : null;
+  Border? get effectiveBorder =>
+      hasBorder
+          ? border ??
+              Border(
+                left: borderLeft ?? BorderSide.none,
+                right: borderRight ?? BorderSide.none,
+                top: borderTop ?? BorderSide.none,
+                bottom: borderBottom ?? BorderSide.none,
+              )
+          : null;
 
   bool get hasBoxDecoration =>
       backgroundColor != null ||
@@ -98,14 +99,15 @@ extension StyleExtension on TagflowStyle {
       effectiveBorder != null ||
       boxShadow != null;
 
-  BoxDecoration? toBoxDecoration() => hasBoxDecoration
-      ? BoxDecoration(
-          color: backgroundColor,
-          borderRadius: borderRadius,
-          border: effectiveBorder,
-          boxShadow: boxShadow,
-        )
-      : null;
+  BoxDecoration? toBoxDecoration() =>
+      hasBoxDecoration
+          ? BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+            border: effectiveBorder,
+            boxShadow: boxShadow,
+          )
+          : null;
 
   TextStyle? get textStyleWithColor =>
       textStyle == null && (color != null || backgroundColor != null)

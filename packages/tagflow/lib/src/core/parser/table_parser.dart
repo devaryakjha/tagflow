@@ -77,15 +77,15 @@ class TableParser extends NodeParser<TagflowTableElement> {
     if (sections.isEmpty) {
       // If no sections, get direct tr children
       return table.children.whereType<dom.Element>().where(
-            (node) => node.localName?.toLowerCase() == 'tr',
-          );
+        (node) => node.localName?.toLowerCase() == 'tr',
+      );
     }
 
     // Get rows from all sections
     return sections.expand(
       (section) => section.children.whereType<dom.Element>().where(
-            (node) => node.localName?.toLowerCase() == 'tr',
-          ),
+        (node) => node.localName?.toLowerCase() == 'tr',
+      ),
     );
   }
 
@@ -134,12 +134,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
 
         // Mark spans
         if (rowspan > 1 || colspan > 1) {
-          table.setSpan(
-            rowIndex,
-            colIndex,
-            rowSpan: rowspan,
-            colSpan: colspan,
-          );
+          table.setSpan(rowIndex, colIndex, rowSpan: rowspan, colSpan: colspan);
         }
 
         // Mark occupied cells
@@ -161,9 +156,10 @@ class TableParser extends NodeParser<TagflowTableElement> {
       }
 
       // Create row element and add it to table
-      final rowNode = (_elementParser.tryParse(rowElement, parser) ??
-          TagflowElement.empty())
-        ..children = cells;
+      final rowNode =
+          (_elementParser.tryParse(rowElement, parser) ??
+                TagflowElement.empty())
+            ..children = cells;
 
       table.addRow(rowNode);
       rowIndex++;
@@ -172,10 +168,7 @@ class TableParser extends NodeParser<TagflowTableElement> {
 }
 
 class _TableStructure {
-  const _TableStructure({
-    required this.rows,
-    required this.columns,
-  });
+  const _TableStructure({required this.rows, required this.columns});
 
   final int rows;
   final int columns;

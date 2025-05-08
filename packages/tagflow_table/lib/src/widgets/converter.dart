@@ -51,7 +51,7 @@ final class TagflowTableConverter
 
   final double? columnSpacing;
 
-  /// 
+  ///
   final double? rowSpacing;
 
   @override
@@ -84,8 +84,8 @@ final class TagflowTableConverter
       var cellIndex = 0;
       var colIndex = 0;
 
-      while (
-          cellIndex < nonEmptyCells.length && colIndex < element.columnCount) {
+      while (cellIndex < nonEmptyCells.length &&
+          colIndex < element.columnCount) {
         // Skip columns that are already taken by rowspans
         while (colIndex < element.columnCount &&
             grid[rowIndex][colIndex] != null) {
@@ -109,12 +109,16 @@ final class TagflowTableConverter
         );
 
         // Mark territory
-        for (var r = rowIndex;
-            r < rowIndex + rowSpan && r < element.rowCount;
-            r++) {
-          for (var c = colIndex;
-              c < colIndex + colSpan && c < element.columnCount;
-              c++) {
+        for (
+          var r = rowIndex;
+          r < rowIndex + rowSpan && r < element.rowCount;
+          r++
+        ) {
+          for (
+            var c = colIndex;
+            c < colIndex + colSpan && c < element.columnCount;
+            c++
+          ) {
             grid[r][c] = gridCell;
           }
         }
@@ -126,8 +130,8 @@ final class TagflowTableConverter
                   rowStyle.toBoxDecoration() ??
                   const material.BoxDecoration())
               .copyWith(
-            color: cellStyle.backgroundColor ?? rowStyle.backgroundColor,
-          ),
+                color: cellStyle.backgroundColor ?? rowStyle.backgroundColor,
+              ),
           child: _convertCell(cell, context, converter),
         );
 
@@ -162,10 +166,7 @@ final class TagflowTableConverter
     final tableWidget = StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        border: material.Border.all(
-          width: 0,
-          style: material.BorderStyle.none,
-        ),
+        border: material.Border.all(width: 0, style: material.BorderStyle.none),
         padding: material.EdgeInsets.zero,
       ),
       child: TagflowTable(
@@ -188,10 +189,7 @@ final class TagflowTableConverter
     if (element.caption != null) {
       return material.Column(
         mainAxisSize: material.MainAxisSize.min,
-        children: [
-          converter.convert(element.caption!, context),
-          tableWidget,
-        ],
+        children: [converter.convert(element.caption!, context), tableWidget],
       );
     }
 
@@ -220,12 +218,8 @@ final class TagflowTableCellConverter extends TextConverter {
   }
 
   @override
-  Set<String> get supportedTags => super.supportedTags.union({
-        'tr',
-        'td',
-        'th',
-        'table caption',
-      });
+  Set<String> get supportedTags =>
+      super.supportedTags.union({'tr', 'td', 'th', 'table caption'});
 
   @override
   material.TextStyle? getTextStyle(
@@ -236,8 +230,9 @@ final class TagflowTableCellConverter extends TextConverter {
     final parentTr = lookupParent(element, 'tr');
     if (parentTr != null) {
       final parentTrStyle = resolveStyle(parentTr, context, inherit: false);
-      return resolvedStyle?.textStyleWithColor
-          ?.merge(parentTrStyle.textStyleWithColor);
+      return resolvedStyle?.textStyleWithColor?.merge(
+        parentTrStyle.textStyleWithColor,
+      );
     }
     return resolvedStyle?.textStyleWithColor;
   }

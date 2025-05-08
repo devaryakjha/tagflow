@@ -71,9 +71,7 @@ void main() {
     });
 
     testWidgets('updates border', (tester) async {
-      final initialBorder = TagflowTableBorder(
-        left: const BorderSide(),
-      );
+      final initialBorder = TagflowTableBorder(left: const BorderSide());
 
       final updatedBorder = TagflowTableBorder(
         left: const BorderSide(width: 2),

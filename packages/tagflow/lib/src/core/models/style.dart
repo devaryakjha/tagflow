@@ -32,9 +32,9 @@ enum FlexDirection {
 
   /// Convert to Flutter's [Axis]
   Axis get axis => switch (this) {
-        row || rowReverse => Axis.horizontal,
-        column || columnReverse => Axis.vertical,
-      };
+    row || rowReverse => Axis.horizontal,
+    column || columnReverse => Axis.vertical,
+  };
 
   /// Whether the direction is reversed
   bool get isReversed => this == rowReverse || this == columnReverse;
@@ -116,14 +116,7 @@ enum AlignItems {
 }
 
 /// Represents different types of size units
-enum SizeUnit {
-  px,
-  pt,
-  percentage,
-  rem,
-  vh,
-  vw,
-}
+enum SizeUnit { px, pt, percentage, rem, vh, vw }
 
 /// Represents a size value that can be either absolute or relative
 class SizeValue extends Equatable {
@@ -135,13 +128,13 @@ class SizeValue extends Equatable {
   ///
   /// pt is 1.3333333333333333 times larger than px
   double get value => switch (unit) {
-        SizeUnit.px => _value,
-        SizeUnit.pt => _value * 1.3333333333333333,
-        SizeUnit.percentage => _value,
-        SizeUnit.rem => _value,
-        SizeUnit.vh => _value,
-        SizeUnit.vw => _value,
-      };
+    SizeUnit.px => _value,
+    SizeUnit.pt => _value * 1.3333333333333333,
+    SizeUnit.percentage => _value,
+    SizeUnit.rem => _value,
+    SizeUnit.vh => _value,
+    SizeUnit.vw => _value,
+  };
 
   /// Resolves the size value to pixels based on the context
   double resolve(BuildContext context, {double? parentSize}) {

@@ -31,16 +31,17 @@ void main() {
     });
 
     test(
-        'fails when imageSelectionBehavior is custom and imageSelectionBehaviorTextBuilder is null',
-        () {
-      expect(
-        () => TagflowSelectableOptions(
-          enabled: true,
-          imageSelectionBehavior: TagflowImageSelectionBehavior.custom,
-        ),
-        throwsAssertionError,
-      );
-    });
+      'fails when imageSelectionBehavior is custom and imageSelectionBehaviorTextBuilder is null',
+      () {
+        expect(
+          () => TagflowSelectableOptions(
+            enabled: true,
+            imageSelectionBehavior: TagflowImageSelectionBehavior.custom,
+          ),
+          throwsAssertionError,
+        );
+      },
+    );
   });
 
   group('TagflowOptions', () {
@@ -63,10 +64,7 @@ void main() {
     });
 
     test('copyWith works correctly', () {
-      const options = TagflowOptions(
-        maxImageWidth: 100,
-        maxImageHeight: 100,
-      );
+      const options = TagflowOptions(maxImageWidth: 100, maxImageHeight: 100);
 
       final copied = options.copyWith(
         debug: true,

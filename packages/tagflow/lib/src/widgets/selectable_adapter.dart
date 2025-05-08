@@ -91,16 +91,18 @@ class _RenderSelectableAdapter extends RenderProxyBox
     SelectionRegistrar registrar,
     String? text,
     double padding,
-  )   : _selectionColor = selectionColor,
-        _padding = padding,
-        _geometry = ValueNotifier<SelectionGeometry>(_noSelection) {
+  ) : _selectionColor = selectionColor,
+      _padding = padding,
+      _geometry = ValueNotifier<SelectionGeometry>(_noSelection) {
     this.registrar = registrar;
     _text = text;
     _geometry.addListener(markNeedsPaint);
   }
 
-  static const SelectionGeometry _noSelection =
-      SelectionGeometry(status: SelectionStatus.none, hasContent: true);
+  static const SelectionGeometry _noSelection = SelectionGeometry(
+    status: SelectionStatus.none,
+    hasContent: true,
+  );
 
   final ValueNotifier<SelectionGeometry> _geometry;
 
@@ -166,7 +168,8 @@ class _RenderSelectableAdapter extends RenderProxyBox
     }
 
     final highlightRect = _getSelectionHighlightRect();
-    final isReversed = _start!.dy > _end!.dy ||
+    final isReversed =
+        _start!.dy > _end!.dy ||
         (_start!.dy == _end!.dy && _start!.dx > _end!.dx);
 
     final firstPoint = SelectionPoint(
@@ -211,10 +214,13 @@ class _RenderSelectableAdapter extends RenderProxyBox
       case SelectionEventType.startEdgeUpdate:
       case SelectionEventType.endEdgeUpdate:
         final renderObjectRect = Rect.fromLTWH(0, 0, size.width, size.height);
-        final point =
-            globalToLocal((event as SelectionEdgeUpdateEvent).globalPosition);
-        final adjustedPoint =
-            SelectionUtils.adjustDragOffset(renderObjectRect, point);
+        final point = globalToLocal(
+          (event as SelectionEdgeUpdateEvent).globalPosition,
+        );
+        final adjustedPoint = SelectionUtils.adjustDragOffset(
+          renderObjectRect,
+          point,
+        );
         if (event.type == SelectionEventType.startEdgeUpdate) {
           _start = adjustedPoint;
         } else {
@@ -229,8 +235,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
         _start = Offset.zero;
         _end = Offset.infinite;
       case SelectionEventType.granularlyExtendSelection:
-        result =
-            _handleGranularSelection(event as GranularlyExtendSelectionEvent);
+        result = _handleGranularSelection(
+          event as GranularlyExtendSelectionEvent,
+        );
       case SelectionEventType.directionallyExtendSelection:
         result = _handleDirectionalSelection(
           event as DirectionallyExtendSelectionEvent,
@@ -282,20 +289,22 @@ class _RenderSelectableAdapter extends RenderProxyBox
         if (_start == null || _end == null) {
           _start = _end = Offset.infinite;
         }
-        newOffset = event.direction == SelectionExtendDirection.previousLine ||
-                horizontalBaseLine < 0
-            ? Offset.zero
-            : Offset.infinite;
+        newOffset =
+            event.direction == SelectionExtendDirection.previousLine ||
+                    horizontalBaseLine < 0
+                ? Offset.zero
+                : Offset.infinite;
       case SelectionExtendDirection.nextLine:
       case SelectionExtendDirection.forward:
         forward = true;
         if (_start == null || _end == null) {
           _start = _end = Offset.zero;
         }
-        newOffset = event.direction == SelectionExtendDirection.nextLine ||
-                horizontalBaseLine > size.width
-            ? Offset.infinite
-            : Offset.zero;
+        newOffset =
+            event.direction == SelectionExtendDirection.nextLine ||
+                    horizontalBaseLine > size.width
+                ? Offset.infinite
+                : Offset.zero;
     }
 
     if (event.isEnd) {
@@ -334,11 +343,14 @@ class _RenderSelectableAdapter extends RenderProxyBox
     if (!_geometry.value.hasSelection) return;
 
     // Draw selection highlight
-    final selectionPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = _selectionColor;
-    context.canvas
-        .drawRect(_getSelectionHighlightRect().shift(offset), selectionPaint);
+    final selectionPaint =
+        Paint()
+          ..style = PaintingStyle.fill
+          ..color = _selectionColor;
+    context.canvas.drawRect(
+      _getSelectionHighlightRect().shift(offset),
+      selectionPaint,
+    );
 
     // Push handle layers
     if (_startHandle != null) {

@@ -33,12 +33,12 @@ class StyledContainer extends StatelessWidget {
     // Apply display-specific layout
     content = switch (style.display) {
       Display.flex => Flex(
-          direction: style.flexDirection ?? Axis.horizontal,
-          mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
-          crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [content],
-        ),
+        direction: style.flexDirection ?? Axis.horizontal,
+        mainAxisAlignment: style.justifyContent ?? MainAxisAlignment.start,
+        crossAxisAlignment: style.alignItems ?? CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [content],
+      ),
       _ => content,
     };
 
@@ -65,12 +65,13 @@ class StyledContainer extends StatelessWidget {
           child: DefaultTextStyle.merge(
             style: style.textStyleWithColor ?? const TextStyle(),
             textAlign: style.textAlign,
-            child: style.aspectRatio != null
-                ? AspectRatio(
-                    aspectRatio: style.aspectRatio!,
-                    child: content,
-                  )
-                : content,
+            child:
+                style.aspectRatio != null
+                    ? AspectRatio(
+                      aspectRatio: style.aspectRatio!,
+                      child: content,
+                    )
+                    : content,
           ),
         ),
       ),

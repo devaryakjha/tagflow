@@ -10,10 +10,7 @@ void main() {
     setUp(() {
       parser = const TableParser();
       tagflowParser = const TagflowParser(
-        parsers: [
-          TableParser(),
-          ElementParser(),
-        ],
+        parsers: [TableParser(), ElementParser()],
       );
     });
 
@@ -157,8 +154,9 @@ void main() {
       expect(result!.rowCount, 1);
       expect(result.columnCount, 1);
 
-      final nestedTable = result.rows[0].children[0].children
-          .firstWhere((node) => node.tag == 'table');
+      final nestedTable = result.rows[0].children[0].children.firstWhere(
+        (node) => node.tag == 'table',
+      );
       expect(nestedTable, isNotNull);
     });
 

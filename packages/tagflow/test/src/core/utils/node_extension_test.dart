@@ -69,10 +69,7 @@ void main() {
         tag: 'div',
         attributes: LinkedHashMap.of({'style': 'color: red; font-size: 16px;'}),
       );
-      expect(node.styles, {
-        'color': 'red',
-        'font-size': '16px',
-      });
+      expect(node.styles, {'color': 'red', 'font-size': '16px'});
     });
 
     test('styles handles empty style attribute', () {

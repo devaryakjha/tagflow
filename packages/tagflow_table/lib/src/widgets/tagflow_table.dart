@@ -72,10 +72,10 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
     this.headerBackgroundColor,
     this.padding = EdgeInsets.zero,
     this.separatorBuilder,
-    this.columnSpacing = 0.0,  // Add this
-    this.rowSpacing = 0.0,     // Add this
-  })  : border = border ?? TagflowTableBorder.none,
-        super(children: children);
+    this.columnSpacing = 0.0, // Add this
+    this.rowSpacing = 0.0, // Add this
+  }) : border = border ?? TagflowTableBorder.none,
+       super(children: children);
 
   final int rowCount;
   final int columnCount;
@@ -96,8 +96,8 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
       ..setHeaderBackgroundColor(headerBackgroundColor)
       ..setSeparatorBuilder(separatorBuilder)
       ..setPadding(padding)
-      ..setColumnSpacing(columnSpacing)  // Add this
-      ..setRowSpacing(rowSpacing);       // Add this
+      ..setColumnSpacing(columnSpacing) // Add this
+      ..setRowSpacing(rowSpacing); // Add this
   }
 
   @override
@@ -112,8 +112,8 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
       ..setHeaderBackgroundColor(headerBackgroundColor)
       ..setSeparatorBuilder(separatorBuilder)
       ..setPadding(padding)
-      ..setColumnSpacing(columnSpacing)  // Add this
-      ..setRowSpacing(rowSpacing);       // Add this
+      ..setColumnSpacing(columnSpacing) // Add this
+      ..setRowSpacing(rowSpacing); // Add this
   }
 
   @override

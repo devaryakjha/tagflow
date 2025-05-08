@@ -15,10 +15,7 @@ void main() {
     });
 
     test('all returns uniform border', () {
-      final border = TagflowTableBorder.all(
-        color: Colors.red,
-        width: 2,
-      );
+      final border = TagflowTableBorder.all(color: Colors.red, width: 2);
       expect(border.left.color, Colors.red);
       expect(border.left.width, 2);
       expect(border.right.color, Colors.red);
@@ -80,23 +77,14 @@ void main() {
     });
 
     test('lerp returns border for null other argument', () {
-      final border = TagflowTableBorder.all(
-        color: Colors.red,
-        width: 2,
-      );
+      final border = TagflowTableBorder.all(color: Colors.red, width: 2);
       expect(TagflowTableBorder.lerp(border, null, 0), border);
       expect(TagflowTableBorder.lerp(null, border, 1), border);
     });
 
     test('lerp interpolates between borders', () {
-      final border1 = TagflowTableBorder.all(
-        color: Colors.red,
-        width: 2,
-      );
-      final border2 = TagflowTableBorder.all(
-        color: Colors.blue,
-        width: 4,
-      );
+      final border1 = TagflowTableBorder.all(color: Colors.red, width: 2);
+      final border2 = TagflowTableBorder.all(color: Colors.blue, width: 4);
       final interpolated = TagflowTableBorder.lerp(border1, border2, 0.5);
       expect(
         interpolated!.left.color,
@@ -106,10 +94,7 @@ void main() {
     });
 
     test('copyWith copies with new values', () {
-      final border = TagflowTableBorder.all(
-        color: Colors.red,
-        width: 2,
-      );
+      final border = TagflowTableBorder.all(color: Colors.red, width: 2);
       final copied = border.copyWith(
         left: const BorderSide(color: Colors.blue, width: 4),
       );
@@ -120,10 +105,7 @@ void main() {
     });
 
     test('scale scales all borders', () {
-      final border = TagflowTableBorder.all(
-        color: Colors.red,
-        width: 2,
-      );
+      final border = TagflowTableBorder.all(color: Colors.red, width: 2);
       final scaled = border.scale(2);
       expect(scaled.left.width, 4);
       expect(scaled.right.width, 4);

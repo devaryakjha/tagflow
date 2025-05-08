@@ -13,17 +13,19 @@ void main() {
     });
 
     test('can set row and column', () {
-      final data = TableCellData()
-        ..row = 2
-        ..column = 3;
+      final data =
+          TableCellData()
+            ..row = 2
+            ..column = 3;
       expect(data.row, 2);
       expect(data.column, 3);
     });
 
     test('can set rowSpan and colSpan', () {
-      final data = TableCellData()
-        ..rowSpan = 2
-        ..colSpan = 3;
+      final data =
+          TableCellData()
+            ..rowSpan = 2
+            ..colSpan = 3;
       expect(data.rowSpan, 2);
       expect(data.colSpan, 3);
     });

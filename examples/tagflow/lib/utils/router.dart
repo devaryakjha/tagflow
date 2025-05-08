@@ -4,10 +4,7 @@ import 'package:tagflow_example/utils/examples.dart';
 
 final router = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
     ...allExamples.map(
       (example) => GoRoute(
         path: example.path,

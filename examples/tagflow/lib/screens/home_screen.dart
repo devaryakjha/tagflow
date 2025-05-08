@@ -8,10 +8,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tagflow Examples'),
-        centerTitle: false,
-      ),
+      appBar: AppBar(title: const Text('Tagflow Examples'), centerTitle: false),
       body: ListView.separated(
         itemCount: allExamples.length,
         separatorBuilder: (context, index) => const Divider(),
@@ -29,11 +26,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 final class ExampleCard extends StatelessWidget {
-  const ExampleCard({
-    required this.example,
-    required this.onTap,
-    super.key,
-  });
+  const ExampleCard({required this.example, required this.onTap, super.key});
 
   final Example example;
   final VoidCallback onTap;

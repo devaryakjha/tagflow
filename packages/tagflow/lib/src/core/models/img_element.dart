@@ -4,10 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:tagflow/tagflow.dart';
 
 class TagflowImgElement extends TagflowNode {
-  const TagflowImgElement({
-    super.tag = 'img',
-    Map<String, String>? attributes,
-  }) : _attributes = attributes ?? const {};
+  const TagflowImgElement({super.tag = 'img', Map<String, String>? attributes})
+    : _attributes = attributes ?? const {};
 
   /// Element's attributes
   final Map<String, String> _attributes;
@@ -23,9 +21,10 @@ class TagflowImgElement extends TagflowNode {
   String? get alt => this['alt'];
 
   /// Returns the object-fit style as BoxFit
-  BoxFit? get fit => styles?['object-fit'] != null
-      ? StyleParser.parseBoxFit(styles!['object-fit']!)
-      : null;
+  BoxFit? get fit =>
+      styles?['object-fit'] != null
+          ? StyleParser.parseBoxFit(styles!['object-fit']!)
+          : null;
 
   @override
   void operator []=(String key, String value) {
@@ -39,10 +38,7 @@ class TagflowImgElement extends TagflowNode {
 
   @override
   TagflowNode reparent([TagflowNode? newParent]) {
-    return TagflowImgElement(
-      tag: tag,
-      attributes: attributes,
-    );
+    return TagflowImgElement(tag: tag, attributes: attributes);
   }
 
   @override

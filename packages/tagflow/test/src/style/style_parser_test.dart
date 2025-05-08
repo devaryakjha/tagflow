@@ -146,9 +146,7 @@ void main() {
           const TagflowTheme.raw(
             defaultStyle: TagflowStyle.empty,
             styles: {},
-            namedColors: {
-              'red': Color(0xFFFF0000),
-            },
+            namedColors: {'red': Color(0xFFFF0000)},
           ),
         );
 
@@ -255,9 +253,10 @@ void main() {
       test('parses multiple decorations', () {
         expect(
           StyleParser.parseTextDecoration('underline line-through'),
-          TextDecoration.combine(
-            [TextDecoration.underline, TextDecoration.lineThrough],
-          ),
+          TextDecoration.combine([
+            TextDecoration.underline,
+            TextDecoration.lineThrough,
+          ]),
         );
         expect(
           StyleParser.parseTextDecoration('underline overline line-through'),
@@ -337,10 +336,7 @@ void main() {
       test('handles mixed units', () {
         expect(
           StyleParser.parseEdgeInsets('1rem 10px'),
-          const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 10,
-          ),
+          const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
         );
       });
 
@@ -358,10 +354,7 @@ void main() {
           StyleParser.parseBorderRadius('10px'),
           BorderRadius.circular(10),
         );
-        expect(
-          StyleParser.parseBorderRadius('0px'),
-          BorderRadius.circular(0),
-        );
+        expect(StyleParser.parseBorderRadius('0px'), BorderRadius.circular(0));
       });
 
       test('parses rem values', () {
@@ -410,8 +403,9 @@ void main() {
 
     group('parseBoxShadow', () {
       test('parses single shadow', () {
-        final shadows =
-            StyleParser.parseBoxShadow('2px 4px 8px rgba(0,0,0,0.2)');
+        final shadows = StyleParser.parseBoxShadow(
+          '2px 4px 8px rgba(0,0,0,0.2)',
+        );
         expect(shadows?.length, 1);
         expect(shadows?.first.offset, const Offset(2, 4));
         expect(shadows?.first.blurRadius, 8);
@@ -428,8 +422,9 @@ void main() {
       });
 
       test('parses shadow with spread', () {
-        final shadows =
-            StyleParser.parseBoxShadow('2px 4px 8px 4px rgba(0,0,0,0.2)');
+        final shadows = StyleParser.parseBoxShadow(
+          '2px 4px 8px 4px rgba(0,0,0,0.2)',
+        );
         expect(shadows, isNotNull);
         expect(shadows?.first.spreadRadius, 4);
       });
@@ -443,8 +438,9 @@ void main() {
 
       test('parseBoxShadow handles absolute units', () {
         // Test with explicit color
-        final shadows =
-            StyleParser.parseBoxShadow('2px 3px 4px rgba(0,0,0,0.2)');
+        final shadows = StyleParser.parseBoxShadow(
+          '2px 3px 4px rgba(0,0,0,0.2)',
+        );
         expect(shadows, isNotNull);
         expect(shadows!.length, equals(1));
         expect(shadows.first.offset.dx, equals(2));
@@ -453,8 +449,9 @@ void main() {
         expect(shadows.first.color, const Color(0x33000000));
 
         // Test with spread radius
-        final shadowsWithSpread =
-            StyleParser.parseBoxShadow('2px 3px 4px 5px rgba(0,0,0,0.2)');
+        final shadowsWithSpread = StyleParser.parseBoxShadow(
+          '2px 3px 4px 5px rgba(0,0,0,0.2)',
+        );
         expect(shadowsWithSpread, isNotNull);
         expect(shadowsWithSpread!.length, equals(1));
         expect(shadowsWithSpread.first.offset.dx, equals(2));
@@ -479,8 +476,9 @@ void main() {
         expect(multipleShadows[1].color, const Color(0x1A000000));
 
         // Test with rem units
-        final remShadows =
-            StyleParser.parseBoxShadow('1rem 1.5rem 2rem rgba(0,0,0,0.2)');
+        final remShadows = StyleParser.parseBoxShadow(
+          '1rem 1.5rem 2rem rgba(0,0,0,0.2)',
+        );
         expect(remShadows, isNotNull);
         expect(remShadows!.length, equals(1));
         expect(remShadows.first.offset.dx, equals(16)); // 1rem = 16px
@@ -523,8 +521,9 @@ void main() {
       });
 
       test('parses translate3d', () {
-        final transform =
-            StyleParser.parseTransform('translate(10px, 20px, 30px)');
+        final transform = StyleParser.parseTransform(
+          'translate(10px, 20px, 30px)',
+        );
         expect(transform, isNotNull);
         final offset = transform!.getTranslation();
         expect(offset.x, 10);

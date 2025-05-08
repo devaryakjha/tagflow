@@ -43,7 +43,6 @@ abstract class ElementConverter<T extends TagflowNode> {
 
   @protected
   @visibleForTesting
-
   /// Match positive selectors (without negation)
   bool matchPositiveSelector(TagflowNode element, String selector) {
     // Handle pseudo-selectors
@@ -107,11 +106,7 @@ abstract class ElementConverter<T extends TagflowNode> {
   }
 
   /// Convert the element to a widget
-  Widget convert(
-    T element,
-    BuildContext context,
-    TagflowConverter converter,
-  );
+  Widget convert(T element, BuildContext context, TagflowConverter converter);
 
   /// Get the computed style for an element
   ///
@@ -124,8 +119,9 @@ abstract class ElementConverter<T extends TagflowNode> {
     BuildContext context, {
     bool inherit = true,
   }) {
-    return TagflowThemeProvider.of(context)
-        .resolveStyle(element, inherit: inherit, context: context);
+    return TagflowThemeProvider.of(
+      context,
+    ).resolveStyle(element, inherit: inherit, context: context);
   }
 
   @override

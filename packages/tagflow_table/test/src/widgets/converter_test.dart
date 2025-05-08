@@ -9,12 +9,7 @@ void main() {
     late TagflowConverter converter;
 
     setUp(() {
-      parser = const TagflowParser(
-        parsers: [
-          TableParser(),
-          ElementParser(),
-        ],
-      );
+      parser = const TagflowParser(parsers: [TableParser(), ElementParser()]);
       converter = TagflowConverter([
         const TagflowTableConverter(),
         const TagflowTableCellConverter(),
@@ -24,9 +19,7 @@ void main() {
     Widget buildTestWidget(TagflowNode node) {
       return MaterialApp(
         home: Scaffold(
-          body: Builder(
-            builder: (context) => converter.convert(node, context),
-          ),
+          body: Builder(builder: (context) => converter.convert(node, context)),
         ),
       );
     }

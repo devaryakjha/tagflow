@@ -9,28 +9,28 @@ class TextConverter extends ElementConverter<TagflowElement> {
 
   @override
   Set<String> get supportedTags => {
-        'p',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'span',
-        'strong',
-        'b',
-        'em',
-        'i',
-        'u',
-        's',
-        'small',
-        'mark',
-        'del',
-        'ins',
-        'sub',
-        'sup',
-        'a',
-      };
+    'p',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'span',
+    'strong',
+    'b',
+    'em',
+    'i',
+    'u',
+    's',
+    'small',
+    'mark',
+    'del',
+    'ins',
+    'sub',
+    'sup',
+    'a',
+  };
 
   Widget _wrapInContainerIfNeeded(
     Widget child,
@@ -42,11 +42,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
     // wrapping them again will break the text style
     if (element.isTextNode) return child;
 
-    return StyledContainer(
-      style: style,
-      tag: element.tag,
-      child: child,
-    );
+    return StyledContainer(style: style, tag: element.tag, child: child);
   }
 
   @override
@@ -79,7 +75,6 @@ class TextConverter extends ElementConverter<TagflowElement> {
       element,
       context,
       style,
-      
     );
   }
 
@@ -134,41 +129,34 @@ class TextConverter extends ElementConverter<TagflowElement> {
           children: _convertChildren(child, context, converter),
           style: getTextStyle(child, resolvedStyle, context),
           // Only add gestures if this node contains direct text content
-          recognizer: (child.textContent ?? '').isNotEmpty
-              ? (parentGestures ?? _getGestures(child, context))
-              : null,
+          recognizer:
+              (child.textContent ?? '').isNotEmpty
+                  ? (parentGestures ?? _getGestures(child, context))
+                  : null,
           mouseCursor: parentCursor ?? _getMouseCursor(child, context),
         );
       }
     }).toList();
   }
 
-  MouseCursor? _getMouseCursor(
-    TagflowNode element,
-    BuildContext context,
-  ) =>
+  MouseCursor? _getMouseCursor(TagflowNode element, BuildContext context) =>
       switch (element.parentTag) {
         'a' => SystemMouseCursors.click,
         _ => null,
       };
 
-  GestureRecognizer? _getGestures(
-    TagflowNode element,
-    BuildContext context,
-  ) =>
+  GestureRecognizer? _getGestures(TagflowNode element, BuildContext context) =>
       switch (element.parentTag) {
-        'a' => TapGestureRecognizer()
-          ..onTap = Feedback.wrapForTap(
-            () {
+        'a' =>
+          TapGestureRecognizer()
+            ..onTap = Feedback.wrapForTap(() {
               final link = element.parentHref;
               final options = TagflowOptions.of(context);
               final cb = options.linkTapCallback;
               if (cb != null && link != null) {
                 cb(link, element.attributes);
               }
-            },
-            context,
-          ),
+            }, context),
         _ => null,
       };
 

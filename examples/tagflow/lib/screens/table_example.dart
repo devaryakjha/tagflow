@@ -281,12 +281,10 @@ final class TableExample extends ExamplePage {
   }
 
   @override
-  List<ElementConverter<TagflowNode>> get converters => !useTagflowTable
-      ? super.converters
-      : [
-          const TagflowTableConverter(),
-          const TagflowTableCellConverter(),
-        ];
+  List<ElementConverter<TagflowNode>> get converters =>
+      !useTagflowTable
+          ? super.converters
+          : [const TagflowTableConverter(), const TagflowTableCellConverter()];
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
@@ -295,24 +293,25 @@ final class TableExample extends ExamplePage {
       actions: [
         PopupMenuButton<void>(
           icon: const Icon(Icons.more_vert),
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Use tagflow_table'),
-                  const SizedBox(width: 16),
-                  Switch(
-                    value: useTagflowTable,
-                    onChanged: (value) {
-                      updateUseTagflowTable(value: value);
-                      Navigator.of(context).pop();
-                    },
+          itemBuilder:
+              (context) => [
+                PopupMenuItem(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Use tagflow_table'),
+                      const SizedBox(width: 16),
+                      Switch(
+                        value: useTagflowTable,
+                        onChanged: (value) {
+                          updateUseTagflowTable(value: value);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
         ),
       ],
     );

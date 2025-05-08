@@ -14,10 +14,7 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
     return StyledContainer(
       tag: element.tag,
       style: style.copyWith(
-        border: Border.all(
-          width: 0,
-          style: BorderStyle.none,
-        ),
+        border: Border.all(width: 0, style: BorderStyle.none),
       ),
       child: Table(
         border: TableBorder(
@@ -28,13 +25,14 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
           horizontalInside: style.effectiveBorder?.bottom ?? BorderSide.none,
           verticalInside: style.effectiveBorder?.right ?? BorderSide.none,
         ),
-        children: element.rows.map((e) {
-          final style = resolveStyle(e, context);
-          return TableRow(
-            decoration: style.toBoxDecoration(),
-            children: converter.convertChildren(e.children, context),
-          );
-        }).toList(),
+        children:
+            element.rows.map((e) {
+              final style = resolveStyle(e, context);
+              return TableRow(
+                decoration: style.toBoxDecoration(),
+                children: converter.convertChildren(e.children, context),
+              );
+            }).toList(),
       ),
     );
   }
@@ -54,11 +52,11 @@ final class TableCellConverter extends TextConverter {
 
   @override
   Set<String> get supportedTags => super.supportedTags.union({
-        'tr',
-        'td',
-        'th',
-        'table caption', // only support caption within table
-      });
+    'tr',
+    'td',
+    'th',
+    'table caption', // only support caption within table
+  });
 
   @override
   TextStyle? getTextStyle(
@@ -69,8 +67,9 @@ final class TableCellConverter extends TextConverter {
     final parentTr = lookupParent(element, 'tr');
     if (parentTr != null) {
       final parentTrStyle = resolveStyle(parentTr, context);
-      return resolvedStyle?.textStyleWithColor
-          ?.merge(parentTrStyle.textStyleWithColor);
+      return resolvedStyle?.textStyleWithColor?.merge(
+        parentTrStyle.textStyleWithColor,
+      );
     }
     return resolvedStyle?.textStyleWithColor;
   }
