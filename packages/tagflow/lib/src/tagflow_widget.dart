@@ -81,7 +81,7 @@ class _TagflowState extends State<Tagflow> {
     }
   }
 
-  void _parseHtml()  {
+  void _parseHtml() {
     try {
       _element = parser.parse(widget.html);
       _error = null;
