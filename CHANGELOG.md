@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-05-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`tagflow` - `v0.0.3`](#tagflow---v003)
+ - [`tagflow_table` - `v0.0.4+2`](#tagflow_table---v0042)
+
+---
+
+#### `tagflow` - `v0.0.3`
+
+ - **REFACTOR**(parser): simplify constructor and improve debug handling. ([fa5c05e1](https://github.com/devaryakjha/tagflow/commit/fa5c05e175ffae3cc067f207f92f61d15ed53677))
+ - **FIX**: update SDK constraints to require Dart 3.7.0 or higher. ([c3640f90](https://github.com/devaryakjha/tagflow/commit/c3640f909e6139a04b9afda2d50777a9986b31fa))
+ - **FIX**(selectable_adapter): add content length and selection range methods. ([00204089](https://github.com/devaryakjha/tagflow/commit/00204089eba01941704938913664ac8e58afb736))
+ - **FEAT**(style): add maxTextLines property to TagflowStyle for text element configuration. ([804d8956](https://github.com/devaryakjha/tagflow/commit/804d8956ad2b52bc5f336ca3b392e3eec4e2989e))
+
+#### `tagflow_table` - `v0.0.4+2`
+
+ - **REFACTOR**(tagflow_table): improve code readability by formatting and simplifying expressions. ([9658521f](https://github.com/devaryakjha/tagflow/commit/9658521fb9b340c3a29af41fec1ae682bf812a35))
+ - **FIX**(changelog): correct version number format for release 0.0.4. ([d8902a5e](https://github.com/devaryakjha/tagflow/commit/d8902a5eb28ca1aa610d006611d2b87ee1e882fe))
+ - **FIX**: update SDK constraints to require Dart 3.7.0 or higher. ([c3640f90](https://github.com/devaryakjha/tagflow/commit/c3640f909e6139a04b9afda2d50777a9986b31fa))
+
+
 ## 2025-01-30
 
 ### Changes

@@ -1,3 +1,9 @@
+## 0.0.4+2
+
+ - **REFACTOR**(tagflow_table): improve code readability by formatting and simplifying expressions. ([9658521f](https://github.com/devaryakjha/tagflow/commit/9658521fb9b340c3a29af41fec1ae682bf812a35))
+ - **FIX**(changelog): correct version number format for release 0.0.4. ([d8902a5e](https://github.com/devaryakjha/tagflow/commit/d8902a5eb28ca1aa610d006611d2b87ee1e882fe))
+ - **FIX**: update SDK constraints to require Dart 3.7.0 or higher. ([c3640f90](https://github.com/devaryakjha/tagflow/commit/c3640f909e6139a04b9afda2d50777a9986b31fa))
+
 ## 0.0.4+1
 
 - Update `tagflow` dependency

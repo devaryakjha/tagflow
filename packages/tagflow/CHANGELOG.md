@@ -1,3 +1,10 @@
+## 0.0.3
+
+ - **REFACTOR**(parser): simplify constructor and improve debug handling. ([fa5c05e1](https://github.com/devaryakjha/tagflow/commit/fa5c05e175ffae3cc067f207f92f61d15ed53677))
+ - **FIX**: update SDK constraints to require Dart 3.7.0 or higher. ([c3640f90](https://github.com/devaryakjha/tagflow/commit/c3640f909e6139a04b9afda2d50777a9986b31fa))
+ - **FIX**(selectable_adapter): add content length and selection range methods. ([00204089](https://github.com/devaryakjha/tagflow/commit/00204089eba01941704938913664ac8e58afb736))
+ - **FEAT**(style): add maxTextLines property to TagflowStyle for text element configuration. ([804d8956](https://github.com/devaryakjha/tagflow/commit/804d8956ad2b52bc5f336ca3b392e3eec4e2989e))
+
 ## 0.0.2+1
 
 - `TagflowParser` now honors the `debug` flag from `TagflowOptions`
