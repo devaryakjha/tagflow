@@ -15,6 +15,35 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`tagflow` - `v0.0.3-dev.0+2`](#tagflow---v003-dev02)
+ - [`tagflow_table` - `v0.0.4-dev.0+4`](#tagflow_table---v004-dev04)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `tagflow_table` - `v0.0.4-dev.0+4`
+
+---
+
+#### `tagflow` - `v0.0.3-dev.0+2`
+
+ - **FIX**(styled_container): remove unnecessary blank line before container return. ([cf0b4a2d](https://github.com/devaryakjha/tagflow/commit/cf0b4a2d5ce98f6a7dfb193c7bf2b451dd1f82e7))
+ - **FIX**(styled_container): refactor _needsContainer method for clarity and improve layout handling. ([93974336](https://github.com/devaryakjha/tagflow/commit/939743362f37203cda5b37845f317c7b4f7fd6d4))
+
+
+## 2025-05-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`tagflow` - `v0.0.3+1`](#tagflow---v0031)
  - [`tagflow_table` - `v0.0.4+3`](#tagflow_table---v0043)
 

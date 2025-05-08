@@ -1,3 +1,8 @@
+## 0.0.3-dev.0+2
+
+ - **FIX**(styled_container): remove unnecessary blank line before container return. ([cf0b4a2d](https://github.com/devaryakjha/tagflow/commit/cf0b4a2d5ce98f6a7dfb193c7bf2b451dd1f82e7))
+ - **FIX**(styled_container): refactor _needsContainer method for clarity and improve layout handling. ([93974336](https://github.com/devaryakjha/tagflow/commit/939743362f37203cda5b37845f317c7b4f7fd6d4))
+
 ## 0.0.3+1
 
  - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.

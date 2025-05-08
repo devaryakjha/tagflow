@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
   go_router: ^14.6.2
   google_fonts: ^6.2.1
-  tagflow: ^0.0.3+1
-  tagflow_table: ^0.0.4+3
+  tagflow: ^0.0.3-dev.0+2
+  tagflow_table: ^0.0.4-dev.0+4
   url_launcher: ^6.3.1
 
 dev_dependencies:
