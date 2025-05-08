@@ -1,3 +1,7 @@
+## 0.0.3+1
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.3-dev.0+1
 
  - **FIX**(tagflow): remove unnecessary whitespace in _parseHtml method. ([0598eb40](https://github.com/devaryakjha/tagflow/commit/0598eb40bcb351988c2e9dc90d82f8ff51b2b59c))
