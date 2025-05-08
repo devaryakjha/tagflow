@@ -22,6 +22,20 @@ class StyledContainer extends StatelessWidget {
   /// Child widget
   final Widget? child;
 
+  bool _needsContainer(TagflowStyle style) {
+    return style.padding != null ||
+        style.margin != null ||
+        style.width != null ||
+        style.height != null ||
+        style.minWidth != null ||
+        style.maxWidth != null ||
+        style.minHeight != null ||
+        style.maxHeight != null ||
+        style.alignment != null ||
+        style.toBoxDecoration() != null ||
+        style.transform != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (style.display == Display.none) {
@@ -41,6 +55,11 @@ class StyledContainer extends StatelessWidget {
       ),
       _ => content,
     };
+
+    if (!_needsContainer(style)) {
+      return content;
+    }
+
 
     return Container(
       padding: style.padding,
