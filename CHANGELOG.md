@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-05-14
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`tagflow` - `v0.0.4-dev.0`](#tagflow---v004-dev0)
+ - [`tagflow_table` - `v0.0.4-dev.0+5`](#tagflow_table---v004-dev05)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `tagflow_table` - `v0.0.4-dev.0+5`
+
+---
+
+#### `tagflow` - `v0.0.4-dev.0`
+
+ - **FIX**(parser): update node validation logic to allow valid empty nodes. ([677c4d48](https://github.com/devaryakjha/tagflow/commit/677c4d48f854555c1340b44d73c934c49ac781e4))
+ - **FEAT**(converter): enhance toString method to include custom and built-in converters. ([2f5f5e65](https://github.com/devaryakjha/tagflow/commit/2f5f5e65c7872b8d63ff556ecc9cf7b47347d547))
+
+
 ## 2025-05-08
 
 ### Changes

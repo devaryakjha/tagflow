@@ -1,3 +1,8 @@
+## 0.0.4-dev.0
+
+ - **FIX**(parser): update node validation logic to allow valid empty nodes. ([677c4d48](https://github.com/devaryakjha/tagflow/commit/677c4d48f854555c1340b44d73c934c49ac781e4))
+ - **FEAT**(converter): enhance toString method to include custom and built-in converters. ([2f5f5e65](https://github.com/devaryakjha/tagflow/commit/2f5f5e65c7872b8d63ff556ecc9cf7b47347d547))
+
 ## 0.0.3+2
 
  - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
