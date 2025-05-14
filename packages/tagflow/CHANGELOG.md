@@ -1,3 +1,7 @@
+## 0.0.4
+
+ - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.
+
 ## 0.0.4-dev.0
 
  - **FIX**(parser): update node validation logic to allow valid empty nodes. ([677c4d48](https://github.com/devaryakjha/tagflow/commit/677c4d48f854555c1340b44d73c934c49ac781e4))
