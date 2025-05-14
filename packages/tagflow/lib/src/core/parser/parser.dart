@@ -59,7 +59,7 @@ class TagflowParser {
         if (excludeTags.contains(node.localName)) {
           return true;
         }
-        return node.hasChildNodes() && node.nodes.every(isNodeValid);
+        return node.hasChildNodes() || node.nodes.every(isNodeValid);
       }
 
       return false;
@@ -89,7 +89,7 @@ class TagflowParser {
       return true;
     }
 
-    return node.hasChildren && node.children.every(isValidNode);
+    return node.hasChildren || node.children.every(isValidNode);
   }
 }
 
