@@ -204,6 +204,11 @@ class TagflowConverter {
   ) {
     return elements.map((e) => convert(e, context)).toList();
   }
+
+  @override
+  String toString() {
+    return 'TagflowConverter(customConverters: $_customConverters, builtInConverters: $_builtInConverters)';
+  }
 }
 
 /// Default fallback converter for unknown elements
