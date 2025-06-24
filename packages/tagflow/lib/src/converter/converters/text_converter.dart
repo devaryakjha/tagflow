@@ -10,6 +10,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
   @override
   Set<String> get supportedTags => {
     'p',
+    'font',
     'h1',
     'h2',
     'h3',
