@@ -56,6 +56,7 @@ final class ImgConverter extends ElementConverter<TagflowImgElement> {
     if (!element.hasAttribute('src')) {
       throw Exception('Image tag must have a src attribute');
     }
+    final options = TagflowOptions.maybeOf(context);
     final style = resolveStyle(element, context);
     // Lets use alt for semantics
     return StyledContainer(
@@ -66,8 +67,14 @@ final class ImgConverter extends ElementConverter<TagflowImgElement> {
         child: Image.network(
           element.src ?? '',
           semanticLabel: element.alt,
-          width: element.width,
-          height: element.height,
+          width: element.width?.clamp(
+            0,
+            options?.maxImageWidth ?? double.infinity,
+          ),
+          height: element.height?.clamp(
+            0,
+            options?.maxImageHeight ?? double.infinity,
+          ),
           fit: element.fit,
         ),
       ),

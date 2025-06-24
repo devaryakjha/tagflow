@@ -116,7 +116,8 @@ class _TagflowState extends State<Tagflow> {
       options: widget.options,
       child:
           widget.theme != null
-              ? TagflowThemeProvider(
+              ? TagflowThemeProvider.merge(
+                context,
                 theme: widget.theme!,
                 child: Builder(builder: _buildContent),
               )

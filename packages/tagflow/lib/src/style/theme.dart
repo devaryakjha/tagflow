@@ -551,6 +551,23 @@ class TagflowThemeProvider extends InheritedWidget {
     super.key,
   });
 
+  factory TagflowThemeProvider.merge(
+    BuildContext context, {
+    required TagflowTheme theme,
+    required Widget child,
+    Key? key,
+  }) {
+    final parent = maybeOf(context);
+    if (parent != null) {
+      return TagflowThemeProvider(
+        theme: parent.merge(theme),
+        key: key,
+        child: child,
+      );
+    }
+    return TagflowThemeProvider(theme: theme, key: key, child: child);
+  }
+
   /// The theme to provide to descendants
   final TagflowTheme theme;
 
