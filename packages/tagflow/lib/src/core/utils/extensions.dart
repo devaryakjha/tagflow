@@ -10,13 +10,7 @@ extension TagflowNodeStyle on TagflowNode {
   Map<String, String>? get styles {
     final styleStr = style;
     if (styleStr == null || styleStr.isEmpty) return null;
-
-    return Map.fromEntries(
-      styleStr.split(';').map((declaration) {
-        final parts = declaration.split(':').map((s) => s.trim()).toList();
-        return parts.length == 2 ? MapEntry(parts[0], parts[1]) : null;
-      }).whereType<MapEntry<String, String>>(),
-    );
+    return StyleParser.parseDeclarations(styleStr);
   }
 
   /// Returns class names as a list

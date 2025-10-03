@@ -4,6 +4,9 @@ import 'package:tagflow/tagflow.dart';
 abstract class NodeParser<T extends TagflowNode> {
   const NodeParser();
 
+  // Cached RegEx pattern for performance
+  static final _whitespaceRegex = RegExp(r'[ \t]+');
+
   T? tryParse(dom.Node node, TagflowParser parser);
   bool canHandle(dom.Node node);
 
@@ -28,7 +31,7 @@ abstract class NodeParser<T extends TagflowNode> {
   String normalizeWhitespace(String text) {
     // Collapse spaces/tabs within each line
     String replaceSpaces(String lines) {
-      return lines.replaceAll(RegExp(r'[ \t]+'), ' ');
+      return lines.replaceAll(_whitespaceRegex, ' ');
     }
 
     // Preserve newlines but collapse multiple spaces between words

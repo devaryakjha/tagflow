@@ -97,46 +97,46 @@ class TextConverter extends ElementConverter<TagflowElement> {
     BuildContext context,
     TagflowConverter converter,
   ) {
-    return element.children.map((child) {
-      final resolvedStyle =
-          child.isTextNode ? null : resolveStyle(child, context);
+    // Compute parent properties once before loop (optimization)
+    final parentGestures = _getGestures(element, context);
+    final parentCursor = _getMouseCursor(element, context);
 
-      // Get parent gestures and cursor if the parent is an interactive element
-      final parentGestures = _getGestures(element, context);
-      final parentCursor = _getMouseCursor(element, context);
+    final result = <InlineSpan>[];
 
-      // create a text span for text nodes
+    for (final child in element.children) {
       if (child.isTextNode) {
-        return TextSpan(
+        // Text nodes don't need style resolution
+        result.add(TextSpan(
           text: child.textContent,
-          // Use parent gestures for text nodes if available
-          recognizer: parentGestures ?? _getGestures(child, context),
-          mouseCursor: parentCursor ?? _getMouseCursor(child, context),
-          style: getTextStyle(child, resolvedStyle, context),
-        );
+          recognizer: parentGestures,
+          mouseCursor: parentCursor,
+          style: getTextStyle(child, null, context),
+        ));
       } else {
+        final resolvedStyle = resolveStyle(child, context);
+
         if (!canHandle(child) || shouldForceWidgetSpan(child)) {
-          // create a widget span for unsupported elements
-          return WidgetSpan(
+          // Create a widget span for unsupported elements
+          result.add(WidgetSpan(
             child: converter.convert(child, context),
             style: getTextStyle(child, resolvedStyle, context),
             alignment: PlaceholderAlignment.middle,
-          );
+          ));
+        } else {
+          // Create a text span for supported elements
+          result.add(TextSpan(
+            children: _convertChildren(child, context, converter),
+            style: getTextStyle(child, resolvedStyle, context),
+            // Only add gestures if node contains direct text content
+            recognizer:
+                (child.textContent ?? '').isNotEmpty ? parentGestures : null,
+            mouseCursor: parentCursor,
+          ));
         }
-
-        // create a text span for supported elements
-        return TextSpan(
-          children: _convertChildren(child, context, converter),
-          style: getTextStyle(child, resolvedStyle, context),
-          // Only add gestures if this node contains direct text content
-          recognizer:
-              (child.textContent ?? '').isNotEmpty
-                  ? (parentGestures ?? _getGestures(child, context))
-                  : null,
-          mouseCursor: parentCursor ?? _getMouseCursor(child, context),
-        );
       }
-    }).toList();
+    }
+
+    return result;
   }
 
   MouseCursor? _getMouseCursor(TagflowNode element, BuildContext context) =>

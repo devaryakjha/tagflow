@@ -105,21 +105,41 @@ class TagflowTheme extends Equatable {
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
 
+    // Spacing multipliers (relative to base font size)
+    const spacingMultiplier = 0.5;
+    const blockPaddingMultiplier = 1.0;
+    const blockMarginMultiplier = 1.0;
+    const inlineCodeMarginMultiplier = 0.25;
+    const listPaddingMultiplier = 1.5;
+    const tableCellPaddingMultiplier = 0.5;
+    const inlineCodePaddingHMultiplier = 0.25;
+    const inlineCodePaddingVMultiplier = 0.125;
+    const borderWidthMultiplier = 0.25;
+    const tableBorderWidthMultiplier = 0.125;
+
+    // Heading margin multipliers
+    const h1MarginMultiplier = 0.8;
+    const h2MarginMultiplier = 0.7;
+    const h3MarginMultiplier = 0.6;
+    const h4MarginMultiplier = 0.5;
+    const h5MarginMultiplier = 0.4;
+    const h6MarginMultiplier = 0.3;
+
     // Default spacing values
-    final defaultSpacing = EdgeInsets.all(baseFontSize * 0.5);
-    final defaultBlockPadding = EdgeInsets.all(baseFontSize);
-    final defaultBlockMargin = EdgeInsets.symmetric(vertical: baseFontSize);
+    final defaultSpacing = EdgeInsets.all(baseFontSize * spacingMultiplier);
+    final defaultBlockPadding = EdgeInsets.all(baseFontSize * blockPaddingMultiplier);
+    final defaultBlockMargin = EdgeInsets.symmetric(vertical: baseFontSize * blockMarginMultiplier);
     final defaultInlineCodeMargin = EdgeInsets.symmetric(
-      vertical: baseFontSize * 0.25,
+      vertical: baseFontSize * inlineCodeMarginMultiplier,
     );
-    final defaultListPadding = EdgeInsets.only(left: baseFontSize * 1.5);
-    final defaultTableCellPadding = EdgeInsets.all(baseFontSize * 0.5);
+    final defaultListPadding = EdgeInsets.only(left: baseFontSize * listPaddingMultiplier);
+    final defaultTableCellPadding = EdgeInsets.all(baseFontSize * tableCellPaddingMultiplier);
     final defaultInlineCodePadding = EdgeInsets.symmetric(
-      horizontal: baseFontSize * 0.25,
-      vertical: baseFontSize * 0.125,
+      horizontal: baseFontSize * inlineCodePaddingHMultiplier,
+      vertical: baseFontSize * inlineCodePaddingVMultiplier,
     );
-    final defaultBorderWidth = baseFontSize * 0.25;
-    final defaultTableBorderWidth = baseFontSize * 0.125;
+    final defaultBorderWidth = baseFontSize * borderWidthMultiplier;
+    final defaultTableBorderWidth = baseFontSize * tableBorderWidthMultiplier;
 
     return TagflowTheme._(
       defaultStyle: TagflowStyle(
@@ -130,27 +150,27 @@ class TagflowTheme extends Equatable {
         'p': TagflowStyle(margin: paragraphMargin ?? defaultBlockMargin),
         'h1': TagflowStyle(
           textStyle: h1Style ?? textTheme.displayLarge,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.8),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h1MarginMultiplier),
         ),
         'h2': TagflowStyle(
           textStyle: h2Style ?? textTheme.displayMedium,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.7),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h2MarginMultiplier),
         ),
         'h3': TagflowStyle(
           textStyle: h3Style ?? textTheme.displaySmall,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.6),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h3MarginMultiplier),
         ),
         'h4': TagflowStyle(
           textStyle: h4Style ?? textTheme.headlineMedium,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.5),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h4MarginMultiplier),
         ),
         'h5': TagflowStyle(
           textStyle: h5Style ?? textTheme.headlineSmall,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.4),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h5MarginMultiplier),
         ),
         'h6': TagflowStyle(
           textStyle: h6Style ?? textTheme.titleLarge,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * 0.3),
+          margin: EdgeInsets.symmetric(vertical: baseFontSize * h6MarginMultiplier),
         ),
         'pre': TagflowStyle(
           textStyle:

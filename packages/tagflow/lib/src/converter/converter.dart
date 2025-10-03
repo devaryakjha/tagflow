@@ -5,6 +5,70 @@ import 'dart:developer';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
+/// Parsed selector for efficient matching
+class _ParsedSelector {
+  const _ParsedSelector({
+    required this.tag,
+    this.pseudo,
+    this.isDirectChild = false,
+    this.ancestors,
+    this.isNegation = false,
+  });
+
+  final String tag;
+  final String? pseudo;
+  final bool isDirectChild;
+  final List<String>? ancestors;
+  final bool isNegation;
+
+  /// Parse a selector string into a _ParsedSelector
+  static _ParsedSelector parse(String selector) {
+    // Handle negation
+    final isNegation = selector.startsWith('!');
+    final cleanSelector = isNegation ? selector.substring(1) : selector;
+
+    // Handle pseudo-selectors
+    if (cleanSelector.contains(':')) {
+      final parts = cleanSelector.split(':');
+      final baseSelector = parse(parts[0]);
+      return _ParsedSelector(
+        tag: baseSelector.tag,
+        pseudo: parts[1],
+        isDirectChild: baseSelector.isDirectChild,
+        ancestors: baseSelector.ancestors,
+        isNegation: isNegation,
+      );
+    }
+
+    // Handle direct child selector (>)
+    if (cleanSelector.contains('>')) {
+      final parts = cleanSelector.split('>').map((e) => e.trim()).toList();
+      return _ParsedSelector(
+        tag: parts.last,
+        isDirectChild: true,
+        ancestors: parts.sublist(0, parts.length - 1),
+        isNegation: isNegation,
+      );
+    }
+
+    // Handle ancestor-descendant selector
+    if (cleanSelector.contains(' ')) {
+      final parts = cleanSelector.split(' ').map((e) => e.trim()).toList();
+      return _ParsedSelector(
+        tag: parts.last,
+        ancestors: parts.sublist(0, parts.length - 1),
+        isNegation: isNegation,
+      );
+    }
+
+    // Simple tag match
+    return _ParsedSelector(tag: cleanSelector, isNegation: isNegation);
+  }
+}
+
+/// Cache for parsed selectors (shared across all converter instances)
+final _globalSelectorCache = <String, _ParsedSelector>{};
+
 /// Base interface for element converters
 abstract class ElementConverter<T extends TagflowNode> {
   /// Create a new element converter
@@ -22,23 +86,67 @@ abstract class ElementConverter<T extends TagflowNode> {
   /// Whether this converter can handle the given element
   bool canHandle(TagflowNode element) {
     for (final selector in supportedTags) {
-      if (_matchesSelector(element, selector)) {
+      // Get or parse selector from cache
+      final parsed = _globalSelectorCache.putIfAbsent(
+        selector,
+        () => _ParsedSelector.parse(selector),
+      );
+      if (_matchesParsedSelector(element, parsed)) {
         return true;
       }
     }
     return false;
   }
 
-  /// Check if element matches a selector
-  bool _matchesSelector(TagflowNode element, String selector) {
-    // Handle negation
-    if (selector.startsWith('!')) {
-      log('Negation selector: $selector');
-      final baseSelector = selector.substring(1);
-      return element.tag == baseSelector.split(' ').last &&
-          !matchPositiveSelector(element, baseSelector);
+  /// Check if element matches a parsed selector
+  bool _matchesParsedSelector(TagflowNode element, _ParsedSelector selector) {
+    // Check tag match first (fast path)
+    if (element.tag != selector.tag) return false;
+
+    // Check pseudo-selector
+    if (selector.pseudo != null) {
+      final pseudoMatches = switch (selector.pseudo) {
+        'first-child' => element.isFirstChild,
+        'last-child' => element.isLastChild,
+        _ => false,
+      };
+      if (!pseudoMatches) return false;
     }
-    return matchPositiveSelector(element, selector);
+
+    // Check ancestors if needed
+    if (selector.ancestors != null && selector.ancestors!.isNotEmpty) {
+      if (selector.isDirectChild) {
+        // Direct child: match parent chain exactly
+        var current = element.parent;
+        for (var i = selector.ancestors!.length - 1; i >= 0; i--) {
+          if (current == null || current.tag != selector.ancestors![i]) {
+            return selector.isNegation;
+          }
+          if (i > 0) {
+            current = current.parent;
+          }
+        }
+      } else {
+        // Descendant: search up the tree
+        var parent = element.parent;
+        for (var i = selector.ancestors!.length - 1; i >= 0; i--) {
+          var found = false;
+          while (parent != null) {
+            if (parent.tag == selector.ancestors![i]) {
+              found = true;
+              if (i == 0) break;
+              parent = parent.parent;
+              break;
+            }
+            parent = parent.parent;
+          }
+          if (!found) return selector.isNegation;
+        }
+      }
+    }
+
+    // Return opposite if negation
+    return !selector.isNegation;
   }
 
   @protected
