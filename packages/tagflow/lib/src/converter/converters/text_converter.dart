@@ -68,7 +68,6 @@ class TextConverter extends ElementConverter<TagflowElement> {
           recognizer: _getGestures(element, context),
           mouseCursor: _getMouseCursor(element, context),
         ),
-        textScaler: _getTextScaler(style),
         style: getTextStyle(element, style, context),
         softWrap: style.softWrap,
         maxLines: style.maxTextLines,
@@ -161,12 +160,6 @@ class TextConverter extends ElementConverter<TagflowElement> {
         _ => null,
       };
 
-  TextScaler? _getTextScaler(TagflowStyle style) {
-    return style.textScaleFactor != null
-        ? TextScaler.linear(style.textScaleFactor!)
-        : null;
-  }
-
   /// Get the text style for a given element
   TextStyle? getTextStyle(
     TagflowNode element,
@@ -176,6 +169,20 @@ class TextConverter extends ElementConverter<TagflowElement> {
     if (element.isTextNode) {
       return null;
     }
-    return resolvedStyle?.textStyleWithColor;
+    var textStyle = resolvedStyle?.textStyleWithColor;
+
+    // Apply text scale factor directly to fontSize to avoid compounding
+    // in nested elements
+    if (resolvedStyle?.textScaleFactor != null && textStyle != null) {
+      final currentFontSize =
+          textStyle.fontSize ??
+          DefaultTextStyle.of(context).style.fontSize ??
+          14.0;
+      textStyle = textStyle.copyWith(
+        fontSize: currentFontSize * resolvedStyle!.textScaleFactor!,
+      );
+    }
+
+    return textStyle;
   }
 }
