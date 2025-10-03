@@ -393,20 +393,22 @@ class StyleParser {
       switch (function) {
         case 'translate':
           if (values.length >= 2) {
-            transform.translate(
+            transform.translateByDouble(
               values[0],
               values[1],
               values.length > 2 ? values[2] : 0,
+              1,
             );
           } else {
             return null;
           }
         case 'scale':
           if (values.isNotEmpty) {
-            transform.scale(
+            transform.scaleByDouble(
               values[0],
               values.length > 1 ? values[1] : values[0],
               values.length > 2 ? values[2] : 1,
+              1,
             );
           } else {
             return null;
