@@ -1,7 +1,5 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'dart:developer';
-
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 
@@ -15,14 +13,8 @@ class _ParsedSelector {
     this.isNegation = false,
   });
 
-  final String tag;
-  final String? pseudo;
-  final bool isDirectChild;
-  final List<String>? ancestors;
-  final bool isNegation;
-
   /// Parse a selector string into a _ParsedSelector
-  static _ParsedSelector parse(String selector) {
+  factory _ParsedSelector.parse(String selector) {
     // Handle negation
     final isNegation = selector.startsWith('!');
     final cleanSelector = isNegation ? selector.substring(1) : selector;
@@ -30,7 +22,7 @@ class _ParsedSelector {
     // Handle pseudo-selectors
     if (cleanSelector.contains(':')) {
       final parts = cleanSelector.split(':');
-      final baseSelector = parse(parts[0]);
+      final baseSelector = _ParsedSelector.parse(parts[0]);
       return _ParsedSelector(
         tag: baseSelector.tag,
         pseudo: parts[1],
@@ -64,6 +56,12 @@ class _ParsedSelector {
     // Simple tag match
     return _ParsedSelector(tag: cleanSelector, isNegation: isNegation);
   }
+
+  final String tag;
+  final String? pseudo;
+  final bool isDirectChild;
+  final List<String>? ancestors;
+  final bool isNegation;
 }
 
 /// Cache for parsed selectors (shared across all converter instances)

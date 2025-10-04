@@ -106,32 +106,38 @@ class TextConverter extends ElementConverter<TagflowElement> {
     for (final child in element.children) {
       if (child.isTextNode) {
         // Text nodes don't need style resolution
-        result.add(TextSpan(
-          text: child.textContent,
-          recognizer: parentGestures,
-          mouseCursor: parentCursor,
-          style: getTextStyle(child, null, context),
-        ));
+        result.add(
+          TextSpan(
+            text: child.textContent,
+            recognizer: parentGestures,
+            mouseCursor: parentCursor,
+            style: getTextStyle(child, null, context),
+          ),
+        );
       } else {
         final resolvedStyle = resolveStyle(child, context);
 
         if (!canHandle(child) || shouldForceWidgetSpan(child)) {
           // Create a widget span for unsupported elements
-          result.add(WidgetSpan(
-            child: converter.convert(child, context),
-            style: getTextStyle(child, resolvedStyle, context),
-            alignment: PlaceholderAlignment.middle,
-          ));
+          result.add(
+            WidgetSpan(
+              child: converter.convert(child, context),
+              style: getTextStyle(child, resolvedStyle, context),
+              alignment: PlaceholderAlignment.middle,
+            ),
+          );
         } else {
           // Create a text span for supported elements
-          result.add(TextSpan(
-            children: _convertChildren(child, context, converter),
-            style: getTextStyle(child, resolvedStyle, context),
-            // Only add gestures if node contains direct text content
-            recognizer:
-                (child.textContent ?? '').isNotEmpty ? parentGestures : null,
-            mouseCursor: parentCursor,
-          ));
+          result.add(
+            TextSpan(
+              children: _convertChildren(child, context, converter),
+              style: getTextStyle(child, resolvedStyle, context),
+              // Only add gestures if node contains direct text content
+              recognizer:
+                  (child.textContent ?? '').isNotEmpty ? parentGestures : null,
+              mouseCursor: parentCursor,
+            ),
+          );
         }
       }
     }

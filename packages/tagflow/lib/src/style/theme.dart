@@ -127,13 +127,21 @@ class TagflowTheme extends Equatable {
 
     // Default spacing values
     final defaultSpacing = EdgeInsets.all(baseFontSize * spacingMultiplier);
-    final defaultBlockPadding = EdgeInsets.all(baseFontSize * blockPaddingMultiplier);
-    final defaultBlockMargin = EdgeInsets.symmetric(vertical: baseFontSize * blockMarginMultiplier);
+    final defaultBlockPadding = EdgeInsets.all(
+      baseFontSize * blockPaddingMultiplier,
+    );
+    final defaultBlockMargin = EdgeInsets.symmetric(
+      vertical: baseFontSize * blockMarginMultiplier,
+    );
     final defaultInlineCodeMargin = EdgeInsets.symmetric(
       vertical: baseFontSize * inlineCodeMarginMultiplier,
     );
-    final defaultListPadding = EdgeInsets.only(left: baseFontSize * listPaddingMultiplier);
-    final defaultTableCellPadding = EdgeInsets.all(baseFontSize * tableCellPaddingMultiplier);
+    final defaultListPadding = EdgeInsets.only(
+      left: baseFontSize * listPaddingMultiplier,
+    );
+    final defaultTableCellPadding = EdgeInsets.all(
+      baseFontSize * tableCellPaddingMultiplier,
+    );
     final defaultInlineCodePadding = EdgeInsets.symmetric(
       horizontal: baseFontSize * inlineCodePaddingHMultiplier,
       vertical: baseFontSize * inlineCodePaddingVMultiplier,
@@ -150,27 +158,39 @@ class TagflowTheme extends Equatable {
         'p': TagflowStyle(margin: paragraphMargin ?? defaultBlockMargin),
         'h1': TagflowStyle(
           textStyle: h1Style ?? textTheme.displayLarge,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h1MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h1MarginMultiplier,
+          ),
         ),
         'h2': TagflowStyle(
           textStyle: h2Style ?? textTheme.displayMedium,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h2MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h2MarginMultiplier,
+          ),
         ),
         'h3': TagflowStyle(
           textStyle: h3Style ?? textTheme.displaySmall,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h3MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h3MarginMultiplier,
+          ),
         ),
         'h4': TagflowStyle(
           textStyle: h4Style ?? textTheme.headlineMedium,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h4MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h4MarginMultiplier,
+          ),
         ),
         'h5': TagflowStyle(
           textStyle: h5Style ?? textTheme.headlineSmall,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h5MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h5MarginMultiplier,
+          ),
         ),
         'h6': TagflowStyle(
           textStyle: h6Style ?? textTheme.titleLarge,
-          margin: EdgeInsets.symmetric(vertical: baseFontSize * h6MarginMultiplier),
+          margin: EdgeInsets.symmetric(
+            vertical: baseFontSize * h6MarginMultiplier,
+          ),
         ),
         'pre': TagflowStyle(
           textStyle:

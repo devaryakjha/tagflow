@@ -336,23 +336,28 @@ class StyleParser {
         final x = _sizeValueToPixels(parseSizeValue(parts[0]));
         final y = _sizeValueToPixels(parseSizeValue(parts[1]));
         final blur = _sizeValueToPixels(parseSizeValue(parts[2]));
-        final spread = parts.length > 3
-            ? _sizeValueToPixels(parseSizeValue(parts[3])) ?? 0.0
-            : 0.0;
+        final spread =
+            parts.length > 3
+                ? _sizeValueToPixels(parseSizeValue(parts[3])) ?? 0.0
+                : 0.0;
 
         if (x == null || y == null || blur == null) continue;
 
-        final colorStr = parts.any(_colorPartRegex.hasMatch)
-            ? parts.firstWhere(_colorPartRegex.hasMatch)
-            : 'rgba(0,0,0,0.2)';
-        final color = parseColor(colorStr) ?? Colors.black.withOpacity(0.2);
+        final colorStr =
+            parts.any(_colorPartRegex.hasMatch)
+                ? parts.firstWhere(_colorPartRegex.hasMatch)
+                : 'rgba(0,0,0,0.2)';
+        final color =
+            parseColor(colorStr) ?? Colors.black.withValues(alpha: 0.2);
 
-        shadows.add(BoxShadow(
-          color: color,
-          offset: Offset(x, y),
-          blurRadius: blur,
-          spreadRadius: spread,
-        ));
+        shadows.add(
+          BoxShadow(
+            color: color,
+            offset: Offset(x, y),
+            blurRadius: blur,
+            spreadRadius: spread,
+          ),
+        );
       } catch (e) {
         continue;
       }
@@ -552,8 +557,7 @@ class StyleParser {
   static EdgeInsets? _parseStyleEdgeInsets(
     Map<String, String> styles,
     String key,
-  ) =>
-      styles[key] != null ? parseEdgeInsets(styles[key]!) : null;
+  ) => styles[key] != null ? parseEdgeInsets(styles[key]!) : null;
 
   static TextAlign? _parseStyleTextAlign(Map<String, String> styles) =>
       styles['text-align'] != null
@@ -571,8 +575,7 @@ class StyleParser {
   static BorderSide? _parseStyleBorderSide(
     Map<String, String> styles,
     String key,
-  ) =>
-      styles[key] != null ? parseBorderSide(styles[key]!) : null;
+  ) => styles[key] != null ? parseBorderSide(styles[key]!) : null;
 
   static List<BoxShadow>? _parseStyleBoxShadow(Map<String, String> styles) =>
       styles['box-shadow'] != null
@@ -583,8 +586,9 @@ class StyleParser {
     Map<String, String> styles,
   ) =>
       styles['justify-content'] != null
-          ? parseJustifyContent(styles['justify-content']!)
-              ?.toMainAxisAlignment()
+          ? parseJustifyContent(
+            styles['justify-content']!,
+          )?.toMainAxisAlignment()
           : null;
 
   static CrossAxisAlignment? _parseStyleAlignItems(
