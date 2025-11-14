@@ -146,25 +146,25 @@ class TextConverter extends ElementConverter<TagflowElement> {
   }
 
   MouseCursor? _getMouseCursor(TagflowNode element, BuildContext context) =>
-      switch (element.parentTag) {
-        'a' => SystemMouseCursors.click,
-        _ => null,
-      };
+      _findLinkElement(element) != null ? SystemMouseCursors.click : null;
 
-  GestureRecognizer? _getGestures(TagflowNode element, BuildContext context) =>
-      switch (element.parentTag) {
-        'a' =>
-          TapGestureRecognizer()
-            ..onTap = Feedback.wrapForTap(() {
-              final link = element.parentHref;
-              final options = TagflowOptions.of(context);
-              final cb = options.linkTapCallback;
-              if (cb != null && link != null) {
-                cb(link, element.attributes);
-              }
-            }, context),
-        _ => null,
-      };
+  GestureRecognizer? _getGestures(TagflowNode element, BuildContext context) {
+    final linkElement = _findLinkElement(element);
+    final link = linkElement?.href;
+    if (linkElement == null || link == null) return null;
+
+    return TapGestureRecognizer()
+      ..onTap = Feedback.wrapForTap(() {
+        final options = TagflowOptions.of(context);
+        final cb = options.linkTapCallback;
+        if (cb != null) {
+          cb(link, linkElement.attributes);
+        }
+      }, context);
+  }
+
+  TagflowNode? _findLinkElement(TagflowNode element) =>
+      element.tag == 'a' ? element : lookupParent(element, 'a');
 
   /// Get the text style for a given element
   TextStyle? getTextStyle(

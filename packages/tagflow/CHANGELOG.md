@@ -1,3 +1,8 @@
+## 0.0.7
+
+ - **FIX**(text_converter): ensure `linkTapCallback` fires for anchors that wrap nested widgets and show correct pointer cursor.
+ - **TEST**: add widget test verifying link tap callback behavior.
+
 ## 0.0.6
 
  - **PERF**: Comprehensive performance optimizations (~75-80% faster parsing and rendering)
