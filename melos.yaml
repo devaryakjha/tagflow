@@ -94,3 +94,4 @@ scripts:
     description: Combine coverage reports from all packages
     packageFilters:
       dirExists: coverage
+sdkPath: .fvm/flutter_sdk
