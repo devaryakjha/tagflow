@@ -56,7 +56,6 @@ class Tagflow extends StatefulWidget {
 
 class _TagflowState extends State<Tagflow> {
   late TagflowConverter _converter;
-  late TagflowParser parser = TagflowParser(debug: widget.options.debug);
   TagflowNode? _element;
   Object? _error;
 
@@ -71,7 +70,8 @@ class _TagflowState extends State<Tagflow> {
   void didUpdateWidget(Tagflow oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.html != widget.html) {
+    if (oldWidget.html != widget.html ||
+        oldWidget.options.renderBoundary != widget.options.renderBoundary) {
       _parseHtml();
     }
 
@@ -83,6 +83,10 @@ class _TagflowState extends State<Tagflow> {
 
   void _parseHtml() {
     try {
+      final parser = TagflowParser(
+        debug: widget.options.debug,
+        renderBoundary: widget.options.renderBoundary,
+      );
       _element = parser.parse(widget.html);
       _error = null;
     } catch (e, stack) {

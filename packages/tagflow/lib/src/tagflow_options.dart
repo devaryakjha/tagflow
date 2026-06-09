@@ -50,6 +50,53 @@ final class TagflowSelectableOptions extends Equatable {
   List<Object?> get props => [enabled, imageSelectionBehavior];
 }
 
+/// Boundary that limits rendering when matched while parsing the HTML tree.
+final class TagflowRenderBoundary extends Equatable {
+  /// Renders content between optional HTML comment markers.
+  ///
+  /// If [start] is omitted, rendering starts at the beginning of the tree.
+  /// If [end] is omitted, rendering continues through the end of the tree.
+  ///
+  /// For example, `comment(end: 'end-of-mobile')` matches
+  /// `<!--end-of-mobile-->`.
+  const TagflowRenderBoundary.comment({
+    this.start,
+    this.end,
+    this.caseSensitive = false,
+  });
+
+  /// Optional comment marker that starts rendering after it is encountered.
+  final String? start;
+
+  /// Optional comment marker that stops rendering before it is encountered.
+  final String? end;
+
+  /// Whether comment matching should be case-sensitive.
+  final bool caseSensitive;
+
+  /// Returns true when [comment] matches [start].
+  bool matchesStartComment(String comment) => _matchesComment(comment, start);
+
+  /// Returns true when [comment] matches [end].
+  bool matchesEndComment(String comment) => _matchesComment(comment, end);
+
+  bool _matchesComment(String comment, String? value) {
+    if (value == null) return false;
+    final normalizedValue = _normalize(value);
+    final normalizedComment = _normalize(comment);
+    return normalizedComment == normalizedValue;
+  }
+
+  String _normalize(String input) {
+    final trimmed = input.trim();
+    return caseSensitive ? trimmed : trimmed.toLowerCase();
+  }
+
+  @override
+  // coverage:ignore-line
+  List<Object?> get props => [start, end, caseSensitive];
+}
+
 /// Options for configuring the Tagflow widget
 ///
 /// [debug] Enable debug mode
@@ -66,6 +113,7 @@ final class TagflowOptions extends Equatable {
     this.maxImageWidth,
     this.maxImageHeight,
     this.enableImageCache = true,
+    this.renderBoundary,
   });
 
   /// Enable debug mode
@@ -92,6 +140,9 @@ final class TagflowOptions extends Equatable {
   /// Whether to cache images
   final bool enableImageCache;
 
+  /// Optional boundary that stops rendering part-way through the HTML tree.
+  final TagflowRenderBoundary? renderBoundary;
+
   /// Create a copy with some properties replaced
   TagflowOptions copyWith({
     bool? debug,
@@ -102,6 +153,7 @@ final class TagflowOptions extends Equatable {
     double? maxImageWidth,
     double? maxImageHeight,
     bool? enableImageCache,
+    TagflowRenderBoundary? renderBoundary,
   }) {
     return TagflowOptions(
       debug: debug ?? this.debug,
@@ -112,6 +164,7 @@ final class TagflowOptions extends Equatable {
       maxImageWidth: maxImageWidth ?? this.maxImageWidth,
       maxImageHeight: maxImageHeight ?? this.maxImageHeight,
       enableImageCache: enableImageCache ?? this.enableImageCache,
+      renderBoundary: renderBoundary ?? this.renderBoundary,
     );
   }
 
@@ -141,6 +194,7 @@ final class TagflowOptions extends Equatable {
     maxImageWidth,
     maxImageHeight,
     enableImageCache,
+    renderBoundary,
   ];
 }
 

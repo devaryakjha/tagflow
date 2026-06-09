@@ -1,3 +1,8 @@
+## 0.0.8
+
+ - **FEAT**(parser): add `TagflowRenderBoundary` for optional HTML comment based render ranges.
+ - **TEST**: add parser coverage for start-only, end-only, paired, missing-marker, and exact comment matching behavior.
+
 ## 0.0.7
 
  - **FIX**(text_converter): ensure `linkTapCallback` fires for anchors that wrap nested widgets and show correct pointer cursor.

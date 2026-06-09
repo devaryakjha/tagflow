@@ -63,10 +63,6 @@ abstract class NodeParser<T extends TagflowNode> {
   }
 
   List<TagflowNode> parseChildren(dom.Element element, TagflowParser parser) {
-    return element.nodes
-        .map(parser.parseNode)
-        .nonNulls
-        .where(parser.isValidNode)
-        .toList();
+    return parser.parseNodes(element.nodes);
   }
 }

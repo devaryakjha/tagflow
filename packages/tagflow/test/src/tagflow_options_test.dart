@@ -65,16 +65,19 @@ void main() {
 
     test('copyWith works correctly', () {
       const options = TagflowOptions(maxImageWidth: 100, maxImageHeight: 100);
+      const boundary = TagflowRenderBoundary.comment(end: 'end-of-mobile');
 
       final copied = options.copyWith(
         debug: true,
         maxImageWidth: 200,
         maxImageHeight: 200,
+        renderBoundary: boundary,
       );
 
       expect(copied.debug, true);
       expect(copied.maxImageWidth, 200);
       expect(copied.enableImageCache, true);
+      expect(copied.renderBoundary, boundary);
     });
 
     testWidgets('updates when options change', (tester) async {

@@ -10,13 +10,36 @@ import 'package:tagflow/tagflow.dart';
 
 /// Parses HTML string into TagflowElement
 class TagflowParser {
-  const TagflowParser({List<NodeParser>? parsers, this.debug = false})
-    : _parsers = parsers ?? const [ElementParser(), TableParser(), ImgParser()];
+  const TagflowParser({
+    List<NodeParser>? parsers,
+    this.debug = false,
+    this.renderBoundary,
+  }) : _renderBoundaryState = null,
+       _parsers =
+           parsers ?? const [ElementParser(), TableParser(), ImgParser()];
+
+  TagflowParser._run({
+    required List<NodeParser> parsers,
+    required this.debug,
+    required this.renderBoundary,
+  }) : _parsers = parsers,
+       _renderBoundaryState = _RenderBoundaryState(renderBoundary);
 
   final List<NodeParser> _parsers;
   final bool debug;
+  final TagflowRenderBoundary? renderBoundary;
+  final _RenderBoundaryState? _renderBoundaryState;
 
   TagflowNode parse(String input) {
+    final parser = TagflowParser._run(
+      parsers: _parsers,
+      debug: debug,
+      renderBoundary: renderBoundary,
+    );
+    return parser._parse(input);
+  }
+
+  TagflowNode _parse(String input) {
     final document = html.parse(input);
 
     if (debug) {
@@ -28,6 +51,10 @@ class TagflowParser {
     if (body == null) {
       throw const FormatException('Invalid HTML: no body element found');
     }
+
+    _renderBoundaryState?.setHasStartBoundary(
+      hasStartBoundary: _hasStartBoundary(body.nodes),
+    );
 
     final validNodes = parseNodes(body.nodes).where(isValidNode).toList();
 
@@ -65,7 +92,24 @@ class TagflowParser {
       return false;
     }
 
-    return nodes.where(isNodeValid).map(parseNode).nonNulls.toList();
+    final parsedNodes = <TagflowNode>[];
+    for (final node in nodes) {
+      final state = _renderBoundaryState;
+      if (state != null && _handleRenderBoundary(node, state)) break;
+      if (state?.isRendering == false && node is! dom.Element) continue;
+      if (!isNodeValid(node)) continue;
+      final wasRendering = state?.isRendering ?? true;
+      final parsedNode = parseNode(node);
+      final canAddNode =
+          wasRendering ||
+          (state?.isRendering ?? false) ||
+          (state?.isStopped ?? false);
+      if (canAddNode && parsedNode != null && isValidNode(parsedNode)) {
+        parsedNodes.add(parsedNode);
+      }
+      if (state?.isStopped ?? false) break;
+    }
+    return parsedNodes;
   }
 
   TagflowNode? parseNode(dom.Node node) {
@@ -90,6 +134,58 @@ class TagflowParser {
     }
 
     return node.hasChildren || node.children.every(isValidNode);
+  }
+
+  bool _handleRenderBoundary(dom.Node node, _RenderBoundaryState state) {
+    final boundary = renderBoundary;
+    if (boundary == null || node is! dom.Comment) return false;
+    final data = node.data;
+    if (data == null) return false;
+    if (state.isRendering && boundary.matchesEndComment(data)) {
+      state.stop();
+      return true;
+    }
+    if (!state.isRendering && boundary.matchesStartComment(data)) {
+      state.start();
+    }
+    return false;
+  }
+
+  bool _hasStartBoundary(dom.NodeList nodes) {
+    final boundary = renderBoundary;
+    if (boundary?.start == null) return false;
+    for (final node in nodes) {
+      if (node is dom.Comment) {
+        final data = node.data;
+        if (data != null && boundary!.matchesStartComment(data)) return true;
+      }
+      if (node is dom.Element && _hasStartBoundary(node.nodes)) return true;
+    }
+    return false;
+  }
+}
+
+class _RenderBoundaryState {
+  _RenderBoundaryState(TagflowRenderBoundary? boundary)
+    : _isRendering = boundary?.start == null;
+
+  bool _isRendering;
+  bool _isStopped = false;
+
+  bool get isRendering => _isRendering && !_isStopped;
+  bool get isStopped => _isStopped;
+
+  void start() {
+    if (!_isStopped) _isRendering = true;
+  }
+
+  void stop() {
+    _isStopped = true;
+    _isRendering = false;
+  }
+
+  void setHasStartBoundary({required bool hasStartBoundary}) {
+    if (!hasStartBoundary && !_isStopped) _isRendering = true;
   }
 }
 
