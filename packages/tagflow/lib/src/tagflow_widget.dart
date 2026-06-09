@@ -118,14 +118,13 @@ class _TagflowState extends State<Tagflow> {
   Widget build(BuildContext context) {
     return TagflowScope(
       options: widget.options,
-      child:
-          widget.theme != null
-              ? TagflowThemeProvider.merge(
-                context,
-                theme: widget.theme!,
-                child: Builder(builder: _buildContent),
-              )
-              : Builder(builder: _buildContent),
+      child: widget.theme != null
+          ? TagflowThemeProvider.merge(
+              context,
+              theme: widget.theme!,
+              child: Builder(builder: _buildContent),
+            )
+          : Builder(builder: _buildContent),
     );
   }
 

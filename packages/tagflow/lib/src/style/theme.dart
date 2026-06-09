@@ -613,15 +613,15 @@ class TagflowThemeProvider extends InheritedWidget {
 
   /// Get the nearest theme from the widget tree
   static TagflowTheme of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<TagflowThemeProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<TagflowThemeProvider>();
     return provider?.theme ?? TagflowTheme.fromTheme(Theme.of(context));
   }
 
   /// Get the nearest theme without registering for updates
   static TagflowTheme? maybeOf(BuildContext context) {
-    final provider =
-        context.getInheritedWidgetOfExactType<TagflowThemeProvider>();
+    final provider = context
+        .getInheritedWidgetOfExactType<TagflowThemeProvider>();
     return provider?.theme;
   }
 

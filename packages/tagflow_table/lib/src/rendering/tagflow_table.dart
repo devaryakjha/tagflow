@@ -798,9 +798,11 @@ class RenderTagflowTable extends RenderBox
                 .height /
             childParentData.rowSpan;
         for (var i = 0; i < childParentData.rowSpan; i++) {
-          rowHeights[childParentData.row + i] = rowHeights[childParentData.row +
-                  i]
-              .clamp(childHeight, double.infinity);
+          rowHeights[childParentData.row +
+              i] = rowHeights[childParentData.row + i].clamp(
+            childHeight,
+            double.infinity,
+          );
         }
         child = childParentData.nextSibling;
       }

@@ -6,13 +6,15 @@ homepage: https://docs.arya.run/tagflow
 issue_tracker: https://github.com/devaryakjha/tagflow/issues
 
 environment:
-  sdk: ">= 3.7.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
+
+resolution: workspace
 
 dependencies:
   equatable: ^2.0.7
   flutter:
     sdk: flutter
-  tagflow: ^0.0.4
+  tagflow: ^0.0.8
 
 dev_dependencies:
   flutter_test:

@@ -7,10 +7,9 @@ void main() {
     late RenderTagflowTable renderTable;
 
     setUp(() {
-      renderTable =
-          RenderTagflowTable()
-            ..setTableDimensions(2, 2)
-            ..setBorder(TagflowTableBorder());
+      renderTable = RenderTagflowTable()
+        ..setTableDimensions(2, 2)
+        ..setBorder(TagflowTableBorder());
     });
 
     test('initial setup is correct', () {

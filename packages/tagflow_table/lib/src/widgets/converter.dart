@@ -77,8 +77,9 @@ final class TagflowTableConverter
       final rowStyle = resolveStyle(row, context);
 
       // Filter out empty cells
-      final nonEmptyCells =
-          row.children.where((cell) => !cell.isEmpty).toList();
+      final nonEmptyCells = row.children
+          .where((cell) => !cell.isEmpty)
+          .toList();
 
       // Process each cell in the row
       var cellIndex = 0;
@@ -126,12 +127,14 @@ final class TagflowTableConverter
         // Create cell widget with styles
         final cellWidget = material.Container(
           alignment: cellStyle.alignment,
-          decoration: (cellStyle.toBoxDecoration() ??
-                  rowStyle.toBoxDecoration() ??
-                  const material.BoxDecoration())
-              .copyWith(
-                color: cellStyle.backgroundColor ?? rowStyle.backgroundColor,
-              ),
+          decoration:
+              (cellStyle.toBoxDecoration() ??
+                      rowStyle.toBoxDecoration() ??
+                      const material.BoxDecoration())
+                  .copyWith(
+                    color:
+                        cellStyle.backgroundColor ?? rowStyle.backgroundColor,
+                  ),
           child: _convertCell(cell, context, converter),
         );
 

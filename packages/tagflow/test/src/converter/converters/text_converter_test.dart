@@ -30,12 +30,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final linkRichText =
-        tester
-            .widgetList<RichText>(find.byType(RichText))
-            .firstWhere((richText) => richText.text.toPlainText().contains(
-              'Google',
-            ));
+    final linkRichText = tester
+        .widgetList<RichText>(find.byType(RichText))
+        .firstWhere(
+          (richText) => richText.text.toPlainText().contains('Google'),
+        );
 
     TapGestureRecognizer? findRecognizer(InlineSpan span) {
       if (span is TextSpan) {

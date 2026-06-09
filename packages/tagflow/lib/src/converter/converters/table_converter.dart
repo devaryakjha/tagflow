@@ -25,14 +25,13 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
           horizontalInside: style.effectiveBorder?.bottom ?? BorderSide.none,
           verticalInside: style.effectiveBorder?.right ?? BorderSide.none,
         ),
-        children:
-            element.rows.map((e) {
-              final style = resolveStyle(e, context);
-              return TableRow(
-                decoration: style.toBoxDecoration(),
-                children: converter.convertChildren(e.children, context),
-              );
-            }).toList(),
+        children: element.rows.map((e) {
+          final style = resolveStyle(e, context);
+          return TableRow(
+            decoration: style.toBoxDecoration(),
+            children: converter.convertChildren(e.children, context),
+          );
+        }).toList(),
       ),
     );
   }

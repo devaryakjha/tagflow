@@ -21,10 +21,9 @@ class TagflowImgElement extends TagflowNode {
   String? get alt => this['alt'];
 
   /// Returns the object-fit style as BoxFit
-  BoxFit? get fit =>
-      styles?['object-fit'] != null
-          ? StyleParser.parseBoxFit(styles!['object-fit']!)
-          : null;
+  BoxFit? get fit => styles?['object-fit'] != null
+      ? StyleParser.parseBoxFit(styles!['object-fit']!)
+      : null;
 
   @override
   void operator []=(String key, String value) {

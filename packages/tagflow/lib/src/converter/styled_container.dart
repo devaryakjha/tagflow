@@ -83,13 +83,9 @@ class StyledContainer extends StatelessWidget {
           child: DefaultTextStyle.merge(
             style: style.textStyleWithColor ?? const TextStyle(),
             textAlign: style.textAlign,
-            child:
-                style.aspectRatio != null
-                    ? AspectRatio(
-                      aspectRatio: style.aspectRatio!,
-                      child: content,
-                    )
-                    : content,
+            child: style.aspectRatio != null
+                ? AspectRatio(aspectRatio: style.aspectRatio!, child: content)
+                : content,
           ),
         ),
       ),

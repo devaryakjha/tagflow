@@ -131,15 +131,14 @@ void main() {
         },
       );
 
-      final parent =
-          const TagflowElement(
-            tag: 'div',
-            children: [
-              TagflowElement(tag: 'p', attributes: {'id': 'first'}),
-              TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
-              TagflowElement(tag: 'p', attributes: {'id': 'last'}),
-            ],
-          ).reparent();
+      final parent = const TagflowElement(
+        tag: 'div',
+        children: [
+          TagflowElement(tag: 'p', attributes: {'id': 'first'}),
+          TagflowElement(tag: 'p', attributes: {'id': 'middle'}),
+          TagflowElement(tag: 'p', attributes: {'id': 'last'}),
+        ],
+      ).reparent();
 
       final firstChild = parent.children.first;
       final middleChild = parent.children[1];

@@ -17,36 +17,47 @@ create_package:
 # MELOS
 activate-melos:
 	@echo "Activating melos..."
-	dart pub global activate melos
+	dart pub global activate melos ^7.8.1
 	@echo "Melos activated!"
+
+bootstrap:
+	@echo "Bootstrapping workspace..."
+	dart pub get
+	dart run melos bootstrap
+	@echo "Workspace bootstrapped!"
 
 test:
 	@echo "Running tests..."
-	melos run test
+	dart run melos run test
 	@echo "Tests completed!"
 
 format:
 	@echo "Formatting code..."
-	melos run format
+	dart run melos run format
 	@echo "Code formatted!"
 
 version-dev:
 	@echo "Updating version to dev..."
-	melos run version:dev
+	dart run melos run version:dev
 	@echo "Version updated to dev!"
 
 version-stable:
 	@echo "Updating version to stable..."
-	melos run version:stable
+	dart run melos run version:stable
 	@echo "Version updated to stable!"
+
+publish-dry-run:
+	@echo "Validating packages for publish..."
+	dart run melos run publish:dry-run
+	@echo "Publish validation completed!"
 
 publish:
 	@echo "Publishing packages..."
-	melos run publish
+	dart run melos run publish:packages
 	@echo "Packages published!"
 
 release: test format version-dev version-stable publish
 
 release-dev: test format version-dev publish
 
-.PHONY: create_package sync-git activate-melos release release-dev
+.PHONY: create_package sync-git activate-melos bootstrap test format version-dev version-stable publish-dry-run publish release release-dev

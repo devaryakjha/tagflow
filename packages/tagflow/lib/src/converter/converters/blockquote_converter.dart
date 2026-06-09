@@ -21,14 +21,13 @@ final class BlockquoteConverter extends ElementConverter<TagflowElement> {
     return StyledContainer(
       style: style,
       tag: element.tag,
-      child:
-          children.length == 1
-              ? children.first
-              : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: children,
-              ),
+      child: children.length == 1
+          ? children.first
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: children,
+            ),
     );
   }
 }

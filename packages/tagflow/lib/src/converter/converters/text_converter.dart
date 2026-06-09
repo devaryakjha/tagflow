@@ -133,8 +133,9 @@ class TextConverter extends ElementConverter<TagflowElement> {
               children: _convertChildren(child, context, converter),
               style: getTextStyle(child, resolvedStyle, context),
               // Only add gestures if node contains direct text content
-              recognizer:
-                  (child.textContent ?? '').isNotEmpty ? parentGestures : null,
+              recognizer: (child.textContent ?? '').isNotEmpty
+                  ? parentGestures
+                  : null,
               mouseCursor: parentCursor,
             ),
           );

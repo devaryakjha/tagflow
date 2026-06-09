@@ -1,7 +1,97 @@
 name: tagflow_workspace
+publish_to: none
 
 environment:
-  sdk: ">= 3.7.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
+
+workspace:
+  - packages/tagflow
+  - packages/tagflow_table
+  - examples/tagflow
 
 dev_dependencies:
-  melos: ^6.2.0
+  melos: ^7.8.1
+
+melos:
+  repository: https://github.com/devaryakjha/tagflow
+
+  command:
+    version:
+      linkToCommits: true
+      workspaceChangelog: true
+      releaseUrl: true
+
+  scripts:
+    analyze:
+      run: >
+        dart run melos exec -c 1 --fail-fast --
+        "flutter analyze . --fatal-infos"
+      description: Run analyzer in all packages
+
+    test:
+      run: >
+        dart run melos exec --dir-exists=test -c 1 --fail-fast --
+        "flutter test --coverage"
+      description: Run tests for all packages that have tests
+
+    format:
+      run: dart run melos exec -- "dart format ."
+      description: Format all Dart files
+
+    format:check:
+      run: dart run melos exec -- "dart format --set-exit-if-changed ."
+      description: Check if all Dart files are formatted
+
+    lint:all:
+      run: |
+        dart run melos run analyze --no-select &&
+        dart run melos run format:check --no-select
+      description: Run all static analysis checks
+
+    validate:
+      run: |
+        dart run melos run lint:all &&
+        dart run melos run test --no-select
+      description: Run all validations
+
+    build:clean:
+      run: dart run melos exec -- "flutter clean"
+      description: Clean all build outputs
+
+    pub:get:
+      run: dart pub get
+      description: Get packages for the workspace
+
+    version:dev:
+      run: dart run melos version --prerelease --preid=dev --yes
+      description: Version packages with dev tag
+
+    version:stable:
+      run: dart run melos version --graduate --yes
+      description: Version packages for stable release
+
+    publish:dry-run:
+      run: dart run melos publish --no-private
+      description: Validate publishable packages without publishing
+
+    publish:packages:
+      run: dart run melos publish --no-private --yes --no-dry-run
+      description: Publish packages to pub.dev
+
+    bootstrap:clean:
+      run: |
+        dart run melos clean &&
+        dart run melos bootstrap
+      description: Clean and bootstrap workspace
+
+    coverage:
+      run: >
+        dart run melos exec --dir-exists=test -c 1 --fail-fast --
+        "flutter test --coverage"
+      description: Run tests with coverage
+
+    combine-coverage:
+      run: |
+        mkdir -p coverage &&
+        lcov --add-tracefile packages/tagflow/coverage/lcov.info -o coverage/lcov.info
+      description: Combine coverage reports

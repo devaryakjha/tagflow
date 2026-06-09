@@ -336,17 +336,15 @@ class StyleParser {
         final x = _sizeValueToPixels(parseSizeValue(parts[0]));
         final y = _sizeValueToPixels(parseSizeValue(parts[1]));
         final blur = _sizeValueToPixels(parseSizeValue(parts[2]));
-        final spread =
-            parts.length > 3
-                ? _sizeValueToPixels(parseSizeValue(parts[3])) ?? 0.0
-                : 0.0;
+        final spread = parts.length > 3
+            ? _sizeValueToPixels(parseSizeValue(parts[3])) ?? 0.0
+            : 0.0;
 
         if (x == null || y == null || blur == null) continue;
 
-        final colorStr =
-            parts.any(_colorPartRegex.hasMatch)
-                ? parts.firstWhere(_colorPartRegex.hasMatch)
-                : 'rgba(0,0,0,0.2)';
+        final colorStr = parts.any(_colorPartRegex.hasMatch)
+            ? parts.firstWhere(_colorPartRegex.hasMatch)
+            : 'rgba(0,0,0,0.2)';
         final color =
             parseColor(colorStr) ?? Colors.black.withValues(alpha: 0.2);
 
@@ -381,8 +379,11 @@ class StyleParser {
       if (match == null) return null;
 
       final function = match.group(1)!.toLowerCase();
-      final args =
-          match.group(2)!.split(',').map((s) => parseSize(s.trim())).toList();
+      final args = match
+          .group(2)!
+          .split(',')
+          .map((s) => parseSize(s.trim()))
+          .toList();
 
       if (args.any((arg) => arg == null)) return null;
 
@@ -439,37 +440,37 @@ class StyleParser {
   }
 
   /// Parse CSS flex-direction value
-  static FlexDirection? parseFlexDirection(String value) => switch (value
-      .toLowerCase()) {
-    'row' => FlexDirection.row,
-    'row-reverse' => FlexDirection.rowReverse,
-    'column' => FlexDirection.column,
-    'column-reverse' => FlexDirection.columnReverse,
-    _ => null,
-  };
+  static FlexDirection? parseFlexDirection(String value) =>
+      switch (value.toLowerCase()) {
+        'row' => FlexDirection.row,
+        'row-reverse' => FlexDirection.rowReverse,
+        'column' => FlexDirection.column,
+        'column-reverse' => FlexDirection.columnReverse,
+        _ => null,
+      };
 
   /// Parse CSS justify-content value
-  static JustifyContent? parseJustifyContent(String value) => switch (value
-      .toLowerCase()) {
-    'flex-start' || 'start' => JustifyContent.start,
-    'flex-end' || 'end' => JustifyContent.end,
-    'center' => JustifyContent.center,
-    'space-between' => JustifyContent.spaceBetween,
-    'space-around' => JustifyContent.spaceAround,
-    'space-evenly' => JustifyContent.spaceEvenly,
-    _ => null,
-  };
+  static JustifyContent? parseJustifyContent(String value) =>
+      switch (value.toLowerCase()) {
+        'flex-start' || 'start' => JustifyContent.start,
+        'flex-end' || 'end' => JustifyContent.end,
+        'center' => JustifyContent.center,
+        'space-between' => JustifyContent.spaceBetween,
+        'space-around' => JustifyContent.spaceAround,
+        'space-evenly' => JustifyContent.spaceEvenly,
+        _ => null,
+      };
 
   /// Parse CSS align-items value
-  static AlignItems? parseAlignItems(String value) => switch (value
-      .toLowerCase()) {
-    'flex-start' || 'start' => AlignItems.start,
-    'flex-end' || 'end' => AlignItems.end,
-    'center' => AlignItems.center,
-    'stretch' => AlignItems.stretch,
-    'baseline' => AlignItems.baseline,
-    _ => null,
-  };
+  static AlignItems? parseAlignItems(String value) =>
+      switch (value.toLowerCase()) {
+        'flex-start' || 'start' => AlignItems.start,
+        'flex-end' || 'end' => AlignItems.end,
+        'center' => AlignItems.center,
+        'stretch' => AlignItems.stretch,
+        'baseline' => AlignItems.baseline,
+        _ => null,
+      };
 
   /// Parse CSS border-side value (e.g., '1px solid black')
   static BorderSide? parseBorderSide(String value) {
@@ -520,10 +521,9 @@ class StyleParser {
       boxShadow: _parseStyleBoxShadow(styles),
 
       // Flexbox styles
-      flexDirection:
-          styles['flex-direction'] != null
-              ? _parseFlexDirection(styles['flex-direction']!)
-              : null,
+      flexDirection: styles['flex-direction'] != null
+          ? _parseFlexDirection(styles['flex-direction']!)
+          : null,
       justifyContent: _parseStyleJustifyContent(styles),
       alignItems: _parseStyleAlignItems(styles),
       gap: _parseStyleSize(styles, 'gap'),
@@ -561,13 +561,13 @@ class StyleParser {
 
   static TextAlign? _parseStyleTextAlign(Map<String, String> styles) =>
       styles['text-align'] != null
-          ? parseTextAlign(styles['text-align']!)
-          : null;
+      ? parseTextAlign(styles['text-align']!)
+      : null;
 
   static BorderRadius? _parseStyleBorderRadius(Map<String, String> styles) =>
       styles['border-radius'] != null
-          ? parseBorderRadius(styles['border-radius']!)
-          : null;
+      ? parseBorderRadius(styles['border-radius']!)
+      : null;
 
   static Border? _parseStyleBorder(Map<String, String> styles) =>
       styles['border'] != null ? parseBorder(styles['border']!) : null;
@@ -579,24 +579,20 @@ class StyleParser {
 
   static List<BoxShadow>? _parseStyleBoxShadow(Map<String, String> styles) =>
       styles['box-shadow'] != null
-          ? parseBoxShadow(styles['box-shadow']!)
-          : null;
+      ? parseBoxShadow(styles['box-shadow']!)
+      : null;
 
   static MainAxisAlignment? _parseStyleJustifyContent(
     Map<String, String> styles,
-  ) =>
-      styles['justify-content'] != null
-          ? parseJustifyContent(
-            styles['justify-content']!,
-          )?.toMainAxisAlignment()
-          : null;
+  ) => styles['justify-content'] != null
+      ? parseJustifyContent(styles['justify-content']!)?.toMainAxisAlignment()
+      : null;
 
   static CrossAxisAlignment? _parseStyleAlignItems(
     Map<String, String> styles,
-  ) =>
-      styles['align-items'] != null
-          ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
-          : null;
+  ) => styles['align-items'] != null
+      ? parseAlignItems(styles['align-items']!)?.toCrossAxisAlignment()
+      : null;
 
   static SizeValue? _parseStyleSize(Map<String, String> styles, String key) =>
       styles[key] != null ? parseSizeValue(styles[key]!) : null;
@@ -639,24 +635,21 @@ class StyleParser {
     TagflowTheme? theme,
   ) {
     return TextStyle(
-      color:
-          styles['color'] != null
-              ? parseColor(styles['color']!, theme?.namedColors)
-              : null,
-      fontSize:
-          styles['font-size'] != null ? parseSize(styles['font-size']!) : null,
-      fontWeight:
-          styles['font-weight'] != null
-              ? parseFontWeight(styles['font-weight']!)
-              : null,
-      fontStyle:
-          styles['font-style'] != null
-              ? parseFontStyle(styles['font-style']!)
-              : null,
-      decoration:
-          styles['text-decoration'] != null
-              ? parseTextDecoration(styles['text-decoration']!)
-              : null,
+      color: styles['color'] != null
+          ? parseColor(styles['color']!, theme?.namedColors)
+          : null,
+      fontSize: styles['font-size'] != null
+          ? parseSize(styles['font-size']!)
+          : null,
+      fontWeight: styles['font-weight'] != null
+          ? parseFontWeight(styles['font-weight']!)
+          : null,
+      fontStyle: styles['font-style'] != null
+          ? parseFontStyle(styles['font-style']!)
+          : null,
+      decoration: styles['text-decoration'] != null
+          ? parseTextDecoration(styles['text-decoration']!)
+          : null,
     );
   }
 

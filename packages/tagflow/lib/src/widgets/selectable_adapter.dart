@@ -261,14 +261,16 @@ class _RenderSelectableAdapter extends RenderProxyBox
     final newOffset = event.forward ? Offset.infinite : Offset.zero;
     if (event.isEnd) {
       if (newOffset == _end) {
-        result =
-            event.forward ? SelectionResult.next : SelectionResult.previous;
+        result = event.forward
+            ? SelectionResult.next
+            : SelectionResult.previous;
       }
       _end = newOffset;
     } else {
       if (newOffset == _start) {
-        result =
-            event.forward ? SelectionResult.next : SelectionResult.previous;
+        result = event.forward
+            ? SelectionResult.next
+            : SelectionResult.previous;
       }
       _start = newOffset;
     }
@@ -291,9 +293,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
         }
         newOffset =
             event.direction == SelectionExtendDirection.previousLine ||
-                    horizontalBaseLine < 0
-                ? Offset.zero
-                : Offset.infinite;
+                horizontalBaseLine < 0
+            ? Offset.zero
+            : Offset.infinite;
       case SelectionExtendDirection.nextLine:
       case SelectionExtendDirection.forward:
         forward = true;
@@ -302,9 +304,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
         }
         newOffset =
             event.direction == SelectionExtendDirection.nextLine ||
-                    horizontalBaseLine > size.width
-                ? Offset.infinite
-                : Offset.zero;
+                horizontalBaseLine > size.width
+            ? Offset.infinite
+            : Offset.zero;
     }
 
     if (event.isEnd) {
@@ -343,10 +345,9 @@ class _RenderSelectableAdapter extends RenderProxyBox
     if (!_geometry.value.hasSelection) return;
 
     // Draw selection highlight
-    final selectionPaint =
-        Paint()
-          ..style = PaintingStyle.fill
-          ..color = _selectionColor;
+    final selectionPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = _selectionColor;
     context.canvas.drawRect(
       _getSelectionHighlightRect().shift(offset),
       selectionPaint,
