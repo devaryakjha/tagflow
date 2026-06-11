@@ -127,12 +127,18 @@ melos:
         flutter drive
         --driver=test_driver/perf_driver.dart
         --target=integration_test/tagflow_perf_test.dart
-        -d macos
+        -d ${TAGFLOW_PROFILE_DEVICE:-macos}
         --profile
         --dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false
         --dart-define=TAGFLOW_RENDERER=${TAGFLOW_RENDERER:-tagflow}
         --dart-define=TAGFLOW_FIXTURE=${TAGFLOW_FIXTURE:-ai_answer_rich}
-      description: Run Tagflow profile-mode frame benchmark on macOS
+      description: Run Tagflow profile-mode frame benchmark
+
+    benchmark:profile:baselines:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/run_profile_baselines.dart
+      description: Run a repeated profile benchmark matrix and persist JSON
 
     combine-coverage:
       run: |
