@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `4df25cd docs(alpha): track final audit refresh`
+- Snapshot commit: `93b3d18 docs(alpha): record delegated audit state`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -82,12 +82,17 @@ The benchmark harness is real but still alpha-grade:
 - The local alpha benchmark baseline now reports package version
   `1.0.0-alpha.1`.
 - Independent release-audit worker `019eb4f5-b537-7f40-bd1c-1fc301265129`
-  refreshed to `7c41f5d` and confirmed `git status --short --branch`,
-  `git diff --check`, and `dart run melos run validate` passed after the
-  coordinator fixed the earlier example-app validation blocker and benchmark
-  baseline mismatch. Its final publish dry-run status had not returned before
-  this tracker refresh, so the coordinator evidence above remains the source of
-  truth for publish dry-run readiness at `4df25cd`.
+  refreshed to `4df25cd` and reported `DONE` / `ready`: `git status
+  --short --branch`, `git diff --check`, `dart run melos run validate`, and
+  `dart run melos run publish:dry-run` all passed, with both packages
+  validating at 0 warnings and no files changed in the audit worktree.
+
+## Post-Alpha Stabilization Progress
+
+- `tagflow_table` now exposes `tagflowTableComponents(...)`, a first-party
+  semantic registry fragment for rendering native `TagflowDocument` table nodes
+  through the package's custom `TagflowTable` render object. The legacy HTML
+  converter bridge remains available during alpha.
 
 ## Known Non-Completion Points
 
@@ -95,6 +100,5 @@ The benchmark harness is real but still alpha-grade:
   the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
-- The delegated final audit thread is still marked in progress while running
-  the publish dry-run; if it later reports a package validation mismatch, treat
-  that as a release-review blocker before pushing tags.
+- The first-party table extension has a semantic registry fragment, but the
+  legacy HTML converter bridge has not been fully removed or replaced.

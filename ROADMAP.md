@@ -111,7 +111,8 @@
 ## Plugin System
 
 - [x] Semantic component registry implementation
-- [ ] First-party table extension migration onto semantic registry APIs
+- [x] First-party table extension registry fragment for semantic document tables
+- [ ] Full table extension migration off the legacy HTML converter bridge
 - [ ] Hot-reload safe plugin loading
 - [ ] Default Plugin Set
   - [ ] Code syntax highlighting

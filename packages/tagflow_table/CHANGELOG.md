@@ -5,8 +5,11 @@
   runtime package.
 - Keeps the existing first-party table converter and render object available as
   an alpha compatibility bridge for HTML table rendering.
-- This package remains prerelease. The long-term semantic registry integration
-  for table extensions is still part of the alpha stabilization work.
+- Adds `tagflowTableComponents(...)`, a semantic registry fragment that renders
+  native `TagflowDocument` table nodes through the first-party `TagflowTable`
+  render object.
+- This package remains prerelease. The legacy HTML converter bridge is still
+  available while semantic table extension APIs stabilize.
 
 ## 0.0.4+5
 

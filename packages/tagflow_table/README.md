@@ -25,6 +25,7 @@ toward a semantic rich content runtime.
 ## ✨ Features
 
 - Integration with the `tagflow` `1.0.0-alpha.1` runtime package
+- Semantic registry integration for native `TagflowDocument` table nodes
 - HTML table converter compatibility through `package:tagflow/legacy.dart`
 - Support for complex table structures, headers, and merged cells
 - Customizable table borders, spacing, separators, and header backgrounds
@@ -42,8 +43,37 @@ dependencies:
 
 ## 🚀 Usage
 
-HTML input should enter through `Tagflow.html(...)`. The table extension is
-currently wired through the alpha legacy converter bridge:
+Native runtime code can install the first-party table registry fragment:
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_table/tagflow_table.dart';
+
+class NativeTableArticle extends StatelessWidget {
+  const NativeTableArticle({required this.document, super.key});
+
+  final TagflowDocument document;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tagflow.document(
+      document,
+      registry: TagflowComponentRegistry(
+        extensions: [
+          tagflowTableComponents(
+            border: TagflowTableBorder.all(color: const Color(0x1F000000)),
+            columnSpacing: 8,
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+HTML input should enter through `Tagflow.html(...)`. Existing table-converter
+integrations remain available through the alpha legacy converter bridge:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -86,8 +116,9 @@ import 'package:tagflow/legacy.dart';
 
 New Tagflow runtime code should prefer `package:tagflow/tagflow.dart`,
 `Tagflow.document(...)`, `Tagflow.html(...)`, and semantic registry APIs where
-available. The table extension's semantic registry integration is still an
-alpha stabilization item.
+available. The legacy `ElementConverter` path remains available during the
+alpha transition, but new native document integrations should prefer
+`tagflowTableComponents(...)`.
 
 ## 🎨 Customization
 

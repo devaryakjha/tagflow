@@ -147,6 +147,27 @@ The registry is the alpha direction for renderer customization. Legacy
 `ElementConverter` and selector-based customizations may remain during the alpha
 transition, but they are not the long-term extension contract.
 
+First-party extension packages should expose registry fragments. For example,
+`tagflow_table` can render native document table nodes through its custom table
+render object:
+
+```dart
+final registry = TagflowComponentRegistry(
+  extensions: [
+    tagflowTableComponents(
+      columnSpacing: 8,
+      rowSpacing: 4,
+    ),
+  ],
+);
+
+Tagflow.document(document, registry: registry);
+```
+
+The legacy table converter remains available for HTML-converter compatibility,
+but new native document integrations should prefer the semantic registry
+fragment.
+
 ## What Alpha Does Not Promise
 
 The alpha line does not promise:
