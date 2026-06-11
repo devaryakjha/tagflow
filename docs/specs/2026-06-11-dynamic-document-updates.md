@@ -173,7 +173,7 @@ final class TagflowDocumentPatch {
     required List<TagflowDocumentNode> children,
   });
 
-  const TagflowDocumentPatch.insertBefore({
+  TagflowDocumentPatch.insertBefore({
     required String siblingNodeId,
     required List<TagflowDocumentNode> nodes,
   });
