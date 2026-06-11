@@ -222,13 +222,14 @@ Completed docs/release changes for the alpha line:
 - `packages/tagflow_table/README.md` describes the package as a first-party
   runtime table extension while preserving legacy converter guidance.
 - `packages/tagflow/pubspec.yaml` and `packages/tagflow_table/pubspec.yaml`
-  describe the alpha runtime line and both publishable packages are versioned
-  `1.0.0-alpha.1`.
+  describe the alpha runtime line. `tagflow` is prepared for
+  `1.0.0-alpha.2`; `tagflow_table` remains `1.0.0-alpha.1` because the native
+  JSON transport slice does not require a table package release.
 - Package changelogs contain `1.0.0-alpha.1` entries.
 - `docs/migration/2026-06-11-tagflow-v1-alpha-migration.md` documents the
   `0.0.x` to alpha migration.
 - Melos has a `version:alpha` lane and non-interactive publish dry-run lane.
-- The pending `1.0.0-alpha.2` notes document `TagflowNativeBlockCodec`,
+- The `1.0.0-alpha.2` notes document `TagflowNativeBlockCodec`,
   `TagflowNativeBlockPatchEnvelope`, the native JSON document
   decode/adapt/render path, the patch envelope decode/adapt/apply path, and
   the report-only `benchmark:native-transport` lane.

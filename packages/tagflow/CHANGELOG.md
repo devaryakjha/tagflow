@@ -1,4 +1,4 @@
-## 1.0.0-alpha.2 - pending
+## 1.0.0-alpha.2 - 2026-06-11
 
 - Adds `TagflowNativeBlockCodec` for decoding and encoding trusted, data-only
   native JSON document payloads without routing app-controlled content through

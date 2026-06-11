@@ -12,7 +12,7 @@
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **Alpha prerelease**: `1.0.0-alpha.1` is the first native rich
+> ⚠️ **Alpha prerelease**: `1.0.0-alpha.2` is part of the native rich
 > content runtime line. APIs may change before the stable `1.0.0` release.
 
 # 🌊 tagflow
@@ -269,7 +269,7 @@ Add `tagflow` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-alpha.1
+  tagflow: ^1.0.0-alpha.2
 ```
 
 ## Supported Features

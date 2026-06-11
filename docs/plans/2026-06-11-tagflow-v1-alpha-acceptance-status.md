@@ -142,9 +142,11 @@ The benchmark harness is real but still alpha-grade:
 
 ## `1.0.0-alpha.2` Native Transport Prep
 
-Status: release-prep delta is docs/changelog only in this worker. Package
-versions are deliberately left at `1.0.0-alpha.1` so the coordinator can run
-the repo's versioning lane once the final release commit set is selected.
+Status: core-only alpha.2 candidate metadata is prepared. The Melos
+`version:alpha` lane could not run in the coordinator checkout because the
+local branch has no upstream tracking branch and Melos tried to execute
+`git pull --tags -f`; the coordinator avoided attaching this branch to
+`origin/main` and applied a reviewed manual version bump instead.
 
 Public API surface to call out in `1.0.0-alpha.2`:
 
@@ -167,8 +169,11 @@ Release scope boundaries:
 - Benchmark evidence is report-only local smoke evidence.
 - Do not claim arbitrary CMS sync, JavaScript execution, arbitrary webpage
   rendering, Flutter widget serialization, or public performance wins.
-- `tagflow_table` has no required alpha.2 package change for the native JSON
-  transport slice unless the coordinator chooses to release packages together.
+- `tagflow` is bumped to `1.0.0-alpha.2`.
+- Workspace consumers in `examples/tagflow` and `packages/tagflow_benchmarks`
+  use `^1.0.0-alpha.2`.
+- `tagflow_table` remains `1.0.0-alpha.1`; it has no required package change
+  for the native JSON transport slice.
 - Real-app consumption evidence from Kite confirms the publish need: hosted
   `tagflow` `1.0.0-alpha.1` cannot compile against
   `TagflowNativeBlockCodec` or `TagflowNativeBlockAdapter`, while a temporary
@@ -179,31 +184,21 @@ Release scope boundaries:
 
 Coordinator publish gap before alpha.2:
 
-1. Run the versioning lane from the coordinator-selected final commit:
-
-   ```bash
-   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-   dart run melos run version:alpha
-   ```
-
-2. Review the generated version/changelog dependency edits. For a core-only
-   alpha.2 release, confirm whether `tagflow_table` should remain unchanged or
-   be released in lockstep.
-3. Run the branch gate:
+1. Run the branch gate:
 
    ```bash
    PATH=/Users/arya/fvm/cache.git/bin:$PATH \
    dart run melos run validate
    ```
 
-4. Run publish validation without publishing:
+2. Run publish validation without publishing:
 
    ```bash
    PATH=/Users/arya/fvm/cache.git/bin:$PATH \
    dart run melos run publish:dry-run
    ```
 
-5. Publish only after the version/changelog diff, validation gate, and dry-run
+3. Publish only after the version/changelog diff, validation gate, and dry-run
    output are reviewed by the coordinator.
 
 ## Post-Alpha Stabilization Progress
