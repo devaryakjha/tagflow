@@ -153,8 +153,12 @@ Beta.0 should wait until these gates are true:
 - unsupported native block behavior is tested and documented, including the
   current split between rejected-link neutralization and rejected-leaf
   placeholder/drop policy;
-- table extension ownership is decided for beta: keep separate package,
-  promote extension registry as the canonical path, or plan a merge;
+- table extension ownership and cadence are decided for beta: keep
+  `tagflow_table` as a separate first-party extension, promote
+  `tagflowTableComponents(...)` as the canonical high-fidelity table registry
+  path, release the extension in lockstep with `tagflow` for `beta.0`, and
+  allow independent patch/minor prereleases afterward only while compatible
+  constraints and registry API tests stay green;
 - no unreviewed performance claims are present in release-facing docs.
 
 Beta.0 should mean "API shape is close to stable", not "every renderer feature
@@ -334,6 +338,12 @@ Supported extension points:
 - `TagflowContentPolicy` for source/tag/URL/unsupported behavior;
 - app state management around immutable `TagflowDocument` and
   `TagflowDocumentPatch`.
+
+`tagflow_table` remains the canonical first-party registry example through
+beta. The beta.0 package should release in lockstep with `tagflow` to validate
+the runtime-extension contract together. Later `tagflow_table` prereleases may
+move independently for table-only fixes or additive renderer improvements, but
+only with compatible `tagflow` constraints and passing registry API tests.
 
 Compatibility extension points:
 
@@ -529,7 +539,9 @@ Work:
 - list every export from `package:tagflow/tagflow.dart`;
 - classify each as beta-stable, alpha-only, or compatibility;
 - decide `TagflowOptions` and `package:tagflow/legacy.dart` support windows;
-- decide table extension package posture through beta.
+- decide table extension package posture through beta. Current decision:
+  separate first-party package through beta, lockstep `beta.0`, then compatible
+  independent patch/minor prereleases only with green registry API tests.
 
 Acceptance:
 

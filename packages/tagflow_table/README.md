@@ -50,9 +50,11 @@ nodes.
 
 The current `tagflow: ^1.0.0-alpha.1` dependency constraint is intentionally
 compatible with the `tagflow` alpha prerelease line while the core runtime moves
-through alpha. Dependency constraints and lockstep-versus-independent release
-cadence should be decided before beta after hosted alpha packages are proven in
-a real app.
+through alpha. For `1.0.0-beta.0`, `tagflow_table` should release in lockstep
+with `tagflow` to validate the runtime-extension contract together. After
+`beta.0`, table-only patch or minor prereleases may move independently only
+when the `tagflow` constraint remains compatible with the current beta runtime
+and semantic registry API tests stay green.
 
 ## 🚀 Usage
 

@@ -119,10 +119,13 @@ extension model without coupling the core runtime freeze to the full table
 renderer. The package may also keep HTML table converter compatibility through
 `package:tagflow/legacy.dart` during the same support window.
 
-After the hosted alpha package is proven in a real app, update
-`tagflow_table` dependency constraints and decide before beta whether it
-releases in lockstep with `tagflow` or stays independently versioned with
-compatible constraints.
+For `1.0.0-beta.0`, release `tagflow_table` in lockstep with `tagflow` so the
+first beta validates core runtime, package constraint, and first-party table
+registry compatibility together. After `beta.0`, `tagflow_table` may publish
+independent patch or minor prereleases for table-only fixes or additive
+renderer improvements, but only while its `tagflow` dependency constraint
+remains compatible with the current beta runtime and the semantic registry API
+tests remain green.
 
 ## Native Document Usage
 

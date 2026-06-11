@@ -283,17 +283,27 @@ Rationale:
 - merging the package before real app evidence would prematurely couple core
   runtime stability to a complex renderer.
 
-Required before beta:
+Beta release cadence policy:
 
-- decide whether `tagflow_table` should release in lockstep with `tagflow`
-  betas or remain independently versioned with compatible constraints.
+- keep `tagflow_table` separate from `tagflow` through the beta line;
+- release `tagflow_table` in lockstep with `tagflow` for `1.0.0-beta.0` so the
+  first beta validates core runtime, package constraint, and first-party table
+  registry compatibility together;
+- after `beta.0`, allow independent `tagflow_table` patch or minor prereleases
+  only when its `tagflow` constraint remains compatible with the current beta
+  runtime and the semantic registry tests stay green;
+- do not merge `tagflow_table` into core during beta unless real app evidence
+  shows the separate package boundary is blocking adoption.
 
 The migration guide now documents `tagflow_table` as the canonical
 high-fidelity table registry extension through beta in "Compatibility Support
 Windows". Hosted alpha.3 Kite validation also proved that `tagflow_table`
 `1.0.0-alpha.1` can be resolved beside `tagflow` `1.0.0-alpha.3` for a
-downstream widget-test integration, but that does not decide beta release
-cadence.
+downstream widget-test integration. Current package evidence supports the beta
+cadence policy: `tagflow_table` exports `tagflowTableComponents(...)` as the
+semantic registry fragment, keeps the legacy HTML converter bridge available,
+and depends on `tagflow: ^1.0.0-alpha.1` without forcing every core alpha patch
+to republish the extension package.
 
 ## Beta.0 Readiness Checklist
 
@@ -328,9 +338,11 @@ cadence.
   image blocks, and preserved policy-rejection placeholders with neutral
   rendering; future unknown-block compatibility remains a beta vocabulary
   decision.
-- `tagflow_table` beta posture is decided and documented. Partly done in
-  "Compatibility Support Windows"; hosted alpha dependency compatibility has
-  evidence, but release cadence still needs a beta decision.
+- `tagflow_table` beta posture is decided and documented. Done: keep it as a
+  separate first-party extension through beta, release it in lockstep for
+  `beta.0` compatibility validation, and permit independent patch/minor
+  prereleases afterward only while compatible constraints and semantic registry
+  tests remain green.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
 - Release docs avoid beta/stable language until this checklist is green.
