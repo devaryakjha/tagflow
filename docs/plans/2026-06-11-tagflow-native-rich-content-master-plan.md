@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commit before this status refresh:
-  `7b36b39 feat(runtime): support HTML adapter node id strategies`
+  `42feeff docs(benchmarks): record ordered insertion patch baseline`
 - Latest integrated implementation commits include `d0494f8 docs(benchmarks):
   record semantic streaming pair baseline`, `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
@@ -65,9 +65,9 @@ published.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
-  benchmark claims, reference-runner comparison of patch updates versus
-  identity-preserving full reparses for authored-ID HTML insertions, and
-  profile-mode evidence on a supported real-app target.
+  benchmark claims, stronger repeat-5 reference-runner evidence for the landed
+  authored-ID ordered-insertion pair, and profile-mode evidence on a supported
+  real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -393,11 +393,14 @@ Master review gate:
   controlled producers that can emit stable `data-tagflow-id` values, plus a
   strict no-fallback mode that fails on unannotated nodes instead of silently
   mixing authored and path IDs.
-- The next benchmark slice should add an authored-ID insertion scenario that
-  compares identity-preserving full reparses against equivalent document patch
-  updates on the same reference runner. Keep that slice report-only; the
-  current repeat-5 semantic pair showed the patch lane is measurable, but it
-  also recorded old-gen GC on every repeat and one raster miss.
+- The authored-ID insertion scenario has landed for controlled dynamic HTML.
+  It compares identity-preserving full reparses against equivalent ordered
+  document patch updates on the same semantic benchmark surface, and the
+  repeat-3 ordered-insertion review note is now recorded in
+  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
+  Keep the result report-only: it is bounded evidence, not a threshold update
+  or faster/slower claim, and repeat-5 remains the next stronger reference
+  rerun.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
@@ -417,10 +420,10 @@ Master review gate:
 - The first immutable document patch-update slice has landed for replace,
   append, and remove operations. Patch-based streaming benchmark smoke evidence
   has landed; HTML adapter authored-ID strategy has landed for controlled
-  dynamic HTML; reference-runner comparison of authored-ID full reparses versus
-  document patches, document caching, citations, callouts, and optional actions
-  remain later work unless internal app integration proves they are required
-  before beta.
+  dynamic HTML; the authored-ID ordered-insertion benchmark pair and bounded
+  repeat-3 review note have landed; document caching, citations, callouts, and
+  optional actions remain later work unless internal app integration proves
+  they are required before beta.
 
 ### Wave 4: Migration and Internal App Trial
 

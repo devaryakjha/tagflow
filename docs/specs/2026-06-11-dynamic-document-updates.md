@@ -276,18 +276,20 @@ instead of coupling Tagflow to one imperative update model.
 
 - Keep `tagflow_semantic` as the current semantic HTML benchmark lane for
   `streaming_ai_chunks`.
-- Add an authored-ID insertion benchmark slice for controlled dynamic HTML.
-  The fixture should reparse HTML snapshots that preserve existing
+- The authored-ID insertion benchmark slice has landed for controlled dynamic
+  HTML. The fixture reparses HTML snapshots that preserve existing
   `data-tagflow-id` values while inserting new blocks before old siblings, then
-  compare that report-only full-reparse lane against equivalent semantic patch
-  updates on the same reference runner.
+  compares that report-only full-reparse lane against equivalent semantic patch
+  updates on the same benchmark surface.
 - The runtime patch API now supports ordered sibling insertion directly, so the
   authored-insertion patch lane now uses `insertBefore(...)` for authored
   sibling insertions instead of replacing the whole parent on every update.
-- Keep the current repeat-5 caveat explicit while designing that slice: the
-  patch lane is measurable, but the existing paired baseline showed old-gen GC
-  on every repeat and one missed raster-budget frame, so the next run is for
-  identity and GC diagnosis, not performance claims.
+- A bounded repeat-3 ordered-insertion review note is now recorded in
+  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
+  Keep the repeat-5 caveat explicit: the repeat-3 rerun is useful completion
+  evidence, but it is not a threshold update or performance claim, and repeat-5
+  remains the next stronger reference run if the coordinator needs more
+  confidence.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
   cost dominates.
 - Consider a controller only after at least one real app needs imperative
@@ -349,8 +351,8 @@ Acceptance for the patch benchmark slice:
   the same update-latency payload shape as the HTML semantic lane.
 - The lane uses `tagflow_semantic_patch` plus `streaming_ai_patches` so it can
   be measured independently from full-reparse `tagflow_semantic`.
-- Pair it with an authored-ID insertion slice once the fixture exists, and keep
-  both lanes report-only until reviewed baselines exist.
+- Pair it with the landed authored-ID insertion slice and keep both lanes
+  report-only until reviewed baselines exist.
 - Compare timing and GC diagnostics in reviewed notes only. Do not add hard
   thresholds or claim that patch updates are faster than reparsing.
 

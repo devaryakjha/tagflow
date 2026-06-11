@@ -7,12 +7,13 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `5eebe5b docs(validation): record kite real route result`
+  `42feeff docs(benchmarks): record ordered insertion patch baseline`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `74a9c9c bench(profile): record viewport metadata`,
   `c137a7b bench(profile): support custom baseline output dirs`,
   `3df1b5a bench(profile): detect flutter version in manifests`,
-  `34ea827 feat(bench): add opt-in viewport gate`
+  `34ea827 feat(bench): add opt-in viewport gate`, `d4135c7 bench(profile):
+  use ordered insert patches for authored stream`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -207,6 +208,12 @@ The benchmark harness is real but still alpha-grade:
   append-child updates over four stream steps, and emits the same viewport,
   update, update-latency, and final scroll payload families as the full-reparse
   streaming lane.
+- The authored-ID ordered-insertion benchmark pair is now also landed and
+  documented. The patch lane uses ordered `insertBefore(...)` updates for
+  authored sibling insertions, and the bounded repeat-3 review note lives at
+  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
+  This remains report-only completion evidence, not a threshold update or
+  faster/slower claim; repeat-5 is still the next stronger reference rerun.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving
