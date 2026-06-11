@@ -3,6 +3,7 @@ import 'package:tagflow_example/screens/article_example.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
 import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
+import 'package:tagflow_example/screens/internal_app_validation_screen.dart';
 import 'package:tagflow_example/screens/table_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 
@@ -95,5 +96,12 @@ final allExamples = <Example>[
     path: '/benchmarks',
     builder: (context) => const BenchmarkScreen(),
     icon: Icons.speed,
+  ),
+  Example(
+    title: 'Internal App Validation',
+    description: 'Runtime fixture for controlled app-authored content',
+    path: '/internal-app-validation',
+    builder: (context) => const InternalAppValidationScreen(),
+    icon: Icons.fact_check,
   ),
 ];
