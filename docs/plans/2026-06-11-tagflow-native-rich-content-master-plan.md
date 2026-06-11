@@ -646,6 +646,17 @@ Master review gate:
 - Constraints: no beta release language, tags, package-version changes, or
   performance claims.
 
+### Kite Hosted Alpha3 Reconciliation
+
+- Pending worktree: `local:e200a636-dd09-4659-9fa6-45cc57dd1e1f`
+- Status: queued from Kite `feat/dashboard`.
+- Scope: reconcile the local hosted-alpha3 validation commit, retry or diagnose
+  the blocked GitLab push once, and identify the smallest production-safe path
+  from the legacy IPO converter bridge toward native runtime/registry rendering.
+- Constraints: no local Tagflow path overrides, diagnostics screens, broad Kite
+  rewrites, or release-grade profile claims while network and physical-device
+  blockers remain open.
+
 ## Alpha Decisions
 
 - The primary alpha APIs are constructor-based:
