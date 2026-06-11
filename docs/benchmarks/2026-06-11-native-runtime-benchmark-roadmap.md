@@ -35,6 +35,7 @@ The public-claim qualification checklist and operating runbook now live in
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
 | Native JSON profile lane | [`baselines/2026-06-12-native-json-repeat5-local-baseline.md`](baselines/2026-06-12-native-json-repeat5-local-baseline.md) | The example-app profile harness collected `15 / 15` native JSON cells for `native_ai_answer`, `native_table_dense`, and `native_large_article` with five repeats. Static summaries include `coldInitialRender`, `warmRebuild`, `warmScroll`, and macOS local-runner launch attribution. | Local stabilization evidence, not a timing threshold. |
 | Memory evidence probe | [`baselines/2026-06-12-memory-allocation-evidence-probe.md`](baselines/2026-06-12-memory-allocation-evidence-probe.md) | `flutter drive --profile-memory` produced bounded DevTools memory JSON for `tagflow_native_json:native_large_article` and `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`. | Feasibility evidence only. |
+| Physical target probe | [`baselines/2026-06-12-physical-target-qualification-pending.md`](baselines/2026-06-12-physical-target-qualification-pending.md) | The one-repeat probe reached a real wireless iOS device candidate, but failed before app install because Xcode could not make the destination mountable/available. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 
 ## Benchmark Tiers
@@ -116,8 +117,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
 ## Current Gaps
 
 - Device matrix: no supported physical iOS or Android profile baseline is
-  qualified yet. Simulator profile mode has known limitations and should not be
-  promoted without a fresh tooling check.
+  qualified yet. The latest physical probe reached a wireless iOS candidate
+  but failed before install because the developer disk image could not be
+  mounted and Xcode timed out waiting for the destination. Simulator profile
+  mode has known limitations and should not be promoted without a fresh tooling
+  check.
 - Reference environment: the complete macOS repeat-5 run used Flutter master
   prerelease bits and prerelease macOS, so it is not claim-grade.
 - Cold versus warm: static profile artifacts now capture first fixture render,
@@ -421,7 +425,8 @@ Required:
 
 Recommended:
 
-- at least one physical-device qualification probe with `continue-on-failure`
+- at least one successful physical-device qualification probe with
+  `continue-on-failure`
 - playbook-complete DevTools memory review for large article, table stress, and
   patch update paths
 
@@ -436,8 +441,9 @@ Blocked until a future threshold review:
 1. Collect playbook-complete memory/allocation baseline notes for
    `large_article`, `table_stress`, and dynamic patch lanes using the playbook in
    `2026-06-12-memory-allocation-evidence-playbook.md`.
-2. Add physical-device qualification docs for iOS and Android, including
-   install prerequisites and failure-classification language.
+2. Re-run physical-device qualification with a USB iOS target or attached
+   Android target until at least one `continue-on-failure` probe installs,
+   launches, emits integration JSON, and passes `TAGFLOW_PROFILE_MIN_REPEATS=1`.
 3. Record real-app profile-mode evidence for the hosted-alpha production
    surface, separate from debug probes and converter-free test harnesses.
 4. Add a threshold proposal document only after a stable reference environment

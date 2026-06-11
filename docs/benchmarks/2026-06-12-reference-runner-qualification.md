@@ -198,10 +198,11 @@ dart run melos run benchmark:profile:summarize
 
 Classify failures as target qualification blockers, not timing regressions:
 
-- device not listed by Flutter
+- device missing or not listed by Flutter
 - wireless-only iOS stall before install or launch
-- Android signing, permission, or install failure
-- app launch timeout
+- Developer Mode disabled or unavailable on the physical target
+- install, signing, developer disk image, or permission failure
+- app launch timeout or destination-availability timeout
 - missing `integration_response_data.json`
 - scroll did not complete
 - overflow, exception, OOM, or process termination
