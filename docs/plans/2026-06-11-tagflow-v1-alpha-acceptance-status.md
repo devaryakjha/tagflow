@@ -158,6 +158,12 @@ The benchmark harness is real but still alpha-grade:
   `TagflowDocument` proof, and captured the real `IPOInstrumentSheet` rendering
   Tagflow-backed excerpt/content, local RHP JSON, mobile render-boundary
   content, financials, links, ordered lists, and table content.
+- The Kite proof patch has been cleaned out of `/Users/arya/projects/kite`.
+  The app checkout is clean again on `feat/dashboard...origin/feat/dashboard`
+  and remains on hosted `tagflow: 0.0.8` / `tagflow_table: 0.0.4+5`. A future
+  Kite alpha migration should land as a separate dependency branch with only
+  the hosted alpha constraint update, the two `legacy.dart` IPO converter
+  imports, regenerated lockfile, and fresh focused app validation.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -205,6 +211,7 @@ The benchmark harness is real but still alpha-grade:
   follow-up work before using frame timings as a release gate.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
-  on the real app surface, and a clean Kite dependency/diagnostics decision.
+  on the real app surface, and a deliberate Kite alpha-dependency migration
+  branch if Kite is the first production consumer.
   The first iOS simulator proof and debug timeline have been captured but
   should not be treated as a full production rollout or benchmark.

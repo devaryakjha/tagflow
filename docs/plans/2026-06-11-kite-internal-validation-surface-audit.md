@@ -137,6 +137,35 @@ That import switch is important: the alpha line curates `tagflow.dart` around
 the runtime API and keeps selector/converter internals behind `legacy.dart`.
 Kite's existing IPO integration still depends on those legacy converter types.
 
+## Cleanup Decision
+
+The proof-only Kite changes have been removed after evidence capture. A
+read-only status check on 2026-06-11 showed `/Users/arya/projects/kite` clean
+on `feat/dashboard...origin/feat/dashboard`, with no `pubspec_overrides.yaml`
+present.
+
+Kite is therefore back on its hosted Tagflow dependency line:
+
+- `tagflow: 0.0.8`
+- `tagflow_table: 0.0.4+5`
+- IPO files import `package:tagflow/tagflow.dart`, not
+  `package:tagflow/legacy.dart`
+
+This is the right post-proof state for the app checkout. The Tagflow evidence
+remains in this repository, and no diagnostics fixture, absolute local path
+override, or lockfile churn needs to live in Kite.
+
+The next clean Kite integration should be a separate alpha-dependency branch,
+not a continuation of the proof patch:
+
+1. update Kite's hosted dependency constraints to the Tagflow alpha line
+2. switch only the two IPO converter import sites to
+   `package:tagflow/legacy.dart`
+3. regenerate `pubspec.lock` without `pubspec_overrides.yaml`
+4. run focused analyze for the IPO files and any changed dependency files
+5. capture dark-mode and profile-target evidence before considering the
+   migration production-ready
+
 ## Validation Commands
 
 ### Requested shared FVM path
@@ -281,7 +310,7 @@ Verified behavior:
 
 ## Next Integration Steps
 
-1. Discard the current proof-only Kite scaffolding now that visual and debug
+1. Keep the proof-only Kite scaffolding removed now that visual and debug
    attribution evidence exists in Tagflow docs, unless Kite deliberately wants
    to productize a developer-only diagnostics screen.
 2. If Kite moves to the Tagflow alpha dependency line, land only a clean
@@ -303,7 +332,8 @@ Verified behavior:
 
 ## Rollback Plan
 
-If the Kite trial should be removed cleanly:
+The proof rollback has already effectively happened in the Kite checkout. If it
+needs to be repeated after a future local proof:
 
 1. Delete `/Users/arya/projects/kite/pubspec_overrides.yaml`.
 2. Delete
@@ -327,6 +357,7 @@ If the Kite trial should be removed cleanly:
 - The shared `/Users/arya/fvm/cache.git/bin` path is currently unsuitable for
   Kite validation on this machine because it resolves to a pre-release Flutter
   toolchain.
-- The local Kite proof currently depends on uncommitted app changes and should
-  either be cleaned into a deliberate developer feature or removed after the
-  Tagflow evidence is no longer needed.
+- Kite is currently clean and still on hosted `0.0.x` Tagflow packages. The
+  next risk is not proof cleanup; it is making the alpha dependency migration
+  deliberately, with compatibility imports and lockfile changes reviewed as one
+  app-side integration branch.
