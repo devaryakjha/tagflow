@@ -136,7 +136,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   Flutter, but it is still a separate fixture path and is not an equivalent
   HTML comparator or patch-envelope comparator.
 - Memory/allocation: GC counts are captured in profile summaries, but heap
-  snapshots and allocation profiles are still manual follow-up work.
+  snapshots and allocation profiles are still manual follow-up work. Use
+  [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
+  for the capture sequence and reviewed note requirements.
 - Frame attribution: update-frame attribution exists for streaming updates, and
   static first-render, warm-rebuild, and warm-scroll phases are split. App
   cold-start attribution is not yet split.
@@ -428,8 +430,9 @@ Blocked until a future threshold review:
 1. Add cold/warm phase separation to the profile harness so app launch,
    first render, warmed scroll, warmed rebuild, and update phases are reported
    independently.
-2. Add a memory/allocation playbook with exact DevTools capture steps for
-   `large_article`, `table_stress`, and dynamic patch lanes.
+2. Collect reviewed memory/allocation baseline notes for `large_article`,
+   `table_stress`, and dynamic patch lanes using the playbook in
+   `2026-06-12-memory-allocation-evidence-playbook.md`.
 3. Promote the native JSON profile matrix from one-repeat smoke to repeat-based
    baseline capture, while keeping transport microbench and render profile
    metrics separate.

@@ -71,9 +71,13 @@ reviewed evidence:
      `warmRebuild`, and `warmScroll` as report-only inputs, but app launch
      still needs explicit attribution before that phase can be claimed.
 6. Memory/allocation policy
-   - GC counts in profile summaries are reviewed.
-   - DevTools Memory captures or equivalent allocation evidence exist for
-     `large_article`, `table_stress`, and the dynamic patch lane.
+   - GC counts in profile summaries are reviewed, but they are not enough by
+     themselves for allocation claims.
+   - Manual DevTools Memory captures or equivalent allocation evidence exist
+     for `large_article`, `table_stress`, and the dynamic patch lane.
+   - Use the reviewed baseline playbook in
+     [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
+     before promoting any memory or allocation wording.
    - Old-gen GC or allocation outliers are explained before dynamic update or
      large-document claims.
 7. Competitor fairness policy
@@ -208,28 +212,20 @@ passes and a repeat-5 run passes the same summarize/check flow.
 
 ## Memory And Allocation Playbook
 
-Profile summaries already record new-gen and old-gen GC counts. That is not
-enough for allocation claims. For each promoted reference target, capture manual
-DevTools evidence for:
+Use the reviewed playbook at
+[`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
+for the exact lane-by-lane collection commands, DevTools Memory capture steps,
+and reviewed baseline note requirements.
+
+That playbook is the source of truth for:
 
 - `tagflow:large_article`
 - `tagflow:table_stress`
 - `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`
+- optional native-runtime evidence for `tagflow_native_json:native_large_article`
 
-Minimum capture notes:
-
-1. exact commit, package versions, Flutter/Dart version, device id, and run id;
-2. DevTools Memory snapshot before first render;
-3. snapshot after first render settles;
-4. snapshot after warm scroll completes;
-5. snapshot after dynamic patch sequence completes when applicable;
-6. allocation profile or class allocation diff for large retained objects;
-7. GC event counts from `profile-baseline-summary.json`;
-8. reviewer decision for any old-gen GC or retained-growth outlier.
-
-Store raw DevTools exports under ignored local output. Commit only a reviewed
-summary under `docs/benchmarks/baselines/` if it affects release or public
-claim decisions.
+The key rule remains the same: summary GC counts are useful review inputs, but
+they do not qualify allocation claims on their own.
 
 ## Allowed And Blocked Language
 
@@ -246,6 +242,8 @@ Blocked until all qualification gates pass:
 - "Tagflow is faster than `flutter_html`."
 - "Tagflow is the fastest Flutter rich-content renderer."
 - "Tagflow meets a stable frame-time budget."
+- "Tagflow uses less memory than the control lane."
+- "The patch lane has a lower allocation footprint."
 - "Native JSON is faster than HTML parsing."
 - "Dynamic patch rendering avoids jank in production."
 
