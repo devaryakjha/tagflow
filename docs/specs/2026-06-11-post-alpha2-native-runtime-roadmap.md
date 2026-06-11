@@ -559,8 +559,8 @@ Acceptance:
    - hosted-package real-app fixture after alpha.2 is published.
 3. `feat(adapter): define native transport version policy`
    - small code and test slice for unknown kind and schema-version behavior.
-4. `feat(widget): expose html registry override`
-   - only if the master thread chooses ergonomics over the documented manual
-     adapter path.
+4. `test(widget): validate html registry overrides`
+   - focused widget or real-app evidence for the shipped
+     `Tagflow.html(..., registry: ...)` path.
 5. `docs(api): prepare beta public surface review`
    - export and compatibility classification before any beta.0 version work.
