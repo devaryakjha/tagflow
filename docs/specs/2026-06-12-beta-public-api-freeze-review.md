@@ -123,9 +123,10 @@ legacy typedef alias.
 
 Recommendation: keep `TagflowOptions` and the legacy `Tagflow(html: ...)`
 constructor through beta. Mark new docs and examples toward
-`TagflowViewOptions`, `Tagflow.html(...)`, and `Tagflow.document(...)`. Decide
-before stable whether `TagflowOptions` is kept as a long-term compatibility
-alias or deprecated with a stable migration window.
+`TagflowViewOptions`, `Tagflow.html(...)`, and `Tagflow.document(...)`. The
+migration guide now records this support window in "Compatibility Support
+Windows". Decide before stable whether `TagflowOptions` is kept as a long-term
+compatibility alias or deprecated with a stable migration window.
 
 ### HTML Adapter
 
@@ -239,6 +240,9 @@ Recommendation:
 - decide before `1.0.0` stable whether legacy remains indefinitely, moves to a
   separate compatibility package, or receives a formal deprecation window.
 
+The migration guide now records this support window in "Compatibility Support
+Windows".
+
 ## `tagflow_table` Posture Through Beta
 
 `tagflow_table` should remain a separate first-party extension package through
@@ -256,10 +260,12 @@ Rationale:
 Required before beta:
 
 - update `tagflow_table` dependency posture after `tagflow` alpha.2 is hosted;
-- document `tagflow_table` as the canonical high-fidelity table registry
-  extension;
 - decide whether `tagflow_table` should release in lockstep with `tagflow`
   betas or remain independently versioned with compatible constraints.
+
+The migration guide now documents `tagflow_table` as the canonical
+high-fidelity table registry extension through beta in "Compatibility Support
+Windows".
 
 ## Beta.0 Readiness Checklist
 
@@ -271,13 +277,17 @@ Required before beta:
   document and patch transport.
 - `Tagflow.html(..., registry: ...)` is validated in a real app or explicitly
   scoped as still alpha.
-- `TagflowOptions` support window is written in migration docs.
+- `TagflowOptions` support window is written in migration docs. Done in
+  "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
+  Done in "Compatibility Support Windows".
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs.
 - Unknown native block kind and unsupported-content behavior are tested and
   documented.
-- `tagflow_table` beta posture is decided and documented.
+- `tagflow_table` beta posture is decided and documented. Partly done in
+  "Compatibility Support Windows"; dependency posture and release cadence still
+  need hosted alpha evidence.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
 - Release docs avoid beta/stable language until this checklist is green.

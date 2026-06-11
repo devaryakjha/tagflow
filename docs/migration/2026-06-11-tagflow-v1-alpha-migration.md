@@ -57,6 +57,71 @@ remains available as an alpha compatibility wrapper for existing code, and it
 still carries legacy HTML-only `renderBoundary` configuration during the
 transition.
 
+## Compatibility Support Windows
+
+The alpha line keeps compatibility surfaces available so existing HTML renderer
+integrations can move toward the native runtime in reviewable steps. These
+surfaces are not the preferred API for new code.
+
+### `TagflowOptions`
+
+`TagflowOptions` remains available through the alpha line and should remain
+available through the `1.0.0-beta.x` line unless a later beta-readiness review
+explicitly changes that plan.
+
+New code should use `TagflowViewOptions`. The old `TagflowOptions` wrapper is
+for migration from the HTML-first widget API, and its `renderBoundary` field is
+HTML-only compatibility behavior. `renderBoundary` should not be treated as a
+source-agnostic native document feature.
+
+Before `1.0.0` stable, the project must decide whether `TagflowOptions` stays
+as a long-term compatibility alias or receives a formal deprecation window.
+
+### `package:tagflow/legacy.dart`
+
+`package:tagflow/legacy.dart` remains available through all `1.0.0-beta.x`
+releases. It contains compatibility exports for legacy parser, converter,
+model, parser utility, reusable widget, and HTML-renderer customization APIs.
+
+New integrations should prefer `TagflowDocument`, `TagflowHtmlAdapter`,
+`TagflowNativeBlockAdapter`, and `TagflowComponentRegistry`. Legacy custom
+converters remain useful during migration, but they are not the future
+extension model for native rich content.
+
+During beta, `legacy.dart` should receive compatibility fixes, documentation
+updates, and critical bug or security fixes. New feature work should target the
+native document, adapter, and registry APIs unless there is a clear migration
+need.
+
+Before `1.0.0` stable, the project must decide whether `legacy.dart` remains
+inside `package:tagflow`, moves to a separate compatibility package, or enters
+a formal deprecation window.
+
+### `tagflow_table`
+
+`tagflow_table` remains a separate first-party extension package through beta.
+The core package keeps its basic built-in table renderer, while high-fidelity
+table rendering belongs in the table extension and its semantic registry
+fragment:
+
+```dart
+final registry = TagflowComponentRegistry(
+  extensions: [
+    tagflowTableComponents(),
+  ],
+);
+```
+
+This split is intentional. It validates the `TagflowComponentRegistry`
+extension model without coupling the core runtime freeze to the full table
+renderer. The package may also keep HTML table converter compatibility through
+`package:tagflow/legacy.dart` during the same support window.
+
+After the hosted alpha package is proven in a real app, update
+`tagflow_table` dependency constraints and decide before beta whether it
+releases in lockstep with `tagflow` or stays independently versioned with
+compatible constraints.
+
 ## Native Document Usage
 
 Use `Tagflow.document(...)` when content is already in Tagflow's native runtime
