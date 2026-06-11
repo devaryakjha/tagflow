@@ -62,6 +62,37 @@ void main() {
         throwsUnsupportedError,
       );
     });
+
+    test('checked factory validates duplicate node ids eagerly', () {
+      expect(
+        () => TagflowDocument.checked(
+          id: 'doc',
+          children: [
+            TagflowDocumentNode.paragraph(id: 'duplicate'),
+            TagflowDocumentNode.container(
+              id: 'section',
+              children: [
+                TagflowDocumentNode.text(id: 'duplicate', text: 'Collision'),
+              ],
+            ),
+          ],
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('default constructor keeps explicit validation opt-in', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.paragraph(id: 'duplicate'),
+          TagflowDocumentNode.text(id: 'duplicate', text: 'Collision'),
+        ],
+      );
+
+      expect(document.children, hasLength(2));
+      expect(document.validateUniqueNodeIds, throwsStateError);
+    });
   });
 
   group('TagflowDocumentNode', () {

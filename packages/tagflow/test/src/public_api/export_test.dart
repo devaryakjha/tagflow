@@ -67,6 +67,13 @@ void main() {
     );
 
     expect(document.children.single.kind, api.TagflowNodeKind.paragraph);
+    expect(
+      api.TagflowDocument.checked(
+        id: 'checked-doc',
+        children: const [],
+      ).children,
+      isEmpty,
+    );
     expect(document.nodeById('paragraph'), same(document.children.single));
     expect(document.containsNodeId('text'), isTrue);
     document.validateUniqueNodeIds();

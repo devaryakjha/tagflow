@@ -21,6 +21,31 @@ final class TagflowDocument {
   }) : children = List.unmodifiable(children),
        metadata = metadata ?? TagflowMetadata.empty;
 
+  /// Creates a runtime document and validates that every node ID is unique.
+  ///
+  /// Use this factory for app-authored, CMS-authored, or AI-authored native
+  /// document payloads that need fail-fast validation before rendering or
+  /// patch application. The default constructor remains permissive for
+  /// compatibility with existing alpha callers that validate explicitly.
+  ///
+  /// Throws [StateError] when duplicate node IDs are found.
+  factory TagflowDocument.checked({
+    required String id,
+    required List<TagflowDocumentNode> children,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+    int version = 1,
+  }) {
+    validateUniqueNodeIdsInChildren(children);
+    return TagflowDocument(
+      id: id,
+      children: children,
+      metadata: metadata,
+      source: source,
+      version: version,
+    );
+  }
+
   /// Stable document identifier.
   final String id;
 
