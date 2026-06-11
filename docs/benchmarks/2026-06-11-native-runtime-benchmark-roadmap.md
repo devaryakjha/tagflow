@@ -119,10 +119,10 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   promoted without a fresh tooling check.
 - Reference environment: the complete macOS repeat-5 run used Flutter master
   prerelease bits and prerelease macOS, so it is not claim-grade.
-- Cold versus warm: static profile artifacts now capture first fixture render
-  separately from warmed scroll as `coldInitialRender` and `warmScroll` in
-  `profile-baseline-summary.json`. App cold start, static first-render frame
-  attribution, and warmed update-path separation are still follow-up work.
+- Cold versus warm: static profile artifacts now capture first fixture render,
+  warmed rebuild, and warmed scroll as `coldInitialRender`, `warmRebuild`, and
+  `warmScroll` in `profile-baseline-summary.json`. App cold start and warmed
+  update-path separation are still follow-up work.
 - Repeat counts: profile lanes have useful repeat-5 evidence, but native
   transport smoke uses tiny samples and render microbench samples are still
   alpha-sized.
@@ -137,9 +137,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   HTML comparator or patch-envelope comparator.
 - Memory/allocation: GC counts are captured in profile summaries, but heap
   snapshots and allocation profiles are still manual follow-up work.
-- Frame attribution: update-frame attribution exists for streaming updates,
-  but static first-render attribution and app cold-start attribution are not
-  yet split.
+- Frame attribution: update-frame attribution exists for streaming updates, and
+  static first-render, warm-rebuild, and warm-scroll phases are split. App
+  cold-start attribution is not yet split.
 - Regression thresholds: no numeric performance thresholds are justified yet.
   The current policy intentionally blocks numeric regression gates.
 

@@ -65,11 +65,11 @@ reviewed evidence:
    - Any excluded unsupported feature is documented before competitor
      comparison.
 5. Cold/warm phase policy
-   - Claims distinguish app launch, first render, warm scroll, warm rebuild,
+   - Claims distinguish app launch, first render, warm rebuild, warm scroll,
      and dynamic update phases.
-   - Current `coldInitialRender` and `warmScroll` summaries are acceptable
-     report-only inputs, but app launch and warm rebuild still need explicit
-     attribution before those phases can be claimed.
+   - Current static profile summaries can report `coldInitialRender`,
+     `warmRebuild`, and `warmScroll` as report-only inputs, but app launch
+     still needs explicit attribution before that phase can be claimed.
 6. Memory/allocation policy
    - GC counts in profile summaries are reviewed.
    - DevTools Memory captures or equivalent allocation evidence exist for
@@ -251,8 +251,9 @@ Blocked until all qualification gates pass:
 
 ## Follow-Up Implementation Threads
 
-1. Add app-launch and warm-rebuild phase attribution to the profile harness so
-   `coldInitialRender` and `warmScroll` are not the only separated phases.
+1. Add app-launch phase attribution to the profile harness so static
+   `coldInitialRender`, `warmRebuild`, and `warmScroll` phases are not
+   mistaken for process cold-start evidence.
 2. Expand `tagflow_native_json` from `native_ai_answer` smoke to a repeat-based
    fixture matrix with larger server-authored document shapes.
 3. Add an Android physical-device qualification note with a real

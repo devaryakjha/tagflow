@@ -70,6 +70,15 @@ void main() {
     expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
 
     await binding.watchPerformance(() async {
+      await tester.pumpWidget(
+        _buildStaticBenchmarkApp(fixtureId: fixtureId, rendererId: rendererId),
+      );
+      await tester.pumpAndSettle();
+    }, reportKey: '${rendererId}_${fixtureId}_warm_rebuild');
+
+    expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+
+    await binding.watchPerformance(() async {
       await tester.fling(
         find.byKey(BenchmarkHost.scrollKey),
         const Offset(0, -1200),

@@ -741,6 +741,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       run: run,
       metrics: artifact.metrics,
       initialRenderMetrics: artifact.initialRenderMetrics,
+      warmRebuildMetrics: artifact.warmRebuildMetrics,
       viewport: artifact.viewport,
       updateMetrics: artifact.updateMetrics,
       updateLatencies: artifact.updateLatencies,
@@ -859,6 +860,13 @@ Map<String, ProfileBaselineFramePhaseSummary> _buildFramePhaseSummaries(
       initialRenderMetrics,
     );
   }
+  final warmRebuildMetrics = records
+      .map((record) => record.warmRebuildMetrics)
+      .whereType<_ProfileMetrics>()
+      .toList(growable: false);
+  if (warmRebuildMetrics.isNotEmpty) {
+    summaries['warmRebuild'] = _summarizeFramePhaseMetrics(warmRebuildMetrics);
+  }
   return Map<String, ProfileBaselineFramePhaseSummary>.unmodifiable(summaries);
 }
 
@@ -901,6 +909,7 @@ final class _ProfileBaselineRunRecord {
     required this.run,
     required this.metrics,
     required this.initialRenderMetrics,
+    required this.warmRebuildMetrics,
     required this.viewport,
     required this.updateMetrics,
     required this.updateLatencies,
@@ -909,6 +918,7 @@ final class _ProfileBaselineRunRecord {
   final _ManifestRun run;
   final _ProfileMetrics metrics;
   final _ProfileMetrics? initialRenderMetrics;
+  final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -1067,6 +1077,7 @@ final class _ProfileArtifact {
   const _ProfileArtifact({
     required this.metrics,
     required this.initialRenderMetrics,
+    required this.warmRebuildMetrics,
     required this.viewport,
     required this.updateMetrics,
     required this.updateLatencies,
@@ -1074,6 +1085,7 @@ final class _ProfileArtifact {
 
   final _ProfileMetrics metrics;
   final _ProfileMetrics? initialRenderMetrics;
+  final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -1086,6 +1098,8 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
   final payload = root[metricsKey] ?? _findMetricsPayload(root);
   final initialRenderKey = '${run.renderer}_${run.fixture}_initial_render';
   final initialRenderPayload = root[initialRenderKey];
+  final warmRebuildKey = '${run.renderer}_${run.fixture}_warm_rebuild';
+  final warmRebuildPayload = root[warmRebuildKey];
   if (payload is! Map<String, Object?>) {
     throw const FormatException(
       'Expected benchmark frame metrics in the profile artifact.',
@@ -1103,6 +1117,9 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
     metrics: _readProfileMetrics(payload),
     initialRenderMetrics: initialRenderPayload is Map<String, Object?>
         ? _readProfileMetrics(initialRenderPayload)
+        : null,
+    warmRebuildMetrics: warmRebuildPayload is Map<String, Object?>
+        ? _readProfileMetrics(warmRebuildPayload)
         : null,
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)

@@ -46,6 +46,19 @@ void main() {
             'new_gen_gc_count': 1,
             'old_gen_gc_count': 0,
           },
+          'tagflow_ai_answer_rich_warm_rebuild': <String, Object?>{
+            'average_frame_build_time_millis': 0.8,
+            '90th_percentile_frame_build_time_millis': 1.0,
+            'worst_frame_build_time_millis': 1.2,
+            'average_frame_rasterizer_time_millis': 1.6,
+            '90th_percentile_frame_rasterizer_time_millis': 2.1,
+            'worst_frame_rasterizer_time_millis': 6.0,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 3,
+            'new_gen_gc_count': 1,
+            'old_gen_gc_count': 0,
+          },
           'tagflow_ai_answer_rich_scroll': <String, Object?>{
             'average_frame_build_time_millis': 0.2,
             '90th_percentile_frame_build_time_millis': 0.3,
@@ -76,6 +89,19 @@ void main() {
           'missed_frame_build_budget_count': 0,
           'missed_frame_rasterizer_budget_count': 0,
           'frame_count': 5,
+          'new_gen_gc_count': 1,
+          'old_gen_gc_count': 0,
+        },
+        'tagflow_ai_answer_rich_warm_rebuild': <String, Object?>{
+          'average_frame_build_time_millis': 1.1,
+          '90th_percentile_frame_build_time_millis': 1.4,
+          'worst_frame_build_time_millis': 1.7,
+          'average_frame_rasterizer_time_millis': 1.9,
+          '90th_percentile_frame_rasterizer_time_millis': 2.8,
+          'worst_frame_rasterizer_time_millis': 7.5,
+          'missed_frame_build_budget_count': 0,
+          'missed_frame_rasterizer_budget_count': 0,
+          'frame_count': 4,
           'new_gen_gc_count': 1,
           'old_gen_gc_count': 0,
         },
@@ -162,7 +188,11 @@ void main() {
     expect(cell.worstRasterMillis.max, 18.5);
     expect(cell.missedRasterBudgetCount.total, 1);
     expect(cell.oldGenGcCount.max, 1);
-    expect(cell.framePhaseSummaries.keys, ['warmScroll', 'coldInitialRender']);
+    expect(cell.framePhaseSummaries.keys, [
+      'warmScroll',
+      'coldInitialRender',
+      'warmRebuild',
+    ]);
     expect(cell.framePhaseSummaries['warmScroll']!.observedRepeats, 2);
     expect(cell.framePhaseSummaries['warmScroll']!.worstRasterMillis.max, 18.5);
     expect(cell.framePhaseSummaries['coldInitialRender']!.observedRepeats, 2);
@@ -170,6 +200,8 @@ void main() {
       cell.framePhaseSummaries['coldInitialRender']!.worstRasterMillis.max,
       10.5,
     );
+    expect(cell.framePhaseSummaries['warmRebuild']!.observedRepeats, 2);
+    expect(cell.framePhaseSummaries['warmRebuild']!.worstRasterMillis.max, 7.5);
     expect(cell.toJson(), contains('framePhaseSummaries'));
     expect(cell.updateSummary, isNull);
     expect(cell.outlierRepeats, hasLength(1));

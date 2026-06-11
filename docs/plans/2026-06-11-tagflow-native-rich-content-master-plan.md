@@ -78,7 +78,9 @@ separate first-party extension at `1.0.0-alpha.1`.
   evidence recorded in
   `docs/benchmarks/baselines/2026-06-11-native-transport-smoke.md`. The
   alpha.2 candidate rerun reports package version `1.0.0-alpha.2` for the same
-  native transport smoke surface. The HTML adapter now also supports
+  native transport smoke surface. Static profile artifacts now also separate
+  `coldInitialRender`, `warmRebuild`, and `warmScroll` frame summaries while
+  remaining report-only evidence. The HTML adapter now also supports
   authored node ID strategies for controlled dynamic content through
   `TagflowHtmlNodeIdStrategy.attribute()`, which reads `data-tagflow-id` by
   default while preserving path IDs as the compatibility fallback.
