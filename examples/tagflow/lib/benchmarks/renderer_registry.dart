@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
@@ -33,16 +34,22 @@ final class BenchmarkRenderer {
 /// Default renderer used by manual and automated benchmark runs.
 const String defaultBenchmarkRendererId = 'tagflow';
 
+const String flutterWidgetFromHtmlCoreNote =
+    'Uses flutter_widget_from_html_core because the shared alpha fixtures do '
+    'not need the enhanced package audio, video, SVG, or webview mixins.';
+
 /// Stable renderer order for the benchmark picker UI.
 const List<String> benchmarkRendererIds = [
   defaultBenchmarkRendererId,
   'flutter_html',
+  'flutter_widget_from_html',
 ];
 
 /// Benchmark renderers available to the example app harness.
 final List<BenchmarkRenderer> benchmarkRendererList = [
   tagflowBenchmarkRenderer,
   flutterHtmlBenchmarkRenderer,
+  flutterWidgetFromHtmlBenchmarkRenderer,
 ];
 
 /// Renderer registry keyed by stable renderer id.
@@ -79,6 +86,18 @@ const BenchmarkRenderer flutterHtmlBenchmarkRenderer = BenchmarkRenderer(
   ],
 );
 
+/// `flutter_widget_from_html` adapter used for native HTML comparison.
+const BenchmarkRenderer
+flutterWidgetFromHtmlBenchmarkRenderer = BenchmarkRenderer(
+  id: 'flutter_widget_from_html',
+  label: 'Flutter Widget from HTML (core)',
+  builder: _buildFlutterWidgetFromHtmlRenderer,
+  notes: [
+    flutterWidgetFromHtmlCoreNote,
+    'Applies package-default styling instead of matching Tagflow theme rules.',
+  ],
+);
+
 Widget _buildTagflowRenderer(BuildContext context, String html) {
   return Tagflow.html(
     html: html,
@@ -93,4 +112,8 @@ Widget _buildFlutterHtmlRenderer(BuildContext context, String html) {
     extensions: const [TableHtmlExtension()],
     onLinkTap: (_, _, _) {},
   );
+}
+
+Widget _buildFlutterWidgetFromHtmlRenderer(BuildContext context, String html) {
+  return HtmlWidget(html);
 }

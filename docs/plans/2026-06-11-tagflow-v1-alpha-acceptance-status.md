@@ -102,10 +102,15 @@ The benchmark harness is real but still alpha-grade:
   competitor adapters can plug into the same result path. `dart run melos run
   benchmark:profile` passed locally on macOS and wrote ignored frame timing
   output to `examples/tagflow/build/integration_response_data.json`.
-- The first competitor profile adapter has landed for `flutter_html`, using
-  `flutter_html_table` for the shared `ai_answer_rich` table fixture. Local
-  `benchmark:profile` smoke runs passed for both `TAGFLOW_RENDERER=tagflow` and
-  `TAGFLOW_RENDERER=flutter_html`.
+- Competitor profile adapters have landed for `flutter_html` and
+  `flutter_widget_from_html`. The `flutter_html` lane uses
+  `flutter_html_table` for the shared `ai_answer_rich` table fixture, and the
+  `flutter_widget_from_html` lane intentionally uses
+  `flutter_widget_from_html_core` because the shared alpha fixtures do not need
+  the enhanced package's media or iframe mixins. Local `benchmark:profile`
+  smoke runs passed for `TAGFLOW_RENDERER=tagflow`,
+  `TAGFLOW_RENDERER=flutter_html`, and
+  `TAGFLOW_RENDERER=flutter_widget_from_html`.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving

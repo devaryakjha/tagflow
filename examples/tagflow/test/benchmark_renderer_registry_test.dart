@@ -6,7 +6,11 @@ void main() {
     test('resolves the known benchmark renderers', () {
       expect(
         benchmarkRendererIds,
-        containsAll(<String>[defaultBenchmarkRendererId, 'flutter_html']),
+        containsAll(<String>[
+          defaultBenchmarkRendererId,
+          'flutter_html',
+          'flutter_widget_from_html',
+        ]),
       );
 
       expect(
@@ -14,6 +18,10 @@ void main() {
         'Tagflow',
       );
       expect(benchmarkRendererById('flutter_html').label, 'Flutter HTML');
+      expect(
+        benchmarkRendererById('flutter_widget_from_html').label,
+        'Flutter Widget from HTML (core)',
+      );
     });
 
     test('throws for an unknown renderer id', () {

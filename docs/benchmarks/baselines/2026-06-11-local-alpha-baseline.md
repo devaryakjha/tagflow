@@ -31,6 +31,9 @@ TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=ai_answer_rich \
 
 TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich \
   dart run melos run benchmark:profile
+
+TAGFLOW_RENDERER=flutter_widget_from_html TAGFLOW_FIXTURE=ai_answer_rich \
+  dart run melos run benchmark:profile
 ```
 
 All four commands passed on this branch.
@@ -145,18 +148,55 @@ Adapter caveats:
 | new-gen GC count | 2 |
 | old-gen GC count | 0 |
 
+### Flutter Widget from HTML
+
+Command used:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_RENDERER=flutter_widget_from_html \
+TAGFLOW_FIXTURE=ai_answer_rich \
+dart run melos run benchmark:profile
+```
+
+Adapter caveats:
+
+- The benchmark renderer id stays `flutter_widget_from_html`, but the example
+  app intentionally depends on `flutter_widget_from_html_core` for this alpha
+  fixture set because `ai_answer_rich` does not exercise the enhanced
+  package's audio, video, SVG, or webview mixins.
+- Kept package-default styling; no extra theme tuning was added to match
+  Tagflow output.
+
+| Metric | Value |
+| --- | ---: |
+| frame count | 24 |
+| average build ms | 0.152 |
+| p90 build ms | 0.204 |
+| p99 build ms | 0.350 |
+| worst build ms | 0.350 |
+| missed build budget count | 0 |
+| average raster ms | 1.083 |
+| p90 raster ms | 0.793 |
+| p99 raster ms | 17.822 |
+| worst raster ms | 17.822 |
+| missed raster budget count | 1 |
+| new-gen GC count | 2 |
+| old-gen GC count | 2 |
+
 ## Limitations
 
 - These are local smoke baselines, not release gates.
 - The render suite uses `flutter_test`, so it measures conversion plus widget
   build work in a test host.
 - The profile suite now records app frame timings for `ai_answer_rich` on the
-  landed `tagflow` and `flutter_html` adapters only.
+  landed `tagflow`, `flutter_html`, and `flutter_widget_from_html` adapters.
 - The sample counts are deliberately low for CI friendliness. Larger local
   sample runs should be added before publishing performance claims.
-- `flutter_widget_from_html` resolved locally but was deferred from this first
-  adapter pass because the full package brings a much broader transitive
-  media/webview stack than the current fixture comparison requires.
+- The benchmark lane for `flutter_widget_from_html` currently uses the
+  `flutter_widget_from_html_core` split. The full enhanced package is still
+  intentionally deferred until shared benchmark fixtures actually need its
+  plugin-backed media or iframe support.
 - Running `dart run bin/run_parser_benchmarks.dart ...` directly currently
   fails because the benchmark package imports Flutter-facing Tagflow code and a
   plain Dart VM has no `dart:ui`. Use the Melos/Flutter test-hosted benchmark

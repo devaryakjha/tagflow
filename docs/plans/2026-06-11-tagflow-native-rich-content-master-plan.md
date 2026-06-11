@@ -33,9 +33,10 @@ published.
   line.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the example app has a profile-mode benchmark harness with renderer and fixture
-  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus a first
-  `flutter_html` competitor adapter. The macOS integration-test plugin warning
-  has a narrow benchmark-script suppression while preserving JSON output.
+  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus landed
+  `flutter_html` and core-backed `flutter_widget_from_html` competitor
+  adapters. The macOS integration-test plugin warning has a narrow
+  benchmark-script suppression while preserving JSON output.
 - Post-alpha stabilization in progress: broader competitor coverage, table
   styling parity, richer fixtures, reference-runner baselines, macOS SPM
   migration cleanup, and internal app validation.
@@ -329,8 +330,9 @@ Master review gate:
 - Fixtures, parser microbenchmarks, widget render microbenchmarks, and the
   profile-mode example harness are committed.
 - The profile harness supports renderer and fixture selection.
-- The first fair native competitor adapter, `flutter_html` plus
-  `flutter_html_table`, is committed with local smoke evidence.
+- Fair native competitor adapters for `flutter_html` plus
+  `flutter_html_table`, and `flutter_widget_from_html` through
+  `flutter_widget_from_html_core`, are committed with local smoke evidence.
 - The `integration_test plugin was not detected` warning is suppressed for the
   `flutter drive` profile harness with
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`; benchmark JSON still
@@ -378,10 +380,12 @@ Master review gate:
 
 - Thread ID: `019eb525-170f-7380-a753-62f242cb02f0`
 - Worktree: `/Users/arya/.codex/worktrees/5829/tagflow`
-- Status: integrated as `1437d95 feat(benchmarks): add flutter_html profile
-  adapter`.
-- Remaining follow-up: add `flutter_widget_from_html` only if its broader
-  dependency stack is accepted as fair/low-risk for a second comparison lane.
+- Status: `flutter_html` landed in `1437d95 feat(benchmarks): add flutter_html
+  profile adapter`; `flutter_widget_from_html` now lands through
+  `flutter_widget_from_html_core` for the current deterministic HTML fixtures.
+- Remaining follow-up: revisit the full enhanced package only if benchmark
+  fixtures adopt audio, video, SVG, or iframe content that requires those
+  mixins for a fair comparison.
 
 ### Flutter Widget From HTML Adapter
 
@@ -444,7 +448,8 @@ Master review gate:
 - A release/docs plan exists. Done.
 - First implementation waves have tests and validation. Done for alpha.
 - Benchmark harness records baseline Tagflow numbers before major rewrites.
-  Done for parser/render/profile smoke; first `flutter_html` comparison landed.
-  Broader competitors and reference baselines are still in progress.
+  Done for parser/render/profile smoke; `flutter_html` and core-backed
+  `flutter_widget_from_html` comparisons landed. Broader competitors and
+  reference baselines are still in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.

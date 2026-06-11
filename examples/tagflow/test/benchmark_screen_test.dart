@@ -42,10 +42,12 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
     await _pumpBenchmarkScreen(tester);
 
-    await tester.tap(find.text('Flutter HTML'));
+    final rendererFinder = find.text('Flutter Widget from HTML (core)');
+    await tester.ensureVisible(rendererFinder);
+    await tester.tap(rendererFinder);
     await _pumpBenchmarkScreen(tester);
 
-    expect(_segmentedButtons(tester)[1].selected, {'flutter_html'});
+    expect(_segmentedButtons(tester)[1].selected, {'flutter_widget_from_html'});
   });
 
   testWidgets('applies explicit fixture and renderer ids', (tester) async {
@@ -53,7 +55,7 @@ void main() {
       const MaterialApp(
         home: BenchmarkScreen(
           fixtureId: 'table_dense',
-          rendererId: 'flutter_html',
+          rendererId: 'flutter_widget_from_html',
         ),
       ),
     );
@@ -61,7 +63,7 @@ void main() {
 
     final segmentedButtons = _segmentedButtons(tester);
     expect(segmentedButtons.first.selected, {'table_dense'});
-    expect(segmentedButtons[1].selected, {'flutter_html'});
+    expect(segmentedButtons[1].selected, {'flutter_widget_from_html'});
     expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
   });
 }

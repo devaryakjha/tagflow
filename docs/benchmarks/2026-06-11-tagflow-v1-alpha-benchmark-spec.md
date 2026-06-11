@@ -151,10 +151,12 @@ Recommended fixtures:
   - Fairness rule: keep package-default styling and enable only the table
     extension needed for the shared fixture's `<table>` tag.
 - `flutter_widget_from_html` as the next HTML-native comparison.
-  - Dependency resolution succeeded locally, but the full package pulls a much
-    larger transitive media/webview stack than this slice needs.
-  - Defer that adapter to a follow-up pass instead of widening the first
-    comparison harness.
+  - Current landed adapter scope: `ai_answer_rich` through
+    `flutter_widget_from_html_core`, while keeping the stable benchmark id
+    `flutter_widget_from_html`.
+  - Fairness rule: keep package-default styling and do not pull the enhanced
+    package's audio, video, SVG, or webview mixins until shared fixtures
+    actually require those tags.
 - `flutter_markdown_plus` for markdown-only comparison.
 - `markdown_widget` for markdown-only comparison.
 
@@ -194,7 +196,7 @@ Recommend pinning these when implementation starts:
 
 - `benchmark_harness: ^2.4.0`
 - `flutter_html: ^3.0.0`
-- `flutter_widget_from_html: ^0.17.2`
+- `flutter_widget_from_html_core: ^0.17.2`
 - `flutter_markdown_plus: ^1.0.7`
 - `markdown_widget: ^2.3.2+8`
 
@@ -225,6 +227,7 @@ dart run melos run benchmark:micro
 dart run melos run benchmark:render
 dart run melos run benchmark:profile
 TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
+TAGFLOW_RENDERER=flutter_widget_from_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
 TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```
