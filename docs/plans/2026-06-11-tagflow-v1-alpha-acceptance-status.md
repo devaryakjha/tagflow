@@ -69,24 +69,34 @@ The benchmark harness is real but still alpha-grade:
 - profile-mode frame timing is automated enough for repeatable local and
   reference-runner collection, but remains report-only until a reviewed
   reference machine baseline exists
+- `docs/benchmarks/policies/profile-reference-runner-policy.json` now codifies
+  the candidate alpha reference-runner policy as report-only: five successful
+  repeats plus `800x600 @ 2.0 DPR` viewport metadata, with timing thresholds
+  explicitly rejected by the policy parser. The older repeat-5 baseline
+  predates viewport metadata, so it remains valid historical completion
+  evidence but does not satisfy the newer policy without a fresh collection.
 
 ## Current Integration Queue
 
 1. Benchmark-gating worker landed `34ea827`, adding an opt-in viewport and
    device-pixel-ratio guard to the profile baseline check. The default alpha
    collection-completeness gate remains unchanged.
-2. The package-specific alpha tags have been pushed and the publish workflows
+2. Benchmark-policy worker landed `e373018`, adding a machine-readable
+   report-only reference-runner policy and Melos checker wiring. A new
+   reference collection must be run before claiming the policy is satisfied by
+   a repeat-5 matrix.
+3. The package-specific alpha tags have been pushed and the publish workflows
    succeeded:
    `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
    pub.dev now contains `1.0.0-alpha.1` for both packages, although each
    package's default latest version still points at the prior stable `0.0.x`
    line because these are prereleases.
-3. Kite alpha-dependency branch preparation is complete on isolated branch
+4. Kite alpha-dependency branch preparation is complete on isolated branch
    `codex/kite-tagflow-alpha-runtime` at `d9682aec`. The branch updates only
    the two hosted package constraints, the two IPO legacy imports, and the
    regenerated lockfile, with no diagnostics proof scaffolding or local path
    overrides.
-4. Clean hosted-alpha real-route validation has now reached Kite's real
+5. Clean hosted-alpha real-route validation has now reached Kite's real
    `IPOInstrumentSheet` from an authenticated normal app session in Kite's
    in-app Dark theme, and named dark-mode screenshot artifacts now exist.
    Release-grade physical or otherwise qualified profile evidence is still
@@ -192,6 +202,10 @@ The benchmark harness is real but still alpha-grade:
   reference-runner workflow and keeps frame timings report-only until a named
   reference machine has run the default matrix with repeated passes and reviewed
   outliers.
+- `docs/benchmarks/policies/profile-reference-runner-policy.json` makes that
+  report-only posture executable for future reference collections. It enforces
+  repeat count and viewport metadata when opted in, but rejects timing gates
+  until a stable machine and numeric threshold review exist.
 - `docs/plans/2026-06-11-internal-app-validation-plan.md` now describes the
   first internal app trial path, including local dependency overrides, content
   selection, rendering fidelity, interaction, performance, theming, failure
