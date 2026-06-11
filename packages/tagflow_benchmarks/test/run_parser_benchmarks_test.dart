@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+import 'package:tagflow_benchmarks/tagflow_benchmarks.dart';
 
 import '../bin/run_parser_benchmarks.dart' as runner;
 
@@ -28,7 +29,7 @@ void main() {
 
       expect(result['suite'], 'parser');
       expect(fixtureResults, isA<List<Object?>>());
-      expect(fixtureResults, hasLength(5));
+      expect(fixtureResults, hasLength(benchmarkFixtures.length));
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );

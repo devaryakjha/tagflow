@@ -29,6 +29,12 @@ final List<BenchmarkFixture> benchmarkFixtures =
             '97453c082ed6b64f0d45043383904768c6e87c2edf064a9cb13ad8bcf1315fa4',
       ),
       const BenchmarkFixture(
+        id: 'table_stress',
+        htmlRelativePath: 'fixtures/html/table_stress.html',
+        htmlSha256:
+            '6e10779344f2b0e50a8cfa43a4d3589b4d6436a020aab09cf97b2d47502a14bd',
+      ),
+      const BenchmarkFixture(
         id: 'large_article',
         htmlRelativePath: 'fixtures/html/large_article.html',
         htmlSha256:

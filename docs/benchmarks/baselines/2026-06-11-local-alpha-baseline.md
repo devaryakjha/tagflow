@@ -55,11 +55,12 @@ Harness settings from `benchmark:micro`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 574 | 672 | 552.0 | 0.196 |
-| `ai_answer_rich` | 2059 | 68 | 2398 | 3316 | 2559.7 | 0.220 |
-| `table_dense` | 1741 | 226 | 2084 | 2342 | 2149.3 | 0.064 |
-| `large_article` | 4529 | 120 | 1870 | 1955 | 1897.3 | 0.022 |
-| `deep_nested_lists` | 1139 | 37 | 586 | 621 | 551.0 | 0.137 |
+| `smoke_short_html` | 356 | 19 | 458 | 518 | 452.0 | 0.125 |
+| `ai_answer_rich` | 2059 | 68 | 2176 | 3553 | 2579.7 | 0.268 |
+| `table_dense` | 1741 | 226 | 2023 | 2411 | 2122.7 | 0.098 |
+| `table_stress` | 14439 | 1129 | 6221 | 7702 | 6212.0 | 0.196 |
+| `large_article` | 4529 | 120 | 745 | 821 | 762.0 | 0.056 |
+| `deep_nested_lists` | 1139 | 37 | 288 | 763 | 430.3 | 0.549 |
 
 ## Render Benchmark
 
@@ -71,11 +72,12 @@ Harness settings from `benchmark:render`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 21270 | 21270 | 14571.0 | 0.460 |
-| `ai_answer_rich` | 2059 | 68 | 19113 | 19113 | 16719.5 | 0.143 |
-| `table_dense` | 1741 | 226 | 31823 | 31823 | 29778.5 | 0.069 |
-| `large_article` | 4529 | 120 | 24415 | 24415 | 21305.0 | 0.146 |
-| `deep_nested_lists` | 1139 | 37 | 7620 | 7620 | 7455.0 | 0.022 |
+| `smoke_short_html` | 356 | 19 | 19669 | 19669 | 13834.5 | 0.422 |
+| `ai_answer_rich` | 2059 | 68 | 20926 | 20926 | 17515.0 | 0.195 |
+| `table_dense` | 1741 | 226 | 30238 | 30238 | 29490.0 | 0.025 |
+| `table_stress` | 14439 | 1129 | 80609 | 80609 | 71633.0 | 0.125 |
+| `large_article` | 4529 | 120 | 11801 | 11801 | 10983.0 | 0.074 |
+| `deep_nested_lists` | 1139 | 37 | 4433 | 4433 | 4294.5 | 0.032 |
 
 ## Profile-Mode Frame Smoke Runs
 
@@ -85,7 +87,7 @@ Harness settings from `benchmark:profile`:
 - driver: `examples/tagflow/test_driver/perf_driver.dart`
 - device: `macos`
 - Flutter mode: `--profile`
-- fixture: `ai_answer_rich`
+- fixtures: `ai_answer_rich`, `table_stress`
 
 ### Tagflow
 
@@ -184,13 +186,41 @@ Adapter caveats:
 | new-gen GC count | 2 |
 | old-gen GC count | 2 |
 
+### Tagflow Table Stress
+
+Command used:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_RENDERER=tagflow \
+TAGFLOW_FIXTURE=table_stress \
+dart run melos run benchmark:profile
+```
+
+| Metric | Value |
+| --- | ---: |
+| frame count | 25 |
+| average build ms | 0.283 |
+| p90 build ms | 0.329 |
+| p99 build ms | 0.430 |
+| worst build ms | 0.430 |
+| missed build budget count | 0 |
+| average raster ms | 0.967 |
+| p90 raster ms | 0.997 |
+| p99 raster ms | 7.230 |
+| worst raster ms | 7.230 |
+| missed raster budget count | 0 |
+| new-gen GC count | 2 |
+| old-gen GC count | 0 |
+
 ## Limitations
 
 - These are local smoke baselines, not release gates.
 - The render suite uses `flutter_test`, so it measures conversion plus widget
   build work in a test host.
 - The profile suite now records app frame timings for `ai_answer_rich` on the
-  landed `tagflow`, `flutter_html`, and `flutter_widget_from_html` adapters.
+  landed `tagflow`, `flutter_html`, and `flutter_widget_from_html` adapters,
+  plus a Tagflow-only `table_stress` smoke run.
 - The sample counts are deliberately low for CI friendliness. Larger local
   sample runs should be added before publishing performance claims.
 - The benchmark lane for `flutter_widget_from_html` currently uses the

@@ -33,7 +33,7 @@ void main() {
 
       expect(artifact['suite'], 'render');
       expect(fixtureResults, isA<List<Object?>>());
-      expect(fixtureResults, hasLength(5));
+      expect(fixtureResults, hasLength(benchmarkFixtures.length));
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );

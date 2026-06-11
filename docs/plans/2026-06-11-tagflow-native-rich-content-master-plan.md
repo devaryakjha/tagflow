@@ -32,17 +32,18 @@ published.
   alpha migration guide have been updated for the native rich content runtime
   line.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
-  the example app has a profile-mode benchmark harness with renderer and fixture
-  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus landed
-  `flutter_html` and core-backed `flutter_widget_from_html` competitor
-  adapters. The macOS integration-test plugin warning has a narrow
-  benchmark-script suppression while preserving JSON output, and the separate
-  CocoaPods/SPM migration warning has been removed from the macOS example host.
+  the deterministic corpus now includes `table_stress`; the example app has a
+  profile-mode benchmark harness with renderer and fixture selection through
+  `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus landed `flutter_html` and
+  core-backed `flutter_widget_from_html` competitor adapters. The macOS
+  integration-test plugin warning has a narrow benchmark-script suppression
+  while preserving JSON output, and the separate CocoaPods/SPM migration warning
+  has been removed from the macOS example host.
 - Post-alpha stabilization in progress: broader competitor coverage, table
-  styling parity, richer fixtures, reference-runner baselines, and internal app
-  validation.
-- Active stabilization work is now focused on broader fixture/profile baselines,
-  especially the `table_stress` fixture and profile-run reliability.
+  styling parity, reference-runner baselines, and internal app validation.
+- Active stabilization work is now focused on reference-runner baselines and
+  internal app validation; the next fixture additions should be driven by real
+  app content gaps.
 
 ## Current Constraints
 
@@ -330,6 +331,8 @@ Master review gate:
 - Fixtures, parser microbenchmarks, widget render microbenchmarks, and the
   profile-mode example harness are committed.
 - The profile harness supports renderer and fixture selection.
+- The deterministic fixture corpus now includes `table_stress`, with local
+  parser/render benchmark evidence and a Tagflow profile smoke run.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
@@ -390,10 +393,10 @@ Master review gate:
 
 - Thread ID: `019eb53c-12a1-7223-847a-41a12817b025`
 - Worktree: `/Users/arya/.codex/worktrees/7bf4/tagflow`
-- Status: active.
-- Scope: add the missing deterministic `table_stress` fixture, validate the
-  fixture manifest, and record broader local profile smoke evidence where
-  feasible.
+- Status: integrated in the table-stress fixture baseline slice.
+- Result: `table_stress` is registered in the benchmark manifest and example
+  profile fixture list; fixture, parser, render, and Tagflow profile smoke
+  commands passed on the coordinator branch after macOS SPM cleanup.
 
 ### Profile Benchmark Warning Diagnosis
 
@@ -425,9 +428,9 @@ Master review gate:
   with compatibility through the legacy converter bridge. The native semantic
   table registry is the forward path, but full HTML/CSS styling parity is not
   complete yet.
-- Benchmark fixtures, parser microbenchmarks, and widget render benchmarks are
-  local alpha harnesses. Production benchmark claims still need broader
-  competitor coverage and reference-runner baselines.
+- Benchmark fixtures, parser microbenchmarks, widget render benchmarks, and
+  profile smoke runs are local alpha harnesses. Production benchmark claims
+  still need broader competitor coverage and reference-runner baselines.
 - Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
@@ -439,7 +442,8 @@ Master review gate:
 - First implementation waves have tests and validation. Done for alpha.
 - Benchmark harness records baseline Tagflow numbers before major rewrites.
   Done for parser/render/profile smoke; `flutter_html` and core-backed
-  `flutter_widget_from_html` comparisons landed. Broader competitors and
-  reference baselines are still in progress.
+  `flutter_widget_from_html` comparisons landed; `table_stress` is in the
+  deterministic corpus. Broader competitors and reference baselines are still
+  in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.

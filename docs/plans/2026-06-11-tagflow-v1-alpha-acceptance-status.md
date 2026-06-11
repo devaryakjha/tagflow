@@ -111,6 +111,10 @@ The benchmark harness is real but still alpha-grade:
   smoke runs passed for `TAGFLOW_RENDERER=tagflow`,
   `TAGFLOW_RENDERER=flutter_html`, and
   `TAGFLOW_RENDERER=flutter_widget_from_html`.
+- The deterministic benchmark corpus now includes `table_stress`, registered
+  with fixture validity coverage and exercised by parser and widget render
+  benchmark lanes. A Tagflow-only profile smoke run for
+  `TAGFLOW_FIXTURE=table_stress` passed locally on macOS.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving
@@ -130,6 +134,6 @@ The benchmark harness is real but still alpha-grade:
   gaps are mostly HTML/CSS-derived table styling parity, including border,
   padding/background, and spacing hints.
 - Profile benchmarking is real but not production-grade yet: broader competitor
-  coverage, additional fixtures, nightly/reference-runner baselines, and
-  repeated reference-device runs remain follow-up work before using frame
-  timings as a release gate.
+  coverage beyond the current HTML-native lanes, nightly/reference-runner
+  baselines, and repeated reference-device runs remain follow-up work before
+  using frame timings as a release gate.

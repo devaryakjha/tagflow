@@ -3,6 +3,7 @@ const List<String> profileBenchmarkFixtureIds = [
   'ai_answer_rich',
   'table_dense',
   'large_article',
+  'table_stress',
 ];
 
 /// Default fixture used by the manual benchmark route and integration test.

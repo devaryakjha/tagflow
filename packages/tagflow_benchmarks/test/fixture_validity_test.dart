@@ -10,6 +10,7 @@ void main() {
           'smoke_short_html',
           'ai_answer_rich',
           'table_dense',
+          'table_stress',
           'large_article',
           'deep_nested_lists',
         ]),
@@ -43,6 +44,7 @@ void main() {
 
     test('returns fixtures by id', () {
       expect(() => fixtureById('table_dense'), returnsNormally);
+      expect(() => fixtureById('table_stress'), returnsNormally);
       expect(
         () => fixtureById('missing_fixture'),
         throwsA(isA<ArgumentError>()),
