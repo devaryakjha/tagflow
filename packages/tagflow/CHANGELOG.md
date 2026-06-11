@@ -13,6 +13,9 @@
   `TagflowNativeBlockCodec.decodePatchEnvelope(...)` ->
   `TagflowNativeBlockAdapter.adaptPatches(...)` ->
   `TagflowDocument.applyPatches(...)`.
+- Enforces native transport `schemaVersion: 1` for decoded native JSON
+  documents and patch envelopes, with pathful failures for unsupported schema
+  versions and unknown patch operations.
 - Adds the example app `Native JSON Transport` screen for trusted
   app-controlled JSON documents and patch envelopes.
 - Adds `Tagflow.html(..., registry: ...)` so HTML-origin runtime documents can

@@ -17,6 +17,8 @@ the first post-transport runtime ergonomics needed for app integration:
 - `TagflowNativeBlockPatchEnvelope`
 - native JSON document decode/adapt/render path
 - patch envelope decode/adapt/apply path
+- strict native transport schema `1` for decoded documents and patch envelopes,
+  with pathful failures for unsupported schema versions and unknown operations
 - `Tagflow.html(..., registry: ...)` for HTML-origin semantic registry
   overrides without breaking legacy custom converters
 - report-only `benchmark:native-transport` lane

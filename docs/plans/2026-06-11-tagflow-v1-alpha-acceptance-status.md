@@ -164,6 +164,9 @@ Public API surface to call out in `1.0.0-alpha.2`:
   `decodePatchEnvelope(...)` ->
   `TagflowNativeBlockAdapter.adaptPatches(...)` ->
   `TagflowDocument.applyPatches(...)`
+- strict native transport `schemaVersion: 1` for decoded documents and patch
+  envelopes, with pathful failures for unsupported schema versions and unknown
+  operations
 - HTML-origin semantic registry override path:
   `Tagflow.html(..., registry: ...)`
 - report-only native transport benchmark lane:
