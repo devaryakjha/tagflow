@@ -169,6 +169,47 @@ not a continuation of the proof patch:
 5. remaining: capture dark-mode and profile-target evidence before considering
    the migration production-ready
 
+## Clean Alpha Validation Route
+
+The clean hosted-alpha branch should not regain the old diagnostics proof
+screen. The next evidence pass should use Kite's real IPO flow first:
+
+1. launch the normal app entrypoint from
+   `codex/kite-tagflow-alpha-runtime`
+2. use an existing authenticated session, or import a dev session with
+   `--dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true` if a valid secret is
+   available
+3. navigate through Bids -> IPO
+4. tap an IPO instrument row
+5. let `SelectIPOInstrument`, `SelectInvestorType`, and the
+   `ShowIPOInstrumentSheet` listener open the real bottom sheet
+
+That route is grounded in the current app code:
+
+- `/Users/arya/projects/kite/lib/screens/bids.dart` exposes the IPO tab under
+  Bids.
+- `/Users/arya/projects/kite/lib/screens/ipos/ipo_screen.dart` opens
+  `IPOInstrumentSheet` from its `ShowIPOInstrumentSheet` mutation listener.
+- `/Users/arya/projects/kite/lib/mutations/ipo.dart` sets
+  `selectedIPOInstrument`, `selectedInvestorType`, and fetches IPO details.
+- `/Users/arya/projects/kite/lib/screens/ipos/ipo_instrument_sheet.dart`
+  renders the Tagflow-backed excerpt and content from the selected
+  instrument's RHP JSON.
+
+The clean `main_local.dart` path is intentionally not the preferred route for
+release evidence. It is under-provisioned for a post-login app session and the
+latest launch showed unrelated 500s plus a watchlist deserialization failure
+before the IPO sheet could be reached. A local fallback should be considered
+only if no authenticated session is available, and it should stay narrowly
+scoped to IPO evidence: `/ipo/instruments`, `/ipo/applications`, supported UPI
+handles, and the selected instrument's `rhp_link?format=json` response. It
+should not re-add a diagnostics preview screen, broad local fixture behavior,
+or path dependency overrides.
+
+An isolated follow-up worker was queued to attempt this real authenticated
+route, capture dark-mode `IPOInstrumentSheet` screenshots if reachable, and
+attempt profile-mode evidence only on a supported physical target.
+
 ## Validation Commands
 
 ### Requested shared FVM path

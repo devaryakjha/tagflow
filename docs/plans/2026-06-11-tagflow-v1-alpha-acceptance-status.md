@@ -216,6 +216,19 @@ The benchmark harness is real but still alpha-grade:
   deserialization exception appeared, and the simulator remained visually light
   after the dark-appearance toggle. This is evidence that the branch is clean
   and launchable, not IPO dark-mode or release-grade profile evidence.
+- The next Kite alpha evidence path has been narrowed to the real authenticated
+  app route rather than the local proof route: launch the normal app entrypoint
+  on `codex/kite-tagflow-alpha-runtime`, use an existing authenticated session
+  or dev-session import with
+  `--dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true`, navigate Bids -> IPO,
+  tap an IPO instrument, and capture the resulting real
+  `IPOInstrumentSheet`. This uses the app's current
+  `SelectIPOInstrument` / `SelectInvestorType` / `ShowIPOInstrumentSheet`
+  flow. A local fallback, if auth blocks the run, should be a narrow
+  uncommitted IPO-only handler set for `/ipo/instruments`,
+  `/ipo/applications`, supported UPI handles, and the selected RHP JSON URL;
+  it should not revive the diagnostics proof screen or broad `main_local.dart`
+  fixture behavior.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
