@@ -12,28 +12,29 @@ structured content as native Flutter widgets.
 
 ## Release Target
 
-Target the new architecture as `1.0.0-alpha.1`.
+The native runtime architecture is shipping through the `1.0.0-alpha.x`
+prerelease line. The line is intentionally breaking because current public usage
+appears low and the package is still internally driven. Stable `1.0.0` should
+wait until a real internal Flutter app has integrated the new model and
+benchmark results are strong enough for public claims.
 
-This should be a clean breaking line because current public usage appears low
-and the package is still internally driven. Stable `1.0.0` should wait until a
-real internal Flutter app has integrated the new model and benchmark results are
-published.
+Current published prerelease: `tagflow` `1.0.0-alpha.3`.
 
-Next prerelease target: `1.0.0-alpha.2` should expose the newly landed native
-JSON transport API for internal Flutter apps without broadening the runtime
-scope. The release should remain alpha, data-only, and trusted/app-controlled.
-It should not claim a CMS sync protocol or public performance result.
+`1.0.0-alpha.3` keeps the data-only trusted native JSON transport from alpha.2,
+then adds contract hardening, benchmark gate documentation, and first-class
+semantic disclosure rendering for HTML `details` / `summary`. It does not claim
+a CMS sync protocol or public performance result. `tagflow_table` remains a
+separate first-party extension at `1.0.0-alpha.1`.
 
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits before this status refresh include
-  `6287cc2 chore(release): prepare tagflow alpha.2`,
-  `801a5b0 docs(plan): record kite native transport blocker`,
-  `db7dd4e docs(release): prep alpha.2 native transport notes`,
-  `5887c17 feat(benchmarks): add native transport benchmark lane`,
-  `e5ee11f feat(example): add native dynamic content demo`, and
-  `5cd0ecf feat(adapter): add native block transport codec`.
+  `241bcdd docs(release): record alpha3 publish result`,
+  `7f5d3ae docs(release): align alpha3 disclosure handoff`,
+  `4d1aeca fix(runtime): keep disclosure summaries inline`,
+  `c2053a5 feat(runtime): render html disclosure nodes`, and
+  `9b6a5a9 docs(release): add alpha3 handoff`.
 - Latest integrated implementation commits include `d0494f8 docs(benchmarks):
   record semantic streaming pair baseline`, `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
@@ -45,13 +46,12 @@ It should not claim a CMS sync protocol or public performance result.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
-- Release posture: `tagflow` and `tagflow_table` are both published as
-  `1.0.0-alpha.1` prereleases. Package descriptions, changelogs, READMEs,
-  roadmap, and the alpha migration guide have been updated for the native rich
-  content runtime line. `tagflow` is now prepared as a core-only
-  `1.0.0-alpha.2` candidate, with full validation and publish dry-run passing;
-  `tagflow_table` remains at `1.0.0-alpha.1`. The tag-driven release handoff
-  lives in `docs/plans/2026-06-11-tagflow-alpha2-release-handoff.md`.
+- Release posture: `tagflow` is published as `1.0.0-alpha.3` from tag
+  `tagflow-v1.0.0-alpha.3`, and `tagflow_table` remains published at
+  `1.0.0-alpha.1`. Package descriptions, changelogs, READMEs, roadmap, and the
+  alpha migration guide frame the package as a native rich content runtime.
+  The alpha3 handoff and publish evidence live in
+  `docs/plans/2026-06-12-tagflow-alpha3-release-handoff.md`.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection
@@ -82,6 +82,11 @@ It should not claim a CMS sync protocol or public performance result.
   authored node ID strategies for controlled dynamic content through
   `TagflowHtmlNodeIdStrategy.attribute()`, which reads `data-tagflow-id` by
   default while preserving path IDs as the compatibility fallback.
+- Alpha3 benchmark posture remains collection-gate only. The current evidence
+  includes report-only native transport microbenchmarks plus a cold/warm native
+  JSON profile smoke lane; it must not be used for public performance ranking
+  or speed claims until a stable reference-runner policy and broader device
+  matrix are promoted.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
@@ -102,12 +107,18 @@ It should not claim a CMS sync protocol or public performance result.
   supported-target blocker because the phone was wireless-only from Flutter's
   perspective and stalled before install/launch; see
   `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
-- A focused Kite native JSON transport probe confirmed the next release need:
-  hosted `1.0.0-alpha.1` lacks `TagflowNativeBlockCodec` and
+- A focused Kite native JSON transport probe confirmed the alpha2 release need:
+  hosted `1.0.0-alpha.1` lacked `TagflowNativeBlockCodec` and
   `TagflowNativeBlockAdapter`, while a temporary local override to the
   coordinator Tagflow checkout passed a test-only decode/adapt/patch-apply
-  path. Kite should wait for `1.0.0-alpha.2` before committing a native
-  transport fixture or production integration.
+  path. `tagflow` `1.0.0-alpha.3` is now hosted, and Kite validation thread
+  `019eb836-f538-7182-aeed-59550ad3e9a0` is checking the hosted alpha3 path
+  against the IPO dynamic content surface. Early worker evidence shows Kite
+  must move from `tagflow_table 0.0.4+5` to hosted `tagflow_table
+  1.0.0-alpha.1` because the old table package constrains `tagflow ^0.0.4`.
+  The same pass is evaluating whether Kite can remove app-specific
+  `details` / `summary` legacy converter wiring and exercise alpha3's built-in
+  semantic disclosure renderer through the registry path.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through
@@ -228,10 +239,11 @@ Completed docs/release changes for the alpha line:
 - `packages/tagflow_table/README.md` describes the package as a first-party
   runtime table extension while preserving legacy converter guidance.
 - `packages/tagflow/pubspec.yaml` and `packages/tagflow_table/pubspec.yaml`
-  describe the alpha runtime line. `tagflow` is prepared for
-  `1.0.0-alpha.2`; `tagflow_table` remains `1.0.0-alpha.1` because the native
-  JSON transport slice does not require a table package release.
-- Package changelogs contain `1.0.0-alpha.1` entries.
+  describe the alpha runtime line. `tagflow` is published as
+  `1.0.0-alpha.3`; `tagflow_table` remains `1.0.0-alpha.1` because the native
+  JSON transport and disclosure slices did not require a table package release.
+- Package changelogs contain `1.0.0-alpha.1`, `1.0.0-alpha.2`, and
+  `1.0.0-alpha.3` entries where applicable.
 - `docs/migration/2026-06-11-tagflow-v1-alpha-migration.md` documents the
   `0.0.x` to alpha migration.
 - Melos has a `version:alpha` lane and non-interactive publish dry-run lane.
@@ -239,6 +251,9 @@ Completed docs/release changes for the alpha line:
   `TagflowNativeBlockPatchEnvelope`, the native JSON document
   decode/adapt/render path, the patch envelope decode/adapt/apply path, and
   the report-only `benchmark:native-transport` lane.
+- The `1.0.0-alpha.3` notes document stricter native schema/patch failures,
+  unsupported-native HTML adapter behavior, compatibility support windows,
+  benchmark gate posture, and first-class HTML disclosure widgets.
 
 Claims to avoid in alpha:
 
