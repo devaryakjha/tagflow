@@ -281,6 +281,20 @@ void main() {
                       'tagflow_semantic_patch/repeat-02.json',
                 },
               },
+              'updateWorstAttributedFrame': <String, Object?>{
+                'repeat': 2,
+                'chunk': 1,
+                'fraction': 0.33,
+                'inputLength': 2000,
+                'phase': 'unknown',
+                'buildMillis': 8.4,
+                'rasterMillis': 19.725,
+                'buildOverBudget': false,
+                'rasterOverBudget': true,
+                'artifactPath':
+                    'build/benchmarks/profile/run/'
+                    'tagflow_semantic_patch/repeat-02.json',
+              },
             },
           ],
         ),
@@ -314,6 +328,12 @@ void main() {
       _ => null,
     };
     expect(settleMicros, containsPair('maxMicros', 249315000));
+    final worstAttributedFrame =
+        result.reportOnlyFindings.single.details['updateWorstAttributedFrame'];
+    expect(worstAttributedFrame, isA<Map<String, Object?>>());
+    expect(worstAttributedFrame, containsPair('chunk', 1));
+    expect(worstAttributedFrame, containsPair('fraction', 0.33));
+    expect(worstAttributedFrame, containsPair('phase', 'unknown'));
     expect(result.toJson(), contains('reportOnlyFindings'));
   });
 

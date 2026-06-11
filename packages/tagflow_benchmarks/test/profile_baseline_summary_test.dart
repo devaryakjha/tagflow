@@ -418,6 +418,7 @@ void main() {
     expect(updateSummary.missedRasterBudgetCount, isNotNull);
     expect(updateSummary.missedRasterBudgetCount!.total, 1);
     expect(updateSummary.phaseMaxima, isEmpty);
+    expect(updateSummary.worstAttributedFrame, isNull);
     expect(updateSummary.toJson().containsKey('phaseMaxima'), isFalse);
 
     expect(cell.outlierRepeats, hasLength(1));
@@ -432,6 +433,7 @@ void main() {
       ]),
     );
     expect(cell.outlierRepeats.single.updatePhaseMaxima, isEmpty);
+    expect(cell.outlierRepeats.single.updateWorstAttributedFrame, isNull);
   });
 
   test('summarizes update phase maxima when phase timings exist', () {
@@ -504,6 +506,18 @@ void main() {
               'pumpWidgetMicros': 12000,
               'settleMicros': 95000,
               'elapsedMicros': 110118,
+              'frameTimingAttribution': <String, Object?>{
+                'frameCount': 2,
+                'missedBuildBudgetCount': 0,
+                'missedRasterBudgetCount': 0,
+                'worstFrame': <String, Object?>{
+                  'phase': 'settle',
+                  'buildMillis': 4.2,
+                  'rasterMillis': 7.8,
+                  'buildOverBudget': false,
+                  'rasterOverBudget': false,
+                },
+              },
             },
             <String, Object?>{
               'chunk': 2,
@@ -513,6 +527,18 @@ void main() {
               'pumpWidgetMicros': 14000,
               'settleMicros': 98000,
               'elapsedMicros': 116790,
+              'frameTimingAttribution': <String, Object?>{
+                'frameCount': 2,
+                'missedBuildBudgetCount': 0,
+                'missedRasterBudgetCount': 0,
+                'worstFrame': <String, Object?>{
+                  'phase': 'pumpWidget',
+                  'buildMillis': 9.7,
+                  'rasterMillis': 6.1,
+                  'buildOverBudget': false,
+                  'rasterOverBudget': false,
+                },
+              },
             },
           ],
         }),
@@ -562,6 +588,18 @@ void main() {
             'pumpWidgetMicros': 9000,
             'settleMicros': 249315000,
             'elapsedMicros': 249327401,
+            'frameTimingAttribution': <String, Object?>{
+              'frameCount': 3,
+              'missedBuildBudgetCount': 0,
+              'missedRasterBudgetCount': 1,
+              'worstFrame': <String, Object?>{
+                'phase': 'unknown',
+                'buildMillis': 8.4,
+                'rasterMillis': 19.725,
+                'buildOverBudget': false,
+                'rasterOverBudget': true,
+              },
+            },
           },
           <String, Object?>{
             'chunk': 2,
@@ -571,6 +609,18 @@ void main() {
             'pumpWidgetMicros': 16000,
             'settleMicros': 96800,
             'elapsedMicros': 114001,
+            'frameTimingAttribution': <String, Object?>{
+              'frameCount': 1,
+              'missedBuildBudgetCount': 1,
+              'missedRasterBudgetCount': 0,
+              'worstFrame': <String, Object?>{
+                'phase': 'pumpWidget',
+                'buildMillis': 18.2,
+                'rasterMillis': 5.0,
+                'buildOverBudget': true,
+                'rasterOverBudget': false,
+              },
+            },
           },
         ],
       }),
@@ -629,12 +679,29 @@ void main() {
     expect(updateSummary.phaseMaxima['pumpWidgetMicros']!.repeat, 2);
     expect(updateSummary.phaseMaxima['settleMicros']!.maxMicros, 249315000);
     expect(updateSummary.phaseMaxima['settleMicros']!.repeat, 2);
+    expect(updateSummary.worstAttributedFrame, isNotNull);
+    expect(updateSummary.worstAttributedFrame!.repeat, 2);
+    expect(updateSummary.worstAttributedFrame!.chunk, 1);
+    expect(updateSummary.worstAttributedFrame!.fraction, 0.33);
+    expect(updateSummary.worstAttributedFrame!.phase, 'unknown');
+    expect(updateSummary.worstAttributedFrame!.rasterOverBudget, isTrue);
+    expect(
+      updateSummary.worstAttributedFrame!.rasterMillis,
+      closeTo(19.725, 0.0001),
+    );
     expect(updateSummary.toJson(), contains('phaseMaxima'));
+    expect(updateSummary.toJson(), contains('worstAttributedFrame'));
 
     expect(cell.outlierRepeats, hasLength(1));
     expect(
       cell.outlierRepeats.single.updatePhaseMaxima['settleMicros']!.maxMicros,
       249315000,
+    );
+    expect(cell.outlierRepeats.single.updateWorstAttributedFrame, isNotNull);
+    expect(cell.outlierRepeats.single.updateWorstAttributedFrame!.chunk, 1);
+    expect(
+      cell.outlierRepeats.single.updateWorstAttributedFrame!.phase,
+      'unknown',
     );
   });
 
@@ -737,5 +804,6 @@ void main() {
     expect(updateSummary.phaseMaxima.containsKey('applyPatchMicros'), isFalse);
     expect(updateSummary.phaseMaxima['pumpWidgetMicros']!.maxMicros, 9000);
     expect(updateSummary.phaseMaxima['settleMicros']!.maxMicros, 108000);
+    expect(updateSummary.worstAttributedFrame, isNull);
   });
 }

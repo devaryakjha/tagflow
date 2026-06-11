@@ -218,6 +218,25 @@ measured updates:
 - Nearby patch repeats had similar settle times without necessarily crossing
   the raster-budget boundary.
 
+## Attribution Follow-up
+
+Subsequent harness instrumentation now records per-update
+`frameTimingAttribution` when Flutter emits `FrameTiming` callbacks during the
+dynamic update path. That lets later summaries/report-only findings point to a
+worst observed update frame by repeat, chunk, fraction, and a conservative
+phase window.
+
+The phase window is intentionally narrow:
+
+- `pumpWidget`
+- `settle`
+- `unknown`
+
+If a frame timing callback arrives outside the active `pumpWidget` or `settle`
+window, the harness records that frame as `unknown` instead of guessing. This
+improves attribution for over-budget update frames, but it still does not prove
+single-cause ownership for every slow frame.
+
 The warning lines in the logs were not unique to the flagged repeats. The
 semantic timestamp-clamp warning also appeared in a non-outlier repeat, and the
 patch foregrounding warning appeared in neighboring non-outlier repeats.

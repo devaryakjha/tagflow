@@ -1,3 +1,5 @@
+import 'dart:ui' show FrameTiming;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +10,8 @@ import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
+
+const double _frameBudgetMillis = 16.667;
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -115,34 +119,53 @@ Future<void> _runStreamingBenchmark({
     )) {
       final totalStopwatch = Stopwatch()..start();
 
-      final pumpWidgetStopwatch = Stopwatch()..start();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: _BenchmarkDocumentFrame(
-            document: BenchmarkSourceDocument(
-              type: fixture.source.type,
-              data: snapshot.html,
-              assetPath: fixture.source.assetPath,
+      late final int pumpWidgetMicros;
+      late final int settleMicros;
+      final frameTimingAttribution = await _captureUpdateFrameTimingAttribution(
+        binding: binding,
+        tester: tester,
+        operation: (recorder) async {
+          final pumpWidgetStopwatch = Stopwatch()..start();
+          recorder.phase = _UpdateFramePhase.pumpWidget;
+          await tester.pumpWidget(
+            MaterialApp(
+              home: _BenchmarkDocumentFrame(
+                document: BenchmarkSourceDocument(
+                  type: fixture.source.type,
+                  data: snapshot.html,
+                  assetPath: fixture.source.assetPath,
+                ),
+                renderer: renderer,
+              ),
             ),
-            renderer: renderer,
-          ),
-        ),
-      );
-      pumpWidgetStopwatch.stop();
+          );
+          recorder.phase = _UpdateFramePhase.unknown;
+          pumpWidgetStopwatch.stop();
+          pumpWidgetMicros = pumpWidgetStopwatch.elapsedMicroseconds;
 
-      final settleStopwatch = Stopwatch()..start();
-      await tester.pumpAndSettle();
-      settleStopwatch.stop();
+          final settleStopwatch = Stopwatch()..start();
+          recorder.phase = _UpdateFramePhase.settle;
+          await tester.pumpAndSettle();
+          recorder.phase = _UpdateFramePhase.unknown;
+          settleStopwatch.stop();
+          settleMicros = settleStopwatch.elapsedMicroseconds;
+        },
+      );
       totalStopwatch.stop();
 
-      updateLatencies.add(<String, Object?>{
+      final updateLatency = <String, Object?>{
         'chunk': snapshot.chunk,
         'fraction': snapshot.fraction,
         'inputLength': snapshot.inputLength,
-        'pumpWidgetMicros': pumpWidgetStopwatch.elapsedMicroseconds,
-        'settleMicros': settleStopwatch.elapsedMicroseconds,
+        'pumpWidgetMicros': pumpWidgetMicros,
+        'settleMicros': settleMicros,
         'elapsedMicros': totalStopwatch.elapsedMicroseconds,
-      });
+      };
+      final frameTimingAttributionJson = frameTimingAttribution.toJson();
+      if (frameTimingAttributionJson != null) {
+        updateLatency['frameTimingAttribution'] = frameTimingAttributionJson;
+      }
+      updateLatencies.add(updateLatency);
     }
   }, reportKey: '${renderer.id}_${fixture.id}_updates');
 
@@ -187,36 +210,55 @@ Future<void> _runSemanticPatchStreamingBenchmark({
       currentDocument = currentDocument.applyPatch(step.patch);
       applyPatchStopwatch.stop();
 
-      final pumpWidgetStopwatch = Stopwatch()..start();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: _BenchmarkDocumentFrame(
-            document: BenchmarkSourceDocument(
-              type: fixture.source.type,
-              data: fullDocument,
-              assetPath: fixture.source.assetPath,
-              runtimeDocument: currentDocument,
+      late final int pumpWidgetMicros;
+      late final int settleMicros;
+      final frameTimingAttribution = await _captureUpdateFrameTimingAttribution(
+        binding: binding,
+        tester: tester,
+        operation: (recorder) async {
+          final pumpWidgetStopwatch = Stopwatch()..start();
+          recorder.phase = _UpdateFramePhase.pumpWidget;
+          await tester.pumpWidget(
+            MaterialApp(
+              home: _BenchmarkDocumentFrame(
+                document: BenchmarkSourceDocument(
+                  type: fixture.source.type,
+                  data: fullDocument,
+                  assetPath: fixture.source.assetPath,
+                  runtimeDocument: currentDocument,
+                ),
+                renderer: renderer,
+              ),
             ),
-            renderer: renderer,
-          ),
-        ),
-      );
-      pumpWidgetStopwatch.stop();
+          );
+          recorder.phase = _UpdateFramePhase.unknown;
+          pumpWidgetStopwatch.stop();
+          pumpWidgetMicros = pumpWidgetStopwatch.elapsedMicroseconds;
 
-      final settleStopwatch = Stopwatch()..start();
-      await tester.pumpAndSettle();
-      settleStopwatch.stop();
+          final settleStopwatch = Stopwatch()..start();
+          recorder.phase = _UpdateFramePhase.settle;
+          await tester.pumpAndSettle();
+          recorder.phase = _UpdateFramePhase.unknown;
+          settleStopwatch.stop();
+          settleMicros = settleStopwatch.elapsedMicroseconds;
+        },
+      );
       totalStopwatch.stop();
 
-      updateLatencies.add(<String, Object?>{
+      final updateLatency = <String, Object?>{
         'chunk': step.chunk,
         'fraction': step.fraction,
         'inputLength': step.inputLength,
         'applyPatchMicros': applyPatchStopwatch.elapsedMicroseconds,
-        'pumpWidgetMicros': pumpWidgetStopwatch.elapsedMicroseconds,
-        'settleMicros': settleStopwatch.elapsedMicroseconds,
+        'pumpWidgetMicros': pumpWidgetMicros,
+        'settleMicros': settleMicros,
         'elapsedMicros': totalStopwatch.elapsedMicroseconds,
-      });
+      };
+      final frameTimingAttributionJson = frameTimingAttribution.toJson();
+      if (frameTimingAttributionJson != null) {
+        updateLatency['frameTimingAttribution'] = frameTimingAttributionJson;
+      }
+      updateLatencies.add(updateLatency);
     }
   }, reportKey: '${renderer.id}_${fixture.id}_updates');
 
@@ -251,6 +293,197 @@ void _recordViewport(
         'devicePixelRatio': devicePixelRatio,
       };
 }
+
+Future<_UpdateFrameTimingAttribution> _captureUpdateFrameTimingAttribution({
+  required IntegrationTestWidgetsFlutterBinding binding,
+  required WidgetTester tester,
+  required Future<void> Function(_UpdateFrameTimingRecorder recorder) operation,
+}) async {
+  final recorder = _UpdateFrameTimingRecorder();
+  void timingsCallback(List<FrameTiming> timings) {
+    recorder.recordTimings(timings);
+  }
+
+  binding.addTimingsCallback(timingsCallback);
+  try {
+    await operation(recorder);
+    recorder.phase = _UpdateFramePhase.unknown;
+    await tester.idle();
+    return recorder.buildAttribution();
+  } finally {
+    binding.removeTimingsCallback(timingsCallback);
+  }
+}
+
+enum _UpdateFramePhase { pumpWidget, settle, unknown }
+
+final class _UpdateFrameTimingRecorder {
+  final Map<_UpdateFramePhase, List<FrameTiming>> _timingsByPhase =
+      <_UpdateFramePhase, List<FrameTiming>>{
+        for (final phase in _UpdateFramePhase.values) phase: <FrameTiming>[],
+      };
+  _UpdateFramePhase phase = _UpdateFramePhase.unknown;
+
+  void recordTimings(List<FrameTiming> timings) {
+    _timingsByPhase[phase]!.addAll(timings);
+  }
+
+  _UpdateFrameTimingAttribution buildAttribution() {
+    final phaseSummaries = <String, _UpdateFrameTimingPhaseSummary>{};
+    var frameCount = 0;
+    var missedBuildBudgetCount = 0;
+    var missedRasterBudgetCount = 0;
+    _ObservedFrameTiming? worstFrame;
+
+    for (final entry in _timingsByPhase.entries) {
+      if (entry.value.isEmpty) {
+        continue;
+      }
+      final summary = _summarizePhaseTimings(entry.value);
+      phaseSummaries[_phaseName(entry.key)] = summary;
+      frameCount += summary.frameCount;
+      missedBuildBudgetCount += summary.missedBuildBudgetCount;
+      missedRasterBudgetCount += summary.missedRasterBudgetCount;
+
+      for (final timing in entry.value) {
+        final observed = _ObservedFrameTiming(
+          phase: _phaseName(entry.key),
+          buildMillis: timing.buildDuration.inMicroseconds / 1000.0,
+          rasterMillis: timing.rasterDuration.inMicroseconds / 1000.0,
+        );
+        if (worstFrame == null || observed.score > worstFrame.score) {
+          worstFrame = observed;
+        }
+      }
+    }
+
+    return _UpdateFrameTimingAttribution(
+      frameCount: frameCount,
+      missedBuildBudgetCount: missedBuildBudgetCount,
+      missedRasterBudgetCount: missedRasterBudgetCount,
+      worstFrame: worstFrame,
+      phaseSummaries: phaseSummaries,
+    );
+  }
+}
+
+final class _ObservedFrameTiming {
+  const _ObservedFrameTiming({
+    required this.phase,
+    required this.buildMillis,
+    required this.rasterMillis,
+  });
+
+  final String phase;
+  final double buildMillis;
+  final double rasterMillis;
+
+  double get score => buildMillis > rasterMillis ? buildMillis : rasterMillis;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'phase': phase,
+    'buildMillis': buildMillis,
+    'rasterMillis': rasterMillis,
+    'buildOverBudget': buildMillis > _frameBudgetMillis,
+    'rasterOverBudget': rasterMillis > _frameBudgetMillis,
+  };
+}
+
+final class _UpdateFrameTimingAttribution {
+  const _UpdateFrameTimingAttribution({
+    required this.frameCount,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+    required this.worstFrame,
+    required this.phaseSummaries,
+  });
+
+  final int frameCount;
+  final int missedBuildBudgetCount;
+  final int missedRasterBudgetCount;
+  final _ObservedFrameTiming? worstFrame;
+  final Map<String, _UpdateFrameTimingPhaseSummary> phaseSummaries;
+
+  Map<String, Object?>? toJson() {
+    if (frameCount == 0) {
+      return null;
+    }
+    return <String, Object?>{
+      'frameCount': frameCount,
+      'missedBuildBudgetCount': missedBuildBudgetCount,
+      'missedRasterBudgetCount': missedRasterBudgetCount,
+      if (worstFrame != null) 'worstFrame': worstFrame!.toJson(),
+      if (phaseSummaries.isNotEmpty)
+        'phases': phaseSummaries.map(
+          (phase, summary) => MapEntry(phase, summary.toJson()),
+        ),
+    };
+  }
+}
+
+final class _UpdateFrameTimingPhaseSummary {
+  const _UpdateFrameTimingPhaseSummary({
+    required this.frameCount,
+    required this.worstBuildMillis,
+    required this.worstRasterMillis,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+  });
+
+  final int frameCount;
+  final double worstBuildMillis;
+  final double worstRasterMillis;
+  final int missedBuildBudgetCount;
+  final int missedRasterBudgetCount;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'frameCount': frameCount,
+    'worstBuildMillis': worstBuildMillis,
+    'worstRasterMillis': worstRasterMillis,
+    'missedBuildBudgetCount': missedBuildBudgetCount,
+    'missedRasterBudgetCount': missedRasterBudgetCount,
+  };
+}
+
+_UpdateFrameTimingPhaseSummary _summarizePhaseTimings(
+  List<FrameTiming> timings,
+) {
+  double worstBuildMillis = 0;
+  double worstRasterMillis = 0;
+  var missedBuildBudgetCount = 0;
+  var missedRasterBudgetCount = 0;
+
+  for (final timing in timings) {
+    final buildMillis = timing.buildDuration.inMicroseconds / 1000.0;
+    final rasterMillis = timing.rasterDuration.inMicroseconds / 1000.0;
+    if (buildMillis > worstBuildMillis) {
+      worstBuildMillis = buildMillis;
+    }
+    if (rasterMillis > worstRasterMillis) {
+      worstRasterMillis = rasterMillis;
+    }
+    if (buildMillis > _frameBudgetMillis) {
+      missedBuildBudgetCount += 1;
+    }
+    if (rasterMillis > _frameBudgetMillis) {
+      missedRasterBudgetCount += 1;
+    }
+  }
+
+  return _UpdateFrameTimingPhaseSummary(
+    frameCount: timings.length,
+    worstBuildMillis: worstBuildMillis,
+    worstRasterMillis: worstRasterMillis,
+    missedBuildBudgetCount: missedBuildBudgetCount,
+    missedRasterBudgetCount: missedRasterBudgetCount,
+  );
+}
+
+String _phaseName(_UpdateFramePhase phase) => switch (phase) {
+  _UpdateFramePhase.pumpWidget => 'pumpWidget',
+  _UpdateFramePhase.settle => 'settle',
+  _UpdateFramePhase.unknown => 'unknown',
+};
 
 final class _BenchmarkDocumentFrame extends StatelessWidget {
   const _BenchmarkDocumentFrame({

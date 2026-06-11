@@ -225,6 +225,7 @@ final class ProfileBaselineCellUpdateSummary {
     required this.missedBuildBudgetCount,
     required this.missedRasterBudgetCount,
     required this.phaseMaxima,
+    required this.worstAttributedFrame,
   });
 
   /// Number of repeats that emitted update payloads.
@@ -269,6 +270,9 @@ final class ProfileBaselineCellUpdateSummary {
   /// Maximum observed duration for each measured update phase.
   final Map<String, ProfileBaselineUpdatePhaseMaximum> phaseMaxima;
 
+  /// Worst observed attributed update frame, when raw artifacts captured it.
+  final ProfileBaselineUpdateWorstFrame? worstAttributedFrame;
+
   /// Converts this update summary to JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'observedRepeats': observedRepeats,
@@ -294,6 +298,8 @@ final class ProfileBaselineCellUpdateSummary {
       'phaseMaxima': phaseMaxima.map(
         (phase, maximum) => MapEntry(phase, maximum.toJson()),
       ),
+    if (worstAttributedFrame != null)
+      'worstAttributedFrame': worstAttributedFrame!.toJson(),
   };
 }
 
@@ -339,6 +345,67 @@ final class ProfileBaselineUpdatePhaseMaximum {
     'chunk': chunk,
     'fraction': fraction,
     'inputLength': inputLength,
+    'artifactPath': artifactPath,
+  };
+}
+
+/// Worst observed update frame attributed back to one update sample.
+final class ProfileBaselineUpdateWorstFrame {
+  /// Creates an attributed update-frame summary.
+  const ProfileBaselineUpdateWorstFrame({
+    required this.repeat,
+    required this.chunk,
+    required this.fraction,
+    required this.inputLength,
+    required this.phase,
+    required this.buildMillis,
+    required this.rasterMillis,
+    required this.buildOverBudget,
+    required this.rasterOverBudget,
+    required this.artifactPath,
+  });
+
+  /// Repeat containing the observed frame.
+  final int repeat;
+
+  /// Chunk index containing the observed frame.
+  final int chunk;
+
+  /// Fraction marker containing the observed frame.
+  final double fraction;
+
+  /// Input length captured for the owning update.
+  final int inputLength;
+
+  /// Conservative ownership window for the observed frame.
+  final String phase;
+
+  /// Build duration for the observed frame in milliseconds.
+  final double buildMillis;
+
+  /// Raster duration for the observed frame in milliseconds.
+  final double rasterMillis;
+
+  /// Whether the build duration exceeded the frame budget.
+  final bool buildOverBudget;
+
+  /// Whether the raster duration exceeded the frame budget.
+  final bool rasterOverBudget;
+
+  /// Artifact path for the repeat with the observed frame.
+  final String artifactPath;
+
+  /// Converts this frame summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'repeat': repeat,
+    'chunk': chunk,
+    'fraction': fraction,
+    'inputLength': inputLength,
+    'phase': phase,
+    'buildMillis': buildMillis,
+    'rasterMillis': rasterMillis,
+    'buildOverBudget': buildOverBudget,
+    'rasterOverBudget': rasterOverBudget,
     'artifactPath': artifactPath,
   };
 }
@@ -463,6 +530,7 @@ final class ProfileBaselineOutlier {
     required this.updateMissedBuildBudgetCount,
     required this.updateMissedRasterBudgetCount,
     required this.updatePhaseMaxima,
+    required this.updateWorstAttributedFrame,
   });
 
   /// One-based repeat index.
@@ -519,6 +587,9 @@ final class ProfileBaselineOutlier {
   /// Maximum observed duration for each measured update phase.
   final Map<String, ProfileBaselineUpdatePhaseMaximum> updatePhaseMaxima;
 
+  /// Worst attributed update frame observed in this repeat, when present.
+  final ProfileBaselineUpdateWorstFrame? updateWorstAttributedFrame;
+
   /// Converts this outlier to JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'repeat': repeat,
@@ -550,6 +621,8 @@ final class ProfileBaselineOutlier {
       'updatePhaseMaxima': updatePhaseMaxima.map(
         (phase, maximum) => MapEntry(phase, maximum.toJson()),
       ),
+    if (updateWorstAttributedFrame != null)
+      'updateWorstAttributedFrame': updateWorstAttributedFrame!.toJson(),
   };
 }
 
@@ -811,6 +884,7 @@ final class _ProfileUpdateLatencySample {
     required this.applyPatchMicros,
     required this.pumpWidgetMicros,
     required this.settleMicros,
+    required this.frameTimingAttribution,
   });
 
   final int chunk;
@@ -820,6 +894,7 @@ final class _ProfileUpdateLatencySample {
   final int? applyPatchMicros;
   final int? pumpWidgetMicros;
   final int? settleMicros;
+  final _ProfileUpdateFrameTimingAttribution? frameTimingAttribution;
 
   int? phaseMicros(String phaseField) => switch (phaseField) {
     'applyPatchMicros' => applyPatchMicros,
@@ -827,6 +902,38 @@ final class _ProfileUpdateLatencySample {
     'settleMicros' => settleMicros,
     _ => null,
   };
+}
+
+final class _ProfileUpdateFrameTimingAttribution {
+  const _ProfileUpdateFrameTimingAttribution({
+    required this.frameCount,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+    required this.worstFrame,
+  });
+
+  final int frameCount;
+  final int missedBuildBudgetCount;
+  final int missedRasterBudgetCount;
+  final _ProfileUpdateAttributedFrame? worstFrame;
+}
+
+final class _ProfileUpdateAttributedFrame {
+  const _ProfileUpdateAttributedFrame({
+    required this.phase,
+    required this.buildMillis,
+    required this.rasterMillis,
+    required this.buildOverBudget,
+    required this.rasterOverBudget,
+  });
+
+  final String phase;
+  final double buildMillis;
+  final double rasterMillis;
+  final bool buildOverBudget;
+  final bool rasterOverBudget;
+
+  double get score => buildMillis > rasterMillis ? buildMillis : rasterMillis;
 }
 
 final class _ProfileArtifact {
@@ -923,8 +1030,66 @@ List<_ProfileUpdateLatencySample> _readUpdateLatencies(List<Object?> payload) {
         applyPatchMicros: _readOptionalInt(json, 'applyPatchMicros'),
         pumpWidgetMicros: _readOptionalInt(json, 'pumpWidgetMicros'),
         settleMicros: _readOptionalInt(json, 'settleMicros'),
+        frameTimingAttribution: _readUpdateFrameTimingAttribution(
+          json['frameTimingAttribution'],
+        ),
       );
     }),
+  );
+}
+
+_ProfileUpdateFrameTimingAttribution? _readUpdateFrameTimingAttribution(
+  Object? payload,
+) {
+  if (payload == null) {
+    return null;
+  }
+  if (payload is! Map<String, Object?>) {
+    throw const FormatException(
+      'Expected frameTimingAttribution to be a JSON map.',
+    );
+  }
+
+  final frameCount = payload['frameCount'];
+  if (frameCount is! int || frameCount < 0) {
+    throw const FormatException(
+      'frameTimingAttribution.frameCount must be an integer >= 0.',
+    );
+  }
+
+  return _ProfileUpdateFrameTimingAttribution(
+    frameCount: frameCount,
+    missedBuildBudgetCount:
+        _readOptionalInt(payload, 'missedBuildBudgetCount') ?? 0,
+    missedRasterBudgetCount:
+        _readOptionalInt(payload, 'missedRasterBudgetCount') ?? 0,
+    worstFrame: _readUpdateAttributedFrame(payload['worstFrame']),
+  );
+}
+
+_ProfileUpdateAttributedFrame? _readUpdateAttributedFrame(Object? payload) {
+  if (payload == null) {
+    return null;
+  }
+  if (payload is! Map<String, Object?>) {
+    throw const FormatException(
+      'Expected frameTimingAttribution.worstFrame to be a JSON map.',
+    );
+  }
+
+  final phase = payload['phase'];
+  if (phase is! String || phase.trim().isEmpty) {
+    throw const FormatException(
+      'frameTimingAttribution.worstFrame.phase must be a non-empty string.',
+    );
+  }
+
+  return _ProfileUpdateAttributedFrame(
+    phase: phase,
+    buildMillis: (payload['buildMillis']! as num).toDouble(),
+    rasterMillis: (payload['rasterMillis']! as num).toDouble(),
+    buildOverBudget: payload['buildOverBudget'] as bool? ?? false,
+    rasterOverBudget: payload['rasterOverBudget'] as bool? ?? false,
   );
 }
 
@@ -1043,6 +1208,7 @@ ProfileBaselineCellUpdateSummary? _buildUpdateSummary(
             updateMetrics.map((metrics) => metrics.missedRasterBudgetCount),
           ),
     phaseMaxima: _summarizeUpdatePhaseMaxima(latencyEntries),
+    worstAttributedFrame: _summarizeWorstAttributedFrame(latencyEntries),
   );
 }
 
@@ -1147,6 +1313,17 @@ ProfileBaselineOutlier? _detectOutlier(
           )
           .toList(growable: false),
     ),
+    updateWorstAttributedFrame: _summarizeWorstAttributedFrame(
+      record.updateLatencies
+          .map(
+            (sample) => _ObservedUpdateLatency(
+              repeat: record.run.repeat,
+              artifactPath: record.run.artifactPath!,
+              sample: sample,
+            ),
+          )
+          .toList(growable: false),
+    ),
   );
 }
 
@@ -1160,6 +1337,16 @@ final class _ObservedUpdateLatency {
   final int repeat;
   final String artifactPath;
   final _ProfileUpdateLatencySample sample;
+}
+
+final class _ObservedUpdateWorstFrame {
+  const _ObservedUpdateWorstFrame({
+    required this.observedLatency,
+    required this.frame,
+  });
+
+  final _ObservedUpdateLatency observedLatency;
+  final _ProfileUpdateAttributedFrame frame;
 }
 
 _ObservedUpdateLatency? _maxObservedUpdateLatency(
@@ -1241,6 +1428,46 @@ Map<String, ProfileBaselineUpdatePhaseMaximum> _summarizeUpdatePhaseMaxima(
         ),
       ),
     ),
+  );
+}
+
+ProfileBaselineUpdateWorstFrame? _summarizeWorstAttributedFrame(
+  Iterable<_ObservedUpdateLatency> latencyEntries,
+) {
+  _ObservedUpdateWorstFrame? worstFrame;
+  for (final entry in latencyEntries) {
+    final observedFrame = entry.sample.frameTimingAttribution?.worstFrame;
+    if (observedFrame == null) {
+      continue;
+    }
+    final observed = _ObservedUpdateWorstFrame(
+      observedLatency: entry,
+      frame: observedFrame,
+    );
+    final current = worstFrame;
+    if (current == null ||
+        observed.frame.score > current.frame.score ||
+        (observed.frame.score == current.frame.score &&
+            observed.observedLatency.repeat < current.observedLatency.repeat)) {
+      worstFrame = observed;
+    }
+  }
+
+  if (worstFrame == null) {
+    return null;
+  }
+
+  return ProfileBaselineUpdateWorstFrame(
+    repeat: worstFrame.observedLatency.repeat,
+    chunk: worstFrame.observedLatency.sample.chunk,
+    fraction: worstFrame.observedLatency.sample.fraction,
+    inputLength: worstFrame.observedLatency.sample.inputLength,
+    phase: worstFrame.frame.phase,
+    buildMillis: worstFrame.frame.buildMillis,
+    rasterMillis: worstFrame.frame.rasterMillis,
+    buildOverBudget: worstFrame.frame.buildOverBudget,
+    rasterOverBudget: worstFrame.frame.rasterOverBudget,
+    artifactPath: worstFrame.observedLatency.artifactPath,
   );
 }
 
