@@ -119,7 +119,7 @@ path before the hosted API compiles cleanly.
 Prefer native documents for app-authored structured content:
 
 ```dart
-final document = TagflowDocument(
+final document = TagflowDocument.validated(
   id: 'release-note-2026-06-11',
   children: [
     TagflowDocumentNode.heading(

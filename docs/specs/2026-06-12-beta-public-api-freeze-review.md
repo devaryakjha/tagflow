@@ -37,6 +37,7 @@ or beta release copy.
 `beta-stable candidate`:
 
 - `TagflowDocument`
+- `TagflowDocument.validated(...)`
 - `TagflowDocumentNode`
 - `TagflowNodeKind`
 - `TagflowDocumentQueries`
@@ -52,7 +53,10 @@ or beta release copy.
 Rationale: these are the core source-agnostic runtime model. They represent
 the direction Tagflow should freeze around: immutable documents, semantic node
 kinds, stable IDs, metadata, source records, presentation hints, and ordered
-patch application.
+patch application. `TagflowDocument.validated(...)` is the preferred
+fail-fast construction path for app-authored, CMS-authored, or AI-authored
+native documents that need duplicate-ID validation before rendering or patch
+application.
 
 `alpha-only review required`:
 
@@ -284,6 +288,10 @@ cadence.
 - Hosted alpha package is consumed by at least one real app through native block
   document and patch transport. Done for a Kite hosted-alpha widget-test
   fixture; production integration remains pending.
+- App-authored/native document construction has a documented fail-fast identity
+  validation path. Done with `TagflowDocument.validated(...)`; changing the
+  permissive `TagflowDocument(...)` constructor remains a separate beta
+  compatibility decision.
 - `Tagflow.html(..., registry: ...)` is validated in a real app or explicitly
   scoped as still alpha. Done for Kite widget-test validation with
   `tagflow_table`; production rendering still uses the legacy converter bridge.

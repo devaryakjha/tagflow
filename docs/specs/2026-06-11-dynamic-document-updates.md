@@ -389,9 +389,10 @@ New guidance:
 ## 9. Risks
 
 - Keying by `node.id` turns duplicate sibling IDs into visible Flutter key
-  conflicts. Adapter parsing and patch application now fail explicitly on
-  duplicates, but plain app-authored `TagflowDocument(...)` construction still
-  lacks eager whole-document validation.
+  conflicts. Adapter parsing, patch application, and
+  `TagflowDocument.validated(...)` now fail explicitly on duplicates. Plain
+  app-authored `TagflowDocument(...)` construction remains permissive for
+  compatibility and explicit validation flows.
 - Path IDs from the default HTML adapter strategy still churn for inserted
   content. Controlled producers need authored IDs to preserve identity across
   reparses.

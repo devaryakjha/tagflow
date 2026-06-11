@@ -130,7 +130,7 @@ Use `Tagflow.document(...)` when content is already in Tagflow's native runtime
 model:
 
 ```dart
-final document = TagflowDocument(
+final document = TagflowDocument.validated(
   id: 'article-42',
   children: [
     TagflowDocumentNode.heading(
@@ -157,6 +157,11 @@ final document = TagflowDocument(
 
 Tagflow.document(document);
 ```
+
+Use `TagflowDocument.validated(...)` for app-authored, CMS-authored, or
+AI-authored native documents that should fail fast on duplicate node IDs before
+rendering or patch application. Plain `TagflowDocument(...)` remains available
+when callers need explicit validation control.
 
 This is the canonical runtime entry point for alpha.
 
