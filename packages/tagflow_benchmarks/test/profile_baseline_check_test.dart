@@ -268,6 +268,19 @@ void main() {
               'updateWorstRasterMillis': 21.132,
               'updateMissedBuildBudgetCount': 0,
               'updateMissedRasterBudgetCount': 1,
+              'updatePhaseMaxima': <String, Object?>{
+                'settleMicros': <String, Object?>{
+                  'maxMicros': 249315000,
+                  'maxMillis': 249315.0,
+                  'repeat': 2,
+                  'chunk': 1,
+                  'fraction': 0.33,
+                  'inputLength': 2000,
+                  'artifactPath':
+                      'build/benchmarks/profile/run/'
+                      'tagflow_semantic_patch/repeat-02.json',
+                },
+              },
             },
           ],
         ),
@@ -293,6 +306,14 @@ void main() {
         'update_missed_raster_budget',
       ]),
     );
+    final updatePhaseMaxima =
+        result.reportOnlyFindings.single.details['updatePhaseMaxima'];
+    expect(updatePhaseMaxima, isA<Map<String, Object?>>());
+    final settleMicros = switch (updatePhaseMaxima) {
+      final Map<String, Object?> phaseMaxima => phaseMaxima['settleMicros'],
+      _ => null,
+    };
+    expect(settleMicros, containsPair('maxMicros', 249315000));
     expect(result.toJson(), contains('reportOnlyFindings'));
   });
 

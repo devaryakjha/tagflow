@@ -113,8 +113,9 @@ Future<void> _runStreamingBenchmark({
       fixture.id,
       fullDocument,
     )) {
-      final stopwatch = Stopwatch()..start();
+      final totalStopwatch = Stopwatch()..start();
 
+      final pumpWidgetStopwatch = Stopwatch()..start();
       await tester.pumpWidget(
         MaterialApp(
           home: _BenchmarkDocumentFrame(
@@ -127,14 +128,20 @@ Future<void> _runStreamingBenchmark({
           ),
         ),
       );
+      pumpWidgetStopwatch.stop();
+
+      final settleStopwatch = Stopwatch()..start();
       await tester.pumpAndSettle();
-      stopwatch.stop();
+      settleStopwatch.stop();
+      totalStopwatch.stop();
 
       updateLatencies.add(<String, Object?>{
         'chunk': snapshot.chunk,
         'fraction': snapshot.fraction,
         'inputLength': snapshot.inputLength,
-        'elapsedMicros': stopwatch.elapsedMicroseconds,
+        'pumpWidgetMicros': pumpWidgetStopwatch.elapsedMicroseconds,
+        'settleMicros': settleStopwatch.elapsedMicroseconds,
+        'elapsedMicros': totalStopwatch.elapsedMicroseconds,
       });
     }
   }, reportKey: '${renderer.id}_${fixture.id}_updates');
@@ -174,9 +181,13 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   var currentDocument = stream.initialDocument;
   await binding.watchPerformance(() async {
     for (final step in stream.steps) {
-      final stopwatch = Stopwatch()..start();
-      currentDocument = currentDocument.applyPatch(step.patch);
+      final totalStopwatch = Stopwatch()..start();
 
+      final applyPatchStopwatch = Stopwatch()..start();
+      currentDocument = currentDocument.applyPatch(step.patch);
+      applyPatchStopwatch.stop();
+
+      final pumpWidgetStopwatch = Stopwatch()..start();
       await tester.pumpWidget(
         MaterialApp(
           home: _BenchmarkDocumentFrame(
@@ -190,14 +201,21 @@ Future<void> _runSemanticPatchStreamingBenchmark({
           ),
         ),
       );
+      pumpWidgetStopwatch.stop();
+
+      final settleStopwatch = Stopwatch()..start();
       await tester.pumpAndSettle();
-      stopwatch.stop();
+      settleStopwatch.stop();
+      totalStopwatch.stop();
 
       updateLatencies.add(<String, Object?>{
         'chunk': step.chunk,
         'fraction': step.fraction,
         'inputLength': step.inputLength,
-        'elapsedMicros': stopwatch.elapsedMicroseconds,
+        'applyPatchMicros': applyPatchStopwatch.elapsedMicroseconds,
+        'pumpWidgetMicros': pumpWidgetStopwatch.elapsedMicroseconds,
+        'settleMicros': settleStopwatch.elapsedMicroseconds,
+        'elapsedMicros': totalStopwatch.elapsedMicroseconds,
       });
     }
   }, reportKey: '${renderer.id}_${fixture.id}_updates');

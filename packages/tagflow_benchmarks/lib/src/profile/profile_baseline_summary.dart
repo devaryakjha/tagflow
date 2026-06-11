@@ -224,6 +224,7 @@ final class ProfileBaselineCellUpdateSummary {
     required this.worstRasterMillis,
     required this.missedBuildBudgetCount,
     required this.missedRasterBudgetCount,
+    required this.phaseMaxima,
   });
 
   /// Number of repeats that emitted update payloads.
@@ -265,6 +266,9 @@ final class ProfileBaselineCellUpdateSummary {
   /// Missed update raster-budget counts across repeats.
   final ProfileBaselineCountSummary? missedRasterBudgetCount;
 
+  /// Maximum observed duration for each measured update phase.
+  final Map<String, ProfileBaselineUpdatePhaseMaximum> phaseMaxima;
+
   /// Converts this update summary to JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'observedRepeats': observedRepeats,
@@ -286,6 +290,56 @@ final class ProfileBaselineCellUpdateSummary {
       'missedBuildBudgetCount': missedBuildBudgetCount!.toJson(),
     if (missedRasterBudgetCount != null)
       'missedRasterBudgetCount': missedRasterBudgetCount!.toJson(),
+    if (phaseMaxima.isNotEmpty)
+      'phaseMaxima': phaseMaxima.map(
+        (phase, maximum) => MapEntry(phase, maximum.toJson()),
+      ),
+  };
+}
+
+/// Maximum observed duration for one measured update phase.
+final class ProfileBaselineUpdatePhaseMaximum {
+  /// Creates an update-phase maximum summary.
+  const ProfileBaselineUpdatePhaseMaximum({
+    required this.maxMicros,
+    required this.maxMillis,
+    required this.repeat,
+    required this.chunk,
+    required this.fraction,
+    required this.inputLength,
+    required this.artifactPath,
+  });
+
+  /// Maximum observed phase duration in microseconds.
+  final int maxMicros;
+
+  /// Maximum observed phase duration in milliseconds.
+  final double maxMillis;
+
+  /// Repeat containing the maximum phase duration.
+  final int repeat;
+
+  /// Chunk index containing the maximum phase duration.
+  final int chunk;
+
+  /// Fraction marker containing the maximum phase duration.
+  final double fraction;
+
+  /// Input length captured at the maximum phase duration.
+  final int inputLength;
+
+  /// Artifact path for the repeat with the maximum phase duration.
+  final String artifactPath;
+
+  /// Converts this phase maximum to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'maxMicros': maxMicros,
+    'maxMillis': maxMillis,
+    'repeat': repeat,
+    'chunk': chunk,
+    'fraction': fraction,
+    'inputLength': inputLength,
+    'artifactPath': artifactPath,
   };
 }
 
@@ -408,6 +462,7 @@ final class ProfileBaselineOutlier {
     required this.updateWorstRasterMillis,
     required this.updateMissedBuildBudgetCount,
     required this.updateMissedRasterBudgetCount,
+    required this.updatePhaseMaxima,
   });
 
   /// One-based repeat index.
@@ -461,6 +516,9 @@ final class ProfileBaselineOutlier {
   /// Missed update raster-budget count, when present.
   final int? updateMissedRasterBudgetCount;
 
+  /// Maximum observed duration for each measured update phase.
+  final Map<String, ProfileBaselineUpdatePhaseMaximum> updatePhaseMaxima;
+
   /// Converts this outlier to JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'repeat': repeat,
@@ -488,6 +546,10 @@ final class ProfileBaselineOutlier {
       'updateMissedBuildBudgetCount': updateMissedBuildBudgetCount,
     if (updateMissedRasterBudgetCount != null)
       'updateMissedRasterBudgetCount': updateMissedRasterBudgetCount,
+    if (updatePhaseMaxima.isNotEmpty)
+      'updatePhaseMaxima': updatePhaseMaxima.map(
+        (phase, maximum) => MapEntry(phase, maximum.toJson()),
+      ),
   };
 }
 
@@ -746,12 +808,25 @@ final class _ProfileUpdateLatencySample {
     required this.fraction,
     required this.inputLength,
     required this.elapsedMicros,
+    required this.applyPatchMicros,
+    required this.pumpWidgetMicros,
+    required this.settleMicros,
   });
 
   final int chunk;
   final double fraction;
   final int inputLength;
   final int elapsedMicros;
+  final int? applyPatchMicros;
+  final int? pumpWidgetMicros;
+  final int? settleMicros;
+
+  int? phaseMicros(String phaseField) => switch (phaseField) {
+    'applyPatchMicros' => applyPatchMicros,
+    'pumpWidgetMicros' => pumpWidgetMicros,
+    'settleMicros' => settleMicros,
+    _ => null,
+  };
 }
 
 final class _ProfileArtifact {
@@ -845,9 +920,26 @@ List<_ProfileUpdateLatencySample> _readUpdateLatencies(List<Object?> payload) {
         fraction: (json['fraction']! as num).toDouble(),
         inputLength: json['inputLength']! as int,
         elapsedMicros: json['elapsedMicros']! as int,
+        applyPatchMicros: _readOptionalInt(json, 'applyPatchMicros'),
+        pumpWidgetMicros: _readOptionalInt(json, 'pumpWidgetMicros'),
+        settleMicros: _readOptionalInt(json, 'settleMicros'),
       );
     }),
   );
+}
+
+int? _readOptionalInt(Map<String, Object?> payload, String key) {
+  final value = payload[key];
+  if (value == null) {
+    return null;
+  }
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  throw FormatException('Expected optional integer "$key".');
 }
 
 Map<String, Object?>? _findMetricsPayload(Map<String, Object?> root) {
@@ -950,6 +1042,7 @@ ProfileBaselineCellUpdateSummary? _buildUpdateSummary(
         : _summarizeCounts(
             updateMetrics.map((metrics) => metrics.missedRasterBudgetCount),
           ),
+    phaseMaxima: _summarizeUpdatePhaseMaxima(latencyEntries),
   );
 }
 
@@ -1043,6 +1136,17 @@ ProfileBaselineOutlier? _detectOutlier(
     updateWorstRasterMillis: updateMetrics?.worstRasterMillis,
     updateMissedBuildBudgetCount: updateMetrics?.missedBuildBudgetCount,
     updateMissedRasterBudgetCount: updateMetrics?.missedRasterBudgetCount,
+    updatePhaseMaxima: _summarizeUpdatePhaseMaxima(
+      record.updateLatencies
+          .map(
+            (sample) => _ObservedUpdateLatency(
+              repeat: record.run.repeat,
+              artifactPath: record.run.artifactPath!,
+              sample: sample,
+            ),
+          )
+          .toList(growable: false),
+    ),
   );
 }
 
@@ -1094,6 +1198,52 @@ bool _isUpdateLatencySpike({
   return maxLatency >= medianLatency * _updateLatencySpikeMultiplier;
 }
 
+const List<String> _updatePhaseFields = <String>[
+  'applyPatchMicros',
+  'pumpWidgetMicros',
+  'settleMicros',
+];
+
+Map<String, ProfileBaselineUpdatePhaseMaximum> _summarizeUpdatePhaseMaxima(
+  Iterable<_ObservedUpdateLatency> latencyEntries,
+) {
+  final maxima = <String, _ObservedUpdateLatencyWithPhase>{};
+  for (final entry in latencyEntries) {
+    for (final phaseField in _updatePhaseFields) {
+      final phaseMicros = entry.sample.phaseMicros(phaseField);
+      if (phaseMicros == null) {
+        continue;
+      }
+      final observed = _ObservedUpdateLatencyWithPhase(
+        observedLatency: entry,
+        phaseField: phaseField,
+        phaseMicros: phaseMicros,
+      );
+      final current = maxima[phaseField];
+      if (current == null || observed.phaseMicros > current.phaseMicros) {
+        maxima[phaseField] = observed;
+      }
+    }
+  }
+
+  return Map<String, ProfileBaselineUpdatePhaseMaximum>.unmodifiable(
+    maxima.map(
+      (phaseField, observed) => MapEntry(
+        phaseField,
+        ProfileBaselineUpdatePhaseMaximum(
+          maxMicros: observed.phaseMicros,
+          maxMillis: observed.phaseMicros / 1000.0,
+          repeat: observed.observedLatency.repeat,
+          chunk: observed.observedLatency.sample.chunk,
+          fraction: observed.observedLatency.sample.fraction,
+          inputLength: observed.observedLatency.sample.inputLength,
+          artifactPath: observed.observedLatency.artifactPath,
+        ),
+      ),
+    ),
+  );
+}
+
 int _medianInt(List<int> values) {
   final sorted = values.toList(growable: false)..sort();
   return sorted[(sorted.length - 1) ~/ 2];
@@ -1132,4 +1282,16 @@ ProfileBaselineCountSummary _summarizeCounts(Iterable<int> values) {
     total: total,
     mean: total / sorted.length,
   );
+}
+
+final class _ObservedUpdateLatencyWithPhase {
+  const _ObservedUpdateLatencyWithPhase({
+    required this.observedLatency,
+    required this.phaseField,
+    required this.phaseMicros,
+  });
+
+  final _ObservedUpdateLatency observedLatency;
+  final String phaseField;
+  final int phaseMicros;
 }

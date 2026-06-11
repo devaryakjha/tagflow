@@ -229,7 +229,7 @@ void main() {
     );
   });
 
-  test('summarizes update latencies and update-phase frame metrics', () {
+  test('summarizes legacy update latencies without phase fields', () {
     const scrollKey =
         'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_scroll';
     const updatesKey =
@@ -417,6 +417,8 @@ void main() {
     expect(updateSummary.missedBuildBudgetCount!.total, 0);
     expect(updateSummary.missedRasterBudgetCount, isNotNull);
     expect(updateSummary.missedRasterBudgetCount!.total, 1);
+    expect(updateSummary.phaseMaxima, isEmpty);
+    expect(updateSummary.toJson().containsKey('phaseMaxima'), isFalse);
 
     expect(cell.outlierRepeats, hasLength(1));
     expect(cell.outlierRepeats.single.repeat, 2);
@@ -429,5 +431,311 @@ void main() {
         'update_worst_raster_over_budget',
       ]),
     );
+    expect(cell.outlierRepeats.single.updatePhaseMaxima, isEmpty);
+  });
+
+  test('summarizes update phase maxima when phase timings exist', () {
+    const scrollKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_scroll';
+    const updatesKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_'
+        'updates';
+    const updateLatenciesKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_'
+        'update_latencies';
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_summary_update_phases_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final runDirectory = Directory(
+      p.join(
+        workspaceRoot.path,
+        'build',
+        'benchmarks',
+        'profile',
+        '2026-06-11-update-phases',
+      ),
+    )..createSync(recursive: true);
+
+    File(
+        p.join(
+          runDirectory.path,
+          'tagflow_semantic_patch',
+          'streaming_ai_authored_insertion_patches',
+          'repeat-01.json',
+        ),
+      )
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        jsonEncode(<String, Object?>{
+          scrollKey: <String, Object?>{
+            'average_frame_build_time_millis': 0.2,
+            '90th_percentile_frame_build_time_millis': 0.3,
+            'worst_frame_build_time_millis': 0.5,
+            'average_frame_rasterizer_time_millis': 0.8,
+            '90th_percentile_frame_rasterizer_time_millis': 1.2,
+            'worst_frame_rasterizer_time_millis': 3.8,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 24,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          updatesKey: <String, Object?>{
+            'average_frame_build_time_millis': 1.1,
+            '90th_percentile_frame_build_time_millis': 1.6,
+            'worst_frame_build_time_millis': 3.2,
+            'average_frame_rasterizer_time_millis': 2.2,
+            '90th_percentile_frame_rasterizer_time_millis': 3.4,
+            'worst_frame_rasterizer_time_millis': 5.6,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 3,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          updateLatenciesKey: <Object?>[
+            <String, Object?>{
+              'chunk': 1,
+              'fraction': 0.33,
+              'inputLength': 2000,
+              'applyPatchMicros': 1800,
+              'pumpWidgetMicros': 12000,
+              'settleMicros': 95000,
+              'elapsedMicros': 110118,
+            },
+            <String, Object?>{
+              'chunk': 2,
+              'fraction': 0.66,
+              'inputLength': 4000,
+              'applyPatchMicros': 2400,
+              'pumpWidgetMicros': 14000,
+              'settleMicros': 98000,
+              'elapsedMicros': 116790,
+            },
+          ],
+        }),
+      );
+
+    File(
+      p.join(
+        runDirectory.path,
+        'tagflow_semantic_patch',
+        'streaming_ai_authored_insertion_patches',
+        'repeat-02.json',
+      ),
+    ).writeAsStringSync(
+      jsonEncode(<String, Object?>{
+        scrollKey: <String, Object?>{
+          'average_frame_build_time_millis': 0.2,
+          '90th_percentile_frame_build_time_millis': 0.3,
+          'worst_frame_build_time_millis': 0.5,
+          'average_frame_rasterizer_time_millis': 0.8,
+          '90th_percentile_frame_rasterizer_time_millis': 1.2,
+          'worst_frame_rasterizer_time_millis': 3.8,
+          'missed_frame_build_budget_count': 0,
+          'missed_frame_rasterizer_budget_count': 0,
+          'frame_count': 24,
+          'new_gen_gc_count': 0,
+          'old_gen_gc_count': 0,
+        },
+        updatesKey: <String, Object?>{
+          'average_frame_build_time_millis': 5.4,
+          '90th_percentile_frame_build_time_millis': 8.9,
+          'worst_frame_build_time_millis': 18.8,
+          'average_frame_rasterizer_time_millis': 7.6,
+          '90th_percentile_frame_rasterizer_time_millis': 14.2,
+          'worst_frame_rasterizer_time_millis': 21.132,
+          'missed_frame_build_budget_count': 0,
+          'missed_frame_rasterizer_budget_count': 1,
+          'frame_count': 3,
+          'new_gen_gc_count': 0,
+          'old_gen_gc_count': 0,
+        },
+        updateLatenciesKey: <Object?>[
+          <String, Object?>{
+            'chunk': 1,
+            'fraction': 0.33,
+            'inputLength': 2000,
+            'applyPatchMicros': 1200,
+            'pumpWidgetMicros': 9000,
+            'settleMicros': 249315000,
+            'elapsedMicros': 249327401,
+          },
+          <String, Object?>{
+            'chunk': 2,
+            'fraction': 0.66,
+            'inputLength': 4000,
+            'applyPatchMicros': 1100,
+            'pumpWidgetMicros': 16000,
+            'settleMicros': 96800,
+            'elapsedMicros': 114001,
+          },
+        ],
+      }),
+    );
+
+    final manifestFile =
+        File(p.join(runDirectory.path, 'profile-baseline-manifest.json'))
+          ..writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'runId': '2026-06-11-update-phases',
+              'runs': [
+                <String, Object?>{
+                  'renderer': 'tagflow_semantic_patch',
+                  'fixture': 'streaming_ai_authored_insertion_patches',
+                  'repeat': 1,
+                  'status': 'passed',
+                  'artifactPath':
+                      'build/benchmarks/profile/2026-06-11-update-phases/'
+                      'tagflow_semantic_patch/'
+                      'streaming_ai_authored_insertion_patches/'
+                      'repeat-01.json',
+                },
+                <String, Object?>{
+                  'renderer': 'tagflow_semantic_patch',
+                  'fixture': 'streaming_ai_authored_insertion_patches',
+                  'repeat': 2,
+                  'status': 'passed',
+                  'artifactPath':
+                      'build/benchmarks/profile/2026-06-11-update-phases/'
+                      'tagflow_semantic_patch/'
+                      'streaming_ai_authored_insertion_patches/'
+                      'repeat-02.json',
+                },
+              ],
+            }),
+          );
+
+    final summary = summarizeProfileBaselineManifest(
+      manifestFile: manifestFile,
+      clock: () => DateTime.utc(2026, 6, 11, 9, 30),
+    );
+
+    final cell = summary.cellSummaries.single;
+    final updateSummary = cell.updateSummary!;
+    expect(
+      updateSummary.phaseMaxima.keys,
+      containsAll(<String>[
+        'applyPatchMicros',
+        'pumpWidgetMicros',
+        'settleMicros',
+      ]),
+    );
+    expect(updateSummary.phaseMaxima['applyPatchMicros']!.maxMicros, 2400);
+    expect(updateSummary.phaseMaxima['applyPatchMicros']!.repeat, 1);
+    expect(updateSummary.phaseMaxima['pumpWidgetMicros']!.maxMicros, 16000);
+    expect(updateSummary.phaseMaxima['pumpWidgetMicros']!.repeat, 2);
+    expect(updateSummary.phaseMaxima['settleMicros']!.maxMicros, 249315000);
+    expect(updateSummary.phaseMaxima['settleMicros']!.repeat, 2);
+    expect(updateSummary.toJson(), contains('phaseMaxima'));
+
+    expect(cell.outlierRepeats, hasLength(1));
+    expect(
+      cell.outlierRepeats.single.updatePhaseMaxima['settleMicros']!.maxMicros,
+      249315000,
+    );
+  });
+
+  test('ignores null or missing phase timings safely', () {
+    const scrollKey = 'tagflow_streaming_chunks_streaming_ai_chunks_scroll';
+    const updateLatenciesKey =
+        'tagflow_streaming_chunks_streaming_ai_chunks_update_latencies';
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_summary_update_phase_nulls_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final runDirectory = Directory(
+      p.join(
+        workspaceRoot.path,
+        'build',
+        'benchmarks',
+        'profile',
+        '2026-06-11-update-phase-nulls',
+      ),
+    )..createSync(recursive: true);
+
+    File(
+        p.join(
+          runDirectory.path,
+          'tagflow_streaming_chunks',
+          'streaming_ai_chunks',
+          'repeat-01.json',
+        ),
+      )
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        jsonEncode(<String, Object?>{
+          scrollKey: <String, Object?>{
+            'average_frame_build_time_millis': 0.2,
+            '90th_percentile_frame_build_time_millis': 0.3,
+            'worst_frame_build_time_millis': 0.5,
+            'average_frame_rasterizer_time_millis': 0.8,
+            '90th_percentile_frame_rasterizer_time_millis': 1.2,
+            'worst_frame_rasterizer_time_millis': 3.8,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 24,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          updateLatenciesKey: <Object?>[
+            <String, Object?>{
+              'chunk': 1,
+              'fraction': 0.5,
+              'inputLength': 2000,
+              'applyPatchMicros': null,
+              'pumpWidgetMicros': 7000,
+              'settleMicros': 108000,
+              'elapsedMicros': 115000,
+            },
+            <String, Object?>{
+              'chunk': 2,
+              'fraction': 1.0,
+              'inputLength': 4000,
+              'pumpWidgetMicros': 9000,
+              'elapsedMicros': 118000,
+            },
+          ],
+        }),
+      );
+
+    final manifestFile =
+        File(p.join(runDirectory.path, 'profile-baseline-manifest.json'))
+          ..writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'runId': '2026-06-11-update-phase-nulls',
+              'runs': [
+                <String, Object?>{
+                  'renderer': 'tagflow_streaming_chunks',
+                  'fixture': 'streaming_ai_chunks',
+                  'repeat': 1,
+                  'status': 'passed',
+                  'artifactPath':
+                      'build/benchmarks/profile/'
+                      '2026-06-11-update-phase-nulls/'
+                      'tagflow_streaming_chunks/streaming_ai_chunks/'
+                      'repeat-01.json',
+                },
+              ],
+            }),
+          );
+
+    final summary = summarizeProfileBaselineManifest(
+      manifestFile: manifestFile,
+      clock: () => DateTime.utc(2026, 6, 11, 10),
+    );
+
+    final updateSummary = summary.cellSummaries.single.updateSummary!;
+    expect(updateSummary.observedUpdateCount, 2);
+    expect(
+      updateSummary.phaseMaxima.keys,
+      containsAll(<String>['pumpWidgetMicros', 'settleMicros']),
+    );
+    expect(updateSummary.phaseMaxima.containsKey('applyPatchMicros'), isFalse);
+    expect(updateSummary.phaseMaxima['pumpWidgetMicros']!.maxMicros, 9000);
+    expect(updateSummary.phaseMaxima['settleMicros']!.maxMicros, 108000);
   });
 }
