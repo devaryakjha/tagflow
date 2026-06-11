@@ -115,6 +115,34 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
+      TagflowNativeBlockKind.table => TagflowDocumentNode.table(
+        id: block.id,
+        children: children,
+        metadata: metadata,
+        source: source,
+      ),
+      TagflowNativeBlockKind.tableRow => TagflowDocumentNode.tableRow(
+        id: block.id,
+        children: children,
+        metadata: metadata,
+        source: source,
+      ),
+      TagflowNativeBlockKind.tableCell => TagflowDocumentNode.tableCell(
+        id: block.id,
+        children: children,
+        rowSpan: _positiveIntAttribute(block, 'rowSpan') ?? 1,
+        colSpan: _positiveIntAttribute(block, 'colSpan') ?? 1,
+        header: _boolAttribute(block, 'header') ?? false,
+        metadata: metadata,
+        source: source,
+      ),
+      TagflowNativeBlockKind.callout => TagflowDocumentNode.container(
+        id: block.id,
+        children: children,
+        metadata: metadata,
+        presentation: _calloutPresentation(block),
+        source: source,
+      ),
       TagflowNativeBlockKind.container => TagflowDocumentNode.container(
         id: block.id,
         children: children,
@@ -127,15 +155,6 @@ final class TagflowNativeBlockAdapter {
           metadata: metadata,
           source: source,
         ),
-      TagflowNativeBlockKind.table ||
-      TagflowNativeBlockKind.tableRow ||
-      TagflowNativeBlockKind.tableCell ||
-      TagflowNativeBlockKind.callout => _unsupportedBlock(
-        block,
-        children: children,
-        metadata: metadata,
-        source: source,
-      ),
     };
   }
 
@@ -194,30 +213,6 @@ final class TagflowNativeBlockAdapter {
       alt: _stringAttribute(block, 'alt'),
       width: _doubleAttribute(block, 'width'),
       height: _doubleAttribute(block, 'height'),
-      metadata: metadata,
-      source: source,
-    );
-  }
-
-  TagflowDocumentNode? _unsupportedBlock(
-    TagflowNativeBlock block, {
-    required List<TagflowDocumentNode> children,
-    required TagflowMetadata metadata,
-    required TagflowSourceInfo source,
-  }) {
-    final reason =
-        'Native block kind "${block.kind.name}" has no semantic mapping yet.';
-    if (strictUnsupportedKinds) {
-      throw UnsupportedError(reason);
-    }
-    if (policy.unsupportedBehavior == TagflowUnsupportedBehavior.drop) {
-      return null;
-    }
-
-    return TagflowDocumentNode.unsupported(
-      id: block.id,
-      unsupportedReason: reason,
-      children: children,
       metadata: metadata,
       source: source,
     );
@@ -304,6 +299,19 @@ TagflowMetadata _metadataForRejectedUrl(
   return metadata.merge(TagflowMetadata({_policyDecisionReasonKey: reason}));
 }
 
+TagflowPresentation? _calloutPresentation(TagflowNativeBlock block) {
+  final variant = _stringAttribute(block, 'variant');
+  final tone = _stringAttribute(block, 'tone');
+  if (variant == null && tone == null) {
+    return null;
+  }
+
+  return TagflowPresentation(
+    variant: variant,
+    hints: {if (tone != null) 'calloutTone': tone},
+  );
+}
+
 void _requireNonBlankId(String id, {required String label}) {
   if (id.trim().isEmpty) {
     throw ArgumentError.value(
@@ -355,6 +363,14 @@ int _requirePositiveInt(TagflowNativeBlock block, {required String name}) {
     name,
     'Native block "${block.id}" requires a positive "$name" attribute.',
   );
+}
+
+int? _positiveIntAttribute(TagflowNativeBlock block, String name) {
+  final value = _intAttribute(block, name);
+  if (value == null || value <= 0) {
+    return null;
+  }
+  return value;
 }
 
 double? _doubleAttribute(TagflowNativeBlock block, String name) {

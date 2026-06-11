@@ -17,10 +17,19 @@ The first compileable adapter foundation landed in `packages/tagflow` on
 - The first slice supports `paragraph`, `heading`, `text`, `link`, `list`,
   `listItem`, `blockquote`, `codeBlock`, `inlineCode`, `image`, `container`,
   and `horizontalRule`.
+- Table blocks now map directly to runtime `table`, `tableRow`, and
+  `tableCell` nodes while preserving stable IDs, child order, and the semantic
+  `header`, `rowSpan`, and `colSpan` cell fields.
+- Callout blocks now normalize to runtime `container` nodes. Stable IDs,
+  children, and callout attributes remain preserved; `variant` is exposed as a
+  presentation variant, while non-semantic attributes remain metadata-backed.
 - Adapter validation now rejects blank or duplicate block IDs before runtime
   document creation and applies `TagflowContentPolicy` to link and image URLs.
-- Follow-up slices remain for semantic table blocks, callout normalization, and
-  serializer helpers.
+- Non-semantic table attributes are not promoted into new typed runtime fields
+  in this slice; they remain available in adapter metadata for diagnostics and
+  future renderer work.
+- Follow-up slices remain for serializer helpers and any future dedicated
+  runtime callout renderer contract.
 
 ## 1. Problem Statement
 

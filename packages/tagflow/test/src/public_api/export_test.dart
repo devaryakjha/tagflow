@@ -18,7 +18,25 @@ void main() {
     final nativeDocument = api.TagflowNativeBlockDocument(
       id: 'native-doc',
       schemaVersion: 1,
-      blocks: [api.TagflowNativeBlock.paragraph(id: 'native-paragraph')],
+      blocks: [
+        api.TagflowNativeBlock.callout(
+          id: 'native-callout',
+          variant: 'tip',
+          children: [
+            api.TagflowNativeBlock.table(
+              id: 'native-table',
+              children: [
+                api.TagflowNativeBlock.tableRow(
+                  id: 'native-row',
+                  children: [
+                    api.TagflowNativeBlock.tableCell(id: 'native-cell'),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
     const nativeAdapter = api.TagflowNativeBlockAdapter();
     const nodeIdStrategy = api.TagflowHtmlNodeIdStrategy.attribute(
@@ -45,11 +63,15 @@ void main() {
     expect(adapter.policy, policy);
     expect(
       nativeAdapter.adapt(nativeDocument).children.single.id,
-      'native-paragraph',
+      'native-callout',
     );
     expect(
       nativeDocument.blocks.single.kind,
-      api.TagflowNativeBlockKind.paragraph,
+      api.TagflowNativeBlockKind.callout,
+    );
+    expect(
+      nativeDocument.blocks.single.children.single.kind,
+      api.TagflowNativeBlockKind.table,
     );
     expect(nodeIdStrategy.attribute, 'data-node-id');
     expect(nodeIdStrategy.fallbackToPath, isFalse);

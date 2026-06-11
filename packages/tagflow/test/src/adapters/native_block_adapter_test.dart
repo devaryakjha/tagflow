@@ -158,6 +158,162 @@ void main() {
       ]);
     });
 
+    test('adapts native tables into runtime table, row, and cell nodes', () {
+      final document = TagflowNativeBlockDocument(
+        id: 'doc',
+        schemaVersion: 1,
+        blocks: [
+          TagflowNativeBlock(
+            id: 'pricing-table',
+            kind: TagflowNativeBlockKind.table,
+            children: [
+              TagflowNativeBlock(
+                id: 'header-row',
+                kind: TagflowNativeBlockKind.tableRow,
+                children: [
+                  TagflowNativeBlock(
+                    id: 'name-header',
+                    kind: TagflowNativeBlockKind.tableCell,
+                    attributes: const {
+                      'header': true,
+                      'rowSpan': 2,
+                      'colSpan': 1,
+                    },
+                    children: [
+                      TagflowNativeBlock.text(
+                        id: 'name-header-text',
+                        text: 'Name',
+                      ),
+                    ],
+                  ),
+                  TagflowNativeBlock(
+                    id: 'price-header',
+                    kind: TagflowNativeBlockKind.tableCell,
+                    attributes: const {'header': true},
+                    children: [
+                      TagflowNativeBlock.text(
+                        id: 'price-header-text',
+                        text: 'Price',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              TagflowNativeBlock(
+                id: 'body-row',
+                kind: TagflowNativeBlockKind.tableRow,
+                children: [
+                  TagflowNativeBlock(
+                    id: 'name-cell',
+                    kind: TagflowNativeBlockKind.tableCell,
+                    children: [
+                      TagflowNativeBlock.text(
+                        id: 'name-cell-text',
+                        text: 'Tagflow Pro',
+                      ),
+                    ],
+                  ),
+                  TagflowNativeBlock(
+                    id: 'price-cell',
+                    kind: TagflowNativeBlockKind.tableCell,
+                    children: [
+                      TagflowNativeBlock.text(
+                        id: 'price-cell-text',
+                        text: r'$29',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final adapted = const TagflowNativeBlockAdapter().adapt(document);
+      final table = adapted.children.single;
+
+      expect(table.kind, TagflowNodeKind.table);
+      expect(table.id, 'pricing-table');
+      expect(table.children.map((node) => node.id), ['header-row', 'body-row']);
+
+      final headerRow = table.children.first;
+      expect(headerRow.kind, TagflowNodeKind.tableRow);
+      expect(headerRow.children.map((node) => node.id), [
+        'name-header',
+        'price-header',
+      ]);
+
+      final headerCell = headerRow.children.first;
+      expect(headerCell.kind, TagflowNodeKind.tableCell);
+      expect(headerCell.header, isTrue);
+      expect(headerCell.rowSpan, 2);
+      expect(headerCell.colSpan, 1);
+      expect(headerCell.children.single.text, 'Name');
+
+      final bodyRow = table.children.last;
+      expect(bodyRow.kind, TagflowNodeKind.tableRow);
+      expect(bodyRow.children.map((node) => node.id), [
+        'name-cell',
+        'price-cell',
+      ]);
+      expect(bodyRow.children.last.children.single.text, r'$29');
+
+      expect(adapted.nodeById('price-cell')?.kind, TagflowNodeKind.tableCell);
+    });
+
+    test('keeps non-semantic table attributes as metadata without widening '
+        'runtime fields', () {
+      final document = TagflowNativeBlockDocument(
+        id: 'doc',
+        schemaVersion: 1,
+        blocks: [
+          TagflowNativeBlock(
+            id: 'table',
+            kind: TagflowNativeBlockKind.table,
+            attributes: const {'caption': 'Pricing'},
+            children: [
+              TagflowNativeBlock(
+                id: 'row',
+                kind: TagflowNativeBlockKind.tableRow,
+                children: [
+                  TagflowNativeBlock(
+                    id: 'cell',
+                    kind: TagflowNativeBlockKind.tableCell,
+                    attributes: const {
+                      'header': true,
+                      'rowSpan': 3,
+                      'colSpan': 2,
+                      'alignment': 'right',
+                      'scope': 'col',
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final adapted = const TagflowNativeBlockAdapter().adapt(document);
+      final table = adapted.children.single;
+      final cell = table.children.single.children.single;
+
+      expect(table.kind, TagflowNodeKind.table);
+      expect(table.metadata['blockAttributes'], const {'caption': 'Pricing'});
+      expect(cell.kind, TagflowNodeKind.tableCell);
+      expect(cell.header, isTrue);
+      expect(cell.rowSpan, 3);
+      expect(cell.colSpan, 2);
+      expect(cell.metadata['blockAttributes'], const {
+        'header': true,
+        'rowSpan': 3,
+        'colSpan': 2,
+        'alignment': 'right',
+        'scope': 'col',
+      });
+    });
+
     test('fails when duplicate block ids are present', () {
       final document = TagflowNativeBlockDocument(
         id: 'doc',
@@ -190,7 +346,7 @@ void main() {
       );
     });
 
-    test('fails predictably for unsupported block kinds by default', () {
+    test('normalizes callout blocks to container nodes predictably', () {
       final document = TagflowNativeBlockDocument(
         id: 'doc',
         schemaVersion: 1,
@@ -198,14 +354,40 @@ void main() {
           TagflowNativeBlock(
             id: 'callout',
             kind: TagflowNativeBlockKind.callout,
+            attributes: const {
+              'tone': 'info',
+              'variant': 'tip',
+              'title': 'What changed',
+            },
+            children: [
+              TagflowNativeBlock.paragraph(
+                id: 'callout-paragraph',
+                children: [
+                  TagflowNativeBlock.text(
+                    id: 'callout-text',
+                    text: 'Orders now settle next business day.',
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       );
 
-      expect(
-        () => const TagflowNativeBlockAdapter().adapt(document),
-        throwsA(isA<UnsupportedError>()),
-      );
+      final adapted = const TagflowNativeBlockAdapter().adapt(document);
+      final callout = adapted.children.single;
+
+      expect(callout.kind, TagflowNodeKind.container);
+      expect(callout.id, 'callout');
+      expect(callout.presentation.variant, 'tip');
+      expect(callout.metadata['blockKind'], 'callout');
+      expect(callout.metadata['blockAttributes'], const {
+        'tone': 'info',
+        'variant': 'tip',
+        'title': 'What changed',
+      });
+      expect(callout.children.single.id, 'callout-paragraph');
+      expect(callout.children.single.children.single.text, contains('settle'));
     });
 
     test('uses content policy for link and image urls', () {

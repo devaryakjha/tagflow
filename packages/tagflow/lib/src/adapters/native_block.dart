@@ -225,6 +225,86 @@ final class TagflowNativeBlock {
     );
   }
 
+  /// Creates a table block.
+  factory TagflowNativeBlock.table({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.table,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a table-row block.
+  factory TagflowNativeBlock.tableRow({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.tableRow,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a table-cell block.
+  factory TagflowNativeBlock.tableCell({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    bool header = false,
+    int rowSpan = 1,
+    int colSpan = 1,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.tableCell,
+      attributes: {
+        if (header) 'header': true,
+        if (rowSpan != 1) 'rowSpan': rowSpan,
+        if (colSpan != 1) 'colSpan': colSpan,
+      },
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a callout block.
+  factory TagflowNativeBlock.callout({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    String? tone,
+    String? variant,
+    String? title,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.callout,
+      attributes: {
+        if (tone != null) 'tone': tone,
+        if (variant != null) 'variant': variant,
+        if (title != null) 'title': title,
+      },
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
   /// Creates a container block.
   factory TagflowNativeBlock.container({
     required String id,
