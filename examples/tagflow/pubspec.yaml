@@ -19,7 +19,7 @@ dependencies:
   go_router: ^14.6.2
   google_fonts: ^6.2.1
   markdown_widget: ^2.3.2+8
-  tagflow: ^1.0.0-alpha.2
+  tagflow: ^1.0.0-alpha.3
   tagflow_benchmarks: any
   tagflow_table: ^1.0.0-alpha.1
   url_launcher: ^6.3.1

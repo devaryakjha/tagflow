@@ -1,9 +1,16 @@
-## Unreleased
+## 1.0.0-alpha.3 - 2026-06-12
 
 - Removes the unused `TagflowNativeBlockAdapter.strictUnsupportedKinds`
   constructor option. Unknown native JSON block kinds fail during
   `TagflowNativeBlockCodec` decode in the alpha transport; placeholder fallback
   applies only to known blocks rejected by adapter policy.
+- Documents the strict native transport `schemaVersion: 1` policy for document
+  and patch envelope decode.
+- Documents alpha compatibility support windows for `TagflowOptions`,
+  `package:tagflow/legacy.dart`, and the first-party `tagflow_table`
+  extension posture.
+- Records report-only cold/warm native JSON profile smoke evidence and labels
+  benchmark profile phases without making public performance claims.
 
 ## 1.0.0-alpha.2 - 2026-06-11
 
