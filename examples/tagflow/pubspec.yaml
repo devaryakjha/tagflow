@@ -14,9 +14,11 @@ dependencies:
     sdk: flutter
   flutter_html: ^3.0.0
   flutter_html_table: ^3.0.0
+  flutter_markdown_plus: ^1.0.7
   flutter_widget_from_html_core: ^0.17.2
   go_router: ^14.6.2
   google_fonts: ^6.2.1
+  markdown_widget: ^2.3.2+8
   tagflow: ^1.0.0-alpha.1
   tagflow_benchmarks: any
   tagflow_table: ^1.0.0-alpha.1
@@ -32,3 +34,4 @@ flutter:
   uses-material-design: true
   assets:
     - ../../packages/tagflow_benchmarks/fixtures/html/
+    - ../../packages/tagflow_benchmarks/fixtures/markdown/

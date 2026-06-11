@@ -22,3 +22,4 @@ flutter:
   uses-material-design: true
   assets:
     - fixtures/html/
+    - fixtures/markdown/

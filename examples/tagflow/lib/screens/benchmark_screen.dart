@@ -29,6 +29,18 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
   late String fixtureId = widget.fixtureId;
   late String rendererId = widget.rendererId;
 
+  void _selectFixture(String value) {
+    final fixture = profileBenchmarkFixtureById(value);
+    final nextRendererId =
+        benchmarkRendererById(rendererId).supports(fixture.source.type)
+        ? rendererId
+        : benchmarkRenderersForSourceType(fixture.source.type).first.id;
+    setState(() {
+      fixtureId = value;
+      rendererId = nextRendererId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final renderer = benchmarkRendererById(rendererId);
@@ -50,10 +62,11 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
         children: [
           _FixturePicker(
             selectedFixtureId: fixtureId,
-            onSelected: (value) => setState(() => fixtureId = value),
+            onSelected: _selectFixture,
           ),
           _RendererPicker(
             selectedRendererId: rendererId,
+            fixture: fixture,
             onSelected: (value) => setState(() => rendererId = value),
           ),
           const Divider(height: 1),
@@ -67,20 +80,26 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
 final class _RendererPicker extends StatelessWidget {
   const _RendererPicker({
     required this.selectedRendererId,
+    required this.fixture,
     required this.onSelected,
   });
 
   final String selectedRendererId;
+  final ProfileBenchmarkFixture fixture;
   final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
+    final compatibleRenderers = benchmarkRenderersForSourceType(
+      fixture.source.type,
+    );
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: SegmentedButton<String>(
         segments: [
-          for (final rendererId in benchmarkRendererIds)
+          for (final rendererId in compatibleRenderers.map((item) => item.id))
             ButtonSegment<String>(
               value: rendererId,
               label: Text(benchmarkRendererById(rendererId).label),

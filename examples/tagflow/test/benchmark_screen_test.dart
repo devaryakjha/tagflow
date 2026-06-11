@@ -38,6 +38,20 @@ void main() {
     expect(_segmentedButtons(tester).first.selected, {'table_dense'});
   });
 
+  testWidgets('switching to markdown fixture picks a markdown renderer', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
+    await _pumpBenchmarkScreen(tester);
+
+    await tester.tap(find.text('ai_answer_rich_md'));
+    await _pumpBenchmarkScreen(tester);
+
+    final segmentedButtons = _segmentedButtons(tester);
+    expect(segmentedButtons.first.selected, {'ai_answer_rich_md'});
+    expect(segmentedButtons[1].selected, {'flutter_markdown_plus'});
+  });
+
   testWidgets('can switch benchmark renderers', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
     await _pumpBenchmarkScreen(tester);

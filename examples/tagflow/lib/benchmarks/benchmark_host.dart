@@ -33,44 +33,52 @@ final class BenchmarkHost extends StatefulWidget {
 final class _BenchmarkHostState extends State<BenchmarkHost> {
   AssetBundle? _assetBundle;
   String? _assetPath;
-  late Future<String> _pendingHtml;
+  late Future<BenchmarkSourceDocument> _pendingDocument;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final assetBundle = DefaultAssetBundle.of(context);
-    final assetPath = widget.fixture.htmlAssetPath;
+    final assetPath = widget.fixture.source.assetPath;
     if (_assetBundle == assetBundle && _assetPath == assetPath) {
       return;
     }
 
     _assetBundle = assetBundle;
     _assetPath = assetPath;
-    _pendingHtml = assetBundle.loadString(assetPath);
+    _pendingDocument = assetBundle
+        .loadString(assetPath)
+        .then(
+          (data) => BenchmarkSourceDocument(
+            type: widget.fixture.source.type,
+            data: data,
+            assetPath: assetPath,
+          ),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _pendingHtml,
+    return FutureBuilder<BenchmarkSourceDocument>(
+      future: _pendingDocument,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Unable to load fixture: ${widget.fixture.htmlAssetPath}',
+              'Unable to load fixture: ${widget.fixture.source.assetPath}',
             ),
           );
         }
 
-        final html = snapshot.data;
-        if (html == null) {
+        final document = snapshot.data;
+        if (document == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final content = KeyedSubtree(
           key: BenchmarkHost.contentKey,
-          child: widget.renderer.builder(context, html),
+          child: widget.renderer.build(context, document),
         );
 
         return ListView(
@@ -81,7 +89,8 @@ final class _BenchmarkHostState extends State<BenchmarkHost> {
               _BenchmarkHeader(
                 fixture: widget.fixture,
                 renderer: widget.renderer,
-                inputLength: html.length,
+                inputType: document.type,
+                inputLength: document.data.length,
               ),
               const SizedBox(height: 24),
             ],
@@ -97,11 +106,13 @@ final class _BenchmarkHeader extends StatelessWidget {
   const _BenchmarkHeader({
     required this.fixture,
     required this.renderer,
+    required this.inputType,
     required this.inputLength,
   });
 
   final ProfileBenchmarkFixture fixture;
   final BenchmarkRenderer renderer;
+  final BenchmarkSourceType inputType;
   final int inputLength;
 
   @override
@@ -115,7 +126,10 @@ final class _BenchmarkHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text('Renderer: ${renderer.label}', style: textTheme.bodyMedium),
         Text('Fixture: ${fixture.id}', style: textTheme.bodyMedium),
-        Text('Input: $inputLength chars', style: textTheme.bodySmall),
+        Text(
+          'Input: ${inputType.name}, $inputLength chars',
+          style: textTheme.bodySmall,
+        ),
         if (renderer.notes.isNotEmpty) ...[
           const SizedBox(height: 8),
           for (final note in renderer.notes)
