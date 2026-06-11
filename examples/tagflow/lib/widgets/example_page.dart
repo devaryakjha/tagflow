@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 final _key = GlobalKey<_ExamplePageState>();
