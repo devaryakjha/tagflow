@@ -36,7 +36,7 @@ The public-claim qualification checklist and operating runbook now live in
 | Native JSON profile lane | [`baselines/2026-06-12-native-json-repeat5-local-baseline.md`](baselines/2026-06-12-native-json-repeat5-local-baseline.md) | The example-app profile harness collected `15 / 15` native JSON cells for `native_ai_answer`, `native_table_dense`, and `native_large_article` with five repeats. Static summaries include `coldInitialRender`, `warmRebuild`, `warmScroll`, and macOS local-runner launch attribution. | Local stabilization evidence, not a timing threshold. |
 | Memory evidence probe | [`baselines/2026-06-12-memory-allocation-evidence-probe.md`](baselines/2026-06-12-memory-allocation-evidence-probe.md) | `flutter drive --profile-memory` produced bounded DevTools memory JSON for `tagflow_native_json:native_large_article` and `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`. | Feasibility evidence only. |
 | Memory repeat-5 local status | [`baselines/2026-06-12-memory-allocation-repeat5-local-status.md`](baselines/2026-06-12-memory-allocation-repeat5-local-status.md) | Required macOS repeat-5 profile baselines now exist for `tagflow:large_article`, `tagflow:table_stress`, and the authored-insertion control/patch pair, with bounded `--profile-memory` JSON captured for those lanes plus optional `tagflow_native_json:native_large_article`. | Report-only memory evidence; allocation claims still blocked by missing snapshots and diffs. |
-| Physical target probe | [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md), superseding the earlier [`baselines/2026-06-12-physical-target-qualification-pending.md`](baselines/2026-06-12-physical-target-qualification-pending.md) snapshot | Current discovery sees a paired, USB-visible iPhone 17 through Flutter/CoreDevice, but the one-repeat profile probe still failed to persist a benchmark manifest or `integration_response_data.json`. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
+| Physical target probe | [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md), superseding the earlier [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) probe note | Current read-only discovery sees the iPhone 17 only in Flutter's wireless bucket while CoreDevice reports a paired local-network session with disconnected tunnel and unavailable DDI services; `xctrace` still lists the device offline. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 | Kite profile blocker | [`baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md`](baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md) | A later Kite audit separated hosted-alpha widget evidence, legacy production rendering, converter-free disclosure tests, and true profile evidence. No credible production profile capture was possible because the checkout was stale relative to hosted alpha validation, production still used the legacy converter bridge, no deterministic production fixture opener existed, and physical target tooling was inconsistent. | Negative qualification evidence; real-app profile baseline still pending. |
 
@@ -119,10 +119,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
 ## Current Gaps
 
 - Device matrix: no supported physical iOS or Android profile baseline is
-  qualified yet. The latest physical refresh saw a paired, USB-visible iPhone
-  17 through Flutter/CoreDevice, but the one-repeat profile probe still failed
-  to persist a manifest or integration artifact. Simulator profile mode has
-  known limitations and should not be promoted without a fresh tooling check.
+  qualified yet. The latest physical refresh saw the iPhone 17 only in
+  Flutter's wireless bucket, with CoreDevice reporting a disconnected
+  local-network tunnel and `xctrace` listing the device offline. Simulator
+  profile mode has known limitations and should not be promoted without a
+  fresh tooling check.
 - Real-app profile: hosted-alpha widget evidence exists in Kite, but no
   credible production IPO profile-mode capture exists yet. The latest Kite
   profile audit found a stale dependency checkout, production rendering still
