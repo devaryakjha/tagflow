@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:tagflow_example/benchmarks/benchmark_host.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
+import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
     // ignore: prefer_const_declarations
     final rendererId = const String.fromEnvironment(
       'TAGFLOW_RENDERER',
-      defaultValue: 'tagflow',
+      defaultValue: defaultBenchmarkRendererId,
     );
 
     await tester.pumpWidget(

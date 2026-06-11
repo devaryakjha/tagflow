@@ -7,7 +7,7 @@ import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 final class BenchmarkScreen extends StatefulWidget {
   const BenchmarkScreen({
     this.fixtureId = defaultProfileBenchmarkFixtureId,
-    this.rendererId = 'tagflow',
+    this.rendererId = defaultBenchmarkRendererId,
     this.showFixturePicker = true,
     super.key,
   });
@@ -31,15 +31,7 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final renderer = benchmarkRenderers[rendererId];
-    if (renderer == null) {
-      throw ArgumentError.value(
-        rendererId,
-        'rendererId',
-        'Unknown benchmark renderer.',
-      );
-    }
-
+    final renderer = benchmarkRendererById(rendererId);
     final fixture = profileBenchmarkFixtureById(fixtureId);
     final host = BenchmarkHost(
       fixture: fixture,
@@ -88,10 +80,10 @@ final class _RendererPicker extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: SegmentedButton<String>(
         segments: [
-          for (final renderer in benchmarkRenderers.values)
+          for (final rendererId in benchmarkRendererIds)
             ButtonSegment<String>(
-              value: renderer.id,
-              label: Text(renderer.label),
+              value: rendererId,
+              label: Text(benchmarkRendererById(rendererId).label),
             ),
         ],
         selected: {selectedRendererId},

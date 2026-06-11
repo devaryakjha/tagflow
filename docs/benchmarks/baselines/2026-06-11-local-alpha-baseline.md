@@ -28,6 +28,9 @@ environment variables:
 ```bash
 TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=ai_answer_rich \
   dart run melos run benchmark:profile
+
+TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich \
+  dart run melos run benchmark:profile
 ```
 
 All four commands passed on this branch.
@@ -71,7 +74,7 @@ Harness settings from `benchmark:render`:
 | `large_article` | 4529 | 120 | 24415 | 24415 | 21305.0 | 0.146 |
 | `deep_nested_lists` | 1139 | 37 | 7620 | 7620 | 7455.0 | 0.022 |
 
-## Profile-Mode Frame Smoke Run
+## Profile-Mode Frame Smoke Runs
 
 Harness settings from `benchmark:profile`:
 
@@ -80,21 +83,65 @@ Harness settings from `benchmark:profile`:
 - device: `macos`
 - Flutter mode: `--profile`
 - fixture: `ai_answer_rich`
-- renderer: `tagflow`
+
+### Tagflow
+
+Command used:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_RENDERER=tagflow \
+TAGFLOW_FIXTURE=ai_answer_rich \
+dart run melos run benchmark:profile
+```
 
 | Metric | Value |
 | --- | ---: |
 | frame count | 23 |
-| average build ms | 0.185 |
-| p90 build ms | 0.288 |
-| p99 build ms | 0.498 |
-| worst build ms | 0.498 |
+| average build ms | 0.219 |
+| p90 build ms | 0.450 |
+| p99 build ms | 0.500 |
+| worst build ms | 0.500 |
 | missed build budget count | 0 |
-| average raster ms | 2.772 |
-| p90 raster ms | 11.668 |
-| p99 raster ms | 18.955 |
-| worst raster ms | 18.955 |
+| average raster ms | 1.674 |
+| p90 raster ms | 2.174 |
+| p99 raster ms | 17.533 |
+| worst raster ms | 17.533 |
 | missed raster budget count | 1 |
+| new-gen GC count | 2 |
+| old-gen GC count | 0 |
+
+### Flutter HTML
+
+Command used:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_RENDERER=flutter_html \
+TAGFLOW_FIXTURE=ai_answer_rich \
+dart run melos run benchmark:profile
+```
+
+Adapter caveats:
+
+- Enabled `flutter_html_table` so the shared fixture's `<table>` rendered
+  instead of being dropped.
+- Kept package-default styling; no extra theme tuning was added to match
+  Tagflow output.
+
+| Metric | Value |
+| --- | ---: |
+| frame count | 24 |
+| average build ms | 0.285 |
+| p90 build ms | 0.408 |
+| p99 build ms | 0.587 |
+| worst build ms | 0.587 |
+| missed build budget count | 0 |
+| average raster ms | 1.504 |
+| p90 raster ms | 1.276 |
+| p99 raster ms | 15.169 |
+| worst raster ms | 15.169 |
+| missed raster budget count | 0 |
 | new-gen GC count | 2 |
 | old-gen GC count | 0 |
 
@@ -102,11 +149,14 @@ Harness settings from `benchmark:profile`:
 
 - These are local smoke baselines, not release gates.
 - The render suite uses `flutter_test`, so it measures conversion plus widget
-  build work in a test host. The profile suite now records app frame timings,
-  but recorded numbers currently cover only the initial `ai_answer_rich`
-  Tagflow renderer fixture.
+  build work in a test host.
+- The profile suite now records app frame timings for `ai_answer_rich` on the
+  landed `tagflow` and `flutter_html` adapters only.
 - The sample counts are deliberately low for CI friendliness. Larger local
   sample runs should be added before publishing performance claims.
+- `flutter_widget_from_html` resolved locally but was deferred from this first
+  adapter pass because the full package brings a much broader transitive
+  media/webview stack than the current fixture comparison requires.
 - Running `dart run bin/run_parser_benchmarks.dart ...` directly currently
   fails because the benchmark package imports Flutter-facing Tagflow code and a
   plain Dart VM has no `dart:ui`. Use the Melos/Flutter test-hosted benchmark

@@ -3,7 +3,7 @@ import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 
 /// Hosts a single fixture/renderer pair for manual and profile benchmarks.
-final class BenchmarkHost extends StatelessWidget {
+final class BenchmarkHost extends StatefulWidget {
   const BenchmarkHost({
     required this.fixture,
     required this.renderer,
@@ -27,13 +27,39 @@ final class BenchmarkHost extends StatelessWidget {
   final bool showChrome;
 
   @override
+  State<BenchmarkHost> createState() => _BenchmarkHostState();
+}
+
+final class _BenchmarkHostState extends State<BenchmarkHost> {
+  AssetBundle? _assetBundle;
+  String? _assetPath;
+  late Future<String> _pendingHtml;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final assetBundle = DefaultAssetBundle.of(context);
+    final assetPath = widget.fixture.htmlAssetPath;
+    if (_assetBundle == assetBundle && _assetPath == assetPath) {
+      return;
+    }
+
+    _assetBundle = assetBundle;
+    _assetPath = assetPath;
+    _pendingHtml = assetBundle.loadString(assetPath);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: DefaultAssetBundle.of(context).loadString(fixture.htmlAssetPath),
+      future: _pendingHtml,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
-            child: Text('Unable to load fixture: ${fixture.htmlAssetPath}'),
+            child: Text(
+              'Unable to load fixture: ${widget.fixture.htmlAssetPath}',
+            ),
           );
         }
 
@@ -43,18 +69,18 @@ final class BenchmarkHost extends StatelessWidget {
         }
 
         final content = KeyedSubtree(
-          key: contentKey,
-          child: renderer.builder(context, html),
+          key: BenchmarkHost.contentKey,
+          child: widget.renderer.builder(context, html),
         );
 
         return ListView(
-          key: scrollKey,
+          key: BenchmarkHost.scrollKey,
           padding: const EdgeInsets.all(24),
           children: [
-            if (showChrome) ...[
+            if (widget.showChrome) ...[
               _BenchmarkHeader(
-                fixture: fixture,
-                renderer: renderer,
+                fixture: widget.fixture,
+                renderer: widget.renderer,
                 inputLength: html.length,
               ),
               const SizedBox(height: 24),
@@ -90,6 +116,11 @@ final class _BenchmarkHeader extends StatelessWidget {
         Text('Renderer: ${renderer.label}', style: textTheme.bodyMedium),
         Text('Fixture: ${fixture.id}', style: textTheme.bodyMedium),
         Text('Input: $inputLength chars', style: textTheme.bodySmall),
+        if (renderer.notes.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          for (final note in renderer.notes)
+            Text('Note: $note', style: textTheme.bodySmall),
+        ],
       ],
     );
   }

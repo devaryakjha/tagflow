@@ -146,7 +146,15 @@ Recommended fixtures:
 ### Automate now
 
 - `flutter_html` for HTML-native comparison.
-- `flutter_widget_from_html` for HTML-native comparison.
+  - Current landed adapter scope: `ai_answer_rich` through
+    `flutter_html` plus `flutter_html_table`.
+  - Fairness rule: keep package-default styling and enable only the table
+    extension needed for the shared fixture's `<table>` tag.
+- `flutter_widget_from_html` as the next HTML-native comparison.
+  - Dependency resolution succeeded locally, but the full package pulls a much
+    larger transitive media/webview stack than this slice needs.
+  - Defer that adapter to a follow-up pass instead of widening the first
+    comparison harness.
 - `flutter_markdown_plus` for markdown-only comparison.
 - `markdown_widget` for markdown-only comparison.
 
@@ -175,6 +183,8 @@ Recommended fixtures:
 - Measuring WebView network or browser startup and calling it "HTML renderer speed".
 - Leaving network images enabled for one renderer and disabled for another.
 - Comparing cold, first-run JIT numbers against warmed profile-mode native runs.
+- Hand-tuning competitor styles to mimic Tagflow theme output instead of using
+  each renderer's normal defaults.
 
 ## Exact Dependencies and Tools To Use
 
@@ -214,6 +224,7 @@ These should become Melos scripts after the first harness lands:
 dart run melos run benchmark:micro
 dart run melos run benchmark:render
 dart run melos run benchmark:profile
+TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
 TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```
@@ -231,6 +242,14 @@ flutter drive \
   -d macos \
   --profile \
   --dart-define=TAGFLOW_RENDERER=tagflow \
+  --dart-define=TAGFLOW_FIXTURE=ai_answer_rich
+
+flutter drive \
+  --driver=examples/tagflow/test_driver/perf_driver.dart \
+  --target=examples/tagflow/integration_test/tagflow_perf_test.dart \
+  -d macos \
+  --profile \
+  --dart-define=TAGFLOW_RENDERER=flutter_html \
   --dart-define=TAGFLOW_FIXTURE=ai_answer_rich
 ```
 
