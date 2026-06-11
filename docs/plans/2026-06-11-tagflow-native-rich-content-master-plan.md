@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated implementation commit:
-  `4d0dde7 bench(profile): add reference baseline runner`
+  `d7d6599 bench(profile): summarize capped reference baselines`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -37,17 +37,19 @@ published.
   through environment variables, plus landed `flutter_html` and core-backed
   `flutter_widget_from_html` competitor adapters. A reference-baseline runner
   can now execute a selected renderer/fixture matrix and preserve copied
-  profile JSON artifacts under ignored build output. The macOS integration-test
-  plugin warning has a narrow benchmark-script suppression while preserving
-  JSON output, and the separate CocoaPods/SPM migration warning has been removed
-  from the macOS example host.
+  profile JSON artifacts under ignored build output. A profile-baseline
+  summarizer and capped macOS reference note now turn raw profile JSON into
+  reviewed internal stabilization evidence. The macOS integration-test plugin
+  warning has a narrow benchmark-script suppression while preserving JSON
+  output, and the separate CocoaPods/SPM migration warning has been removed from
+  the macOS example host.
 - Post-alpha stabilization in progress: broader competitor coverage, remaining
-  table styling parity, reviewed reference-runner baselines, and real internal
-  app validation.
-- Active stabilization work is now focused on selecting the actual internal app
-  trial surface and running the default reference-baseline matrix on a named
-  reference machine. The next fixture additions should be driven by real app
-  content gaps.
+  table styling parity beyond normalized uniform table hints, repeated
+  reference-runner baselines, and real internal app validation.
+- Active stabilization work is now focused on running the Kite IPO details
+  validation surface with the local alpha override, capturing screenshots and
+  profile evidence, and deciding whether to keep the debug-only Kite proof
+  patch. The next fixture additions should be driven by real app content gaps.
 
 ## Current Constraints
 
