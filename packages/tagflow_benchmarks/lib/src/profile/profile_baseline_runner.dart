@@ -55,6 +55,7 @@ final class ProfileBaselineManifest {
     required this.command,
     required this.outputDirectory,
     required this.sourceResponsePath,
+    required this.failFast,
     required this.runs,
   });
 
@@ -88,6 +89,9 @@ final class ProfileBaselineManifest {
   /// Existing integration-test response path copied after each run.
   final String sourceResponsePath;
 
+  /// Whether this run was configured to stop at the first failed matrix cell.
+  final bool failFast;
+
   /// Individual run records.
   final List<ProfileBaselineRun> runs;
 
@@ -103,6 +107,7 @@ final class ProfileBaselineManifest {
     'command': command,
     'outputDirectory': outputDirectory,
     'sourceResponsePath': sourceResponsePath,
+    'failFast': failFast,
     'runs': runs.map((run) => run.toJson()).toList(),
   };
 }
@@ -155,8 +160,10 @@ final class ProfileBaselineRun {
     required this.renderer,
     required this.fixture,
     required this.repeat,
+    required this.status,
     required this.exitCode,
     required this.artifactPath,
+    required this.logPath,
     required this.startedAt,
     required this.finishedAt,
   });
@@ -170,11 +177,17 @@ final class ProfileBaselineRun {
   /// One-based repeat index.
   final int repeat;
 
+  /// Result status for this repeat.
+  final String status;
+
   /// Process exit code.
   final int exitCode;
 
   /// Copied raw integration-test JSON artifact path.
-  final String artifactPath;
+  final String? artifactPath;
+
+  /// Per-run stdout/stderr and command log path.
+  final String logPath;
 
   /// UTC start time.
   final DateTime startedAt;
@@ -187,8 +200,10 @@ final class ProfileBaselineRun {
     'renderer': renderer,
     'fixture': fixture,
     'repeat': repeat,
+    'status': status,
     'exitCode': exitCode,
     'artifactPath': artifactPath,
+    'logPath': logPath,
     'startedAt': startedAt.toUtc().toIso8601String(),
     'finishedAt': finishedAt.toUtc().toIso8601String(),
   };
@@ -205,6 +220,7 @@ final class ProfileBaselineRunner {
     required this.repeatCount,
     required this.runId,
     this.device = 'macos',
+    this.failFast = true,
     ProfileProcessRunner? processRunner,
     DateTime Function()? clock,
   }) : _processRunner = processRunner ?? _defaultProcessRunner,
@@ -245,6 +261,9 @@ final class ProfileBaselineRunner {
   /// Flutter device id.
   final String device;
 
+  /// Whether to stop on the first failed profile process or missing artifact.
+  final bool failFast;
+
   final ProfileProcessRunner _processRunner;
   final DateTime Function() _clock;
 
@@ -283,8 +302,39 @@ final class ProfileBaselineRunner {
             ),
           );
           final finishedAt = _clock().toUtc();
+          final cellDirectory = Directory(
+            p.join(runDirectory.path, renderer, fixture),
+          )..createSync(recursive: true);
+          final repeatId = 'repeat-${repeat.toString().padLeft(2, '0')}';
+          final logFile = File(p.join(cellDirectory.path, '$repeatId.log'));
+          _writeRunLog(
+            logFile: logFile,
+            renderer: renderer,
+            fixture: fixture,
+            repeat: repeat,
+            result: result,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+          );
+          final logPath = p.relative(logFile.path, from: workspaceRoot.path);
 
           if (result.exitCode != 0) {
+            runs.add(
+              ProfileBaselineRun(
+                renderer: renderer,
+                fixture: fixture,
+                repeat: repeat,
+                status: 'failed',
+                exitCode: result.exitCode,
+                artifactPath: null,
+                logPath: logPath,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+              ),
+            );
+            if (!failFast) {
+              continue;
+            }
             throw ProcessException(
               'dart',
               _command,
@@ -293,21 +343,29 @@ final class ProfileBaselineRunner {
             );
           }
           if (!sourceResponse.existsSync()) {
+            runs.add(
+              ProfileBaselineRun(
+                renderer: renderer,
+                fixture: fixture,
+                repeat: repeat,
+                status: 'missingArtifact',
+                exitCode: result.exitCode,
+                artifactPath: null,
+                logPath: logPath,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+              ),
+            );
+            if (!failFast) {
+              continue;
+            }
             throw StateError(
               'Profile benchmark completed but did not write '
               '${sourceResponse.path}.',
             );
           }
 
-          final artifact = File(
-            p.join(
-              runDirectory.path,
-              renderer,
-              fixture,
-              'repeat-${repeat.toString().padLeft(2, '0')}.json',
-            ),
-          );
-          artifact.parent.createSync(recursive: true);
+          final artifact = File(p.join(cellDirectory.path, '$repeatId.json'));
           sourceResponse.copySync(artifact.path);
 
           runs.add(
@@ -315,8 +373,10 @@ final class ProfileBaselineRunner {
               renderer: renderer,
               fixture: fixture,
               repeat: repeat,
+              status: 'passed',
               exitCode: result.exitCode,
               artifactPath: p.relative(artifact.path, from: workspaceRoot.path),
+              logPath: logPath,
               startedAt: startedAt,
               finishedAt: finishedAt,
             ),
@@ -339,6 +399,7 @@ final class ProfileBaselineRunner {
         sourceResponse.path,
         from: workspaceRoot.path,
       ),
+      failFast: failFast,
       runs: List<ProfileBaselineRun>.unmodifiable(runs),
     );
 
@@ -359,6 +420,30 @@ final class ProfileBaselineRunner {
       'build',
       'integration_response_data.json',
     ),
+  );
+}
+
+void _writeRunLog({
+  required File logFile,
+  required String renderer,
+  required String fixture,
+  required int repeat,
+  required ProcessResult result,
+  required DateTime startedAt,
+  required DateTime finishedAt,
+}) {
+  logFile.writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+      'renderer': renderer,
+      'fixture': fixture,
+      'repeat': repeat,
+      'command': ['dart', ...ProfileBaselineRunner._command],
+      'startedAt': startedAt.toUtc().toIso8601String(),
+      'finishedAt': finishedAt.toUtc().toIso8601String(),
+      'exitCode': result.exitCode,
+      'stdout': result.stdout.toString(),
+      'stderr': result.stderr.toString(),
+    })}\n',
   );
 }
 

@@ -27,6 +27,7 @@ Future<void> main(List<String> arguments) async {
     repeatCount: options.repeatCount,
     runId: options.runId ?? defaultProfileBaselineRunId(),
     device: options.device,
+    failFast: !options.continueOnFailure,
   );
 
   final manifest = await runner.run();
@@ -40,6 +41,7 @@ final class _ProfileBaselineCliOptions {
     required this.repeatCount,
     required this.device,
     required this.outputDirectory,
+    required this.continueOnFailure,
     this.runId,
   });
 
@@ -80,6 +82,10 @@ final class _ProfileBaselineCliOptions {
           'macos',
       outputDirectory:
           values['output-dir'] ?? p.join('build', 'benchmarks', 'profile'),
+      continueOnFailure: _boolFlag(
+        values['continue-on-failure'] ??
+            Platform.environment['TAGFLOW_PROFILE_CONTINUE_ON_FAILURE'],
+      ),
       runId: values['run-id'],
     );
   }
@@ -89,6 +95,7 @@ final class _ProfileBaselineCliOptions {
   final int repeatCount;
   final String device;
   final String outputDirectory;
+  final bool continueOnFailure;
   final String? runId;
 
   static List<String> _csv(String? value, List<String> fallback) {
@@ -119,6 +126,14 @@ final class _ProfileBaselineCliOptions {
     }
     return parsed;
   }
+
+  static bool _boolFlag(String? value) {
+    if (value == null) {
+      return false;
+    }
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'true' || normalized == '1' || normalized == 'yes';
+  }
 }
 
 void _printUsage() {
@@ -135,11 +150,15 @@ Options:
   --device=<id>       Flutter device id. Defaults to macos.
   --output-dir=<path> Output directory. Defaults to build/benchmarks/profile.
   --run-id=<id>       Optional stable run id for deterministic artifact paths.
+  --continue-on-failure=true
+                    Keep running the selected matrix and write failed runs to
+                    the manifest instead of failing on the first process error.
 
 Example:
   TAGFLOW_RENDERER=tagflow \
   TAGFLOW_FIXTURE=ai_answer_rich \
   TAGFLOW_PROFILE_REPEAT=1 \
+  TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
     dart run melos run benchmark:profile:baselines
 ''');
 }

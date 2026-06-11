@@ -55,6 +55,21 @@ TAGFLOW_PROFILE_REPEAT=5 \
 dart run melos run benchmark:profile:baselines
 ```
 
+Unsupported-target probe:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_DEVICE=<physical-device-id> \
+TAGFLOW_PROFILE_REPEAT=1 \
+TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+dart run melos run benchmark:profile:baselines
+```
+
+Use `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true` when validating a new physical
+device, simulator, or CI runner. The runner will keep a manifest entry for
+failed or missing-artifact cells instead of losing the failure as terminal
+output.
+
 The Melos command delegates each cell to the existing profile harness:
 
 ```bash
@@ -88,6 +103,8 @@ variables:
 - `--fixture=ai_answer_rich,table_dense` or `TAGFLOW_FIXTURE=ai_answer_rich`
 - `--repeat=5` or `TAGFLOW_PROFILE_REPEAT=5`
 - `--device=macos` or `TAGFLOW_PROFILE_DEVICE=macos`
+- `--continue-on-failure=true` or
+  `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true`
 
 ## Artifact Naming
 
@@ -103,6 +120,12 @@ Each raw response is copied to:
 <renderer>/<fixture>/repeat-NN.json
 ```
 
+Each cell also writes a process log:
+
+```text
+<renderer>/<fixture>/repeat-NN.log
+```
+
 The run manifest is:
 
 ```text
@@ -110,8 +133,10 @@ profile-baseline-manifest.json
 ```
 
 The manifest records the command, matrix, repeat count, environment fields, and
-relative artifact paths. It is the handoff point for a later reviewed baseline
-document.
+relative artifact paths. Failed or missing-artifact cells are recorded with a
+`status` field and a `logPath`; successful cells are recorded with
+`status: passed` and an `artifactPath`. The manifest is the handoff point for a
+later reviewed baseline document.
 
 ## Metrics Policy
 
@@ -129,6 +154,7 @@ baseline has been collected on a stable machine. Candidate gates for the same
 reference environment:
 
 - no test exceptions, overflows, OOMs, or missing JSON artifacts
+- every selected cell has `status: passed` in the manifest
 - standard fixtures keep build p90 and raster p90 under the reviewed baseline
   regression threshold
 - `table_stress` remains visible and scrollable without crash
@@ -143,6 +169,8 @@ statistically significant.
 - choose and document the physical reference machine
 - pin the Flutter channel and record `flutter --version`
 - run the default matrix with at least five repeats per cell
+- run `--continue-on-failure=true` once for each new target before treating it
+  as a candidate reference runner
 - inspect raw artifacts for outliers and failed scrolls
 - create a reviewed baseline note under `docs/benchmarks/baselines/`
 - decide regression thresholds only after the reviewed baseline exists

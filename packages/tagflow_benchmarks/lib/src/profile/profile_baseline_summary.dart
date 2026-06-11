@@ -265,7 +265,14 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
 
   final grouped = <String, List<_ProfileBaselineRunRecord>>{};
   for (final run in runs) {
-    final artifactFile = File(p.join(workspaceRoot, run.artifactPath));
+    if (run.status != 'passed') {
+      continue;
+    }
+    final artifactPath = run.artifactPath;
+    if (artifactPath == null) {
+      continue;
+    }
+    final artifactFile = File(p.join(workspaceRoot, artifactPath));
     final metrics = _readMetrics(artifactFile);
     final record = _ProfileBaselineRunRecord(run: run, metrics: metrics);
     final key = '${run.renderer}::${run.fixture}';
@@ -368,13 +375,15 @@ final class _ManifestRun {
     required this.renderer,
     required this.fixture,
     required this.repeat,
+    required this.status,
     required this.artifactPath,
   });
 
   final String renderer;
   final String fixture;
   final int repeat;
-  final String artifactPath;
+  final String status;
+  final String? artifactPath;
 }
 
 List<_ManifestRun> _readRuns(Object? rawRuns) {
@@ -386,7 +395,8 @@ List<_ManifestRun> _readRuns(Object? rawRuns) {
           renderer: json['renderer']! as String,
           fixture: json['fixture']! as String,
           repeat: json['repeat']! as int,
-          artifactPath: json['artifactPath']! as String,
+          status: json['status'] as String? ?? 'passed',
+          artifactPath: json['artifactPath'] as String?,
         );
       })
       .toList(growable: false);
@@ -479,7 +489,7 @@ ProfileBaselineOutlier? _detectOutlier(_ProfileBaselineRunRecord record) {
 
   return ProfileBaselineOutlier(
     repeat: record.run.repeat,
-    artifactPath: record.run.artifactPath,
+    artifactPath: record.run.artifactPath!,
     reasons: List<String>.unmodifiable(reasons),
     frameCount: metrics.frameCount,
     worstBuildMillis: metrics.worstBuildMillis,

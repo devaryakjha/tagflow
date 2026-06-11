@@ -292,8 +292,14 @@ Primary recommendation for alpha:
 
 Optional second wave:
 
-- iOS Simulator profile mode
-- one physical Android device for sanity
+- physical iOS device profile mode
+- physical Android device profile mode
+
+Current simulator caveat:
+
+- Flutter profile mode was rejected on the iPhone 17 simulator during the Kite
+  real-app probe, so iOS Simulator runs should remain debug-attribution only
+  unless Flutter tooling for the selected simulator/runtime proves otherwise.
 
 ## Result Storage
 

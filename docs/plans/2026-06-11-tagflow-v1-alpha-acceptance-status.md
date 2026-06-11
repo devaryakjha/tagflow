@@ -167,6 +167,12 @@ The benchmark harness is real but still alpha-grade:
   rejected Flutter profile mode and Xcode Animation Hitches was unsupported on
   this runtime, this is path-attribution evidence only, not release-grade
   performance evidence.
+- The profile baseline runner can now preserve failed or unsupported target
+  attempts in its manifest with per-cell logs when
+  `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true` or
+  `--continue-on-failure=true` is used. This turns physical-device and CI
+  target qualification failures into reviewable evidence instead of transient
+  terminal output.
 
 ## Known Non-Completion Points
 

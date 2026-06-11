@@ -79,6 +79,7 @@ void main() {
                   'renderer': 'tagflow',
                   'fixture': 'ai_answer_rich',
                   'repeat': 1,
+                  'status': 'passed',
                   'artifactPath':
                       'build/benchmarks/profile/2026-06-11-reference/'
                       'tagflow/ai_answer_rich/repeat-01.json',
@@ -87,9 +88,21 @@ void main() {
                   'renderer': 'tagflow',
                   'fixture': 'ai_answer_rich',
                   'repeat': 2,
+                  'status': 'passed',
                   'artifactPath':
                       'build/benchmarks/profile/2026-06-11-reference/'
                       'tagflow/ai_answer_rich/repeat-02.json',
+                },
+                <String, Object?>{
+                  'renderer': 'tagflow',
+                  'fixture': 'ai_answer_rich',
+                  'repeat': 3,
+                  'status': 'failed',
+                  'exitCode': 1,
+                  'artifactPath': null,
+                  'logPath':
+                      'build/benchmarks/profile/2026-06-11-reference/'
+                      'tagflow/ai_answer_rich/repeat-03.log',
                 },
               ],
             }),
@@ -100,12 +113,13 @@ void main() {
       clock: () => DateTime.utc(2026, 6, 11, 7),
     );
 
-    expect(summary.totalRuns, 2);
+    expect(summary.totalRuns, 3);
     expect(summary.cellSummaries, hasLength(1));
 
     final cell = summary.cellSummaries.single;
     expect(cell.renderer, 'tagflow');
     expect(cell.fixture, 'ai_answer_rich');
+    expect(cell.observedRepeats, 2);
     expect(cell.frameCount.min, 22);
     expect(cell.frameCount.max, 24);
     expect(cell.averageBuildMillis.mean, closeTo(0.3, 0.0001));

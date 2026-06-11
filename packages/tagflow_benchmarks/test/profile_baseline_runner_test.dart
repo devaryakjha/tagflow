@@ -96,5 +96,111 @@ void main() {
             as Map<String, Object?>;
     expect(json['runId'], '2026-06-11T12-00-00Z');
     expect(json['runs'], isA<List<Object?>>());
+    expect(
+      (json['runs']! as List<Object?>).first,
+      containsPair('status', 'passed'),
+    );
+    expect(
+      (json['runs']! as List<Object?>).first,
+      containsPair(
+        'logPath',
+        'build/benchmarks/profile/2026-06-11T12-00-00Z/'
+            'tagflow/ai_answer_rich/repeat-01.log',
+      ),
+    );
+    expect(
+      File(
+        p.join(
+          workspaceRoot.path,
+          'build',
+          'benchmarks',
+          'profile',
+          '2026-06-11T12-00-00Z',
+          'tagflow',
+          'ai_answer_rich',
+          'repeat-01.log',
+        ),
+      ).existsSync(),
+      isTrue,
+    );
+  });
+
+  test('can continue through failed profile runs and write logs', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_failed_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    var commandCount = 0;
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow', 'flutter_html'],
+      fixtures: const ['ai_answer_rich'],
+      repeatCount: 1,
+      runId: '2026-06-11T12-05-00Z',
+      failFast: false,
+      processRunner: (executable, arguments, options) async {
+        commandCount += 1;
+        if (commandCount == 1) {
+          return ProcessResult(201, 1, 'profile stdout', 'unsupported device');
+        }
+
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': commandCount,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(202, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(manifest.runs, hasLength(2));
+    expect(manifest.runs.first.status, 'failed');
+    expect(manifest.runs.first.exitCode, 1);
+    expect(manifest.runs.first.artifactPath, isNull);
+    expect(manifest.runs.first.logPath, endsWith('repeat-01.log'));
+    expect(manifest.runs.last.status, 'passed');
+    expect(manifest.runs.last.artifactPath, isNotNull);
+
+    final failedLog = File(
+      p.join(workspaceRoot.path, manifest.runs.first.logPath),
+    );
+    expect(failedLog.existsSync(), isTrue);
+    expect(failedLog.readAsStringSync(), contains('unsupported device'));
+
+    final manifestJson =
+        jsonDecode(
+              File(
+                p.join(
+                  workspaceRoot.path,
+                  'build',
+                  'benchmarks',
+                  'profile',
+                  '2026-06-11T12-05-00Z',
+                  'profile-baseline-manifest.json',
+                ),
+              ).readAsStringSync(),
+            )
+            as Map<String, Object?>;
+    expect(manifestJson['failFast'], isFalse);
+    final runs = manifestJson['runs']! as List<Object?>;
+    expect(runs.first, containsPair('status', 'failed'));
+    expect(runs.first, containsPair('artifactPath', null));
   });
 }
