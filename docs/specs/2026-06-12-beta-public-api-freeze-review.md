@@ -59,10 +59,11 @@ patch application.
 - `TagflowNodeKind.unsupported`
 - `TagflowDocument.version`
 
-Rationale: unsupported placeholders and document-version semantics are public,
-but not fully policy-backed yet. Before beta, unsupported native block behavior
-must be tested and documented, and `TagflowDocument.version` must be described
-as either runtime schema, app payload schema, or reserved metadata.
+Rationale: unsupported placeholders and document-version semantics are public.
+Preserved policy-rejection placeholders now have a tested neutral renderer, but
+the beta line still needs a vocabulary decision for future unknown native block
+kinds. `TagflowDocument.version` must also stay clearly described as runtime
+schema rather than app payload schema.
 
 ### Rendering Registry
 
@@ -291,8 +292,9 @@ cadence.
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
-  documented for the alpha strict policy. Future unknown-block compatibility
-  remains a beta vocabulary decision.
+  documented for the alpha strict policy. Done for strict unknown-kind decode
+  failures and preserved policy-rejection placeholders; future unknown-block
+  compatibility remains a beta vocabulary decision.
 - `tagflow_table` beta posture is decided and documented. Partly done in
   "Compatibility Support Windows"; hosted alpha dependency compatibility has
   evidence, but release cadence still needs a beta decision.

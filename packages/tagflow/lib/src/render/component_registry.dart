@@ -130,6 +130,7 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.tableRow: _renderTableRow,
   TagflowNodeKind.tableCell: _renderTableCell,
   TagflowNodeKind.horizontalRule: _renderHorizontalRule,
+  TagflowNodeKind.unsupported: _renderUnsupported,
 };
 
 Widget _renderContainer(
@@ -480,6 +481,33 @@ Widget _renderHorizontalRule(
     height: 1,
     width: double.infinity,
     color: const Color(0x1F000000),
+  );
+}
+
+Widget _renderUnsupported(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  if (node.children.isNotEmpty) {
+    return _defaultFallback(context, node);
+  }
+
+  return Semantics(
+    label: 'Unsupported content',
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x0F000000),
+        border: Border.all(color: const Color(0x1F000000)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          'Unsupported content',
+          style: TextStyle(fontSize: 12, color: Color(0x99000000)),
+        ),
+      ),
+    ),
   );
 }
 

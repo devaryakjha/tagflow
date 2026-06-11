@@ -201,7 +201,10 @@ Do not emit future schema versions speculatively.
 Unknown native JSON `kind` values and unknown patch `op` values also fail
 during codec decode. `TagflowUnsupportedBehavior` applies after decode to
 known blocks rejected by adapter policy, such as a known image block whose URL
-policy rejects the source.
+policy rejects the source. The default behavior drops those rejected blocks.
+When `preservePlaceholder` is configured, the adapter emits a runtime
+`unsupported` node and the built-in renderer shows a neutral "Unsupported
+content" placeholder without exposing the rejected source payload.
 
 Patch envelopes decode into `TagflowNativeBlockPatchEnvelope` values containing
 ordered native operations. Apps should adapt those operations and then use the

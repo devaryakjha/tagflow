@@ -17,7 +17,7 @@ void main() {
 
         expect(registry.hasComponent(TagflowNodeKind.paragraph), isTrue);
         expect(registry.hasComponent(TagflowNodeKind.text), isTrue);
-        expect(registry.hasComponent(TagflowNodeKind.unsupported), isFalse);
+        expect(registry.hasComponent(TagflowNodeKind.unsupported), isTrue);
       },
     );
 
@@ -100,8 +100,37 @@ void main() {
         ),
       );
 
-      expect(find.byType(SizedBox), findsOneWidget);
+      expect(find.byType(DecoratedBox), findsOneWidget);
+      expect(find.text('Unsupported content'), findsOneWidget);
       expect(find.textContaining('custom element'), findsNothing);
+    });
+
+    testWidgets('renders preserved native policy rejections as placeholders', (
+      tester,
+    ) async {
+      const adapter = TagflowNativeBlockAdapter(
+        policy: TagflowContentPolicy(
+          allowRemoteImages: false,
+          unsupportedBehavior: TagflowUnsupportedBehavior.preservePlaceholder,
+        ),
+      );
+      final nativeDocument = TagflowNativeBlockDocument(
+        id: 'native-doc',
+        schemaVersion: 1,
+        blocks: [
+          TagflowNativeBlock.image(
+            id: 'blocked-image',
+            url: 'https://example.com/image.png',
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(adapter.adapt(nativeDocument))),
+      );
+
+      expect(find.text('Unsupported content'), findsOneWidget);
+      expect(find.textContaining('rejected by policy'), findsNothing);
     });
 
     testWidgets('renders first-class inline presentation semantics', (

@@ -369,7 +369,8 @@ Known blocks rejected by adapter policy are different from unknown producer
 kinds. For example, a known `image` block with a URL rejected by
 `TagflowContentPolicy` follows the policy's `unsupportedBehavior`: it is
 dropped, or it becomes a runtime `unsupported` placeholder with reason
-metadata.
+metadata. The built-in runtime renderer displays preserved leaf placeholders as
+neutral "Unsupported content" rather than leaking the rejected payload details.
 
 Rules:
 
