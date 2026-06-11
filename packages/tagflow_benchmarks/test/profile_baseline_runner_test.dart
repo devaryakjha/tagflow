@@ -314,6 +314,74 @@ void main() {
     expect(runs.single, containsPair('memoryProfileStatus', 'captured'));
   });
 
+  test('passes profile checkpoint hold-open settings into each run', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_hold_open_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    late Map<String, String> environment;
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow'],
+      fixtures: const ['large_article'],
+      repeatCount: 1,
+      runId: '2026-06-12T12-10-00Z',
+      profileHoldOpen: true,
+      profileHoldOpenSeconds: 90,
+      processRunner: (executable, arguments, options) async {
+        environment = options.environment;
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': 1,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(701, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(environment['TAGFLOW_PROFILE_HOLD_OPEN'], 'true');
+    expect(environment['TAGFLOW_PROFILE_HOLD_OPEN_SECONDS'], '90');
+    expect(manifest.profileHoldOpen, isTrue);
+    expect(manifest.profileHoldOpenSeconds, 90);
+
+    final manifestPath = p.join(
+      workspaceRoot.path,
+      'build',
+      'benchmarks',
+      'profile',
+      '2026-06-12T12-10-00Z',
+      'profile-baseline-manifest.json',
+    );
+    final json =
+        jsonDecode(File(manifestPath).readAsStringSync())
+            as Map<String, Object?>;
+    expect(json['profileHoldOpen'], isTrue);
+    expect(json['profileHoldOpenSeconds'], 90);
+
+    final logPath = p.join(workspaceRoot.path, manifest.runs.single.logPath);
+    final logJson =
+        jsonDecode(File(logPath).readAsStringSync()) as Map<String, Object?>;
+    expect(logJson['profileHoldOpen'], isTrue);
+    expect(logJson['profileHoldOpenSeconds'], 90);
+  });
+
   test('classifies missing requested profile memory separately', () async {
     final workspaceRoot = Directory.systemTemp.createTempSync(
       'tagflow_profile_runner_missing_memory_test_',

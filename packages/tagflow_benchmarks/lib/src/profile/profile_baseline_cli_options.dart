@@ -14,6 +14,8 @@ final class ProfileBaselineCliOptions {
     required this.outputDirectory,
     required this.continueOnFailure,
     required this.profileMemory,
+    required this.profileHoldOpen,
+    required this.profileHoldOpenSeconds,
     this.pairs,
     this.runId,
   });
@@ -44,6 +46,15 @@ final class ProfileBaselineCliOptions {
     final pairs = _pairs(
       values['pair'] ?? values['pairs'] ?? env['TAGFLOW_PROFILE_PAIR'],
     );
+    final profileHoldOpenSeconds = _optionalPositiveInt(
+      values['profile-hold-open-seconds'] ??
+          env['TAGFLOW_PROFILE_HOLD_OPEN_SECONDS'],
+    );
+    final profileHoldOpen =
+        _boolFlag(
+          values['profile-hold-open'] ?? env['TAGFLOW_PROFILE_HOLD_OPEN'],
+        ) ||
+        profileHoldOpenSeconds != null;
 
     return ProfileBaselineCliOptions(
       renderers: pairs == null
@@ -74,6 +85,10 @@ final class ProfileBaselineCliOptions {
       profileMemory: _boolFlag(
         values['profile-memory'] ?? env['TAGFLOW_PROFILE_MEMORY'],
       ),
+      profileHoldOpen: profileHoldOpen,
+      profileHoldOpenSeconds: profileHoldOpen
+          ? profileHoldOpenSeconds ?? defaultProfileHoldOpenSeconds
+          : null,
       pairs: pairs,
       runId: values['run-id'] ?? env['TAGFLOW_PROFILE_RUN_ID'],
     );
@@ -102,6 +117,12 @@ final class ProfileBaselineCliOptions {
 
   /// Whether each profile cell should request `flutter drive --profile-memory`.
   final bool profileMemory;
+
+  /// Whether each profile cell should replay named hold-open checkpoints.
+  final bool profileHoldOpen;
+
+  /// Hold-open duration in seconds, when checkpoint replay is enabled.
+  final int? profileHoldOpenSeconds;
 
   /// Optional stable run id.
   final String? runId;
@@ -163,6 +184,18 @@ List<ProfileBaselineCell>? _pairs(String? value) {
 int _positiveInt(String? value, {required int defaultValue}) {
   if (value == null) {
     return defaultValue;
+  }
+
+  final parsed = int.tryParse(value);
+  if (parsed == null || parsed < 1) {
+    throw FormatException('Expected a positive integer, got: $value');
+  }
+  return parsed;
+}
+
+int? _optionalPositiveInt(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return null;
   }
 
   final parsed = int.tryParse(value);

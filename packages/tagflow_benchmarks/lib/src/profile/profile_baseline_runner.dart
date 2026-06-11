@@ -18,6 +18,9 @@ const List<String> defaultProfileBaselineFixtures = [
   'table_stress',
 ];
 
+/// Default checkpoint hold-open duration for DevTools attachment.
+const int defaultProfileHoldOpenSeconds = 120;
+
 /// One explicit profile benchmark renderer/fixture cell.
 final class ProfileBaselineCell {
   /// Creates one explicit profile baseline cell.
@@ -77,6 +80,8 @@ final class ProfileBaselineManifest {
     required this.device,
     required this.repeatCount,
     required this.profileMemory,
+    required this.profileHoldOpen,
+    required this.profileHoldOpenSeconds,
     required this.renderers,
     required this.fixtures,
     required this.selectionMode,
@@ -105,6 +110,12 @@ final class ProfileBaselineManifest {
 
   /// Whether per-cell `flutter drive --profile-memory` capture was requested.
   final bool profileMemory;
+
+  /// Whether benchmark cells request checkpoint hold-open replay.
+  final bool profileHoldOpen;
+
+  /// Hold-open duration for checkpoint replay, when enabled.
+  final int? profileHoldOpenSeconds;
 
   /// Renderer ids included in this run.
   final List<String> renderers;
@@ -141,6 +152,8 @@ final class ProfileBaselineManifest {
     'device': device,
     'repeatCount': repeatCount,
     'profileMemory': profileMemory,
+    'profileHoldOpen': profileHoldOpen,
+    'profileHoldOpenSeconds': profileHoldOpenSeconds,
     'renderers': renderers,
     'fixtures': fixtures,
     'selectionMode': selectionMode,
@@ -278,11 +291,18 @@ final class ProfileBaselineRunner {
     this.device = 'macos',
     this.failFast = true,
     this.profileMemory = false,
+    bool profileHoldOpen = false,
+    int? profileHoldOpenSeconds,
     this.pairs,
     ProfileProcessRunner? processRunner,
     ProfileEnvironmentProcessRunner? environmentProcessRunner,
     DateTime Function()? clock,
   }) : _processRunner = processRunner ?? _defaultProcessRunner,
+       profileHoldOpen = profileHoldOpen || profileHoldOpenSeconds != null,
+       profileHoldOpenSeconds =
+           profileHoldOpen || profileHoldOpenSeconds != null
+           ? profileHoldOpenSeconds ?? defaultProfileHoldOpenSeconds
+           : null,
        _environmentProcessRunner =
            environmentProcessRunner ?? _defaultEnvironmentProcessRunner,
        _clock = clock ?? DateTime.now {
@@ -298,6 +318,14 @@ final class ProfileBaselineRunner {
     }
     if (fixtures.isEmpty) {
       throw ArgumentError.value(fixtures, 'fixtures', 'Cannot be empty.');
+    }
+    final holdOpenSeconds = this.profileHoldOpenSeconds;
+    if (holdOpenSeconds != null && holdOpenSeconds < 1) {
+      throw ArgumentError.value(
+        holdOpenSeconds,
+        'profileHoldOpenSeconds',
+        'Must be at least 1.',
+      );
     }
     final pairs = this.pairs;
     if (pairs != null) {
@@ -350,6 +378,12 @@ final class ProfileBaselineRunner {
   /// Whether to request per-cell `flutter drive --profile-memory` JSON.
   final bool profileMemory;
 
+  /// Whether to request checkpoint hold-open replay after measurement.
+  final bool profileHoldOpen;
+
+  /// Hold-open duration for checkpoint replay, when enabled.
+  final int? profileHoldOpenSeconds;
+
   /// Explicit renderer/fixture cells to run instead of the renderer matrix.
   final List<ProfileBaselineCell>? pairs;
 
@@ -400,6 +434,11 @@ final class ProfileBaselineRunner {
           processEnvironment['TAGFLOW_PROFILE_MEMORY_FILE'] =
               memoryProfile.absolute.path;
         }
+        if (profileHoldOpen) {
+          processEnvironment['TAGFLOW_PROFILE_HOLD_OPEN'] = 'true';
+          processEnvironment['TAGFLOW_PROFILE_HOLD_OPEN_SECONDS'] =
+              profileHoldOpenSeconds.toString();
+        }
 
         final result = await _processRunner(
           'dart',
@@ -424,6 +463,8 @@ final class ProfileBaselineRunner {
           memoryProfilePath: memoryProfilePath,
           memoryProfileStatus: _memoryProfileStatus(memoryProfile),
           vmServiceUri: vmServiceUri,
+          profileHoldOpen: profileHoldOpen,
+          profileHoldOpenSeconds: profileHoldOpenSeconds,
           startedAt: startedAt,
           finishedAt: finishedAt,
         );
@@ -542,6 +583,8 @@ final class ProfileBaselineRunner {
       device: device,
       repeatCount: repeatCount,
       profileMemory: profileMemory,
+      profileHoldOpen: profileHoldOpen,
+      profileHoldOpenSeconds: profileHoldOpenSeconds,
       renderers: List<String>.unmodifiable(renderers),
       fixtures: List<String>.unmodifiable(fixtures),
       selectionMode: selectedPairs == null ? 'matrix' : 'pairs',
@@ -601,6 +644,8 @@ void _writeRunLog({
   required String? memoryProfilePath,
   required String memoryProfileStatus,
   required String? vmServiceUri,
+  required bool profileHoldOpen,
+  required int? profileHoldOpenSeconds,
   required DateTime startedAt,
   required DateTime finishedAt,
 }) {
@@ -613,6 +658,8 @@ void _writeRunLog({
       'memoryProfilePath': memoryProfilePath,
       'memoryProfileStatus': memoryProfileStatus,
       'vmServiceUri': vmServiceUri,
+      'profileHoldOpen': profileHoldOpen,
+      'profileHoldOpenSeconds': profileHoldOpenSeconds,
       'startedAt': startedAt.toUtc().toIso8601String(),
       'finishedAt': finishedAt.toUtc().toIso8601String(),
       'exitCode': result.exitCode,

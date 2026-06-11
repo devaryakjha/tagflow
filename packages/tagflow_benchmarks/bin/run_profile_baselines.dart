@@ -31,6 +31,8 @@ Future<void> main(List<String> arguments) async {
     device: options.device,
     failFast: !options.continueOnFailure,
     profileMemory: options.profileMemory,
+    profileHoldOpen: options.profileHoldOpen,
+    profileHoldOpenSeconds: options.profileHoldOpenSeconds,
   );
 
   final manifest = await runner.run();
@@ -62,12 +64,20 @@ Options:
   --profile-memory=true
                     Request a per-cell flutter drive --profile-memory JSON.
                     Also accepts TAGFLOW_PROFILE_MEMORY.
+  --profile-hold-open=true
+                    Replay named benchmark checkpoints after measurement and
+                    keep each one alive for DevTools attachment.
+                    Also accepts TAGFLOW_PROFILE_HOLD_OPEN.
+  --profile-hold-open-seconds=<count>
+                    Hold each checkpoint open for the given number of seconds.
+                    Also accepts TAGFLOW_PROFILE_HOLD_OPEN_SECONDS.
 
 Example:
   TAGFLOW_RENDERER=tagflow \
   TAGFLOW_FIXTURE=ai_answer_rich \
   TAGFLOW_PROFILE_REPEAT=1 \
   TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+  TAGFLOW_PROFILE_HOLD_OPEN=true \
     dart run melos run benchmark:profile:baselines
 ''');
 }

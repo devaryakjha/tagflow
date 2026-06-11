@@ -180,6 +180,58 @@ Two supported capture modes exist:
 - headless memory recording with `dart devtools --record-memory-profile`
 - interactive DevTools Memory snapshots or allocation profile diffs
 
+For checkpoint snapshots or class allocation diffs, the harness now supports an
+opt-in replay hold path:
+
+- `TAGFLOW_PROFILE_HOLD_OPEN=true`
+- `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=<n>`
+
+When enabled, each selected profile cell replays named benchmark checkpoints
+after the measured run and keeps each checkpoint alive for the requested number
+of seconds. This does not replace manual export from DevTools; it only keeps
+the VM service alive long enough to attach and export.
+
+### One-repeat checkpoint capture flow
+
+Use repeat `1` for interactive capture so the runner stops at one reviewed
+cell instead of waiting through a repeat-5 matrix.
+
+Dynamic patch pair:
+
+```bash
+RUN_ID=2026-06-12-memory-authored-insertion-checkpoints
+OUT=build/benchmarks/profile-memory-evidence
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_DEVICE=macos \
+TAGFLOW_PROFILE_PAIR=tagflow_semantic:streaming_ai_authored_insertions,tagflow_semantic_patch:streaming_ai_authored_insertion_patches \
+TAGFLOW_PROFILE_REPEAT=1 \
+TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
+TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
+TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
+TAGFLOW_PROFILE_HOLD_OPEN=true \
+TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=120 \
+dart run melos run benchmark:profile:baselines
+```
+
+Static large article:
+
+```bash
+RUN_ID=2026-06-12-memory-large-article-checkpoints
+OUT=build/benchmarks/profile-memory-evidence
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_DEVICE=macos \
+TAGFLOW_PROFILE_PAIR=tagflow:large_article \
+TAGFLOW_PROFILE_REPEAT=1 \
+TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
+TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
+TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
+TAGFLOW_PROFILE_HOLD_OPEN=true \
+TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=120 \
+dart run melos run benchmark:profile:baselines
+```
+
 ### Headless memory profile
 
 This is the most repeatable path when you want a machine-readable memory
@@ -224,6 +276,26 @@ Export files under the same ignored run directory, for example:
 - `build/benchmarks/profile-memory-evidence/<run-id>/devtools/<lane>-after-scroll.json`
 - `build/benchmarks/profile-memory-evidence/<run-id>/devtools/<lane>-after-final-patch.json`
 
+Watch the benchmark terminal while the run is active. The harness now prints
+checkpoint lines like:
+
+```text
+[tagflow-profile-checkpoint] renderer=... fixture=... checkpoint=... action=attach-devtools
+```
+
+Use the VM service URI recorded in stdout and in
+`profile-baseline-manifest.json` to connect DevTools to the live session while
+that checkpoint is held open.
+
+Manual exports still required from DevTools:
+
+- heap snapshots for each required checkpoint
+- class allocation diffs or equivalent allocation-profile export
+- retained-object review notes for any suspicious class growth or old-gen GC
+
+The hold-open mode does not export these artifacts for you. It only keeps the
+session alive long enough to capture them.
+
 ## Lane-Specific Capture Notes
 
 ### `tagflow:large_article`
@@ -247,6 +319,10 @@ Export files under the same ignored run directory, for example:
 - Keep the full-reparse control lane in the same run.
 - Capture before-render, after-first-patch, after-final-patch, and after-scroll
   evidence.
+  The control lane replay emits `before_first_update`, `after_first_update`,
+  `after_final_update`, and `after_scroll`; the patch lane replay emits
+  `before_first_patch`, `after_first_patch`, `after_final_patch`, and
+  `after_scroll`.
 - Treat any old-gen GC outlier or retained-growth spike as a blocker for
   public dynamic-content language until the reviewer explains it.
 

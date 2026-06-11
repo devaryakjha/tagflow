@@ -9,6 +9,7 @@ import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/benchmark_host.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_example/benchmarks/launch_attribution.dart';
+import 'package:tagflow_example/benchmarks/profile_checkpoint_hold.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
@@ -19,6 +20,7 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('scrolls a Tagflow benchmark fixture', (tester) async {
+    final checkpointHold = _checkpointHoldOptionsFromEnvironment();
     // ignore: prefer_const_declarations
     final fixtureId = const String.fromEnvironment(
       'TAGFLOW_FIXTURE',
@@ -62,6 +64,12 @@ void main() {
       fixture: fixture,
       input: fullDocument,
     );
+    _recordCheckpointHoldConfig(
+      binding,
+      rendererId: rendererId,
+      fixtureId: fixtureId,
+      holdOptions: checkpointHold,
+    );
     _recordViewport(
       tester,
       binding,
@@ -100,6 +108,14 @@ void main() {
       );
       await tester.pumpAndSettle();
     }, reportKey: '${rendererId}_${fixtureId}_scroll');
+
+    await _replayStaticCheckpointHolds(
+      tester: tester,
+      binding: binding,
+      fixtureId: fixtureId,
+      rendererId: rendererId,
+      holdOptions: checkpointHold,
+    );
   });
 }
 
@@ -135,6 +151,7 @@ Future<void> _runStreamingBenchmark({
 }) async {
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
   final updateLatencies = <Map<String, Object?>>[];
+  final checkpointHold = _checkpointHoldOptionsFromEnvironment();
 
   binding.reportData ??= <String, dynamic>{};
   _recordInputMetadata(
@@ -142,6 +159,12 @@ Future<void> _runStreamingBenchmark({
     rendererId: renderer.id,
     fixture: fixture,
     input: fullDocument,
+  );
+  _recordCheckpointHoldConfig(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    holdOptions: checkpointHold,
   );
   _recordViewport(
     tester,
@@ -224,6 +247,15 @@ Future<void> _runStreamingBenchmark({
     );
     await tester.pumpAndSettle();
   }, reportKey: '${renderer.id}_${fixture.id}_scroll');
+
+  await _replayStreamingCheckpointHolds(
+    tester: tester,
+    binding: binding,
+    fixture: fixture,
+    renderer: renderer,
+    fullDocument: fullDocument,
+    holdOptions: checkpointHold,
+  );
 }
 
 Future<void> _runSemanticPatchStreamingBenchmark({
@@ -235,6 +267,7 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
   final stream = SemanticPatchStream.fromFixture(fixture, fullDocument);
   final updateLatencies = <Map<String, Object?>>[];
+  final checkpointHold = _checkpointHoldOptionsFromEnvironment();
 
   binding.reportData ??= <String, dynamic>{};
   _recordInputMetadata(
@@ -242,6 +275,12 @@ Future<void> _runSemanticPatchStreamingBenchmark({
     rendererId: renderer.id,
     fixture: fixture,
     input: fullDocument,
+  );
+  _recordCheckpointHoldConfig(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    holdOptions: checkpointHold,
   );
   _recordViewport(
     tester,
@@ -328,6 +367,16 @@ Future<void> _runSemanticPatchStreamingBenchmark({
     );
     await tester.pumpAndSettle();
   }, reportKey: '${renderer.id}_${fixture.id}_scroll');
+
+  await _replaySemanticPatchCheckpointHolds(
+    tester: tester,
+    binding: binding,
+    fixture: fixture,
+    renderer: renderer,
+    fullDocument: fullDocument,
+    stream: stream,
+    holdOptions: checkpointHold,
+  );
 }
 
 void _recordInputMetadata(
@@ -343,6 +392,16 @@ void _recordInputMetadata(
     'inputLength': input.length,
     'inputBytes': utf8.encode(input).length,
   };
+}
+
+void _recordCheckpointHoldConfig(
+  IntegrationTestWidgetsFlutterBinding binding, {
+  required String rendererId,
+  required String fixtureId,
+  required ProfileCheckpointHoldOptions holdOptions,
+}) {
+  binding.reportData!['${rendererId}_${fixtureId}_checkpoint_hold'] =
+      holdOptions.toJson();
 }
 
 void _recordViewport(
@@ -392,6 +451,257 @@ Future<_UpdateFrameTimingAttribution> _captureUpdateFrameTimingAttribution({
   } finally {
     binding.removeTimingsCallback(timingsCallback);
   }
+}
+
+ProfileCheckpointHoldOptions _checkpointHoldOptionsFromEnvironment() {
+  return ProfileCheckpointHoldOptions.parse(
+    enabledValue: const String.fromEnvironment(
+      'TAGFLOW_PROFILE_HOLD_OPEN',
+      defaultValue: 'false',
+    ),
+    holdOpenSecondsValue: _nonEmptyEnvironmentValue(
+      const String.fromEnvironment('TAGFLOW_PROFILE_HOLD_OPEN_SECONDS'),
+    ),
+  );
+}
+
+String? _nonEmptyEnvironmentValue(String value) {
+  return value.trim().isEmpty ? null : value;
+}
+
+Future<void> _replayStaticCheckpointHolds({
+  required WidgetTester tester,
+  required IntegrationTestWidgetsFlutterBinding binding,
+  required String fixtureId,
+  required String rendererId,
+  required ProfileCheckpointHoldOptions holdOptions,
+}) async {
+  if (!holdOptions.enabled) {
+    return;
+  }
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: rendererId,
+    fixtureId: fixtureId,
+    checkpoint: 'before_first_render',
+    holdOptions: holdOptions,
+  );
+
+  await tester.pumpWidget(
+    _buildStaticBenchmarkApp(fixtureId: fixtureId, rendererId: rendererId),
+  );
+  await tester.pumpAndSettle();
+  expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: rendererId,
+    fixtureId: fixtureId,
+    checkpoint: 'after_first_render',
+    holdOptions: holdOptions,
+  );
+
+  await tester.pumpWidget(
+    _buildStaticBenchmarkApp(fixtureId: fixtureId, rendererId: rendererId),
+  );
+  await tester.pumpAndSettle();
+  await tester.fling(
+    find.byKey(BenchmarkHost.scrollKey),
+    const Offset(0, -1200),
+    10000,
+  );
+  await tester.pumpAndSettle();
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: rendererId,
+    fixtureId: fixtureId,
+    checkpoint: 'after_scroll',
+    holdOptions: holdOptions,
+  );
+}
+
+Future<void> _replayStreamingCheckpointHolds({
+  required WidgetTester tester,
+  required IntegrationTestWidgetsFlutterBinding binding,
+  required ProfileBenchmarkFixture fixture,
+  required BenchmarkRenderer renderer,
+  required String fullDocument,
+  required ProfileCheckpointHoldOptions holdOptions,
+}) async {
+  if (!holdOptions.enabled) {
+    return;
+  }
+
+  final snapshots = benchmarkStreamingSnapshots(fixture.id, fullDocument);
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'before_first_update',
+    holdOptions: holdOptions,
+  );
+
+  for (final snapshot in snapshots.indexed) {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _BenchmarkDocumentFrame(
+          document: BenchmarkSourceDocument(
+            type: fixture.source.type,
+            data: snapshot.$2.html,
+            assetPath: fixture.source.assetPath,
+          ),
+          renderer: renderer,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    if (snapshot.$1 == 0) {
+      await _holdCheckpoint(
+        binding,
+        rendererId: renderer.id,
+        fixtureId: fixture.id,
+        checkpoint: 'after_first_update',
+        holdOptions: holdOptions,
+      );
+    }
+  }
+
+  expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'after_final_update',
+    holdOptions: holdOptions,
+  );
+
+  await tester.fling(
+    find.byKey(BenchmarkHost.scrollKey),
+    const Offset(0, -1200),
+    10000,
+  );
+  await tester.pumpAndSettle();
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'after_scroll',
+    holdOptions: holdOptions,
+  );
+}
+
+Future<void> _replaySemanticPatchCheckpointHolds({
+  required WidgetTester tester,
+  required IntegrationTestWidgetsFlutterBinding binding,
+  required ProfileBenchmarkFixture fixture,
+  required BenchmarkRenderer renderer,
+  required String fullDocument,
+  required SemanticPatchStream stream,
+  required ProfileCheckpointHoldOptions holdOptions,
+}) async {
+  if (!holdOptions.enabled) {
+    return;
+  }
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'before_first_patch',
+    holdOptions: holdOptions,
+  );
+
+  var currentDocument = stream.initialDocument;
+  for (final step in stream.steps.indexed) {
+    currentDocument = currentDocument.applyPatch(step.$2.patch);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _BenchmarkDocumentFrame(
+          document: BenchmarkSourceDocument(
+            type: fixture.source.type,
+            data: fullDocument,
+            assetPath: fixture.source.assetPath,
+            runtimeDocument: currentDocument,
+          ),
+          renderer: renderer,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    if (step.$1 == 0) {
+      await _holdCheckpoint(
+        binding,
+        rendererId: renderer.id,
+        fixtureId: fixture.id,
+        checkpoint: 'after_first_patch',
+        holdOptions: holdOptions,
+      );
+    }
+  }
+
+  expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'after_final_patch',
+    holdOptions: holdOptions,
+  );
+
+  await tester.fling(
+    find.byKey(BenchmarkHost.scrollKey),
+    const Offset(0, -1200),
+    10000,
+  );
+  await tester.pumpAndSettle();
+
+  await _holdCheckpoint(
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+    checkpoint: 'after_scroll',
+    holdOptions: holdOptions,
+  );
+}
+
+Future<void> _holdCheckpoint(
+  IntegrationTestWidgetsFlutterBinding binding, {
+  required String rendererId,
+  required String fixtureId,
+  required String checkpoint,
+  required ProfileCheckpointHoldOptions holdOptions,
+}) async {
+  final holds =
+      binding.reportData!.putIfAbsent(
+            '${rendererId}_${fixtureId}_checkpoint_holds',
+            () => <Map<String, Object?>>[],
+          )
+          as List<Map<String, Object?>>;
+  final event = <String, Object?>{
+    'checkpoint': checkpoint,
+    'holdOpenSeconds': holdOptions.holdOpenSeconds,
+    'startedAt': DateTime.now().toUtc().toIso8601String(),
+  };
+  holds.add(event);
+
+  debugPrint(
+    '[tagflow-profile-checkpoint] renderer=$rendererId fixture=$fixtureId '
+    'checkpoint=$checkpoint hold_open_seconds='
+    '${holdOptions.holdOpenSeconds} action=attach-devtools',
+  );
+  await Future<void>.delayed(holdOptions.holdDuration);
+  event['finishedAt'] = DateTime.now().toUtc().toIso8601String();
+  debugPrint(
+    '[tagflow-profile-checkpoint] renderer=$rendererId fixture=$fixtureId '
+    'checkpoint=$checkpoint hold_complete=true',
+  );
 }
 
 enum _UpdateFramePhase { pumpWidget, settle, unknown }

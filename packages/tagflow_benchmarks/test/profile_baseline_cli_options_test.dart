@@ -84,10 +84,45 @@ void main() {
     expect(envOptions.profileMemory, isTrue);
   });
 
+  test('parses profile checkpoint hold-open opt-in and seconds', () {
+    final cliOptions = ProfileBaselineCliOptions.parse(const [
+      '--profile-hold-open=true',
+      '--profile-hold-open-seconds=45',
+    ], environment: const {});
+    final envOptions = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {'TAGFLOW_PROFILE_HOLD_OPEN_SECONDS': '30'},
+    );
+
+    expect(cliOptions.profileHoldOpen, isTrue);
+    expect(cliOptions.profileHoldOpenSeconds, 45);
+    expect(envOptions.profileHoldOpen, isTrue);
+    expect(envOptions.profileHoldOpenSeconds, 30);
+  });
+
+  test('uses the default hold-open duration when enabled without seconds', () {
+    final options = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {'TAGFLOW_PROFILE_HOLD_OPEN': 'true'},
+    );
+
+    expect(options.profileHoldOpen, isTrue);
+    expect(options.profileHoldOpenSeconds, 120);
+  });
+
   test('rejects malformed profile pairs', () {
     expect(
       () => ProfileBaselineCliOptions.parse(const [
         '--pair=tagflow_semantic_patch',
+      ], environment: const {}),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects non-positive profile checkpoint hold-open seconds', () {
+    expect(
+      () => ProfileBaselineCliOptions.parse(const [
+        '--profile-hold-open-seconds=0',
       ], environment: const {}),
       throwsFormatException,
     );
