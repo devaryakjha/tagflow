@@ -210,10 +210,11 @@ The benchmark harness is real but still alpha-grade:
   streaming lane.
 - The authored-ID ordered-insertion benchmark pair is now also landed and
   documented. The patch lane uses ordered `insertBefore(...)` updates for
-  authored sibling insertions, and the bounded repeat-3 review note lives at
-  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
+  authored sibling insertions, and the bounded repeat-3 and repeat-5 review
+  notes live under `docs/benchmarks/baselines/`.
   This remains report-only completion evidence, not a threshold update or
-  faster/slower claim; repeat-5 is still the next stronger reference rerun.
+  faster/slower claim. The repeat-5 run completed and passed the direct check,
+  but still surfaced report-only update-path outliers in both lanes.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving

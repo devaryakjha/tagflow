@@ -284,12 +284,11 @@ instead of coupling Tagflow to one imperative update model.
 - The runtime patch API now supports ordered sibling insertion directly, so the
   authored-insertion patch lane now uses `insertBefore(...)` for authored
   sibling insertions instead of replacing the whole parent on every update.
-- A bounded repeat-3 ordered-insertion review note is now recorded in
-  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
-  Keep the repeat-5 caveat explicit: the repeat-3 rerun is useful completion
-  evidence, but it is not a threshold update or performance claim, and repeat-5
-  remains the next stronger reference run if the coordinator needs more
-  confidence.
+- Bounded repeat-3 and repeat-5 ordered-insertion review notes are now recorded
+  in `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`
+  and `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat5.md`.
+  They are useful completion evidence, but neither note is a threshold update
+  or performance claim.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
   cost dominates.
 - Consider a controller only after at least one real app needs imperative
@@ -311,22 +310,18 @@ TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks \
   dart run melos run benchmark:profile
 ```
 
-Next measurement slice to implement:
+Current authored-insertion evidence:
 
-- Add a future fixture such as `streaming_ai_authored_insertions` for
-  controlled HTML that can emit stable `data-tagflow-id` values across updates.
-- Model insertions ahead of existing siblings so the fixture exercises the exact
+- `streaming_ai_authored_insertions` now covers controlled HTML that emits
+  stable `data-tagflow-id` values across updates.
+- The fixture models insertions ahead of existing siblings, exercising the
   churn case that path IDs cannot preserve.
-- Measure two report-only lanes on the same reference runner:
-  `tagflow_semantic` reparsing HTML with
-  `TagflowHtmlNodeIdStrategy.attribute()`, and
-  `tagflow_semantic_patch` applying equivalent semantic document updates.
-- Capture the same viewport, update, update-latency, and final scroll payloads
-  as the current semantic pair. Do not add timing thresholds or faster/slower
-  claims to this slice.
-- Keep the paired repeat-5 caveat attached to the review note: the current
-  patch lane is measurable but recorded old-gen GC on every repeat and one
-  raster miss.
+- The report-only pair measures `tagflow_semantic` reparsing HTML with
+  `TagflowHtmlNodeIdStrategy.attribute()` against `tagflow_semantic_patch`
+  applying equivalent ordered document updates.
+- The repeat-5 ordered-insertion note completed the paired runner and direct
+  check, but still recorded report-only update-path outliers in both lanes.
+  Keep the lane as evidence, not as a timing threshold or faster/slower claim.
 
 Acceptance for the keyed-node slice:
 

@@ -65,9 +65,9 @@ published.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
-  benchmark claims, stronger repeat-5 reference-runner evidence for the landed
-  authored-ID ordered-insertion pair, and profile-mode evidence on a supported
-  real-app target.
+  benchmark claims, review of report-only update-path outliers from the landed
+  authored-ID ordered-insertion repeat-5 run, and profile-mode evidence on a
+  supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -398,11 +398,11 @@ Master review gate:
 - The authored-ID insertion scenario has landed for controlled dynamic HTML.
   It compares identity-preserving full reparses against equivalent ordered
   document patch updates on the same semantic benchmark surface, and the
-  repeat-3 ordered-insertion review note is now recorded in
-  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`.
+  repeat-3 and repeat-5 ordered-insertion review notes are now recorded under
+  `docs/benchmarks/baselines/`.
   Keep the result report-only: it is bounded evidence, not a threshold update
-  or faster/slower claim, and repeat-5 remains the next stronger reference
-  rerun.
+  or faster/slower claim. The repeat-5 run completed but still surfaced
+  report-only update-path outliers in both lanes.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
