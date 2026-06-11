@@ -35,6 +35,7 @@ The public-claim qualification checklist and operating runbook now live in
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
 | Native JSON profile lane | [`baselines/2026-06-12-native-json-repeat5-local-baseline.md`](baselines/2026-06-12-native-json-repeat5-local-baseline.md) | The example-app profile harness collected `15 / 15` native JSON cells for `native_ai_answer`, `native_table_dense`, and `native_large_article` with five repeats. Static summaries include `coldInitialRender`, `warmRebuild`, `warmScroll`, and macOS local-runner launch attribution. | Local stabilization evidence, not a timing threshold. |
 | Memory evidence probe | [`baselines/2026-06-12-memory-allocation-evidence-probe.md`](baselines/2026-06-12-memory-allocation-evidence-probe.md) | `flutter drive --profile-memory` produced bounded DevTools memory JSON for `tagflow_native_json:native_large_article` and `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`. | Feasibility evidence only. |
+| Memory repeat-5 local status | [`baselines/2026-06-12-memory-allocation-repeat5-local-status.md`](baselines/2026-06-12-memory-allocation-repeat5-local-status.md) | Required macOS repeat-5 profile baselines now exist for `tagflow:large_article`, `tagflow:table_stress`, and the authored-insertion control/patch pair, with bounded `--profile-memory` JSON captured for those lanes plus optional `tagflow_native_json:native_large_article`. | Report-only memory evidence; allocation claims still blocked by missing snapshots and diffs. |
 | Physical target probe | [`baselines/2026-06-12-physical-target-qualification-pending.md`](baselines/2026-06-12-physical-target-qualification-pending.md) | The one-repeat probe reached a real wireless iOS device candidate, but failed before app install because Xcode could not make the destination mountable/available. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 
@@ -141,10 +142,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   Flutter, but it is still a separate fixture path and is not an equivalent
   HTML comparator or patch-envelope comparator.
 - Memory/allocation: GC counts are captured in profile summaries, and a bounded
-  `--profile-memory` probe confirmed automated DevTools memory JSON capture for
-  one native JSON lane plus one dynamic patch lane. Heap snapshots, allocation
-  diffs, repeat-based memory baselines, and control-lane comparisons remain
-  follow-up work. Use
+  `--profile-memory` capture now exists for the required macOS HTML lanes, the
+  authored-insertion control/patch pair, and one optional native-support lane.
+  Reviewed repeat-5 baselines also exist for those lanes. Heap snapshots,
+  allocation diffs, retained-object review, and promotion from bounded samples
+  to reviewed allocation evidence remain follow-up work. Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
   for the capture sequence and reviewed note requirements.
 - Frame attribution: update-frame attribution exists for streaming updates, and
