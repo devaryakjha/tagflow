@@ -18,12 +18,17 @@
 
 # 🌊 tagflow
 
-Transform HTML markup into native Flutter widgets with an elegant, customizable converter. Supports rich text formatting, lists, code blocks, and blockquotes with extensive styling options.
+Tagflow is moving from an HTML-first renderer to a native rich content runtime
+for Flutter apps. It renders semantic `TagflowDocument` content with native
+Flutter widgets and keeps HTML support through the first-party
+`TagflowHtmlAdapter`.
 
 ## ✨ Features
 
-- 🎯 Convert HTML to native Flutter widgets
-- 🎨 Extensive styling customization
+- 🎯 Render `TagflowDocument` content with native Flutter widgets
+- 🔄 Parse HTML through the first-party `TagflowHtmlAdapter`
+- 🛡️ Apply explicit content policy rules to adapter input
+- 🎨 Theme and style supported rich content
 - 📱 Responsive and adaptive layouts
 - 🔌 Plugin architecture for custom elements
 - 🎭 Theme support with dark mode
@@ -168,6 +173,9 @@ TagflowTheme.article(
 ## Documentation
 
 Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and examples.
+
+For the v1 alpha migration direction, see
+[`docs/migration/2026-06-11-tagflow-v1-alpha-migration.md`](../../docs/migration/2026-06-11-tagflow-v1-alpha-migration.md).
 
 ## Contributing
 
