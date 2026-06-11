@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `1437d95 feat(benchmarks): add flutter_html profile adapter`
+- Snapshot commit: `daf32d8 fix(benchmarks): suppress macos integration warning`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -106,6 +106,10 @@ The benchmark harness is real but still alpha-grade:
   `flutter_html_table` for the shared `ai_answer_rich` table fixture. Local
   `benchmark:profile` smoke runs passed for both `TAGFLOW_RENDERER=tagflow` and
   `TAGFLOW_RENDERER=flutter_html`.
+- The macOS `benchmark:profile` script now passes
+  `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
+  Flutter `integration_test plugin was not detected` warning while preserving
+  the VM-service JSON result path used by `integrationDriver()`.
 
 ## Known Non-Completion Points
 
@@ -119,5 +123,5 @@ The benchmark harness is real but still alpha-grade:
   padding/background, and spacing hints.
 - Profile benchmarking is real but not production-grade yet: broader competitor
   coverage, additional fixtures, nightly/reference-runner baselines, and the
-  current Flutter `integration_test plugin was not detected` warning remain
-  follow-up work before using frame timings as a release gate.
+  remaining macOS CocoaPods/SPM migration warning remain follow-up work before
+  using frame timings as a release gate.

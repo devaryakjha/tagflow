@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated implementation commit:
-  `1437d95 feat(benchmarks): add flutter_html profile adapter`
+  `daf32d8 fix(benchmarks): suppress macos integration warning`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -34,10 +34,11 @@ published.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the example app has a profile-mode benchmark harness with renderer and fixture
   selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus a first
-  `flutter_html` competitor adapter.
-- Post-alpha stabilization in progress: broader competitor coverage, profile
-  warning diagnosis, table styling parity, richer fixtures, reference-runner
-  baselines, and internal app validation.
+  `flutter_html` competitor adapter. The macOS integration-test plugin warning
+  has a narrow benchmark-script suppression while preserving JSON output.
+- Post-alpha stabilization in progress: broader competitor coverage, table
+  styling parity, richer fixtures, reference-runner baselines, macOS SPM
+  migration cleanup, and internal app validation.
 
 ## Current Constraints
 
@@ -327,8 +328,10 @@ Master review gate:
 - The profile harness supports renderer and fixture selection.
 - The first fair native competitor adapter, `flutter_html` plus
   `flutter_html_table`, is committed with local smoke evidence.
-- Active work: diagnose the current `integration_test plugin was not detected`
-  warning and record only profile data that was actually run.
+- The `integration_test plugin was not detected` warning is suppressed for the
+  `flutter drive` profile harness with
+  `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`; benchmark JSON still
+  comes from the VM-service `integrationDriver()` response path.
 
 ### Wave 3: Runtime Features for Alpha
 
@@ -354,8 +357,9 @@ Master review gate:
 - `dart run melos run validate` and `dart run melos run publish:dry-run` have
   passed on the coordinator branch.
 - Local benchmark baseline exists.
-- Do not treat profile timings as a release gate until the integration-test
-  warning is diagnosed and reference-runner baselines exist.
+- Do not treat profile timings as a release gate until reference-runner
+  baselines exist and the remaining macOS CocoaPods/SPM migration warning is
+  either fixed or explicitly accepted.
 
 ## Branch and Thread Policy
 
@@ -380,11 +384,10 @@ Master review gate:
 
 - Thread ID: `019eb530-0400-7c62-8211-834b5e8fe0f3`
 - Worktree: `/Users/arya/.codex/worktrees/bdde/tagflow`
-- Ownership: reproduce and diagnose `integration_test plugin was not detected`
-  during `benchmark:profile`, then either safely fix the harness or document a
-  precise limitation.
-- Exclusions: broad macOS project migration unless clearly required and
-  low-risk.
+- Status: integrated as `daf32d8 fix(benchmarks): suppress macos integration
+  warning`.
+- Remaining follow-up: the separate macOS CocoaPods/SPM migration warning still
+  appears during dependency/build preparation and is not fixed by this slice.
 
 ## Alpha Decisions
 
@@ -399,8 +402,7 @@ Master review gate:
   complete yet.
 - Benchmark fixtures, parser microbenchmarks, and widget render benchmarks are
   local alpha harnesses. Production benchmark claims still need broader
-  competitor coverage, profile-warning diagnosis, and reference-runner
-  baselines.
+  competitor coverage and reference-runner baselines.
 - Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
