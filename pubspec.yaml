@@ -138,6 +138,7 @@ melos:
       run: >
         cd packages/tagflow_benchmarks &&
         dart run bin/run_profile_baselines.dart
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
       description: Run a repeated profile benchmark matrix and persist JSON
 
     benchmark:profile:summarize:
@@ -145,6 +146,7 @@ melos:
         cd packages/tagflow_benchmarks &&
         dart run bin/summarize_profile_baselines.dart
         --run-id=${TAGFLOW_PROFILE_RUN_ID}
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
       description: Summarize a persisted profile benchmark baseline run
 
     benchmark:profile:check:
@@ -152,6 +154,7 @@ melos:
         cd packages/tagflow_benchmarks &&
         dart run bin/check_profile_baseline.dart
         --run-id=${TAGFLOW_PROFILE_RUN_ID}
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
         --min-repeats=${TAGFLOW_PROFILE_MIN_REPEATS:-1}
       description: Check profile benchmark baseline collection completeness
 

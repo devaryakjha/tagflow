@@ -75,15 +75,16 @@ File _resolveSummaryFile(Map<String, String> values, Directory workspaceRoot) {
     throw const FormatException('Provide --summary=<path> or --run-id=<id>.');
   }
 
+  final outputDirectory =
+      values['output-dir'] ??
+      Platform.environment['TAGFLOW_PROFILE_OUTPUT_DIR'] ??
+      p.join('build', 'benchmarks', 'profile');
+  final resolvedOutputDirectory = p.isAbsolute(outputDirectory)
+      ? outputDirectory
+      : p.join(workspaceRoot.path, outputDirectory);
+
   return File(
-    p.join(
-      workspaceRoot.path,
-      'build',
-      'benchmarks',
-      'profile',
-      runId,
-      'profile-baseline-summary.json',
-    ),
+    p.join(resolvedOutputDirectory, runId, 'profile-baseline-summary.json'),
   );
 }
 
@@ -95,7 +96,9 @@ Usage:
   dart run bin/check_profile_baseline.dart [options]
 
 Options:
-  --run-id=<id>        Baseline run id under build/benchmarks/profile/.
+  --run-id=<id>        Baseline run id under the output directory.
+  --output-dir=<path>  Output directory. Defaults to build/benchmarks/profile.
+                       Also accepts TAGFLOW_PROFILE_OUTPUT_DIR.
   --summary=<path>     Explicit profile-baseline-summary.json path.
   --min-repeats=<n>    Minimum successful repeats per cell. Defaults to 1.
 

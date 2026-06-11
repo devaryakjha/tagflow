@@ -316,12 +316,15 @@ final class ProfileBaselineOutlier {
 /// Summarizes a collected profile baseline matrix.
 ProfileBaselineSummary summarizeProfileBaselineManifest({
   required File manifestFile,
+  Directory? workspaceRoot,
   DateTime Function()? clock,
 }) {
   final manifest =
       jsonDecode(manifestFile.readAsStringSync()) as Map<String, Object?>;
   final manifestDirectory = manifestFile.parent.path;
-  final workspaceRoot = manifestFile.parent.parent.parent.parent.parent.path;
+  final rootPath =
+      workspaceRoot?.path ??
+      manifestFile.parent.parent.parent.parent.parent.path;
   final runs = _readRuns(manifest['runs']);
   final successfulRuns = runs
       .where((run) => run.status == 'passed' && run.artifactPath != null)
@@ -350,7 +353,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
     if (artifactPath == null) {
       continue;
     }
-    final artifactFile = File(p.join(workspaceRoot, artifactPath));
+    final artifactFile = File(p.join(rootPath, artifactPath));
     final metrics = _readMetrics(artifactFile);
     final record = _ProfileBaselineRunRecord(run: run, metrics: metrics);
     final key = '${run.renderer}::${run.fixture}';
@@ -418,8 +421,8 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
 
   return ProfileBaselineSummary(
     runId: manifest['runId']! as String,
-    manifestPath: p.relative(manifestFile.path, from: workspaceRoot),
-    runDirectory: p.relative(manifestDirectory, from: workspaceRoot),
+    manifestPath: p.relative(manifestFile.path, from: rootPath),
+    runDirectory: p.relative(manifestDirectory, from: rootPath),
     generatedAt: (clock ?? DateTime.now)().toUtc(),
     totalRuns: runs.length,
     successfulRuns: successfulRuns,
@@ -432,10 +435,12 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
 /// Writes a summary JSON file next to [manifestFile].
 File writeProfileBaselineSummary({
   required File manifestFile,
+  Directory? workspaceRoot,
   DateTime Function()? clock,
 }) {
   final summary = summarizeProfileBaselineManifest(
     manifestFile: manifestFile,
+    workspaceRoot: workspaceRoot,
     clock: clock,
   );
   return File(p.join(manifestFile.parent.path, 'profile-baseline-summary.json'))

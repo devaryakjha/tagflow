@@ -147,4 +147,70 @@ void main() {
       ]),
     );
   });
+
+  test('summarizes manifests stored in a custom output directory', () {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_summary_custom_output_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final runDirectory = Directory(
+      p.join(workspaceRoot.path, 'tmp', 'profile-runs', 'custom-run'),
+    )..createSync(recursive: true);
+    final artifactPath = p.join(
+      'tmp',
+      'profile-runs',
+      'custom-run',
+      'tagflow',
+      'ai_answer_rich',
+      'repeat-01.json',
+    );
+
+    File(p.join(workspaceRoot.path, artifactPath))
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        jsonEncode(<String, Object?>{
+          'tagflow_ai_answer_rich_scroll': <String, Object?>{
+            'average_frame_build_time_millis': 0.2,
+            '90th_percentile_frame_build_time_millis': 0.3,
+            'worst_frame_build_time_millis': 0.4,
+            'average_frame_rasterizer_time_millis': 0.8,
+            '90th_percentile_frame_rasterizer_time_millis': 1.1,
+            'worst_frame_rasterizer_time_millis': 4.0,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 23,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+        }),
+      );
+
+    final manifestFile =
+        File(p.join(runDirectory.path, 'profile-baseline-manifest.json'))
+          ..writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'runId': 'custom-run',
+              'outputDirectory': p.join('tmp', 'profile-runs', 'custom-run'),
+              'runs': [
+                <String, Object?>{
+                  'renderer': 'tagflow',
+                  'fixture': 'ai_answer_rich',
+                  'repeat': 1,
+                  'status': 'passed',
+                  'artifactPath': artifactPath,
+                },
+              ],
+            }),
+          );
+
+    final summary = summarizeProfileBaselineManifest(
+      manifestFile: manifestFile,
+      workspaceRoot: workspaceRoot,
+      clock: () => DateTime.utc(2026, 6, 11, 8),
+    );
+
+    expect(summary.runDirectory, p.join('tmp', 'profile-runs', 'custom-run'));
+    expect(summary.cellSummaries.single.observedRepeats, 1);
+  });
 }

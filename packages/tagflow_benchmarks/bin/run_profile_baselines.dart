@@ -81,7 +81,9 @@ final class _ProfileBaselineCliOptions {
           Platform.environment['TAGFLOW_PROFILE_DEVICE'] ??
           'macos',
       outputDirectory:
-          values['output-dir'] ?? p.join('build', 'benchmarks', 'profile'),
+          values['output-dir'] ??
+          Platform.environment['TAGFLOW_PROFILE_OUTPUT_DIR'] ??
+          p.join('build', 'benchmarks', 'profile'),
       continueOnFailure: _boolFlag(
         values['continue-on-failure'] ??
             Platform.environment['TAGFLOW_PROFILE_CONTINUE_ON_FAILURE'],
@@ -149,6 +151,7 @@ Options:
   --repeat=<count>    Repeats per renderer/fixture pair. Defaults to 3.
   --device=<id>       Flutter device id. Defaults to macos.
   --output-dir=<path> Output directory. Defaults to build/benchmarks/profile.
+                      Also accepts TAGFLOW_PROFILE_OUTPUT_DIR.
   --run-id=<id>       Optional stable run id for deterministic artifact paths.
   --continue-on-failure=true
                     Keep running the selected matrix and write failed runs to

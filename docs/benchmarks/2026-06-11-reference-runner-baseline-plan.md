@@ -104,6 +104,8 @@ variables:
 - `--fixture=ai_answer_rich,table_dense` or `TAGFLOW_FIXTURE=ai_answer_rich`
 - `--repeat=5` or `TAGFLOW_PROFILE_REPEAT=5`
 - `--device=macos` or `TAGFLOW_PROFILE_DEVICE=macos`
+- `--output-dir=build/benchmarks/profile-candidate` or
+  `TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-candidate`
 - `--continue-on-failure=true` or
   `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true`
 
@@ -144,6 +146,7 @@ The summary command:
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_PROFILE_RUN_ID=<run-id> \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile \
 dart run melos run benchmark:profile:summarize
 ```
 
@@ -158,6 +161,7 @@ The check command turns collection completeness into a machine-readable gate:
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_PROFILE_RUN_ID=<run-id> \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile \
 TAGFLOW_PROFILE_MIN_REPEATS=5 \
 dart run melos run benchmark:profile:check
 ```
@@ -175,6 +179,12 @@ cd packages/tagflow_benchmarks
 dart run bin/summarize_profile_baselines.dart --run-id=<run-id>
 dart run bin/check_profile_baseline.dart --run-id=<run-id> --min-repeats=5
 ```
+
+When a run was collected with a non-default output directory, pass the same
+`--output-dir` or `TAGFLOW_PROFILE_OUTPUT_DIR` value to summarize and check.
+The summary library resolves artifact paths from the workspace root rather than
+from a fixed folder depth, so explicit manifests under custom output locations
+remain valid.
 
 ## Metrics Policy
 
