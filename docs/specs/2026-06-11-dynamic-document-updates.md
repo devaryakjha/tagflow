@@ -210,16 +210,16 @@ instead of coupling Tagflow to one imperative update model.
   failure, duplicate-ID failure, replacement-ID validation, and untouched
   branch identity preservation.
 
-### Next implementation slice
+### Landed benchmark slice
 
-Add a patch-based semantic document streaming benchmark lane:
-
-- Adapt `ai_answer_rich` into a base semantic document once.
-- Apply `TagflowDocumentPatch` updates for progressive chunks instead of
-  reparsing HTML on every update.
-- Record the same update-latency payload shape as the current
-  `tagflow_semantic` `streaming_ai_chunks` lane.
-- Keep the result report-only until reviewed reference-runner baselines exist.
+- The example profile harness includes a patch-based semantic document
+  streaming lane: `TAGFLOW_RENDERER=tagflow_semantic_patch` with
+  `TAGFLOW_FIXTURE=streaming_ai_patches`.
+- The patch lane adapts `ai_answer_rich` into a semantic document once, then
+  applies `TagflowDocumentPatch` updates to append progressive child batches.
+- Local macOS profile smoke evidence confirms the lane emits viewport, update,
+  update-latency, and final scroll payloads. The result remains report-only
+  until reviewed reference-runner baselines exist.
 
 ### Later implementation slices
 
@@ -263,13 +263,15 @@ Acceptance for the patch API slice:
 - Replacement node IDs must match the target ID.
 - Untouched branches preserve object identity where practical.
 
-Acceptance for the next patch benchmark slice:
+Acceptance for the patch benchmark slice:
 
 - Existing keyed-render widget tests continue to prove state preservation across
   stable-ID reorders.
 - Add a patch-based semantic document streaming benchmark lane that adapts
   `ai_answer_rich` once, applies document patches for each chunk, and records
   the same update-latency payload shape as the HTML semantic lane.
+- The lane uses `tagflow_semantic_patch` plus `streaming_ai_patches` so it can
+  be measured independently from full-reparse `tagflow_semantic`.
 - On the same reference runner, semantic patch updates should not be slower
   than the current full-reparse HTML lane for `streaming_ai_chunks`. Treat
   timing as report-only until reviewed baselines exist.

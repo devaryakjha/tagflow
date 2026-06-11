@@ -198,8 +198,15 @@ The benchmark harness is real but still alpha-grade:
   replace-node, append-children, and remove-node operations through the public
   runtime barrel. Focused runtime coverage proves missing-target failure,
   duplicate-ID failure, replacement-ID validation, ordered patch application,
-  and untouched branch identity preservation. No document controller, adapter
-  cache, or patch-based benchmark lane has landed yet.
+  and untouched branch identity preservation. No document controller or adapter
+  cache has landed yet.
+- The example profile harness now includes a report-only semantic document
+  patch lane: `TAGFLOW_RENDERER=tagflow_semantic_patch` with
+  `TAGFLOW_FIXTURE=streaming_ai_patches`. It adapts the rich AI-answer HTML
+  fixture into a `TagflowDocument` once, applies `TagflowDocumentPatch`
+  append-child updates over four stream steps, and emits the same viewport,
+  update, update-latency, and final scroll payload families as the full-reparse
+  streaming lane.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving
