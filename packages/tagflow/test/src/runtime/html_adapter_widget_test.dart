@@ -62,6 +62,28 @@ void main() {
       );
     });
 
+    testWidgets('html entrypoint renders table captions through built-ins', (
+      tester,
+    ) async {
+      const html = '''
+<table>
+  <caption>Revenue summary</caption>
+  <tr><td>Q1</td></tr>
+</table>
+''';
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Tagflow.html(html: html)),
+      );
+
+      expect(find.byType(Table), findsOneWidget);
+      expect(find.text('Revenue summary'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Revenue summary')).dy,
+        lessThan(tester.getTopLeft(find.byType(Table)).dy),
+      );
+    });
+
     testWidgets('custom legacy converters keep compatibility path', (
       tester,
     ) async {
@@ -272,6 +294,25 @@ void main() {
       expect(cell.presentation.hints['padding'], const EdgeInsets.all(4));
     });
 
+    test('bridges HTML table captions back to legacy table metadata', () {
+      const html = '''
+<table>
+  <caption>Revenue summary</caption>
+  <tr><td>Q1</td></tr>
+</table>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+
+      final legacyNode = TagflowHtmlDocumentBridge.toLegacyNode(document);
+
+      expect(legacyNode, isA<TagflowTableElement>());
+      final table = legacyNode as TagflowTableElement;
+      expect(table.rows, hasLength(1));
+      expect(table.caption, isNotNull);
+      expect(table.caption!.tag, 'caption');
+      expect(_flattenLegacyText(table.caption!), 'Revenue summary');
+    });
+
     test('drops blocked elements with the default content policy', () {
       const html =
           '<p>Safe</p><script>alert(1)</script><iframe src="/x"></iframe>';
@@ -462,4 +503,12 @@ List<TagflowNode> _findLegacyTags(TagflowNode node, String tag) {
     if (node.tag == tag) node,
     for (final child in node.children) ..._findLegacyTags(child, tag),
   ];
+}
+
+String _flattenLegacyText(TagflowNode node) {
+  final buffer = StringBuffer(node.textContent ?? '');
+  for (final child in node.children) {
+    buffer.write(_flattenLegacyText(child));
+  }
+  return buffer.toString();
 }

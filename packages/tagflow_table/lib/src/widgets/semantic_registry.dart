@@ -77,7 +77,7 @@ final class _SemanticTableRenderer {
       return const SizedBox.shrink();
     }
 
-    return TagflowTable(
+    final tableWidget = TagflowTable(
       rowCount: layout.rowCount,
       columnCount: layout.columnCount,
       border: resolvedBorder,
@@ -88,6 +88,17 @@ final class _SemanticTableRenderer {
       columnSpacing: resolvedColumnSpacing,
       rowSpacing: resolvedRowSpacing,
       children: layout.cells,
+    );
+
+    final caption = _captionWidget(context, node);
+    if (caption == null) {
+      return tableWidget;
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [caption, tableWidget],
     );
   }
 }
@@ -240,6 +251,25 @@ Widget _renderCellContent(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: blocks,
   );
+}
+
+Widget? _captionWidget(
+  TagflowComponentContext context,
+  TagflowDocumentNode table,
+) {
+  for (final child in table.children) {
+    if (_htmlTag(child) == 'caption') {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(fontWeight: FontWeight.w600),
+          child: context.render(child),
+        ),
+      );
+    }
+  }
+
+  return null;
 }
 
 bool _isInlineCellNode(TagflowDocumentNode node) {

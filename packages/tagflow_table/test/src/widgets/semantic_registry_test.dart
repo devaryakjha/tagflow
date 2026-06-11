@@ -281,6 +281,33 @@ void main() {
       expect(_paddingForText(tester, 'Row backed'), const EdgeInsets.all(6));
       expect(_paddingForText(tester, 'Cell backed'), const EdgeInsets.all(4));
     });
+
+    testWidgets('renders HTML table captions through the semantic registry', (
+      tester,
+    ) async {
+      const html = '''
+<table>
+  <caption>Revenue summary</caption>
+  <tr><th>Quarter</th><th>Revenue</th></tr>
+  <tr><td>Q1</td><td>12.4</td></tr>
+</table>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      expect(find.byType(TagflowTable), findsOneWidget);
+      expect(find.text('Revenue summary'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Revenue summary')).dy,
+        lessThan(tester.getTopLeft(find.byType(TagflowTable)).dy),
+      );
+    });
   });
 }
 

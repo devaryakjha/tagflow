@@ -136,11 +136,21 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     inlineSemantics: _inlineSemanticsForHtmlTag(node.tag),
     hints: _presentationHintsForLegacyNode(node),
   );
+  final tableCaption = node is TagflowTableElement ? node.caption : null;
   final children = [
     for (final indexed in node.children.indexed)
       if (_documentNodeFromLegacy(
             indexed.$2,
             [...path, indexed.$1],
+            documentSource,
+            policy,
+          )
+          case final child?)
+        child,
+    if (tableCaption != null)
+      if (_documentNodeFromLegacy(
+            tableCaption,
+            [...path, node.children.length],
             documentSource,
             policy,
           )
@@ -360,7 +370,16 @@ TagflowNode _legacyNodeFromDocumentNode(TagflowDocumentNode node) {
   };
 
   if (node.kind == TagflowNodeKind.table || tag == 'table') {
-    final rows = children;
+    TagflowNode? caption;
+    final rows = <TagflowNode>[];
+    for (final child in children) {
+      if (child.tag == 'caption' && caption == null) {
+        caption = child;
+      } else {
+        rows.add(child);
+      }
+    }
+
     return TagflowTableElement(
       tag: tag,
       rowCount: _metadataInt(node, _tableRowCountKey) ?? rows.length,
@@ -368,6 +387,7 @@ TagflowNode _legacyNodeFromDocumentNode(TagflowDocumentNode node) {
           _metadataInt(node, _tableColumnCountKey) ?? _maxChildCount(rows),
       rows: rows,
       spans: const {},
+      caption: caption,
       attributes: attributes,
     );
   }

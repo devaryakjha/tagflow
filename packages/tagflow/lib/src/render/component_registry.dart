@@ -358,8 +358,7 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
   final rows = node.children.where(
     (child) => child.kind == TagflowNodeKind.tableRow,
   );
-
-  return Padding(
+  final table = Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Table(
       border: TableBorder.all(color: const Color(0x1F000000)),
@@ -372,6 +371,36 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
       ],
     ),
   );
+  final caption = _renderTableCaption(context, node);
+
+  if (caption == null) {
+    return table;
+  }
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [caption, table],
+  );
+}
+
+Widget? _renderTableCaption(
+  TagflowComponentContext context,
+  TagflowDocumentNode table,
+) {
+  for (final child in table.children) {
+    if (_htmlTag(child) == 'caption') {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(fontWeight: FontWeight.w600),
+          child: context.render(child),
+        ),
+      );
+    }
+  }
+
+  return null;
 }
 
 Widget _renderTableRow(
