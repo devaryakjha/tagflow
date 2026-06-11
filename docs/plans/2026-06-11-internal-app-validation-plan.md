@@ -1,7 +1,9 @@
 # Internal App Validation Plan for Tagflow 1.0.0 Alpha
 
-**Status:** Draft for coordinator review
-**Target release line:** `1.0.0-alpha.1`
+**Status:** Updated after Kite hosted-alpha and native transport probes
+**Target release line:** `1.0.0-alpha.1` for the first hosted HTML/runtime
+compatibility trial; `1.0.0-alpha.2` for hosted native JSON transport
+consumption
 **Scope:** one internal Flutter app content surface
 
 ## Goal
@@ -41,16 +43,27 @@ The first validation fixture must include:
 - one unsupported or blocked element to verify predictable failure behavior
 - dark-mode and light-mode screenshots of the same content
 
-## Local Consumption Before Pub Release
+## Consumption Before and After Pub Release
 
-The internal app should consume this checkout through path overrides only. Do
-not publish, tag, or push package tags for the validation trial.
+Before a required Tagflow API is published, the internal app should consume
+this checkout through path overrides only. Do not publish, tag, or push package
+tags just to run a validation trial.
 
-Use this dependency shape in the app's `pubspec.yaml`:
+For native JSON transport after the alpha.2 candidate, use this hosted
+dependency shape only after `tagflow` `1.0.0-alpha.2` is published:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-alpha.1
+  tagflow: ^1.0.0-alpha.2
+  tagflow_table: ^1.0.0-alpha.1
+```
+
+Until that publish happens, use local overrides for the Tagflow checkout under
+test:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0-alpha.2
   tagflow_table: ^1.0.0-alpha.1
 
 dependency_overrides:
@@ -77,6 +90,10 @@ Refresh dependencies from the internal app root:
 PATH=/Users/arya/fvm/cache.git/bin:$PATH flutter pub get
 ```
 
+For Kite specifically, use Kite's repo-local Flutter SDK/FVM workflow rather
+than the Tagflow FVM path; the shared Tagflow path resolves to a pre-release
+toolchain that is unsuitable for Kite dependency solving on this machine.
+
 Confirm the lockfile resolved both packages from local paths:
 
 ```bash
@@ -89,6 +106,13 @@ Pass criteria:
 - No hosted `tagflow` package is used during the trial.
 - The override is isolated to the validation branch and can be removed in one
   revert commit.
+
+After `tagflow` `1.0.0-alpha.2` is published, the next Kite native transport
+trial should remove the local override and add a test fixture against hosted
+dependencies. That fixture should decode trusted native JSON, adapt it to a
+`TagflowDocument`, apply a patch envelope, and assert the expected text update.
+It should not reintroduce a diagnostics screen or rewrite the IPO production
+path before the hosted API compiles cleanly.
 
 ## Integration Shape
 
