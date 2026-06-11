@@ -170,6 +170,8 @@ void main() {
                   'fixture': 'ai_answer_rich',
                   'repeat': 1,
                   'status': 'passed',
+                  'startedAt': '2026-06-11T07:00:00.000Z',
+                  'finishedAt': '2026-06-11T07:00:01.000Z',
                   'artifactPath':
                       'build/benchmarks/profile/2026-06-11-reference/'
                       'tagflow/ai_answer_rich/repeat-01.json',
@@ -179,6 +181,8 @@ void main() {
                   'fixture': 'ai_answer_rich',
                   'repeat': 2,
                   'status': 'passed',
+                  'startedAt': '2026-06-11T07:01:00.000Z',
+                  'finishedAt': '2026-06-11T07:01:02.000Z',
                   'artifactPath':
                       'build/benchmarks/profile/2026-06-11-reference/'
                       'tagflow/ai_answer_rich/repeat-02.json',
@@ -254,6 +258,43 @@ void main() {
     expect(cell.launchAttribution.status, 'available');
     expect(cell.launchAttribution.observedRepeats, 2);
     expect(cell.launchAttribution.missingRepeats, 0);
+    expect(
+      cell.launchAttribution.caveats,
+      containsAll(<String>[
+        'not_process_cold_start',
+        'command_envelope_includes_melos_flutter_drive_and_artifact_copy',
+        'cold_initial_render_is_first_fixture_render_inside_integration_test',
+      ]),
+    );
+    expect(cell.launchAttribution.commandEnvelope, isNotNull);
+    expect(
+      cell.launchAttribution.commandEnvelope!.scope,
+      'flutter_drive_command_envelope',
+    );
+    expect(
+      cell.launchAttribution.commandEnvelope!.isProcessColdStartMetric,
+      isFalse,
+    );
+    expect(cell.launchAttribution.commandEnvelope!.observedRepeats, 2);
+    expect(cell.launchAttribution.commandEnvelope!.durationMicros.min, 1000000);
+    expect(cell.launchAttribution.commandEnvelope!.durationMicros.max, 2000000);
+    expect(
+      cell.launchAttribution.commandEnvelope!.startedAt.min,
+      DateTime.utc(2026, 6, 11, 7),
+    );
+    expect(
+      cell.launchAttribution.commandEnvelope!.finishedAt.max,
+      DateTime.utc(2026, 6, 11, 7, 1, 2),
+    );
+    expect(cell.launchAttribution.firstFixtureRender, isNotNull);
+    expect(
+      cell.launchAttribution.firstFixtureRender!.phase,
+      'coldInitialRender',
+    );
+    expect(
+      cell.launchAttribution.firstFixtureRender!.isProcessColdStartMetric,
+      isFalse,
+    );
     expect(cell.launchAttribution.provenances, [
       'macos_app_delegate_uptime_markers_v1',
     ]);
@@ -372,6 +413,14 @@ void main() {
     expect(summary.cellSummaries.single.launchAttribution.unavailableReasons, [
       'missing_launch_attribution_payload',
     ]);
+    expect(
+      summary.cellSummaries.single.launchAttribution.commandEnvelope,
+      isNull,
+    );
+    expect(
+      summary.cellSummaries.single.launchAttribution.caveats,
+      contains('not_process_cold_start'),
+    );
   });
 
   test('summarizes legacy update latencies without phase fields', () {

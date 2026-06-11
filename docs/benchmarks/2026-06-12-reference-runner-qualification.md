@@ -252,10 +252,12 @@ Blocked until all qualification gates pass:
 
 ## Follow-Up Implementation Threads
 
-1. Add app-launch phase attribution to the profile harness so static
-   `coldInitialRender`, `warmRebuild`, and `warmScroll` phases are not
-   mistaken for process cold-start evidence. Current runner artifacts do not
-   expose a defensible launch metric; see
+1. Extend app-launch attribution beyond the current macOS local-runner slice:
+   capture app first-frame markers and physical iOS/Android launch markers
+   before promoting any process cold-start metric. The current summary schema
+   distinguishes the Flutter-drive command envelope, native macOS markers,
+   and `coldInitialRender` fixture render, all with a
+   `not_process_cold_start` caveat; see
    [`2026-06-12-app-launch-attribution-scope.md`](2026-06-12-app-launch-attribution-scope.md).
 2. Re-run the native JSON fixture matrix on the eventual promoted stable
    reference target after physical-target qualification and reference

@@ -270,6 +270,9 @@ final class ProfileBaselineLaunchAttributionSummary {
     required this.missingRepeats,
     required this.provenances,
     required this.scopes,
+    required this.caveats,
+    required this.commandEnvelope,
+    required this.firstFixtureRender,
     required this.intervalMicros,
     required this.unavailableReasons,
   });
@@ -289,6 +292,15 @@ final class ProfileBaselineLaunchAttributionSummary {
   /// Unique evidence scopes from supporting artifacts.
   final List<String> scopes;
 
+  /// Machine-readable limits that prevent cold-start overclaiming.
+  final List<String> caveats;
+
+  /// Harness process envelope captured by the profile baseline runner.
+  final ProfileBaselineCommandEnvelopeSummary? commandEnvelope;
+
+  /// First fixture render phase captured after the integration test starts.
+  final ProfileBaselineFirstFixtureRenderSummary? firstFixtureRender;
+
   /// Interval summaries keyed by interval name in microseconds.
   final Map<String, ProfileBaselineNumberSummary> intervalMicros;
 
@@ -302,11 +314,110 @@ final class ProfileBaselineLaunchAttributionSummary {
     'missingRepeats': missingRepeats,
     if (provenances.isNotEmpty) 'provenances': provenances,
     if (scopes.isNotEmpty) 'scopes': scopes,
+    if (caveats.isNotEmpty) 'caveats': caveats,
+    if (commandEnvelope != null) 'commandEnvelope': commandEnvelope!.toJson(),
+    if (firstFixtureRender != null)
+      'firstFixtureRender': firstFixtureRender!.toJson(),
     if (intervalMicros.isNotEmpty)
       'intervalMicros': intervalMicros.map(
         (name, summary) => MapEntry(name, summary.toJson()),
       ),
     if (unavailableReasons.isNotEmpty) 'unavailableReasons': unavailableReasons,
+  };
+}
+
+/// Flutter-drive command envelope captured outside the app process.
+final class ProfileBaselineCommandEnvelopeSummary {
+  /// Creates a command-envelope summary.
+  const ProfileBaselineCommandEnvelopeSummary({
+    required this.observedRepeats,
+    required this.scope,
+    required this.source,
+    required this.isProcessColdStartMetric,
+    required this.startedAt,
+    required this.finishedAt,
+    required this.durationMicros,
+  });
+
+  /// Successful repeats with manifest command timestamps.
+  final int observedRepeats;
+
+  /// Boundary represented by this envelope.
+  final String scope;
+
+  /// Manifest fields used to build the envelope.
+  final String source;
+
+  /// Whether this envelope is a defensible process cold-start metric.
+  final bool isProcessColdStartMetric;
+
+  /// Command start timestamp range across repeats.
+  final ProfileBaselineTimestampRange startedAt;
+
+  /// Command finish timestamp range across repeats.
+  final ProfileBaselineTimestampRange finishedAt;
+
+  /// Command elapsed time distribution across repeats.
+  final ProfileBaselineNumberSummary durationMicros;
+
+  /// Converts this command-envelope summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'observedRepeats': observedRepeats,
+    'scope': scope,
+    'source': source,
+    'isProcessColdStartMetric': isProcessColdStartMetric,
+    'startedAt': startedAt.toJson(),
+    'finishedAt': finishedAt.toJson(),
+    'durationMicros': durationMicros.toJson(),
+  };
+}
+
+/// Timestamp range across repeated profile runs.
+final class ProfileBaselineTimestampRange {
+  /// Creates a timestamp range.
+  const ProfileBaselineTimestampRange({required this.min, required this.max});
+
+  /// Earliest observed timestamp.
+  final DateTime min;
+
+  /// Latest observed timestamp.
+  final DateTime max;
+
+  /// Converts this timestamp range to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'min': min.toUtc().toIso8601String(),
+    'max': max.toUtc().toIso8601String(),
+  };
+}
+
+/// First fixture-render attribution captured inside the integration test.
+final class ProfileBaselineFirstFixtureRenderSummary {
+  /// Creates a first fixture-render summary.
+  const ProfileBaselineFirstFixtureRenderSummary({
+    required this.phase,
+    required this.observedRepeats,
+    required this.source,
+    required this.isProcessColdStartMetric,
+  });
+
+  /// Summary phase containing the first fixture render.
+  final String phase;
+
+  /// Successful repeats that emitted this phase.
+  final int observedRepeats;
+
+  /// Artifact field used to build the phase summary.
+  final String source;
+
+  /// Whether this phase is a defensible process cold-start metric.
+  final bool isProcessColdStartMetric;
+
+  /// Converts this first fixture-render summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'phase': phase,
+    'observedRepeats': observedRepeats,
+    'source': source,
+    'isProcessColdStartMetric': isProcessColdStartMetric,
   };
 }
 
@@ -1031,12 +1142,81 @@ ProfileBaselineLaunchAttributionSummary _buildLaunchAttributionSummary(
     scopes: _uniqueStrings(
       available.map((payload) => payload.scope).whereType<String>(),
     ),
+    caveats: const <String>[
+      'not_process_cold_start',
+      'command_envelope_includes_melos_flutter_drive_and_artifact_copy',
+      'cold_initial_render_is_first_fixture_render_inside_integration_test',
+    ],
+    commandEnvelope: _buildCommandEnvelopeSummary(records),
+    firstFixtureRender: _buildFirstFixtureRenderSummary(records),
     intervalMicros: Map<String, ProfileBaselineNumberSummary>.unmodifiable(
       intervalSamples.map(
         (name, values) => MapEntry(name, _summarizeDoubles(values)),
       ),
     ),
     unavailableReasons: unavailableReasons,
+  );
+}
+
+ProfileBaselineCommandEnvelopeSummary? _buildCommandEnvelopeSummary(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final timestampedRecords = records
+      .where((record) => record.run.startedAt != null)
+      .where((record) => record.run.finishedAt != null)
+      .toList(growable: false);
+  if (timestampedRecords.isEmpty) {
+    return null;
+  }
+
+  final startedAtValues =
+      timestampedRecords
+          .map((record) => record.run.startedAt!)
+          .toList(growable: false)
+        ..sort();
+  final finishedAtValues =
+      timestampedRecords
+          .map((record) => record.run.finishedAt!)
+          .toList(growable: false)
+        ..sort();
+  final durationMicros = timestampedRecords.map((record) {
+    return record.run.finishedAt!
+        .difference(record.run.startedAt!)
+        .inMicroseconds;
+  });
+
+  return ProfileBaselineCommandEnvelopeSummary(
+    observedRepeats: timestampedRecords.length,
+    scope: 'flutter_drive_command_envelope',
+    source: 'ProfileBaselineRunner.startedAt_finishedAt',
+    isProcessColdStartMetric: false,
+    startedAt: ProfileBaselineTimestampRange(
+      min: startedAtValues.first,
+      max: startedAtValues.last,
+    ),
+    finishedAt: ProfileBaselineTimestampRange(
+      min: finishedAtValues.first,
+      max: finishedAtValues.last,
+    ),
+    durationMicros: _summarizeInts(durationMicros),
+  );
+}
+
+ProfileBaselineFirstFixtureRenderSummary? _buildFirstFixtureRenderSummary(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final observedRepeats = records
+      .where((record) => record.initialRenderMetrics != null)
+      .length;
+  if (observedRepeats == 0) {
+    return null;
+  }
+
+  return ProfileBaselineFirstFixtureRenderSummary(
+    phase: 'coldInitialRender',
+    observedRepeats: observedRepeats,
+    source: 'IntegrationTestWidgetsFlutterBinding.watchPerformance',
+    isProcessColdStartMetric: false,
   );
 }
 
@@ -1107,6 +1287,8 @@ final class _ManifestRun {
     required this.exitCode,
     required this.logPath,
     required this.artifactPath,
+    required this.startedAt,
+    required this.finishedAt,
   });
 
   final String renderer;
@@ -1116,6 +1298,8 @@ final class _ManifestRun {
   final int? exitCode;
   final String? logPath;
   final String? artifactPath;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
 }
 
 List<_ManifestRun> _readRuns(Object? rawRuns) {
@@ -1131,9 +1315,22 @@ List<_ManifestRun> _readRuns(Object? rawRuns) {
           exitCode: json['exitCode'] as int?,
           logPath: json['logPath'] as String?,
           artifactPath: json['artifactPath'] as String?,
+          startedAt: _readOptionalDateTime(json, 'startedAt'),
+          finishedAt: _readOptionalDateTime(json, 'finishedAt'),
         );
       })
       .toList(growable: false);
+}
+
+DateTime? _readOptionalDateTime(Map<String, Object?> payload, String key) {
+  final value = payload[key];
+  if (value == null) {
+    return null;
+  }
+  if (value is! String || value.trim().isEmpty) {
+    throw FormatException('Expected optional ISO-8601 timestamp "$key".');
+  }
+  return DateTime.parse(value).toUtc();
 }
 
 Map<String, int> _countRunStatuses(List<_ManifestRun> runs) {

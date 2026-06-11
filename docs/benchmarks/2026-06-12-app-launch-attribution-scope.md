@@ -69,6 +69,16 @@ The summary model now preserves that boundary explicitly:
 - `framePhaseSummaries.coldInitialRender`, `warmRebuild`, and `warmScroll`
   remain unchanged and are not reinterpreted as launch time
 - `launchAttribution.status` is `available`, `partial`, or `unavailable`
+- `launchAttribution.commandEnvelope` summarizes the per-repeat
+  `ProfileBaselineRunner.startedAt` / `finishedAt` timestamps as a
+  `flutter_drive_command_envelope`; it is marked
+  `isProcessColdStartMetric: false`
+- `launchAttribution.firstFixtureRender` points to
+  `framePhaseSummaries.coldInitialRender` when the artifact contains that
+  first fixture-render phase, also marked `isProcessColdStartMetric: false`
+- `launchAttribution.caveats` includes `not_process_cold_start` so downstream
+  tools cannot treat the harness envelope or fixture phase as a process
+  cold-start measurement
 - `benchmark:profile:check` emits report-only findings when launch attribution
   is missing or partial
 
@@ -80,13 +90,16 @@ It does not measure:
 
 - process exec before `AppDelegate` initialization
 - first Flutter frame from a native launch origin
+- app first-frame timing independent of the integration-test fixture render
 - iOS or Android launch timing
 - any thresholded regression gate
 
-## Required Runner Change
+## Required Cross-Platform Runner Change
 
-A truthful app-launch slice needs explicit launch instrumentation before the
-integration test starts measuring fixture phases.
+The current slice is enough to prevent static fixture phases from being
+mistaken for process cold-start evidence. A future cross-platform app-launch
+metric still needs explicit launch instrumentation before the integration test
+starts measuring fixture phases.
 
 Minimum viable design:
 
