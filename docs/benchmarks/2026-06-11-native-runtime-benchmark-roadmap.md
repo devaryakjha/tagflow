@@ -33,7 +33,8 @@ The public-claim qualification checklist and operating runbook now live in
 | Semantic streaming pair | [`baselines/2026-06-11-semantic-streaming-pair-repeat5.md`](baselines/2026-06-11-semantic-streaming-pair-repeat5.md) | Full-reparse semantic streaming and semantic patch streaming are measurable as an ordered pair. Patch lane GC and raster outliers remain diagnostic. | Report-only. |
 | Authored insertion patch pair | [`baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md`](baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md) | Authored-ID insertion and ordered patch paths complete five repeats with update-frame attribution. | Report-only. |
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
-| Native JSON profile lane | `tagflow_native_json:native_ai_answer`, `tagflow_native_json:native_table_dense`, and `tagflow_native_json:native_large_article` | The example-app profile harness can render trusted native block JSON fixtures as `TagflowDocument` without the HTML parser. Static summaries include `coldInitialRender`, `warmRebuild`, and `warmScroll`. | Report-only smoke. |
+| Native JSON profile lane | [`baselines/2026-06-12-native-json-repeat5-local-baseline.md`](baselines/2026-06-12-native-json-repeat5-local-baseline.md) | The example-app profile harness collected `15 / 15` native JSON cells for `native_ai_answer`, `native_table_dense`, and `native_large_article` with five repeats. Static summaries include `coldInitialRender`, `warmRebuild`, `warmScroll`, and macOS local-runner launch attribution. | Local stabilization evidence, not a timing threshold. |
+| Memory evidence probe | [`baselines/2026-06-12-memory-allocation-evidence-probe.md`](baselines/2026-06-12-memory-allocation-evidence-probe.md) | `flutter drive --profile-memory` produced bounded DevTools memory JSON for `tagflow_native_json:native_large_article` and `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`. | Feasibility evidence only. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 
 ## Benchmark Tiers
@@ -135,13 +136,17 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   overhead only. The native JSON profile lane renders decoded native blocks in
   Flutter, but it is still a separate fixture path and is not an equivalent
   HTML comparator or patch-envelope comparator.
-- Memory/allocation: GC counts are captured in profile summaries, but heap
-  snapshots and allocation profiles are still manual follow-up work. Use
+- Memory/allocation: GC counts are captured in profile summaries, and a bounded
+  `--profile-memory` probe confirmed automated DevTools memory JSON capture for
+  one native JSON lane plus one dynamic patch lane. Heap snapshots, allocation
+  diffs, repeat-based memory baselines, and control-lane comparisons remain
+  follow-up work. Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
   for the capture sequence and reviewed note requirements.
 - Frame attribution: update-frame attribution exists for streaming updates, and
-  static first-render, warm-rebuild, and warm-scroll phases are split. App
-  cold-start attribution is not yet split.
+  static first-render, warm-rebuild, and warm-scroll phases are split. macOS
+  local-runner launch markers are recorded separately as `launchAttribution`,
+  but they are not generic app cold-start metrics.
 - Regression thresholds: no numeric performance thresholds are justified yet.
   The current policy intentionally blocks numeric regression gates.
 
@@ -330,13 +335,13 @@ Interpretation:
 - do not claim patch streaming is faster until GC and raster behavior are
   explained across a promoted reference environment
 
-Native JSON profile smoke:
+Native JSON profile local baseline:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_PROFILE_PAIR=tagflow_native_json:native_ai_answer,tagflow_native_json:native_table_dense,tagflow_native_json:native_large_article \
-TAGFLOW_PROFILE_REPEAT=1 \
-TAGFLOW_PROFILE_RUN_ID=alpha3-native-json-smoke \
+TAGFLOW_PROFILE_REPEAT=5 \
+TAGFLOW_PROFILE_RUN_ID=alpha3-native-json-repeat5 \
 TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-alpha3-native-json \
 dart run melos run benchmark:profile:baselines
 ```
@@ -349,6 +354,7 @@ Capture:
 - viewport metadata
 - `coldInitialRender`, `warmRebuild`, and `warmScroll` phase summaries emitted
   by the profile summary
+- `launchAttribution.status` and provenance/scope
 
 Interpretation:
 
@@ -410,14 +416,14 @@ Required:
 - default macOS reference matrix completes five repeats per cell
 - profile check passes with the report-only policy
 - dynamic update pair completes five repeats or records a reviewed blocker
-- native JSON profile smoke completes or records a reviewed blocker
+- native JSON profile repeat baseline completes or records a reviewed blocker
 - reviewed baseline notes list caveats and do not add numeric thresholds
 
 Recommended:
 
 - at least one physical-device qualification probe with `continue-on-failure`
-- DevTools memory review for large article, table stress, and patch update
-  paths
+- playbook-complete DevTools memory review for large article, table stress, and
+  patch update paths
 
 Blocked until a future threshold review:
 
@@ -427,16 +433,12 @@ Blocked until a future threshold review:
 
 ## Recommended Next Implementation Threads
 
-1. Add cold/warm phase separation to the profile harness so app launch,
-   first render, warmed scroll, warmed rebuild, and update phases are reported
-   independently.
-2. Collect reviewed memory/allocation baseline notes for `large_article`,
-   `table_stress`, and dynamic patch lanes using the playbook in
+1. Collect playbook-complete memory/allocation baseline notes for
+   `large_article`, `table_stress`, and dynamic patch lanes using the playbook in
    `2026-06-12-memory-allocation-evidence-playbook.md`.
-3. Promote the native JSON profile matrix from one-repeat smoke to repeat-based
-   baseline capture, while keeping transport microbench and render profile
-   metrics separate.
-4. Add physical-device qualification docs for iOS and Android, including
+2. Add physical-device qualification docs for iOS and Android, including
    install prerequisites and failure-classification language.
-5. Add a threshold proposal document only after a stable reference environment
+3. Record real-app profile-mode evidence for the hosted-alpha production
+   surface, separate from debug probes and converter-free test harnesses.
+4. Add a threshold proposal document only after a stable reference environment
    is selected and a fresh repeat-5 matrix is reviewed.
