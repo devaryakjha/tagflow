@@ -518,8 +518,11 @@ Status: completed for focused package coverage and hosted Kite alpha3
 widget-test evidence. Kite commit `80160401` renders checked-in IPO HTML
 fixture content through `Tagflow.html(..., registry: ...)` with
 `tagflowTableComponents(...)`, while preserving production IPO rendering on the
-legacy converter bridge. That commit is local on Kite `feat/dashboard` until
-GitLab DNS access is restored.
+legacy converter bridge. A follow-up isolated Kite branch,
+`codex/ipo-tagflow-registry-content`, prepares content-only production rendering
+through the registry path as `e26a14e6` while keeping excerpt rendering on the
+legacy bridge. Both Kite commits remain local until GitLab DNS access is
+restored, and neither is profile evidence.
 
 Files:
 
@@ -589,7 +592,8 @@ Acceptance:
 3. `feat(adapter): define native transport version policy`
    - small code and test slice for unknown kind and schema-version behavior.
 4. `test(app): migrate one production content surface to the registry path`
-   - future work only after product approval; keep legacy production rendering
-     intact until a real route and profile target are available.
+   - prepared as Kite branch `codex/ipo-tagflow-registry-content` commit
+     `e26a14e6`; keep it separate from profile evidence until the app branch is
+     pushed, merged, and validated through a real route on a supported target.
 5. `docs(api): prepare beta public surface review`
    - export and compatibility classification before any beta.0 version work.

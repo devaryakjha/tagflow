@@ -443,9 +443,10 @@ to republish the extension package.
 - `Tagflow.html(..., registry: ...)` has focused package widget coverage for
   semantic overrides, legacy-converter precedence, and registry-only rebuilds
   without reparsing. Hosted widget-test validation is done in Kite commit
-  `80160401` locally on `feat/dashboard`; current production rendering still
-  uses the legacy converter bridge, and the push/profile evidence remains
-  separate.
+  `80160401` locally on `feat/dashboard`; a separate isolated Kite branch
+  `codex/ipo-tagflow-registry-content` prepares content-only production
+  rendering through the registry path as `e26a14e6`. Push, merge, real-route
+  validation, and profile evidence remain separate.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
