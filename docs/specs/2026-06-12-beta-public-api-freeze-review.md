@@ -452,11 +452,13 @@ to republish the extension package.
 - `package:tagflow/legacy.dart` support window is written in migration docs.
   Done in "Compatibility Support Windows".
 - Main-barrel style APIs either stop depending on `legacy.dart` value types or
-  that coupling is explicitly frozen as part of beta compatibility policy.
+  that coupling is explicitly frozen as part of beta compatibility policy. Done:
+  shared style primitives are intentionally exported from the primary style
+  surface, and style libraries no longer import them through `legacy.dart`.
 - `tagflow_table` low-level render-object exports are either intentionally
-  classified for beta support or narrowed before the freeze. The semantic table
-  candidate surface is currently `tagflowTableComponents(...)` plus
-  `TagflowTableBorder`.
+  classified for beta support or narrowed before the freeze. Done: the public
+  barrel is narrowed to the semantic extension surface, `TagflowTableBorder`,
+  and legacy compatibility converters.
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
