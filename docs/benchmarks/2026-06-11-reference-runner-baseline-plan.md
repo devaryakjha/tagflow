@@ -141,8 +141,9 @@ later reviewed baseline document.
 The summary command:
 
 ```bash
-cd packages/tagflow_benchmarks
-dart run bin/summarize_profile_baselines.dart --run-id=<run-id>
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<run-id> \
+dart run melos run benchmark:profile:summarize
 ```
 
 writes `profile-baseline-summary.json` next to the manifest. In addition to
@@ -154,10 +155,10 @@ failure until the logs are inspected and the run is repeated successfully.
 The check command turns collection completeness into a machine-readable gate:
 
 ```bash
-cd packages/tagflow_benchmarks
-dart run bin/check_profile_baseline.dart \
-  --run-id=<run-id> \
-  --min-repeats=5
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<run-id> \
+TAGFLOW_PROFILE_MIN_REPEATS=5 \
+dart run melos run benchmark:profile:check
 ```
 
 This gate intentionally checks only profile collection completeness today: no
@@ -165,6 +166,14 @@ failed or missing runs, `successfulRuns == totalRuns`, at least one successful
 renderer/fixture cell, and the requested successful repeat count per cell. It
 does not enforce frame-time thresholds until a named reference machine has a
 reviewed baseline and regression policy.
+
+The underlying package CLIs remain available for direct use:
+
+```bash
+cd packages/tagflow_benchmarks
+dart run bin/summarize_profile_baselines.dart --run-id=<run-id>
+dart run bin/check_profile_baseline.dart --run-id=<run-id> --min-repeats=5
+```
 
 ## Metrics Policy
 

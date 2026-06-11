@@ -182,6 +182,10 @@ The benchmark harness is real but still alpha-grade:
   totalRuns`, at least one summarized cell, and a configurable minimum
   successful repeat count per renderer/fixture cell. It deliberately does not
   enforce frame-time thresholds before a reviewed reference baseline exists.
+- Melos now exposes the baseline handoff as `benchmark:profile:summarize` and
+  `benchmark:profile:check`, driven by `TAGFLOW_PROFILE_RUN_ID` and
+  `TAGFLOW_PROFILE_MIN_REPEATS`, so reference-runner collection, summary, and
+  completeness gating can be run from the workspace command surface.
 
 ## Known Non-Completion Points
 
