@@ -43,6 +43,7 @@ or beta release copy.
 - `TagflowDocumentNode`
 - `TagflowDocumentNode.copyWith(...)`
 - `TagflowNodeKind`
+- `TagflowNodeKind.unsupported`
 - `TagflowDocumentQueries`
 - `TagflowDocumentPatch`
 - `TagflowDocumentUpdates`
@@ -72,16 +73,17 @@ flag is an `ArgumentError`.
 
 `alpha-only review required`:
 
-- `TagflowNodeKind.unsupported`
 - `TagflowDocument.version`
 
-Rationale: unsupported placeholders and document-version semantics are public.
-Preserved policy-rejection placeholders now have a tested neutral renderer.
+Rationale: `TagflowNodeKind.unsupported` is now frozen as a runtime placeholder
+kind, not as the native JSON unknown-kind compatibility model. Preserved
+policy-rejection placeholders have a tested neutral renderer, and unsupported
+runtime nodes with children render through the child-preserving fallback.
 Unknown producer block kinds are not placeholders in the alpha native JSON
 transport; they fail during codec decode before adaptation. The beta line still
 needs a vocabulary decision only if Tagflow wants a future unknown-block
-compatibility model. `TagflowDocument.version` must also stay clearly described
-as runtime schema rather than app payload schema.
+compatibility model. `TagflowDocument.version` must stay clearly described as
+runtime schema rather than app payload schema.
 
 ### Rendering Registry
 
@@ -95,15 +97,30 @@ Rationale: the registry is the native runtime extension point. It cleanly
 separates semantic document input from Flutter widget construction and is the
 right direction for app-owned and first-party extension renderers.
 
-`alpha-only review required`:
+Current fallback policy:
 
-- Registry fallback behavior for unmapped or unsupported runtime node kinds.
+- `TagflowComponentRegistry.builtIn` has a component or fallback path for every
+  current `TagflowNodeKind`.
+- `TagflowComponentRegistry(...)` creates a full registry. Even with no
+  overrides or extensions, it includes built-in components and the built-in
+  fallback. App overrides take precedence over extension components, which take
+  precedence over built-ins.
+- Leaf `TagflowNodeKind.unsupported` nodes render as a neutral "Unsupported
+  content" placeholder and do not expose rejection details in visible text.
+- Unsupported or otherwise unmapped runtime nodes with children render through
+  the built-in fallback, preserving children. HTML-origin inline hints may
+  still apply presentation such as strong/emphasis/highlight.
+- Leaf unmapped runtime nodes with no children render as empty space through
+  the fallback.
+- `TagflowComponentRegistry.components(...)` creates an extension fragment, not
+  a full render registry. If a fragment is used directly without a fallback,
+  `canRender(...)` is false for missing kinds and `render(...)` throws
+  `UnsupportedError`.
 
-Rationale: the mechanism exists, but beta needs a documented policy for when
-fallbacks should preserve content, fail loudly, or render placeholders. Current
-alpha behavior is intentionally narrower: renderer fallbacks may render
-runtime `unsupported` nodes and unmapped semantic nodes, but they do not receive
-unknown native JSON producer kinds because those fail during codec decode.
+Rationale: this closes the beta ambiguity for runtime registry fallbacks. The
+renderer fallback layer is separate from native JSON transport compatibility:
+unknown native producer `kind` values still fail during codec decode before any
+runtime registry can see them.
 
 ### Widget Entry Points and View Options
 
@@ -219,17 +236,25 @@ Rationale: adapter-owned content policy is central to the native runtime story.
 Generated or remote content must be validated before it becomes renderable
 runtime input.
 
-`alpha-only review required`:
+Current native block policy matrix:
 
-- exact default behavior for every known native block rejected by policy.
+- `link` is URL-bearing. A rejected link URL degrades to a neutral
+  `container`, preserves already-adapted children, and records
+  `policyDecisionReason` metadata.
+- `image` is URL-bearing. A rejected image URL is dropped when
+  `unsupportedBehavior` is `drop`, which is the default. With
+  `preservePlaceholder`, it becomes a runtime `unsupported` node with policy
+  metadata, and the built-in renderer shows the neutral placeholder.
+- No other current `TagflowNativeBlockKind` has a URL-bearing field consumed by
+  the adapter. Non-URL validation failures for known blocks, such as missing
+  required attributes or invalid schema versions, remain adapter/codec errors
+  rather than renderer fallback nodes.
 
-Rationale: native policy-rejection behavior is now documented for the reviewed
-alpha cases but is not one uniform shape for every block. URL-bearing links
-whose URLs are rejected degrade to a neutral container that preserves child
-content with policy metadata; rejected image blocks are dropped by default or
-become runtime `unsupported` placeholders when `preservePlaceholder` is set.
-Beta should either keep those per-kind semantics or define a broader semantic
-policy matrix before calling the content-policy surface frozen.
+Rationale: the beta line can freeze the current per-kind policy semantics for
+known native URL-bearing blocks. This does not freeze a future unknown-block
+compatibility vocabulary; unknown native JSON producer kinds remain strict
+codec failures until beta explicitly introduces a versioned unknown-block
+model.
 
 ### Style and Theme Surface
 

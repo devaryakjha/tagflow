@@ -376,6 +376,11 @@ kinds. The current alpha implementation has two reviewed rejection paths:
   degrades to a neutral `container` node, preserves already-adapted children,
   and records the policy reason in metadata.
 
+No other current `TagflowNativeBlockKind` has a URL-bearing field consumed by
+the adapter. Missing required attributes, invalid block IDs, unsupported schema
+versions, and unknown producer kinds remain validation or codec failures rather
+than renderer fallback nodes.
+
 The built-in runtime renderer displays preserved leaf placeholders as neutral
 "Unsupported content" rather than leaking the rejected payload details.
 

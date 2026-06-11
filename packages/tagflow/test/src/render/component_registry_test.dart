@@ -21,6 +21,42 @@ void main() {
       },
     );
 
+    testWidgets('distinguishes full registries from extension fragments', (
+      tester,
+    ) async {
+      final fullRegistry = TagflowComponentRegistry();
+      final fragment = TagflowComponentRegistry.components(
+        components: const {},
+      );
+
+      expect(fullRegistry.hasComponent(TagflowNodeKind.paragraph), isTrue);
+      expect(fullRegistry.canRender(TagflowNodeKind.paragraph), isTrue);
+      expect(fragment.hasComponent(TagflowNodeKind.paragraph), isFalse);
+      expect(fragment.canRender(TagflowNodeKind.paragraph), isFalse);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              return fragment.render(
+                context,
+                TagflowDocumentNode.paragraph(id: 'paragraph'),
+              );
+            },
+          ),
+        ),
+      );
+
+      expect(
+        tester.takeException(),
+        isA<UnsupportedError>().having(
+          (error) => error.message,
+          'message',
+          contains('No Tagflow component registered'),
+        ),
+      );
+    });
+
     testWidgets('uses app override before built-in component', (tester) async {
       final registry = TagflowComponentRegistry(
         overrides: {
