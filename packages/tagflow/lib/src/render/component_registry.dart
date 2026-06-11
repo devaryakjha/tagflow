@@ -140,6 +140,13 @@ Widget _renderContainer(
     return _renderDisclosure(context, node);
   }
 
+  if (_htmlTag(node) == 'summary') {
+    return _applyInlinePresentation(
+      node.presentation,
+      Wrap(children: context.renderChildren(node)),
+    );
+  }
+
   final isInline =
       node.presentation.inlineSemantics.isNotEmpty ||
       _isInlineFallbackTag(_htmlTag(node));

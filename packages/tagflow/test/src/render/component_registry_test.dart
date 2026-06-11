@@ -236,6 +236,78 @@ void main() {
       expect(find.text('Bullet'), findsOneWidget);
     });
 
+    testWidgets('renders html details through the document registry', (
+      tester,
+    ) async {
+      final document = const TagflowHtmlAdapter().parse(
+        '<details><summary>Disclosure</summary><p>Hidden body</p></details>',
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(find.text('Disclosure'), findsOneWidget);
+      expect(find.text('Hidden body'), findsNothing);
+
+      await tester.tap(find.text('Disclosure'));
+      await tester.pump();
+
+      expect(find.text('Hidden body'), findsOneWidget);
+
+      await tester.tap(find.text('Disclosure'));
+      await tester.pump();
+
+      expect(find.text('Hidden body'), findsNothing);
+    });
+
+    testWidgets('renders open details and fallback summary through registry', (
+      tester,
+    ) async {
+      final openDocument = const TagflowHtmlAdapter().parse(
+        '<details open><summary>Expanded</summary><p>Visible body</p></details>',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(openDocument)),
+      );
+
+      expect(find.text('Expanded'), findsOneWidget);
+      expect(find.text('Visible body'), findsOneWidget);
+
+      final fallbackDocument = const TagflowHtmlAdapter().parse(
+        '<details><p>Fallback body</p></details>',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(fallbackDocument)),
+      );
+
+      expect(find.text('Details'), findsOneWidget);
+      expect(find.text('Fallback body'), findsNothing);
+
+      await tester.tap(find.text('Details'));
+      await tester.pump();
+
+      expect(find.text('Fallback body'), findsOneWidget);
+    });
+
+    testWidgets('keeps mixed summary content inline in disclosure titles', (
+      tester,
+    ) async {
+      final document = const TagflowHtmlAdapter().parse(
+        '<details open><summary>Read <strong>more</strong></summary>'
+        ' <p>Body</p></details>',
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(find.text('Read '), findsOneWidget);
+      expect(find.text('more'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Read ')).dy,
+        tester.getTopLeft(find.text('more')).dy,
+      );
+    });
+
     testWidgets('renders native blockquote and code styling', (tester) async {
       final document = TagflowDocument(
         id: 'doc-quote-code',
