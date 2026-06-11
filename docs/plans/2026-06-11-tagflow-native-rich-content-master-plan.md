@@ -61,7 +61,8 @@ published.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
-  benchmark claims, and profile-mode evidence on a supported real-app target.
+  benchmark claims, patch-based dynamic document benchmark evidence, and
+  profile-mode evidence on a supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -374,6 +375,9 @@ Master review gate:
   `tagflow_semantic` native-runtime renderer ids, so dynamic-content profiling
   can target `TagflowDocument` plus semantic table components instead of only
   the legacy converter bridge.
+- The immutable runtime patch API has landed through `TagflowDocumentPatch` and
+  `TagflowDocumentUpdates.applyPatch(...)`, so the next benchmark step can
+  measure semantic document patch updates against full HTML reparse behavior.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
@@ -390,9 +394,10 @@ Master review gate:
 - The first-party table package now has a semantic registry fragment, inline
   cell-flow parity, normalized presentation hints, and horizontal cell
   alignment, but legacy HTML/CSS styling parity remains incomplete.
-- Document caching, streaming/incremental rendering, citations, callouts, and
-  optional actions remain later work unless internal app integration proves they
-  are required before beta.
+- The first immutable document patch-update slice has landed for replace,
+  append, and remove operations. Patch-based streaming benchmark evidence,
+  document caching, citations, callouts, and optional actions remain later work
+  unless internal app integration proves they are required before beta.
 
 ### Wave 4: Migration and Internal App Trial
 

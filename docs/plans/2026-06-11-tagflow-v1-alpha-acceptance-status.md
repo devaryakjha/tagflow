@@ -194,6 +194,12 @@ The benchmark harness is real but still alpha-grade:
   `TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks`
   macOS profile smoke passed and emitted viewport, update, update-latency, and
   scroll payloads; the result remains report-only.
+- The runtime now exposes immutable `TagflowDocumentPatch` updates for
+  replace-node, append-children, and remove-node operations through the public
+  runtime barrel. Focused runtime coverage proves missing-target failure,
+  duplicate-ID failure, replacement-ID validation, ordered patch application,
+  and untouched branch identity preservation. No document controller, adapter
+  cache, or patch-based benchmark lane has landed yet.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving

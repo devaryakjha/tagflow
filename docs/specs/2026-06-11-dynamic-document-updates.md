@@ -1,6 +1,6 @@
 # Tagflow Dynamic Document Updates SPEC
 
-**Status:** Draft for next implementation slice
+**Status:** Active post-alpha stabilization SPEC
 **Last Updated:** 2026-06-11
 **Target Release Line:** post-`1.0.0-alpha.1` stabilization
 **Primary Audience:** Tagflow runtime, adapter, table-extension, and benchmark
@@ -140,8 +140,7 @@ there is a proven need for imperative lifecycle ownership.
 
 ## 5. Public API Proposal
 
-This is the proposed public API direction for the next code slice after keyed
-rendering:
+This public API landed in `c4938e0 feat(runtime): add document patch updates`:
 
 ```dart
 final class TagflowDocumentPatch {
@@ -197,36 +196,38 @@ instead of coupling Tagflow to one imperative update model.
 
 ## 6. Internal Architecture Changes
 
-### Landed in this slice
+### Landed slices
 
 - `TagflowComponentRegistry.render(...)` wraps each rendered semantic node in a
   `KeyedSubtree` with `ValueKey<String>(node.id)`.
 - Focused widget coverage proves component state follows semantic node IDs
   across reorder updates.
+- `TagflowDocumentPatch` supports immutable replace, append-children, and
+  remove operations.
+- `TagflowDocumentUpdates.applyPatch(...)` and `applyPatches(...)` landed as
+  extension methods through the runtime public barrel.
+- Runtime patch coverage proves append, replace, remove, missing-target
+  failure, duplicate-ID failure, replacement-ID validation, and untouched
+  branch identity preservation.
 
 ### Next implementation slice
 
-Add a small runtime update module:
+Add a patch-based semantic document streaming benchmark lane:
 
-- `packages/tagflow/lib/src/runtime/document_patch.dart`
-- `packages/tagflow/test/src/runtime/document_patch_test.dart`
-
-Recommended internals:
-
-- Build an ID index before applying a patch.
-- Validate duplicate IDs once per patch batch.
-- Rebuild only ancestors on the path to the changed node.
-- Leave adapter and renderer APIs unchanged.
-- Keep this module independent from Flutter so it can be tested with plain Dart
-  once package constraints allow it.
+- Adapt `ai_answer_rich` into a base semantic document once.
+- Apply `TagflowDocumentPatch` updates for progressive chunks instead of
+  reparsing HTML on every update.
+- Record the same update-latency payload shape as the current
+  `tagflow_semantic` `streaming_ai_chunks` lane.
+- Keep the result report-only until reviewed reference-runner baselines exist.
 
 ### Later implementation slices
 
 - Add HTML adapter ID strategy options after patch semantics exist.
 - Keep `tagflow_semantic` as the current semantic HTML benchmark lane for
   `streaming_ai_chunks`.
-- Add a patch-based semantic document benchmark lane after
-  `TagflowDocumentPatch` exists.
+- Compare the patch-based semantic document benchmark lane against full-reparse
+  `tagflow_semantic` once both run on the same reference runner.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
   cost dominates.
 - Consider a controller only after at least one real app needs imperative
@@ -255,12 +256,17 @@ Acceptance for the keyed-node slice:
 - `streaming_ai_chunks` remains non-gating but must still emit update latency
   and scroll payloads when run locally.
 
-Acceptance for the next patch API slice:
+Acceptance for the patch API slice:
 
 - Unit tests prove append, replace, remove, missing-target failure, and
   duplicate-ID failure.
-- Widget tests prove state preservation across append and reorder with stable
-  IDs.
+- Replacement node IDs must match the target ID.
+- Untouched branches preserve object identity where practical.
+
+Acceptance for the next patch benchmark slice:
+
+- Existing keyed-render widget tests continue to prove state preservation across
+  stable-ID reorders.
 - Add a patch-based semantic document streaming benchmark lane that adapts
   `ai_answer_rich` once, applies document patches for each chunk, and records
   the same update-latency payload shape as the HTML semantic lane.
@@ -304,8 +310,8 @@ New guidance:
 
 ## 10. Open Decisions
 
-- Should `TagflowDocument.applyPatch(...)` live as an extension or an instance
-  method?
+- Should patch helpers stay extension-only through beta, or should they move to
+  instance methods before stable?
 - Should patch application expose a `TagflowDocumentPatchResult` with changed
   IDs and reused IDs, or is the new document enough for the first release?
 - Should duplicate-ID validation happen eagerly in `TagflowDocument` creation,
