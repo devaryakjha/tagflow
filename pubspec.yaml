@@ -76,7 +76,7 @@ melos:
       description: Version packages for stable release
 
     publish:dry-run:
-      run: dart run melos publish --no-private
+      run: dart run melos publish --no-private --yes
       description: Validate publishable packages without publishing
 
     publish:packages:
