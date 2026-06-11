@@ -212,6 +212,10 @@ The benchmark harness is real but still alpha-grade:
   `flutter --version --machine` when `FLUTTER_VERSION` is not set. A one-cell
   smoke run, `2026-06-11T08-39-14-109697Z`, recorded
   `flutterVersion: 3.45.0-0.1.pre (master)` automatically.
+- Future profile artifacts and summaries now include Flutter viewport metadata.
+  A one-cell smoke run, `viewport-smoke`, recorded
+  `800.0 x 600.0` logical, `1600.0 x 1200.0` physical, and
+  `devicePixelRatio=2.0` through the collect, summarize, and check handoff.
 
 ## Known Non-Completion Points
 
@@ -229,7 +233,9 @@ The benchmark harness is real but still alpha-grade:
   default matrix now has a complete repeat-5 reviewed run, but stable
   performance claims still need an intentionally selected stable reference
   machine, pinned display/window conditions, broader target qualification, and
-  threshold policy before using frame timings as a release gate.
+  threshold policy before using frame timings as a release gate. Future raw
+  artifacts can now report the Flutter viewport size and device-pixel ratio,
+  but they still do not pin the desktop window or identify the physical display.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
   on the real app surface, and a deliberate Kite alpha-dependency migration

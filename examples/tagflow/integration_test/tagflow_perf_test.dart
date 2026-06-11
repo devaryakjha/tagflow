@@ -34,6 +34,18 @@ void main() {
 
     expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
 
+    final physicalSize = tester.view.physicalSize;
+    final devicePixelRatio = tester.view.devicePixelRatio;
+    binding.reportData ??= <String, dynamic>{};
+    binding.reportData!['${rendererId}_${fixtureId}_viewport'] =
+        <String, Object?>{
+          'logicalWidth': physicalSize.width / devicePixelRatio,
+          'logicalHeight': physicalSize.height / devicePixelRatio,
+          'physicalWidth': physicalSize.width,
+          'physicalHeight': physicalSize.height,
+          'devicePixelRatio': devicePixelRatio,
+        };
+
     await binding.watchPerformance(() async {
       await tester.fling(
         find.byKey(BenchmarkHost.scrollKey),

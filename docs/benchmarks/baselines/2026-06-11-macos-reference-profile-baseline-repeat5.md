@@ -49,6 +49,11 @@ Follow-up status: this runner gap was fixed after the baseline was collected.
 A later one-cell smoke run,
 `build/benchmarks/profile/2026-06-11T08-39-14-109697Z/`, recorded
 `flutterVersion: 3.45.0-0.1.pre (master)` without setting `FLUTTER_VERSION`.
+Another later one-cell smoke run,
+`build/benchmarks/profile-viewport-smoke/viewport-smoke/`, recorded viewport
+metadata in the raw artifact and summary:
+`logicalWidth=800.0`, `logicalHeight=600.0`, `physicalWidth=1600.0`,
+`physicalHeight=1200.0`, and `devicePixelRatio=2.0`.
 
 ## Commands
 
@@ -161,7 +166,7 @@ Reasons:
 
 ## Follow-Up
 
-1. Pin or record benchmark window size and display placement.
+1. Pin benchmark window size and display placement.
 2. Repeat the matrix on the chosen stable reference machine after Flutter and
    macOS versions are intentionally selected.
 3. Collect supported-target profile evidence in Kite or another internal app

@@ -183,6 +183,13 @@ void main() {
             'new_gen_gc_count': 0,
             'old_gen_gc_count': 0,
           },
+          'tagflow_ai_answer_rich_viewport': <String, Object?>{
+            'logicalWidth': 800.0,
+            'logicalHeight': 632.0,
+            'physicalWidth': 1600.0,
+            'physicalHeight': 1264.0,
+            'devicePixelRatio': 2.0,
+          },
         }),
       );
 
@@ -212,5 +219,8 @@ void main() {
 
     expect(summary.runDirectory, p.join('tmp', 'profile-runs', 'custom-run'));
     expect(summary.cellSummaries.single.observedRepeats, 1);
+    expect(summary.cellSummaries.single.viewports, hasLength(1));
+    expect(summary.cellSummaries.single.viewports.single.logicalWidth, 800.0);
+    expect(summary.cellSummaries.single.viewports.single.devicePixelRatio, 2.0);
   });
 }

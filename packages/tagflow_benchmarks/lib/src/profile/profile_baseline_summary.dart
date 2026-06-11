@@ -125,6 +125,7 @@ final class ProfileBaselineCellSummary {
     required this.missedRasterBudgetCount,
     required this.newGenGcCount,
     required this.oldGenGcCount,
+    required this.viewports,
     required this.outlierRepeats,
   });
 
@@ -170,6 +171,9 @@ final class ProfileBaselineCellSummary {
   /// Old-gen GC counts across repeats.
   final ProfileBaselineCountSummary oldGenGcCount;
 
+  /// Unique viewport configurations observed across repeats.
+  final List<ProfileBaselineViewport> viewports;
+
   /// Repeats that merit reviewer attention.
   final List<ProfileBaselineOutlier> outlierRepeats;
 
@@ -189,9 +193,46 @@ final class ProfileBaselineCellSummary {
     'missedRasterBudgetCount': missedRasterBudgetCount.toJson(),
     'newGenGcCount': newGenGcCount.toJson(),
     'oldGenGcCount': oldGenGcCount.toJson(),
+    'viewports': viewports.map((viewport) => viewport.toJson()).toList(),
     'outlierRepeats': outlierRepeats
         .map((outlier) => outlier.toJson())
         .toList(),
+  };
+}
+
+/// Viewport metadata captured by the profile integration test.
+final class ProfileBaselineViewport {
+  /// Creates viewport metadata.
+  const ProfileBaselineViewport({
+    required this.logicalWidth,
+    required this.logicalHeight,
+    required this.physicalWidth,
+    required this.physicalHeight,
+    required this.devicePixelRatio,
+  });
+
+  /// Logical Flutter view width.
+  final double logicalWidth;
+
+  /// Logical Flutter view height.
+  final double logicalHeight;
+
+  /// Physical Flutter view width.
+  final double physicalWidth;
+
+  /// Physical Flutter view height.
+  final double physicalHeight;
+
+  /// Flutter view device-pixel ratio.
+  final double devicePixelRatio;
+
+  /// Converts this viewport to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'logicalWidth': logicalWidth,
+    'logicalHeight': logicalHeight,
+    'physicalWidth': physicalWidth,
+    'physicalHeight': physicalHeight,
+    'devicePixelRatio': devicePixelRatio,
   };
 }
 
@@ -354,8 +395,12 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       continue;
     }
     final artifactFile = File(p.join(rootPath, artifactPath));
-    final metrics = _readMetrics(artifactFile);
-    final record = _ProfileBaselineRunRecord(run: run, metrics: metrics);
+    final artifact = _readArtifact(artifactFile, run);
+    final record = _ProfileBaselineRunRecord(
+      run: run,
+      metrics: artifact.metrics,
+      viewport: artifact.viewport,
+    );
     final key = '${run.renderer}::${run.fixture}';
     grouped.putIfAbsent(key, () => <_ProfileBaselineRunRecord>[]).add(record);
   }
@@ -404,6 +449,11 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
               oldGenGcCount: _summarizeCounts(
                 records.map((record) => record.metrics.oldGenGcCount),
               ),
+              viewports: _uniqueViewports(
+                records
+                    .map((record) => record.viewport)
+                    .whereType<ProfileBaselineViewport>(),
+              ),
               outlierRepeats: records
                   .map(_detectOutlier)
                   .whereType<ProfileBaselineOutlier>()
@@ -450,10 +500,15 @@ File writeProfileBaselineSummary({
 }
 
 final class _ProfileBaselineRunRecord {
-  const _ProfileBaselineRunRecord({required this.run, required this.metrics});
+  const _ProfileBaselineRunRecord({
+    required this.run,
+    required this.metrics,
+    required this.viewport,
+  });
 
   final _ManifestRun run;
   final _ProfileMetrics metrics;
+  final ProfileBaselineViewport? viewport;
 }
 
 final class _ManifestRun {
@@ -530,37 +585,84 @@ final class _ProfileMetrics {
   final int oldGenGcCount;
 }
 
-_ProfileMetrics _readMetrics(File artifactFile) {
+final class _ProfileArtifact {
+  const _ProfileArtifact({required this.metrics, required this.viewport});
+
+  final _ProfileMetrics metrics;
+  final ProfileBaselineViewport? viewport;
+}
+
+_ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
   final root =
       jsonDecode(artifactFile.readAsStringSync()) as Map<String, Object?>;
-  final payload = root.values.single;
+  final metricsKey = '${run.renderer}_${run.fixture}_scroll';
+  final payload = root[metricsKey] ?? _findMetricsPayload(root);
   if (payload is! Map<String, Object?>) {
     throw const FormatException(
-      'Expected a single benchmark payload object in the profile artifact.',
+      'Expected benchmark frame metrics in the profile artifact.',
     );
   }
 
-  return _ProfileMetrics(
-    frameCount: payload['frame_count']! as int,
-    averageBuildMillis: (payload['average_frame_build_time_millis']! as num)
-        .toDouble(),
-    p90BuildMillis: (payload['90th_percentile_frame_build_time_millis']! as num)
-        .toDouble(),
-    worstBuildMillis: (payload['worst_frame_build_time_millis']! as num)
-        .toDouble(),
-    averageRasterMillis:
-        (payload['average_frame_rasterizer_time_millis']! as num).toDouble(),
-    p90RasterMillis:
-        (payload['90th_percentile_frame_rasterizer_time_millis']! as num)
-            .toDouble(),
-    worstRasterMillis: (payload['worst_frame_rasterizer_time_millis']! as num)
-        .toDouble(),
-    missedBuildBudgetCount: payload['missed_frame_build_budget_count']! as int,
-    missedRasterBudgetCount:
-        payload['missed_frame_rasterizer_budget_count']! as int,
-    newGenGcCount: payload['new_gen_gc_count']! as int,
-    oldGenGcCount: payload['old_gen_gc_count']! as int,
+  final viewportKey = '${run.renderer}_${run.fixture}_viewport';
+  final viewportPayload = root[viewportKey];
+
+  return _ProfileArtifact(
+    metrics: _ProfileMetrics(
+      frameCount: payload['frame_count']! as int,
+      averageBuildMillis: (payload['average_frame_build_time_millis']! as num)
+          .toDouble(),
+      p90BuildMillis:
+          (payload['90th_percentile_frame_build_time_millis']! as num)
+              .toDouble(),
+      worstBuildMillis: (payload['worst_frame_build_time_millis']! as num)
+          .toDouble(),
+      averageRasterMillis:
+          (payload['average_frame_rasterizer_time_millis']! as num).toDouble(),
+      p90RasterMillis:
+          (payload['90th_percentile_frame_rasterizer_time_millis']! as num)
+              .toDouble(),
+      worstRasterMillis: (payload['worst_frame_rasterizer_time_millis']! as num)
+          .toDouble(),
+      missedBuildBudgetCount:
+          payload['missed_frame_build_budget_count']! as int,
+      missedRasterBudgetCount:
+          payload['missed_frame_rasterizer_budget_count']! as int,
+      newGenGcCount: payload['new_gen_gc_count']! as int,
+      oldGenGcCount: payload['old_gen_gc_count']! as int,
+    ),
+    viewport: viewportPayload is Map<String, Object?>
+        ? _readViewport(viewportPayload)
+        : null,
   );
+}
+
+Map<String, Object?>? _findMetricsPayload(Map<String, Object?> root) {
+  for (final value in root.values) {
+    if (value is Map<String, Object?> && value.containsKey('frame_count')) {
+      return value;
+    }
+  }
+  return null;
+}
+
+ProfileBaselineViewport _readViewport(Map<String, Object?> payload) {
+  return ProfileBaselineViewport(
+    logicalWidth: (payload['logicalWidth']! as num).toDouble(),
+    logicalHeight: (payload['logicalHeight']! as num).toDouble(),
+    physicalWidth: (payload['physicalWidth']! as num).toDouble(),
+    physicalHeight: (payload['physicalHeight']! as num).toDouble(),
+    devicePixelRatio: (payload['devicePixelRatio']! as num).toDouble(),
+  );
+}
+
+List<ProfileBaselineViewport> _uniqueViewports(
+  Iterable<ProfileBaselineViewport> viewports,
+) {
+  final unique = <String, ProfileBaselineViewport>{};
+  for (final viewport in viewports) {
+    unique.putIfAbsent(jsonEncode(viewport.toJson()), () => viewport);
+  }
+  return List<ProfileBaselineViewport>.unmodifiable(unique.values);
 }
 
 ProfileBaselineOutlier? _detectOutlier(_ProfileBaselineRunRecord record) {

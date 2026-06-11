@@ -31,10 +31,10 @@ Every reviewed reference baseline must record:
 The profile matrix runner writes the fields it can detect automatically:
 Tagflow version, Dart version, Flutter version/channel from `FLUTTER_VERSION`
 or `flutter --version --machine`, host OS/version, git commit, Flutter device
-id, renderer id, fixture id, repeat count, and artifact paths. Hardware model,
-power state, Melos version, display state, and reviewer notes still need to be
-added to the reviewed baseline document before any external performance claim
-is made.
+id, renderer id, fixture id, repeat count, artifact paths, and Flutter viewport
+size/device-pixel-ratio metadata. Hardware model, power state, Melos version,
+display identity/placement, and reviewer notes still need to be added to the
+reviewed baseline document before any external performance claim is made.
 
 ## Collection Command
 
@@ -155,6 +155,9 @@ metric distributions for passed artifacts, the summary reports `successfulRuns`,
 `runStatusCounts`, and `failedRuns` with log paths. Reviewers should treat any
 non-empty `failedRuns` list as a target qualification or benchmark collection
 failure until the logs are inspected and the run is repeated successfully.
+For artifacts collected after the viewport metadata change, each cell summary
+also reports unique logical/physical viewport sizes and device-pixel-ratio
+values observed across successful repeats.
 
 The check command turns collection completeness into a machine-readable gate:
 
@@ -191,6 +194,7 @@ remain valid.
 Report-only today:
 
 - frame count
+- logical/physical viewport size and device-pixel ratio
 - average, p90, p99, and worst build duration
 - average, p90, p99, and worst raster duration
 - missed build and raster budget counts
