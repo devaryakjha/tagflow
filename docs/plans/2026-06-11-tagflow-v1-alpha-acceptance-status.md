@@ -7,9 +7,11 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `ae5fd01 docs(benchmarks): record capped baseline gate status`
+  `74a9c9c bench(profile): record viewport metadata`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
-  table captions`, `2b2a809 bench(profile): add baseline summary gate`
+  table captions`, `74a9c9c bench(profile): record viewport metadata`,
+  `c137a7b bench(profile): support custom baseline output dirs`,
+  `3df1b5a bench(profile): detect flutter version in manifests`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -69,10 +71,15 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Release review can decide whether to push the package-specific alpha tags:
+1. Benchmark-gating worker is queued to make the next stable-readiness slice:
+   opt-in viewport/environment guard or explicit threshold policy, without
+   changing the existing alpha collection-completeness gate.
+2. Kite integration worker is queued to determine whether a clean alpha
+   dependency branch can be prepared without committing the prior proof-only
+   diagnostics scaffolding, local path overrides, or broad lockfile churn.
+3. Release review should wait for those worker results before deciding whether
+   to push the package-specific alpha tags:
    `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
-2. After tags are pushed, watch the package-specific GitHub Actions publish
-   workflows and verify both packages appear on pub.dev.
 
 ## Release Prep Status
 
