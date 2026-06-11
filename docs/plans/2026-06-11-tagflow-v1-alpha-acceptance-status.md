@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `8e1d1ec fix(ci): validate alpha workspace tests`
+- Snapshot commit: `7c41f5d docs(benchmarks): refresh alpha baseline version`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -78,6 +78,8 @@ The benchmark harness is real but still alpha-grade:
   `/Users/arya/fvm/cache.git/bin` on `PATH`, passes analysis, format checks,
   and coverage tests for `tagflow`, `tagflow_table`, and
   `tagflow_benchmarks`.
+- The local alpha benchmark baseline now reports package version
+  `1.0.0-alpha.1`.
 
 ## Known Non-Completion Points
 
@@ -85,3 +87,6 @@ The benchmark harness is real but still alpha-grade:
   the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
+- A refreshed independent final release audit is pending after the coordinator
+  resolved the earlier example-app validation blocker and benchmark-version
+  baseline mismatch.
