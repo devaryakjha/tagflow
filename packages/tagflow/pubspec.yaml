@@ -1,6 +1,6 @@
 name: tagflow
-description: Transform HTML markup into native Flutter widgets with an elegant, customizable converter.
-version: 0.0.8
+description: Native rich content runtime for Flutter apps, with HTML support through a first-party adapter.
+version: 1.0.0-alpha.1
 repository: https://github.com/devaryakjha/tagflow
 homepage: https://docs.arya.run/tagflow
 issue_tracker: https://github.com/devaryakjha/tagflow/issues

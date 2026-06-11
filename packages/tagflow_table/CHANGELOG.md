@@ -1,3 +1,13 @@
+## 1.0.0-alpha.1
+
+- Aligns `tagflow_table` with the `tagflow` `1.0.0-alpha.1` prerelease line.
+- Updates the package constraint to require the alpha native rich content
+  runtime package.
+- Keeps the existing first-party table converter and render object available as
+  an alpha compatibility bridge for HTML table rendering.
+- This package remains prerelease. The long-term semantic registry integration
+  for table extensions is still part of the alpha stabilization work.
+
 ## 0.0.4+5
 
  - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.

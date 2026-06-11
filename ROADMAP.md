@@ -1,5 +1,19 @@
 # Tagflow Development Roadmap
 
+## v1 Alpha Runtime Direction
+
+- [x] Native `TagflowDocument` model as the canonical runtime input
+- [x] HTML adapter through `TagflowHtmlAdapter` and `Tagflow.html(...)`
+- [x] Direct native document rendering through `Tagflow.document(...)`
+- [x] Content policy for unsafe HTML tags, URL schemes, images, and fallbacks
+- [x] Semantic component registry for built-in renderer overrides
+- [x] Runtime view options separated from HTML adapter compatibility options
+- [x] Legacy compatibility barrel at `package:tagflow/legacy.dart`
+- [x] Alpha benchmark harness for fixtures, parser, and widget render baselines
+- [ ] Stable `1.0.0` API guarantees
+- [ ] Separate adapter packages beyond first-party HTML support
+- [ ] Production-grade benchmark comparisons and profile-mode frame timing
+
 ## Core Architecture
 
 - [x] Basic HTML parsing using `html` package
@@ -8,6 +22,9 @@
 - [x] Style resolution system
 - [x] Theme provider implementation
 - [x] Options scope for configuration
+- [x] Native runtime document model
+- [x] HTML adapter layer
+- [x] Semantic component registry
 - [ ] Error boundary implementation for graceful fallbacks
 
 ## HTML Element Support
@@ -72,6 +89,7 @@
 
 ## Performance Optimization
 
+- [x] Alpha parser and widget render benchmark harness
 - [ ] Widget recycling for long content
 - [ ] Lazy parsing for large documents
 - [ ] Memory optimization for large DOMs
@@ -92,7 +110,8 @@
 
 ## Plugin System
 
-- [ ] Plugin Registry implementation
+- [x] Semantic component registry implementation
+- [ ] First-party table extension migration onto semantic registry APIs
 - [ ] Hot-reload safe plugin loading
 - [ ] Default Plugin Set
   - [ ] Code syntax highlighting
@@ -106,11 +125,11 @@
 - [x] Widget tests for base components
 - [ ] Integration tests
 - [ ] Golden tests for visual regression
-- [ ] Performance benchmarks
+- [x] Alpha performance benchmark harness
 - [x] API Documentation
   - [x] Dart doc comments
   - [ ] Usage examples
-  - [ ] Migration guides
+  - [x] Migration guides
   - [ ] Best practices
 
 ## Developer Experience

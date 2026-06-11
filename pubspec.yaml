@@ -67,6 +67,10 @@ melos:
       run: dart run melos version --prerelease --preid=dev --yes
       description: Version packages with dev tag
 
+    version:alpha:
+      run: dart run melos version --prerelease --preid=alpha --yes
+      description: Version packages with alpha tag
+
     version:stable:
       run: dart run melos version --graduate --yes
       description: Version packages for stable release

@@ -41,6 +41,11 @@ version-dev:
 	dart run melos run version:dev
 	@echo "Version updated to dev!"
 
+version-alpha:
+	@echo "Updating version to alpha..."
+	dart run melos run version:alpha
+	@echo "Version updated to alpha!"
+
 version-stable:
 	@echo "Updating version to stable..."
 	dart run melos run version:stable
@@ -60,4 +65,6 @@ release: test format version-dev version-stable publish
 
 release-dev: test format version-dev publish
 
-.PHONY: create_package sync-git activate-melos bootstrap test format version-dev version-stable publish-dry-run publish release release-dev
+release-alpha: test format version-alpha publish-dry-run
+
+.PHONY: create_package sync-git activate-melos bootstrap test format version-dev version-alpha version-stable publish-dry-run publish release release-dev release-alpha

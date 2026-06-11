@@ -55,9 +55,11 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Re-audit alpha readiness before any version bump.
-2. Prepare the `1.0.0-alpha.1` version/release slice once the readiness audit
-   is accepted.
+1. Review the `1.0.0-alpha.1` release-prep metadata/docs slice.
+2. Before any publish tag, re-run publish dry-run validation from the final
+   release branch.
+3. Push only the package-specific release tags after the final release review
+   accepts the alpha package metadata.
 
 ## Known Non-Completion Points
 

@@ -355,17 +355,19 @@ Master review gate:
 - Exclusions: runtime API implementation files, existing package source, release
   docs, and example app.
 
-## Immediate Open Decisions
+## Alpha Decisions
 
-- Whether the primary API should be constructor-based:
-  `Tagflow.html(...)`, `Tagflow.document(...)`, `Tagflow.markdown(...)`, or a
-  single `Tagflow(content: TagflowContent.html(...))` shape.
-- Whether `TagflowNode` evolves into the public document node model or a new
-  `TagflowDocument` layer wraps it.
-- Whether table rendering remains a separate package for v1 alpha or is folded
-  into core with extension-package compatibility.
-- Which benchmark tooling is acceptable in CI vs local-only.
-- Which internal Flutter app surface will serve as the alpha proving ground.
+- The primary alpha APIs are constructor-based:
+  `Tagflow.html(...)` for HTML adapter input and `Tagflow.document(...)` for
+  native runtime documents.
+- `TagflowDocument` and `TagflowDocumentNode` are the alpha runtime model.
+  Legacy `TagflowNode` remains available through `package:tagflow/legacy.dart`.
+- Table rendering remains a separate first-party package for the alpha line,
+  with compatibility through the legacy converter bridge.
+- Benchmark fixtures, parser microbenchmarks, and widget render benchmarks are
+  local alpha harnesses. Production benchmark claims still need later
+  profile-mode and comparison work.
+- Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
 

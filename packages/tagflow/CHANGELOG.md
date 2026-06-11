@@ -1,3 +1,28 @@
+## 1.0.0-alpha.1
+
+- Introduces the native rich content runtime direction for Tagflow.
+  `TagflowDocument` is now the canonical render input for new runtime usage.
+- Adds `Tagflow.html(...)` as the preferred HTML entry point and
+  `TagflowHtmlAdapter` as the first-party adapter from HTML into the runtime
+  document model.
+- Adds `Tagflow.document(...)` for rendering prebuilt semantic documents.
+- Adds `TagflowContentPolicy` so adapter input can be filtered with explicit
+  rules for unsafe tags, URL schemes, images, and unsupported content.
+- Adds the semantic `TagflowComponentRegistry` extension point for runtime node
+  rendering, including built-in renderer override support.
+- Adds `TagflowViewOptions` for runtime view concerns while keeping
+  `TagflowOptions` as an alpha compatibility wrapper.
+- Keeps render-boundary support for HTML input through `Tagflow.html(...)`,
+  `TagflowHtmlAdapter`, and the legacy options bridge.
+- Curates the main `package:tagflow/tagflow.dart` barrel around alpha runtime
+  APIs and moves parser, converter, selector, and legacy node compatibility
+  APIs to `package:tagflow/legacy.dart`.
+- Adds an alpha benchmark harness for fixtures, parser microbenchmarks, and
+  widget render benchmarks. The harness is intended for local baseline tracking
+  and does not yet support broad production performance claims.
+- This is an alpha prerelease. Browser parity, arbitrary CSS, JavaScript, rich
+  editing, streaming parsing, and stable internals are not promised.
+
 ## 0.0.8
 
  - **FEAT**(parser): add `TagflowRenderBoundary` for optional HTML comment based render ranges.

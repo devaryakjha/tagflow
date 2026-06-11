@@ -1,16 +1,3 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
 <a href="https://zerodha.tech"><img src="https://zerodha.tech/static/images/github-badge.svg" align="right" /></a>
 
 <p align="center">
@@ -25,23 +12,23 @@ and the Flutter guide for
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **IMPORTANT**: This package is currently in development and is part of the Tagflow ecosystem. For production use, please wait for v1.0.0.
-
-> 🚧 **Alpha Release**: APIs may change frequently. Use with caution in production environments.
+> ⚠️ **Alpha prerelease**: `1.0.0-alpha.1` is aligned with the Tagflow native
+> rich content runtime alpha. APIs may change before the stable `1.0.0`
+> release.
 
 # tagflow_table
 
-A Flutter package that provides enhanced HTML table rendering capabilities for the Tagflow HTML rendering engine.
+A first-party table rendering extension for Tagflow. The alpha package remains
+compatible with the HTML adapter and legacy converter bridge while Tagflow moves
+toward a semantic rich content runtime.
 
 ## ✨ Features
 
-- 🔄 Seamless integration with Tagflow core package
-- 📊 Support for complex table structures
-- 🎨 Customizable table styling
-- 📱 Responsive table layouts
-- 🏷️ Support for table headers, footers, and merged cells
-- 🖼️ Border customization options
-- 🎯 Background color support
+- Integration with the `tagflow` `1.0.0-alpha.1` runtime package
+- HTML table converter compatibility through `package:tagflow/legacy.dart`
+- Support for complex table structures, headers, and merged cells
+- Customizable table borders, spacing, separators, and header backgrounds
+- Low-level `TagflowTable` render widget for direct table layouts
 
 ## 📦 Installation
 
@@ -49,17 +36,24 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tagflow_table: ^0.0.1
+  tagflow: ^1.0.0-alpha.1
+  tagflow_table: ^1.0.0-alpha.1
 ```
 
 ## 🚀 Usage
 
+HTML input should enter through `Tagflow.html(...)`. The table extension is
+currently wired through the alpha legacy converter bridge:
+
 ```dart
+import 'package:flutter/widgets.dart';
 import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
-void main() {
-  final html = '''
+class TableArticle extends StatelessWidget {
+  const TableArticle({super.key});
+
+  static const html = '''
     <table>
       <tr>
         <th>Header 1</th>
@@ -72,16 +66,28 @@ void main() {
     </table>
   ''';
 
-  final tagflow = Tagflow(
-    converters: [
-      TableConverter(),
-      // ... other converters
-    ],
-  );
-
-  final widget = tagflow.toWidget(html);
+  @override
+  Widget build(BuildContext context) {
+    return Tagflow.html(
+      html: html,
+      converters: const [
+        TagflowTableConverter(),
+      ],
+    );
+  }
 }
 ```
+
+For parser, converter, selector, and legacy node compatibility APIs, import:
+
+```dart
+import 'package:tagflow/legacy.dart';
+```
+
+New Tagflow runtime code should prefer `package:tagflow/tagflow.dart`,
+`Tagflow.document(...)`, `Tagflow.html(...)`, and semantic registry APIs where
+available. The table extension's semantic registry integration is still an
+alpha stabilization item.
 
 ## 🎨 Customization
 
@@ -166,17 +172,16 @@ final theme = TagflowTheme.raw(
 );
 ```
 
-You can apply the theme using TagflowThemeProvider:
+You can apply the theme using `Tagflow.html(...)`:
 
 ```dart
 TagflowThemeProvider(
   theme: theme,
-  child: Tagflow(
-    converters: [
-      TableConverter(),
-      // ... other converters
-    ],
+  child: Tagflow.html(
     html: htmlContent,
+    converters: const [
+      TagflowTableConverter(),
+    ],
   ),
 );
 ```

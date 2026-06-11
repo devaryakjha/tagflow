@@ -15,8 +15,9 @@
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
 This is the monorepo for Tagflow, a native rich content runtime for Flutter
-apps. Tagflow is moving toward a semantic document model rendered by native
-Flutter widgets, with HTML kept as a first-party adapter.
+apps. The `1.0.0-alpha.1` line makes `TagflowDocument` the primary runtime
+model, renders content with native Flutter widgets, and keeps HTML as a
+first-party adapter through `TagflowHtmlAdapter` and `Tagflow.html(...)`.
 
 ## 📦 Packages
 
@@ -25,6 +26,45 @@ Flutter widgets, with HTML kept as a first-party adapter.
 - [tagflow_table](packages/tagflow_table) - Table rendering extension for
   Tagflow
 - [examples](examples/tagflow) - Example Flutter app showcasing Tagflow features
+
+## Alpha Usage
+
+Install the alpha package:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0-alpha.1
+```
+
+Render HTML through the adapter entry point:
+
+```dart
+Tagflow.html(html: htmlContent);
+```
+
+Render a native document directly:
+
+```dart
+final document = TagflowDocument(
+  id: 'article',
+  children: [
+    TagflowDocumentNode.paragraph(
+      id: 'article.intro',
+      children: [
+        TagflowDocumentNode.text(
+          id: 'article.intro.text',
+          text: 'Native rich content for Flutter.',
+        ),
+      ],
+    ),
+  ],
+);
+
+Tagflow.document(document);
+```
+
+Parser, converter, selector, and legacy node APIs remain available during the
+alpha transition from `package:tagflow/legacy.dart`.
 
 ## 🛠️ Development
 
@@ -62,6 +102,19 @@ melos run analyze
 # Generate coverage report
 melos run coverage
 ```
+
+### Release Prep
+
+```bash
+# Prepare the next alpha version locally, then dry-run publish validation
+make release-alpha
+
+# Validate publishable package metadata without publishing
+make publish-dry-run
+```
+
+Do not publish from local release-prep branches. Actual package publication is
+handled by the package-specific GitHub Actions tag workflows.
 
 ## 🧪 Testing
 
