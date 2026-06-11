@@ -177,6 +177,11 @@ The benchmark harness is real but still alpha-grade:
   `runStatusCounts`, and `failedRuns`, so reviewed benchmark notes can reject a
   target or matrix from the summary artifact without manually mining the full
   manifest.
+- `check_profile_baseline.dart` now provides a machine-readable profile
+  collection gate for complete runs: no failed cells, `successfulRuns ==
+  totalRuns`, at least one summarized cell, and a configurable minimum
+  successful repeat count per renderer/fixture cell. It deliberately does not
+  enforce frame-time thresholds before a reviewed reference baseline exists.
 
 ## Known Non-Completion Points
 

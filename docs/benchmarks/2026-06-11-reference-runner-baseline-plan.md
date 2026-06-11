@@ -151,6 +151,21 @@ metric distributions for passed artifacts, the summary reports `successfulRuns`,
 non-empty `failedRuns` list as a target qualification or benchmark collection
 failure until the logs are inspected and the run is repeated successfully.
 
+The check command turns collection completeness into a machine-readable gate:
+
+```bash
+cd packages/tagflow_benchmarks
+dart run bin/check_profile_baseline.dart \
+  --run-id=<run-id> \
+  --min-repeats=5
+```
+
+This gate intentionally checks only profile collection completeness today: no
+failed or missing runs, `successfulRuns == totalRuns`, at least one successful
+renderer/fixture cell, and the requested successful repeat count per cell. It
+does not enforce frame-time thresholds until a named reference machine has a
+reviewed baseline and regression policy.
+
 ## Metrics Policy
 
 Report-only today:
@@ -170,6 +185,8 @@ reference environment:
 - every selected cell has `status: passed` in the manifest
 - `profile-baseline-summary.json` has an empty `failedRuns` list and
   `successfulRuns == totalRuns`
+- `check_profile_baseline.dart --min-repeats=5` passes for the selected
+  reference-runner matrix
 - standard fixtures keep build p90 and raster p90 under the reviewed baseline
   regression threshold
 - `table_stress` remains visible and scrollable without crash
