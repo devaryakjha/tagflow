@@ -128,6 +128,7 @@ final class ProfileBaselineCellSummary {
     required this.newGenGcCount,
     required this.oldGenGcCount,
     required this.viewports,
+    required this.framePhaseSummaries,
     required this.updateSummary,
     required this.outlierRepeats,
   });
@@ -177,6 +178,9 @@ final class ProfileBaselineCellSummary {
   /// Unique viewport configurations observed across repeats.
   final List<ProfileBaselineViewport> viewports;
 
+  /// Phase-labeled frame summaries across repeated runs.
+  final Map<String, ProfileBaselineFramePhaseSummary> framePhaseSummaries;
+
   /// Optional update-path summary for dynamic benchmarks.
   final ProfileBaselineCellUpdateSummary? updateSummary;
 
@@ -200,10 +204,75 @@ final class ProfileBaselineCellSummary {
     'newGenGcCount': newGenGcCount.toJson(),
     'oldGenGcCount': oldGenGcCount.toJson(),
     'viewports': viewports.map((viewport) => viewport.toJson()).toList(),
+    if (framePhaseSummaries.isNotEmpty)
+      'framePhaseSummaries': framePhaseSummaries.map(
+        (phase, summary) => MapEntry(phase, summary.toJson()),
+      ),
     if (updateSummary != null) 'updateSummary': updateSummary!.toJson(),
     'outlierRepeats': outlierRepeats
         .map((outlier) => outlier.toJson())
         .toList(),
+  };
+}
+
+/// Frame metrics summarized for one named profile phase.
+final class ProfileBaselineFramePhaseSummary {
+  /// Creates a phase summary.
+  const ProfileBaselineFramePhaseSummary({
+    required this.observedRepeats,
+    required this.frameCount,
+    required this.averageBuildMillis,
+    required this.p90BuildMillis,
+    required this.worstBuildMillis,
+    required this.averageRasterMillis,
+    required this.p90RasterMillis,
+    required this.worstRasterMillis,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+  });
+
+  /// Number of repeats with this phase payload.
+  final int observedRepeats;
+
+  /// Frame count distribution across repeats.
+  final ProfileBaselineNumberSummary frameCount;
+
+  /// Average build time distribution across repeats.
+  final ProfileBaselineNumberSummary averageBuildMillis;
+
+  /// Build p90 distribution across repeats.
+  final ProfileBaselineNumberSummary p90BuildMillis;
+
+  /// Worst build duration distribution across repeats.
+  final ProfileBaselineNumberSummary worstBuildMillis;
+
+  /// Average raster time distribution across repeats.
+  final ProfileBaselineNumberSummary averageRasterMillis;
+
+  /// Raster p90 distribution across repeats.
+  final ProfileBaselineNumberSummary p90RasterMillis;
+
+  /// Worst raster duration distribution across repeats.
+  final ProfileBaselineNumberSummary worstRasterMillis;
+
+  /// Missed build-budget counts across repeats.
+  final ProfileBaselineCountSummary missedBuildBudgetCount;
+
+  /// Missed raster-budget counts across repeats.
+  final ProfileBaselineCountSummary missedRasterBudgetCount;
+
+  /// Converts this phase summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'observedRepeats': observedRepeats,
+    'frameCount': frameCount.toJson(),
+    'averageBuildMillis': averageBuildMillis.toJson(),
+    'p90BuildMillis': p90BuildMillis.toJson(),
+    'worstBuildMillis': worstBuildMillis.toJson(),
+    'averageRasterMillis': averageRasterMillis.toJson(),
+    'p90RasterMillis': p90RasterMillis.toJson(),
+    'worstRasterMillis': worstRasterMillis.toJson(),
+    'missedBuildBudgetCount': missedBuildBudgetCount.toJson(),
+    'missedRasterBudgetCount': missedRasterBudgetCount.toJson(),
   };
 }
 
@@ -671,6 +740,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
     final record = _ProfileBaselineRunRecord(
       run: run,
       metrics: artifact.metrics,
+      initialRenderMetrics: artifact.initialRenderMetrics,
       viewport: artifact.viewport,
       updateMetrics: artifact.updateMetrics,
       updateLatencies: artifact.updateLatencies,
@@ -728,6 +798,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
                     .map((record) => record.viewport)
                     .whereType<ProfileBaselineViewport>(),
               ),
+              framePhaseSummaries: _buildFramePhaseSummaries(records),
               updateSummary: _buildUpdateSummary(records),
               outlierRepeats: _detectOutliers(records),
             );
@@ -771,10 +842,65 @@ File writeProfileBaselineSummary({
     );
 }
 
+Map<String, ProfileBaselineFramePhaseSummary> _buildFramePhaseSummaries(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final summaries = <String, ProfileBaselineFramePhaseSummary>{
+    'warmScroll': _summarizeFramePhaseMetrics(
+      records.map((record) => record.metrics),
+    ),
+  };
+  final initialRenderMetrics = records
+      .map((record) => record.initialRenderMetrics)
+      .whereType<_ProfileMetrics>()
+      .toList(growable: false);
+  if (initialRenderMetrics.isNotEmpty) {
+    summaries['coldInitialRender'] = _summarizeFramePhaseMetrics(
+      initialRenderMetrics,
+    );
+  }
+  return Map<String, ProfileBaselineFramePhaseSummary>.unmodifiable(summaries);
+}
+
+ProfileBaselineFramePhaseSummary _summarizeFramePhaseMetrics(
+  Iterable<_ProfileMetrics> metrics,
+) {
+  final values = metrics.toList(growable: false);
+  return ProfileBaselineFramePhaseSummary(
+    observedRepeats: values.length,
+    frameCount: _summarizeInts(values.map((metric) => metric.frameCount)),
+    averageBuildMillis: _summarizeDoubles(
+      values.map((metric) => metric.averageBuildMillis),
+    ),
+    p90BuildMillis: _summarizeDoubles(
+      values.map((metric) => metric.p90BuildMillis),
+    ),
+    worstBuildMillis: _summarizeDoubles(
+      values.map((metric) => metric.worstBuildMillis),
+    ),
+    averageRasterMillis: _summarizeDoubles(
+      values.map((metric) => metric.averageRasterMillis),
+    ),
+    p90RasterMillis: _summarizeDoubles(
+      values.map((metric) => metric.p90RasterMillis),
+    ),
+    worstRasterMillis: _summarizeDoubles(
+      values.map((metric) => metric.worstRasterMillis),
+    ),
+    missedBuildBudgetCount: _summarizeCounts(
+      values.map((metric) => metric.missedBuildBudgetCount),
+    ),
+    missedRasterBudgetCount: _summarizeCounts(
+      values.map((metric) => metric.missedRasterBudgetCount),
+    ),
+  );
+}
+
 final class _ProfileBaselineRunRecord {
   const _ProfileBaselineRunRecord({
     required this.run,
     required this.metrics,
+    required this.initialRenderMetrics,
     required this.viewport,
     required this.updateMetrics,
     required this.updateLatencies,
@@ -782,6 +908,7 @@ final class _ProfileBaselineRunRecord {
 
   final _ManifestRun run;
   final _ProfileMetrics metrics;
+  final _ProfileMetrics? initialRenderMetrics;
   final ProfileBaselineViewport? viewport;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -939,12 +1066,14 @@ final class _ProfileUpdateAttributedFrame {
 final class _ProfileArtifact {
   const _ProfileArtifact({
     required this.metrics,
+    required this.initialRenderMetrics,
     required this.viewport,
     required this.updateMetrics,
     required this.updateLatencies,
   });
 
   final _ProfileMetrics metrics;
+  final _ProfileMetrics? initialRenderMetrics;
   final ProfileBaselineViewport? viewport;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -955,6 +1084,8 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
       jsonDecode(artifactFile.readAsStringSync()) as Map<String, Object?>;
   final metricsKey = '${run.renderer}_${run.fixture}_scroll';
   final payload = root[metricsKey] ?? _findMetricsPayload(root);
+  final initialRenderKey = '${run.renderer}_${run.fixture}_initial_render';
+  final initialRenderPayload = root[initialRenderKey];
   if (payload is! Map<String, Object?>) {
     throw const FormatException(
       'Expected benchmark frame metrics in the profile artifact.',
@@ -970,6 +1101,9 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
 
   return _ProfileArtifact(
     metrics: _readProfileMetrics(payload),
+    initialRenderMetrics: initialRenderPayload is Map<String, Object?>
+        ? _readProfileMetrics(initialRenderPayload)
+        : null,
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)
         : null,

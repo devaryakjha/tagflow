@@ -52,19 +52,6 @@ void main() {
       return;
     }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BenchmarkScreen(
-          fixtureId: fixtureId,
-          rendererId: rendererId,
-          showFixturePicker: false,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
-
     binding.reportData ??= <String, dynamic>{};
     _recordViewport(
       tester,
@@ -72,6 +59,15 @@ void main() {
       rendererId: rendererId,
       fixtureId: fixtureId,
     );
+
+    await binding.watchPerformance(() async {
+      await tester.pumpWidget(
+        _buildStaticBenchmarkApp(fixtureId: fixtureId, rendererId: rendererId),
+      );
+      await tester.pumpAndSettle();
+    }, reportKey: '${rendererId}_${fixtureId}_initial_render');
+
+    expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
 
     await binding.watchPerformance(() async {
       await tester.fling(
@@ -82,6 +78,19 @@ void main() {
       await tester.pumpAndSettle();
     }, reportKey: '${rendererId}_${fixtureId}_scroll');
   });
+}
+
+Widget _buildStaticBenchmarkApp({
+  required String fixtureId,
+  required String rendererId,
+}) {
+  return MaterialApp(
+    home: BenchmarkScreen(
+      fixtureId: fixtureId,
+      rendererId: rendererId,
+      showFixturePicker: false,
+    ),
+  );
 }
 
 void _verifyRendererFixturePair({

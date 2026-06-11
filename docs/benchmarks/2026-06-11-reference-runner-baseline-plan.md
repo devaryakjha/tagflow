@@ -179,6 +179,11 @@ failure until the logs are inspected and the run is repeated successfully.
 For artifacts collected after the viewport metadata change, each cell summary
 also reports unique logical/physical viewport sizes and device-pixel-ratio
 values observed across successful repeats.
+For static profile artifacts collected after the cold/warm split, each cell
+summary also reports `framePhaseSummaries.warmScroll` and optional
+`framePhaseSummaries.coldInitialRender`. These fields are report-only evidence;
+the checker still enforces collection completeness rather than timing
+thresholds.
 
 The check command turns collection completeness into a machine-readable gate:
 

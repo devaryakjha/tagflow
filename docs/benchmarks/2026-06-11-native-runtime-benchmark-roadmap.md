@@ -31,7 +31,7 @@ threshold posture:
 | Semantic streaming pair | [`baselines/2026-06-11-semantic-streaming-pair-repeat5.md`](baselines/2026-06-11-semantic-streaming-pair-repeat5.md) | Full-reparse semantic streaming and semantic patch streaming are measurable as an ordered pair. Patch lane GC and raster outliers remain diagnostic. | Report-only. |
 | Authored insertion patch pair | [`baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md`](baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md) | Authored-ID insertion and ordered patch paths complete five repeats with update-frame attribution. | Report-only. |
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
-| Native JSON profile lane | `tagflow_native_json:native_ai_answer` | The example-app profile harness can render a native block JSON fixture as `TagflowDocument` without the HTML parser. | Report-only smoke. |
+| Native JSON profile lane | `tagflow_native_json:native_ai_answer` | The example-app profile harness can render a native block JSON fixture as `TagflowDocument` without the HTML parser. New static profile artifacts separate `coldInitialRender` from `warmScroll` in the summary. | Report-only smoke. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 
 ## Benchmark Tiers
@@ -117,8 +117,10 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   promoted without a fresh tooling check.
 - Reference environment: the complete macOS repeat-5 run used Flutter master
   prerelease bits and prerelease macOS, so it is not claim-grade.
-- Cold versus warm: the current profile matrix does not cleanly separate app
-  cold start, first fixture render, warmed scroll, and warmed update paths.
+- Cold versus warm: static profile artifacts now capture first fixture render
+  separately from warmed scroll as `coldInitialRender` and `warmScroll` in
+  `profile-baseline-summary.json`. App cold start, static first-render frame
+  attribution, and warmed update-path separation are still follow-up work.
 - Repeat counts: profile lanes have useful repeat-5 evidence, but native
   transport smoke uses tiny samples and render microbench samples are still
   alpha-sized.
@@ -134,8 +136,8 @@ Until this tier exists, allowed wording is limited to internal evidence such as
 - Memory/allocation: GC counts are captured in profile summaries, but heap
   snapshots and allocation profiles are still manual follow-up work.
 - Frame attribution: update-frame attribution exists for streaming updates,
-  but static first-render attribution and cold-start attribution are not yet
-  split.
+  but static first-render attribution and app cold-start attribution are not
+  yet split.
 - Regression thresholds: no numeric performance thresholds are justified yet.
   The current policy intentionally blocks numeric regression gates.
 
