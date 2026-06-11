@@ -18,6 +18,8 @@ without overstating the data.
 The existing report-only policy remains the source of truth for profile
 threshold posture:
 [`policies/profile-reference-runner-policy.json`](policies/profile-reference-runner-policy.json).
+The public-claim qualification checklist and operating runbook now live in
+[`2026-06-12-reference-runner-qualification.md`](2026-06-12-reference-runner-qualification.md).
 
 ## Current Evidence Inventory
 

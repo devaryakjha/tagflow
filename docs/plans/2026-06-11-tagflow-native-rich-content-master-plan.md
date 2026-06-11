@@ -85,8 +85,9 @@ separate first-party extension at `1.0.0-alpha.1`.
 - Alpha3 benchmark posture remains collection-gate only. The current evidence
   includes report-only native transport microbenchmarks plus a cold/warm native
   JSON profile smoke lane; it must not be used for public performance ranking
-  or speed claims until a stable reference-runner policy and broader device
-  matrix are promoted.
+  or speed claims until the reference-runner qualification gates in
+  `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
+  and a separate threshold/comparison policy is reviewed.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
@@ -287,6 +288,11 @@ Accepted benchmark architecture:
 - Keep PR CI focused on deterministic microbenches and fixture validity.
 - Keep hosted-runner frame timings report-only until a stable reference runner
   exists.
+- Use `docs/benchmarks/2026-06-12-reference-runner-qualification.md` as the
+  public-claim gate: repeat-5 collection, physical-device or scoped desktop
+  target qualification, fixture coverage, memory/allocation review, competitor
+  fairness review, and an explicit threshold/comparison policy are required
+  before citing benchmark numbers externally.
 - Treat WebView as a UX baseline only, not a native renderer competitor.
 
 Benchmark fixture corpus:
