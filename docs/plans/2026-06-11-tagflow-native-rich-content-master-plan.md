@@ -26,6 +26,12 @@ semantic disclosure rendering for HTML `details` / `summary`. It does not claim
 a CMS sync protocol or public performance result. `tagflow_table` remains a
 separate first-party extension at `1.0.0-alpha.1`.
 
+Next coordination target: `1.0.0-alpha.4` or a pre-beta planning slice, not
+`1.0.0-beta.0` yet. The alpha.3 release proved the hosted package line can be
+consumed downstream, but beta still needs reviewed memory/allocation evidence,
+an up-to-date public API freeze review, and a clearer downstream native-runtime
+path that does not rely on the legacy converter bridge for production behavior.
+
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
@@ -90,6 +96,12 @@ separate first-party extension at `1.0.0-alpha.1`.
   or speed claims until the reference-runner qualification gates in
   `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
   and a separate threshold/comparison policy is reviewed.
+- Follow-up benchmark commits `5d803b4` and `0e256cd` clarify the current
+  memory/allocation boundary. The repeated profile runner can now request
+  per-cell `--profile-memory` artifacts with `TAGFLOW_PROFILE_MEMORY=true` and
+  record VM service URIs, but this is still bounded sample evidence only. The
+  remaining memory gate is DevTools checkpoint snapshots, class allocation
+  diffs, or retained-object review against a still-live benchmark session.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
@@ -517,12 +529,29 @@ Master review gate:
 
 ### Wave 5: Release Hardening
 
-- Status: alpha prerelease review-ready, not stable-ready.
+- Status: alpha.3 published, pre-beta hardening active, not stable-ready.
 - `dart run melos run validate` and `dart run melos run publish:dry-run` have
   passed on the coordinator branch.
-- Local benchmark baseline exists.
-- Do not treat profile timings as a release gate until reference-runner
-  baselines exist.
+- Local benchmark baselines and repeat-5 profile summaries exist.
+- Do not treat profile timings, bounded memory files, or local desktop runs as
+  release claims until reference-runner baselines, memory snapshot review, and
+  threshold policy are promoted together.
+
+### Wave 6: Alpha.4 / Pre-Beta Hardening
+
+- Status: active coordination.
+- Implement a pauseable profile benchmark checkpoint path so DevTools can
+  attach to a still-live VM service and export heap snapshots or allocation
+  diffs. This is the next credible memory/allocation evidence slice after the
+  bounded `--profile-memory` artifact plumbing.
+- Refresh the beta public API freeze review against the actual current exports
+  from `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and the
+  first-party `tagflow_table` extension.
+- Keep Kite hosted-alpha validation as downstream evidence, but do not count
+  the current local Kite commit as pushed or release-grade profile evidence
+  while GitLab DNS/network and physical-device profile blockers remain open.
+- Do not publish, tag, or bump versions from this wave without a separate
+  release gate review.
 
 ## Branch and Thread Policy
 
@@ -597,6 +626,25 @@ Master review gate:
   threshold review after a complete repeat-5 matrix.
 - Policy home:
   `docs/benchmarks/2026-06-11-reference-runner-baseline-plan.md`.
+
+### Memory Checkpoint Harness
+
+- Pending worktree: `local:43f33e18-8a59-4457-8028-4732d9071c13`
+- Status: queued from `codex/tagflow-native-runtime-master`.
+- Scope: add the narrowest opt-in profile hold/checkpoint mode so DevTools can
+  attach to a live benchmark VM service for memory snapshots and allocation
+  diffs.
+- Constraints: default profile benchmark behavior must remain unchanged; output
+  stays under ignored `build/`; all interpretation remains report-only.
+
+### Beta API Freeze Delta Review
+
+- Pending worktree: `local:12f4b669-48b4-4602-8451-cc52bf2e2264`
+- Status: queued from `codex/tagflow-native-runtime-master`.
+- Scope: audit current public exports against the beta freeze review and patch
+  docs/specs only where the delta is small and evidence-backed.
+- Constraints: no beta release language, tags, package-version changes, or
+  performance claims.
 
 ## Alpha Decisions
 
