@@ -166,9 +166,12 @@ Architecture open decisions:
 - How much class-based styling the HTML adapter should preserve in alpha.
 - The native block adapter foundation has landed, including direct semantic
   table block mapping, callout normalization, and operation-shaped native block
-  patch adaptation into `TagflowDocumentPatch`. Serializer helpers, patch
-  envelopes, and any future dedicated runtime callout renderer contract remain
-  tracked in `docs/specs/2026-06-11-native-block-adapter-contract.md`.
+  patch adaptation into `TagflowDocumentPatch`. The adapter-side
+  `TagflowNativeBlockCodec` and `TagflowNativeBlockPatchEnvelope` transport
+  slice has also landed for data-only JSON documents and ordered patch payloads.
+  Broader storage/sync protocol decisions and any future dedicated runtime
+  callout renderer contract remain tracked in
+  `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
 
