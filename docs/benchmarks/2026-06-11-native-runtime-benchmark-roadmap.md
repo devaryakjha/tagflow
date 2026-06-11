@@ -20,6 +20,8 @@ threshold posture:
 [`policies/profile-reference-runner-policy.json`](policies/profile-reference-runner-policy.json).
 The public-claim qualification checklist and operating runbook now live in
 [`2026-06-12-reference-runner-qualification.md`](2026-06-12-reference-runner-qualification.md).
+Threshold promotion and reference-environment rules are centralized in
+[`2026-06-12-threshold-reference-policy.md`](2026-06-12-threshold-reference-policy.md).
 
 ## Current Evidence Inventory
 
@@ -162,7 +164,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   local-runner launch markers are recorded separately as `launchAttribution`,
   but they are not generic app cold-start metrics.
 - Regression thresholds: no numeric performance thresholds are justified yet.
-  The current policy intentionally blocks numeric regression gates.
+  The current policy intentionally blocks numeric regression gates. Promotion
+  from report-only evidence to advisory or gating thresholds must follow
+  [`2026-06-12-threshold-reference-policy.md`](2026-06-12-threshold-reference-policy.md).
 
 ## Alpha.2 Command Plan
 

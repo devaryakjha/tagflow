@@ -20,6 +20,8 @@ before any external claim can cite benchmark numbers.
 This is intentionally stricter than the alpha release gates. Alpha gates can
 use collection completeness. Public claims require qualified reference targets,
 fixture review, memory/allocation review, and an explicit comparison policy.
+Threshold promotion and reference-environment rules are centralized in
+[`2026-06-12-threshold-reference-policy.md`](2026-06-12-threshold-reference-policy.md).
 
 ## Current Evidence Classification
 
