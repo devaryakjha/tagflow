@@ -59,7 +59,12 @@ kinds, stable IDs, metadata, source records, presentation hints, and ordered
 patch application. `TagflowDocument.validated(...)` is the preferred
 fail-fast construction path for app-authored, CMS-authored, or AI-authored
 native documents that need duplicate-ID validation before rendering or patch
-application. The public copy helpers are additive structural-update helpers:
+application. The default `TagflowDocument(...)` constructor remains
+permissive through beta for alpha source compatibility and for callers that
+intentionally choose when to run `validateUniqueNodeIds()`. Do not make the
+default constructor fail-fast for `1.0.0-beta.0`; revisit a deprecation,
+rename, or stricter constructor only before stable and only with hosted app
+evidence. The public copy helpers are additive structural-update helpers:
 omitted nullable arguments preserve existing values, while explicit `clearX`
 flags remove nullable runtime fields such as document `source` and node
 payloads. Calling a helper with both a replacement value and the matching clear
@@ -316,9 +321,11 @@ to republish the extension package.
   document and patch transport. Done for a Kite hosted-alpha widget-test
   fixture; production integration remains pending.
 - App-authored/native document construction has a documented fail-fast identity
-  validation path. Done with `TagflowDocument.validated(...)`; changing the
-  permissive `TagflowDocument(...)` constructor remains a separate beta
-  compatibility decision.
+  validation path. Done with `TagflowDocument.validated(...)`. Beta posture is
+  now explicit: keep `TagflowDocument(...)` permissive through beta for
+  compatibility and explicit-validation callers, and recommend
+  `TagflowDocument.validated(...)` for app-authored, CMS-authored, or
+  AI-authored native documents.
 - App-authored/native document copy helpers have explicit nullable-field
   clearing semantics. Done with `clearX` flags on document and node copy
   helpers; omitted nullable arguments continue to preserve current values.

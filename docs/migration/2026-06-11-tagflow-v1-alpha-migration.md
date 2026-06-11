@@ -99,6 +99,22 @@ Before `1.0.0` stable, the project must decide whether `legacy.dart` remains
 inside `package:tagflow`, moves to a separate compatibility package, or enters
 a formal deprecation window.
 
+### `TagflowDocument(...)`
+
+The default `TagflowDocument(...)` constructor remains permissive through the
+`1.0.0-beta.x` line. This preserves alpha source compatibility and keeps an
+explicit-validation path available for callers that construct intermediate
+documents before running `validateUniqueNodeIds()`.
+
+New app-authored, CMS-authored, or AI-authored native documents should use
+`TagflowDocument.validated(...)` when duplicate IDs should fail before
+rendering or patch application. Use `TagflowDocument.copyWithValidated(...)`
+for the same fail-fast boundary during structural updates.
+
+Before `1.0.0` stable, the project may revisit whether the permissive
+constructor needs a deprecation, rename, or stricter alternative, but beta
+should not change constructor failure behavior without real hosted-app evidence.
+
 ### `tagflow_table`
 
 `tagflow_table` remains a separate first-party extension package through beta.
@@ -164,7 +180,8 @@ Tagflow.document(document);
 Use `TagflowDocument.validated(...)` for app-authored, CMS-authored, or
 AI-authored native documents that should fail fast on duplicate node IDs before
 rendering or patch application. Plain `TagflowDocument(...)` remains available
-when callers need explicit validation control.
+through beta when callers need explicit validation control or alpha source
+compatibility.
 
 This is the canonical runtime entry point for alpha.
 
