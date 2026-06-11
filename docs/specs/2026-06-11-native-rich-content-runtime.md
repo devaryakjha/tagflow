@@ -12,6 +12,8 @@ alpha.3 planning, treat
 alpha.2 handoff as newer coordination sources. The implemented public runtime
 node type is `TagflowDocumentNode`; older `TagflowNode` examples in this SPEC
 should be read as historical shorthand only where not corrected below.
+`Tagflow.html(..., registry: ...)` is already implemented and tested, while
+controller and parser/adapter cache APIs remain deliberately deferred.
 
 ## 1. Context
 
@@ -149,17 +151,20 @@ class Tagflow extends StatelessWidget {
     TagflowHtmlAdapter? adapter,
     TagflowTheme? theme,
     TagflowComponentRegistry? registry,
-    TagflowViewOptions options = TagflowViewOptions.defaults,
+    TagflowViewOptions? viewOptions,
+    TagflowOptions? options,
+    TagflowRenderBoundary? renderBoundary,
     super.key,
   });
 
-  const Tagflow.document({
-    required TagflowDocument document,
+  const Tagflow.document(
+    TagflowDocument document, {
     TagflowTheme? theme,
     TagflowComponentRegistry? registry,
-    TagflowViewOptions options = TagflowViewOptions.defaults,
+    TagflowViewOptions? viewOptions,
+    TagflowOptions? options,
     super.key,
-  });
+  );
 }
 ```
 
@@ -168,6 +173,8 @@ Rules:
 - `Tagflow.document` is the canonical runtime API.
 - `Tagflow.html` is a convenience wrapper over `TagflowHtmlAdapter` plus
   `Tagflow.document`.
+- `Tagflow.html(..., registry: ...)` is part of the implemented semantic
+  runtime path for HTML-origin content.
 - The current default constructor `Tagflow({required html, ...})` may remain in
   alpha as a deprecated alias, but new docs should prefer named constructors.
 
@@ -515,28 +522,25 @@ deliberately defer parser and adapter cache APIs until stable IDs, patch
 semantics, benchmark evidence, and real-app integration evidence show the
 right boundary.
 
-### Alpha requirements
+### Historical alpha.1 cache hypothesis
 
-Alpha should include lightweight, explicit caching at the document and adapter
-levels.
+The original alpha.1 plan expected lightweight adapter/runtime caches such as:
 
-Required cache scopes:
+- parse cache keyed by input hash plus adapter/policy configuration;
+- normalized document cache keyed by source plus adapter version.
 
-- parse cache keyed by input hash plus adapter/policy configuration
-- normalized document cache keyed by source plus adapter version
+That hypothesis is preserved here as history, not as current scope.
 
-Non-requirements for alpha:
+### Current implementation posture
 
-- cross-context widget caching
-- global render-object reuse
-- persistence to disk
-
-Rules:
-
-- caches must be opt-in or bounded
-- cache invalidation keys must include policy and adapter config
-- image caching should continue to rely primarily on Flutter/image-provider
-  behavior
+- do not add parser or adapter cache APIs in the current alpha line;
+- do not introduce controller-owned cache boundaries before real app evidence
+  shows they solve the right problem;
+- keep image caching as the existing view-layer concern exposed by
+  `TagflowViewOptions.enableImageCache`, which is separate from parser or
+  document cache APIs;
+- if a later benchmark review justifies cache work, require explicit bounds and
+  invalidation keys that include policy and adapter configuration.
 
 ## 15. Backwards Compatibility Policy
 

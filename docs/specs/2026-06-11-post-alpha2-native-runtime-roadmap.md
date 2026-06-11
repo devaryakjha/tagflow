@@ -125,9 +125,9 @@ Required outcomes:
   versus earlier `TagflowNode` examples;
 - make the native transport unknown-kind behavior explicit before producers
   depend on placeholder semantics;
-- define the registry story for HTML-origin content, either by documenting the
-  manual parse-to-document path or by adding a reviewed `Tagflow.html(...)`
-  registry parameter in an implementation thread;
+- document the already-landed `Tagflow.html(..., registry: ...)` path and make
+  clear when apps should still prefer the manual parse-to-document path for
+  authored IDs, strict policy, source metadata, or parse-time inspection;
 - add focused real-app validation for native block document and patch payloads
   against hosted packages;
 - keep all benchmark evidence report-only unless a benchmark policy document
@@ -143,8 +143,8 @@ Beta.0 should wait until these gates are true:
 
 - at least one real app consumes hosted alpha packages through both
   `Tagflow.html(...)` or `TagflowHtmlAdapter` and native block transport;
-- the team has decided whether `Tagflow.html(...)` supports a registry directly
-  or intentionally requires manual adapter usage for registry overrides;
+- the already-landed `Tagflow.html(..., registry: ...)` path is validated in a
+  real app or deliberately narrowed with migration guidance before stable;
 - `TagflowOptions` compatibility posture is written as keep, deprecate, or
   remove before stable;
 - `package:tagflow/legacy.dart` has a documented support window;
@@ -505,20 +505,21 @@ Acceptance:
 - tests cover both document and patch payload paths;
 - no new arbitrary widget or callback transport is introduced.
 
-### Slice 4: HTML registry ergonomics decision
+### Slice 4: HTML registry ergonomics validation
 
 Files:
 
-- `packages/tagflow/lib/src/tagflow_widget.dart`
-- `packages/tagflow/test/src/runtime/...` or equivalent widget tests
+- focused widget or app validation that exercises HTML-origin registry
+  overrides;
 - migration docs if the API changes
 
 Work:
 
-- chosen contract: add `registry` to `Tagflow.html(...)`;
-- if adding the parameter, preserve legacy custom-converter behavior and
-  registry precedence;
-- add focused tests for HTML built-in rendering with a registry override.
+- keep the shipped `registry` parameter on `Tagflow.html(...)` documented as
+  the simple HTML-origin semantic override path;
+- preserve legacy custom-converter behavior and registry precedence;
+- add or retain focused tests and real-app evidence for HTML built-in rendering
+  with a registry override.
 
 Acceptance:
 

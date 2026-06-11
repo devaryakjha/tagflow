@@ -5,6 +5,12 @@ the `1.0.0-alpha.1` runtime direction. The alpha line is intentionally breaking:
 Tagflow is becoming a native rich content runtime for Flutter apps, with HTML as
 one adapter into that runtime.
 
+Current-state note: this guide keeps the original alpha.1 migration framing,
+but the implemented runtime on the native-runtime branch is later than that
+initial target. `Tagflow.html(..., registry: ...)` is already part of the
+shipped HTML-origin semantic path, while controller and parser/adapter cache
+APIs remain deferred.
+
 ## Why This Alpha Breaks
 
 Earlier Tagflow releases treated HTML tags as the center of the public model:
@@ -256,7 +262,8 @@ public performance claim.
 ## HTML Adapter and Content Policy
 
 Use `TagflowHtmlAdapter` directly when an app wants to parse once, inspect the
-document, cache the result, or configure HTML input policy:
+document, hold the resulting `TagflowDocument` in app state, or configure HTML
+input policy:
 
 ```dart
 const adapter = TagflowHtmlAdapter(

@@ -45,7 +45,8 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   optional `baseRevision` / `revision` producer tokens, and ordered operations.
   Decoded operations still flow through
   `TagflowNativeBlockAdapter.adaptPatch(...)` / `adaptPatches(...)` and then
-  `TagflowDocument.applyPatch(...)`; no second mutation model was introduced.
+  `TagflowDocument.applyPatch(...)` / `applyPatches(...)`; no second mutation
+  model was introduced.
 - Replacement updates validate block-ID stability before runtime patch
   creation, and append/insert payloads reject duplicate block IDs within the
   update payload before runtime patch application.
@@ -409,7 +410,8 @@ Recommended transport operations:
 
 Patch-envelope requirements:
 
-- `documentId`
+- wire `id` field, represented as `documentId` on
+  `TagflowNativeBlockPatchEnvelope`
 - `schemaVersion: 1`; other values fail during codec decode until a reviewed
   compatibility policy exists
 - operation payloads referencing stable block IDs
@@ -434,7 +436,7 @@ Rules:
 - a future controller, if added later, should remain a thin convenience wrapper
   over immutable document updates
 
-Landed first slice:
+Landed first transport slice:
 
 - `TagflowNativeBlockPatch.replaceNode(...)` adapts one native block into an
   existing `TagflowDocumentPatch.replaceNode(...)`.
@@ -446,15 +448,18 @@ Landed first slice:
   `TagflowDocumentPatch.removeNode(...)`.
 - Policy and normalization reuse `TagflowNativeBlockAdapter` so callout, table,
   link, and image behavior stays aligned with full-document adaptation.
-- Patch envelope schema is validated at the codec boundary. Direct patch
-  adaptation accepts typed `TagflowNativeBlockPatch` operations only, so there
-  is no adapter-level envelope schema hook in this slice.
+- `TagflowNativeBlockCodec.decodePatchEnvelope(...)` validates the JSON
+  envelope shape at the codec boundary and returns a typed
+  `TagflowNativeBlockPatchEnvelope`.
+- Direct patch adaptation accepts typed `TagflowNativeBlockPatch` operations
+  only, so there is no second adapter-level envelope schema hook in this
+  slice.
 
 Explicitly deferred:
 
 - producer conflict handling or revision enforcement beyond the landed narrow
-  patch envelope fields: `documentId`, `schemaVersion`, `baseRevision`, and
-  `revision`
+  patch envelope fields: wire `id` / typed `documentId`, `schemaVersion`,
+  `baseRevision`, and `revision`
 - cross-patch batch conflict validation against an already-evolving runtime
   document
 - controller or cache APIs layered above immutable document patches
