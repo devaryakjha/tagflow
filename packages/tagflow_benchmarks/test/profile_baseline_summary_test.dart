@@ -84,6 +84,13 @@ void main() {
               'appDelegateInitToIntegrationTestRequestMicros': 43000,
             },
           },
+          'tagflow_ai_answer_rich_input': <String, Object?>{
+            'schemaVersion': 1,
+            'sourceType': 'html',
+            'assetPath': 'assets/benchmarks/ai_answer_rich.html',
+            'inputLength': 1100,
+            'inputBytes': 1108,
+          },
         }),
       );
 
@@ -141,6 +148,13 @@ void main() {
             'appDelegateInitToFlutterViewControllerReadyMicros': 13500,
             'appDelegateInitToIntegrationTestRequestMicros': 47000,
           },
+        },
+        'tagflow_ai_answer_rich_input': <String, Object?>{
+          'schemaVersion': 1,
+          'sourceType': 'html',
+          'assetPath': 'assets/benchmarks/ai_answer_rich.html',
+          'inputLength': 1100,
+          'inputBytes': 1108,
         },
       }),
     );
@@ -227,6 +241,16 @@ void main() {
     expect(cell.framePhaseSummaries['warmRebuild']!.observedRepeats, 2);
     expect(cell.framePhaseSummaries['warmRebuild']!.worstRasterMillis.max, 7.5);
     expect(cell.toJson(), contains('framePhaseSummaries'));
+    expect(cell.inputSummary, isNotNull);
+    expect(cell.inputSummary!.observedRepeats, 2);
+    expect(cell.inputSummary!.inputBytes.min, 1108);
+    expect(cell.inputSummary!.inputBytes.max, 1108);
+    expect(cell.inputSummary!.inputLength.mean, 1100);
+    expect(cell.inputSummary!.sourceTypes, ['html']);
+    expect(cell.inputSummary!.assetPaths, [
+      'assets/benchmarks/ai_answer_rich.html',
+    ]);
+    expect(cell.toJson(), contains('inputSummary'));
     expect(cell.launchAttribution.status, 'available');
     expect(cell.launchAttribution.observedRepeats, 2);
     expect(cell.launchAttribution.missingRepeats, 0);
@@ -336,6 +360,7 @@ void main() {
     expect(summary.cellSummaries.single.viewports, hasLength(1));
     expect(summary.cellSummaries.single.viewports.single.logicalWidth, 800.0);
     expect(summary.cellSummaries.single.viewports.single.devicePixelRatio, 2.0);
+    expect(summary.cellSummaries.single.inputSummary, isNull);
     expect(
       summary.cellSummaries.single.toJson().containsKey('updateSummary'),
       isFalse,

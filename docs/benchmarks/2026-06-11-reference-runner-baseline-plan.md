@@ -188,6 +188,9 @@ failure until the logs are inspected and the run is repeated successfully.
 For artifacts collected after the viewport metadata change, each cell summary
 also reports unique logical/physical viewport sizes and device-pixel-ratio
 values observed across successful repeats.
+For artifacts collected after the input metadata change, each cell summary also
+reports `inputSummary.inputBytes`, `inputSummary.inputLength`, source types, and
+asset paths so reviewed notes can tie timing evidence to fixture size.
 For static profile artifacts collected after the cold/warm split, each cell
 summary also reports `framePhaseSummaries.warmScroll` and optional
 `framePhaseSummaries.coldInitialRender`. These fields are report-only evidence;

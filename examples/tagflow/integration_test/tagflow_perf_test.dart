@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui' show FrameTiming;
 
 import 'package:flutter/material.dart';
@@ -54,6 +55,13 @@ void main() {
     }
 
     binding.reportData ??= <String, dynamic>{};
+    final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
+    _recordInputMetadata(
+      binding,
+      rendererId: rendererId,
+      fixture: fixture,
+      input: fullDocument,
+    );
     _recordViewport(
       tester,
       binding,
@@ -129,6 +137,12 @@ Future<void> _runStreamingBenchmark({
   final updateLatencies = <Map<String, Object?>>[];
 
   binding.reportData ??= <String, dynamic>{};
+  _recordInputMetadata(
+    binding,
+    rendererId: renderer.id,
+    fixture: fixture,
+    input: fullDocument,
+  );
   _recordViewport(
     tester,
     binding,
@@ -223,6 +237,12 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   final updateLatencies = <Map<String, Object?>>[];
 
   binding.reportData ??= <String, dynamic>{};
+  _recordInputMetadata(
+    binding,
+    rendererId: renderer.id,
+    fixture: fixture,
+    input: fullDocument,
+  );
   _recordViewport(
     tester,
     binding,
@@ -308,6 +328,21 @@ Future<void> _runSemanticPatchStreamingBenchmark({
     );
     await tester.pumpAndSettle();
   }, reportKey: '${renderer.id}_${fixture.id}_scroll');
+}
+
+void _recordInputMetadata(
+  IntegrationTestWidgetsFlutterBinding binding, {
+  required String rendererId,
+  required ProfileBenchmarkFixture fixture,
+  required String input,
+}) {
+  binding.reportData!['${rendererId}_${fixture.id}_input'] = <String, Object?>{
+    'schemaVersion': 1,
+    'sourceType': fixture.source.type.name,
+    'assetPath': fixture.source.assetPath,
+    'inputLength': input.length,
+    'inputBytes': utf8.encode(input).length,
+  };
 }
 
 void _recordViewport(

@@ -128,6 +128,7 @@ final class ProfileBaselineCellSummary {
     required this.newGenGcCount,
     required this.oldGenGcCount,
     required this.viewports,
+    required this.inputSummary,
     required this.framePhaseSummaries,
     required this.launchAttribution,
     required this.updateSummary,
@@ -179,6 +180,9 @@ final class ProfileBaselineCellSummary {
   /// Unique viewport configurations observed across repeats.
   final List<ProfileBaselineViewport> viewports;
 
+  /// Optional input metadata captured for this renderer/fixture cell.
+  final ProfileBaselineInputSummary? inputSummary;
+
   /// Phase-labeled frame summaries across repeated runs.
   final Map<String, ProfileBaselineFramePhaseSummary> framePhaseSummaries;
 
@@ -208,6 +212,7 @@ final class ProfileBaselineCellSummary {
     'newGenGcCount': newGenGcCount.toJson(),
     'oldGenGcCount': oldGenGcCount.toJson(),
     'viewports': viewports.map((viewport) => viewport.toJson()).toList(),
+    if (inputSummary != null) 'inputSummary': inputSummary!.toJson(),
     if (framePhaseSummaries.isNotEmpty)
       'framePhaseSummaries': framePhaseSummaries.map(
         (phase, summary) => MapEntry(phase, summary.toJson()),
@@ -217,6 +222,42 @@ final class ProfileBaselineCellSummary {
     'outlierRepeats': outlierRepeats
         .map((outlier) => outlier.toJson())
         .toList(),
+  };
+}
+
+/// Fixture input metadata summarized across repeated profile runs.
+final class ProfileBaselineInputSummary {
+  /// Creates an input metadata summary.
+  const ProfileBaselineInputSummary({
+    required this.observedRepeats,
+    required this.inputBytes,
+    required this.inputLength,
+    required this.sourceTypes,
+    required this.assetPaths,
+  });
+
+  /// Successful repeats that emitted input metadata.
+  final int observedRepeats;
+
+  /// UTF-8 input byte count distribution across repeats.
+  final ProfileBaselineNumberSummary inputBytes;
+
+  /// Dart string character count distribution across repeats.
+  final ProfileBaselineNumberSummary inputLength;
+
+  /// Source type labels seen across repeats.
+  final List<String> sourceTypes;
+
+  /// Fixture asset paths seen across repeats.
+  final List<String> assetPaths;
+
+  /// Converts this input summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'observedRepeats': observedRepeats,
+    'inputBytes': inputBytes.toJson(),
+    'inputLength': inputLength.toJson(),
+    if (sourceTypes.isNotEmpty) 'sourceTypes': sourceTypes,
+    if (assetPaths.isNotEmpty) 'assetPaths': assetPaths,
   };
 }
 
@@ -797,6 +838,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       initialRenderMetrics: artifact.initialRenderMetrics,
       warmRebuildMetrics: artifact.warmRebuildMetrics,
       viewport: artifact.viewport,
+      inputPayload: artifact.inputPayload,
       launchAttribution: artifact.launchAttribution,
       updateMetrics: artifact.updateMetrics,
       updateLatencies: artifact.updateLatencies,
@@ -854,6 +896,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
                     .map((record) => record.viewport)
                     .whereType<ProfileBaselineViewport>(),
               ),
+              inputSummary: _buildInputSummary(records),
               framePhaseSummaries: _buildFramePhaseSummaries(records),
               launchAttribution: _buildLaunchAttributionSummary(records),
               updateSummary: _buildUpdateSummary(records),
@@ -897,6 +940,30 @@ File writeProfileBaselineSummary({
     ..writeAsStringSync(
       '${const JsonEncoder.withIndent('  ').convert(summary.toJson())}\n',
     );
+}
+
+ProfileBaselineInputSummary? _buildInputSummary(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final payloads = records
+      .map((record) => record.inputPayload)
+      .whereType<_ProfileInputPayload>()
+      .toList(growable: false);
+  if (payloads.isEmpty) {
+    return null;
+  }
+
+  return ProfileBaselineInputSummary(
+    observedRepeats: payloads.length,
+    inputBytes: _summarizeInts(payloads.map((payload) => payload.inputBytes)),
+    inputLength: _summarizeInts(payloads.map((payload) => payload.inputLength)),
+    sourceTypes: _uniqueStrings(
+      payloads.map((payload) => payload.sourceType).whereType<String>(),
+    ),
+    assetPaths: _uniqueStrings(
+      payloads.map((payload) => payload.assetPath).whereType<String>(),
+    ),
+  );
 }
 
 Map<String, ProfileBaselineFramePhaseSummary> _buildFramePhaseSummaries(
@@ -1014,6 +1081,7 @@ final class _ProfileBaselineRunRecord {
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.inputPayload,
     required this.launchAttribution,
     required this.updateMetrics,
     required this.updateLatencies,
@@ -1024,6 +1092,7 @@ final class _ProfileBaselineRunRecord {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileInputPayload? inputPayload;
   final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -1194,12 +1263,27 @@ final class _ProfileLaunchAttributionPayload {
   final Map<String, int> intervals;
 }
 
+final class _ProfileInputPayload {
+  const _ProfileInputPayload({
+    required this.inputBytes,
+    required this.inputLength,
+    required this.sourceType,
+    required this.assetPath,
+  });
+
+  final int inputBytes;
+  final int inputLength;
+  final String? sourceType;
+  final String? assetPath;
+}
+
 final class _ProfileArtifact {
   const _ProfileArtifact({
     required this.metrics,
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.inputPayload,
     required this.launchAttribution,
     required this.updateMetrics,
     required this.updateLatencies,
@@ -1209,6 +1293,7 @@ final class _ProfileArtifact {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileInputPayload? inputPayload;
   final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
@@ -1231,6 +1316,8 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
 
   final viewportKey = '${run.renderer}_${run.fixture}_viewport';
   final viewportPayload = root[viewportKey];
+  final inputKey = '${run.renderer}_${run.fixture}_input';
+  final inputPayload = root[inputKey];
   final launchAttributionKey =
       '${run.renderer}_${run.fixture}_launch_attribution';
   final launchAttributionPayload = root[launchAttributionKey];
@@ -1250,6 +1337,9 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)
         : null,
+    inputPayload: inputPayload is Map<String, Object?>
+        ? _readInputPayload(inputPayload)
+        : null,
     launchAttribution: launchAttributionPayload is Map<String, Object?>
         ? _readLaunchAttributionPayload(launchAttributionPayload)
         : const _ProfileLaunchAttributionPayload(
@@ -1265,6 +1355,23 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
     updateLatencies: updateLatenciesPayload is List<Object?>
         ? _readUpdateLatencies(updateLatenciesPayload)
         : const <_ProfileUpdateLatencySample>[],
+  );
+}
+
+_ProfileInputPayload _readInputPayload(Map<String, Object?> payload) {
+  final inputBytes = _readOptionalInt(payload, 'inputBytes');
+  final inputLength = _readOptionalInt(payload, 'inputLength');
+  if (inputBytes == null && inputLength == null) {
+    throw const FormatException(
+      'Expected inputBytes or inputLength in the input metadata payload.',
+    );
+  }
+
+  return _ProfileInputPayload(
+    inputBytes: inputBytes ?? inputLength!,
+    inputLength: inputLength ?? inputBytes!,
+    sourceType: payload['sourceType'] as String?,
+    assetPath: payload['assetPath'] as String?,
   );
 }
 

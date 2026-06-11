@@ -139,8 +139,10 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   transport smoke uses tiny samples and render microbench samples are still
   alpha-sized.
 - Fixture sizes: fixtures cover smoke, rich answer, dense table, stress table,
-  large article, nested lists, and streaming, but fixture byte sizes should be
-  recorded in every reviewed note before claims.
+  large article, nested lists, and streaming. New profile artifacts emit
+  per-cell `inputSummary.inputBytes` and `inputSummary.inputLength`; older
+  reviewed notes that predate this schema still need fixture-size annotation
+  before claims.
 - Dynamic updates: semantic patch lanes are measurable, but old-gen GC and
   raster outliers keep them diagnostic.
 - Native JSON versus HTML: native transport measures JSON decode/adapt/patch
