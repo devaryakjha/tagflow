@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `c7b01c0 chore(release): make publish dry-run noninteractive`
+- Snapshot commit: `8e1d1ec fix(ci): validate alpha workspace tests`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -43,6 +43,7 @@ dart run melos run benchmark:fixtures
 dart run melos run benchmark:micro
 dart run melos run benchmark:render
 dart run melos run publish:dry-run
+dart run melos run validate
 ```
 
 The benchmark harness is real but still alpha-grade:
@@ -73,6 +74,10 @@ The benchmark harness is real but still alpha-grade:
 - Fresh coordinator evidence: `dart run melos run publish:dry-run`, with
   `/Users/arya/fvm/cache.git/bin` on `PATH`, validates both `tagflow` and
   `tagflow_table` with 0 warnings.
+- Fresh coordinator evidence: `dart run melos run validate`, with
+  `/Users/arya/fvm/cache.git/bin` on `PATH`, passes analysis, format checks,
+  and coverage tests for `tagflow`, `tagflow_table`, and
+  `tagflow_benchmarks`.
 
 ## Known Non-Completion Points
 
@@ -80,6 +85,3 @@ The benchmark harness is real but still alpha-grade:
   the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
-- Root full validation has a known unrelated issue when the empty
-  `examples/tagflow/test/` directory causes Melos to select the example package
-  for coverage without test files.
