@@ -41,6 +41,19 @@ dependencies:
   tagflow_table: ^1.0.0-alpha.1
 ```
 
+## Beta posture
+
+`tagflow_table` remains a separate first-party extension package through the
+Tagflow beta line. Use `tagflowTableComponents(...)` as the canonical
+high-fidelity table registry extension for native `TagflowDocument` table
+nodes.
+
+The current `tagflow: ^1.0.0-alpha.1` dependency constraint is intentionally
+compatible with the `tagflow` alpha prerelease line while the core runtime moves
+through alpha. Dependency constraints and lockstep-versus-independent release
+cadence should be decided before beta after hosted alpha packages are proven in
+a real app.
+
 ## 🚀 Usage
 
 Native runtime code can install the first-party table registry fragment:
