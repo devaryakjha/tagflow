@@ -152,6 +152,34 @@ void main() {
       expect(document.children.last.kind, TagflowNodeKind.paragraph);
     });
 
+    test('maps inline HTML semantics into first-class presentation', () {
+      const html =
+          '<p><strong>Strong</strong><b>Bold</b><em>Em</em><i>Italic</i>'
+          '<u>Under</u><del>Gone</del><mark>Marked</mark><small>Small</small>'
+          '<sub>Sub</sub><sup>Sup</sup></p>';
+      final document = const TagflowHtmlAdapter().parse(html);
+
+      final expected = {
+        'strong': TagflowInlineSemantic.strong,
+        'b': TagflowInlineSemantic.strong,
+        'em': TagflowInlineSemantic.emphasis,
+        'i': TagflowInlineSemantic.emphasis,
+        'u': TagflowInlineSemantic.underline,
+        'del': TagflowInlineSemantic.deleted,
+        'mark': TagflowInlineSemantic.highlight,
+        'small': TagflowInlineSemantic.small,
+        'sub': TagflowInlineSemantic.subscript,
+        'sup': TagflowInlineSemantic.superscript,
+      };
+
+      for (final entry in expected.entries) {
+        final node = _singleNodeWithHtmlTag(document, entry.key);
+
+        expect(node.kind, isNot(TagflowNodeKind.unsupported));
+        expect(node.presentation.inlineSemantics, contains(entry.value));
+      }
+    });
+
     test('drops blocked elements with the default content policy', () {
       const html =
           '<p>Safe</p><script>alert(1)</script><iframe src="/x"></iframe>';
@@ -284,6 +312,31 @@ List<TagflowDocumentNode> _findNodes(
   return [
     if (node.kind == kind) node,
     for (final child in node.children) ..._findNodes(child, kind),
+  ];
+}
+
+TagflowDocumentNode _singleNodeWithHtmlTag(
+  TagflowDocument document,
+  String htmlTag,
+) {
+  final nodes = [
+    for (final child in document.children)
+      ..._findNodesWithHtmlTag(child, htmlTag),
+  ];
+
+  expect(nodes, hasLength(1), reason: 'Expected one <$htmlTag> node.');
+  return nodes.single;
+}
+
+List<TagflowDocumentNode> _findNodesWithHtmlTag(
+  TagflowDocumentNode node,
+  String htmlTag,
+) {
+  return [
+    if (node.metadata['htmlTag'] == htmlTag ||
+        node.presentation.hints['htmlTag'] == htmlTag)
+      node,
+    for (final child in node.children) ..._findNodesWithHtmlTag(child, htmlTag),
   ];
 }
 

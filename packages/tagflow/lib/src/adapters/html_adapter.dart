@@ -125,6 +125,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     variant: _variantForHtmlTag(node.tag),
     width: _parseDimension(node['width']),
     height: _parseDimension(node['height']),
+    inlineSemantics: _inlineSemanticsForHtmlTag(node.tag),
     hints: {
       _htmlTagKey: node.tag,
       if (node.className != null) 'className': node.className,
@@ -293,6 +294,22 @@ TagflowDocumentNode? _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
+    'strong' ||
+    'b' ||
+    'em' ||
+    'i' ||
+    'u' ||
+    'del' ||
+    'mark' ||
+    'small' ||
+    'sub' ||
+    'sup' => TagflowDocumentNode.container(
+      id: id,
+      children: children,
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
     'div' ||
     'section' ||
     'article' ||
@@ -455,6 +472,10 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
   final presentationTag = node.presentation.hints[_htmlTagKey];
   if (metadataTag is String) return metadataTag;
   if (presentationTag is String) return presentationTag;
+  if (node.kind == TagflowNodeKind.container &&
+      node.presentation.inlineSemantics.isNotEmpty) {
+    return 'span';
+  }
 
   return switch (node.kind) {
     TagflowNodeKind.root || TagflowNodeKind.container => 'div',
@@ -482,6 +503,20 @@ String? _variantForHtmlTag(String tag) {
     'p' => 'paragraph',
     'pre' || 'code' => 'code',
     _ => null,
+  };
+}
+
+Set<TagflowInlineSemantic> _inlineSemanticsForHtmlTag(String tag) {
+  return switch (tag) {
+    'strong' || 'b' => const {TagflowInlineSemantic.strong},
+    'em' || 'i' => const {TagflowInlineSemantic.emphasis},
+    'u' => const {TagflowInlineSemantic.underline},
+    'del' => const {TagflowInlineSemantic.deleted},
+    'mark' => const {TagflowInlineSemantic.highlight},
+    'small' => const {TagflowInlineSemantic.small},
+    'sub' => const {TagflowInlineSemantic.subscript},
+    'sup' => const {TagflowInlineSemantic.superscript},
+    _ => const {},
   };
 }
 

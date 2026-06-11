@@ -143,14 +143,16 @@ void main() {
   });
 
   group('TagflowPresentation', () {
-    test('merges typed fields and hint maps immutably', () {
+    test('merges typed fields, inline semantics, and hint maps immutably', () {
       final base = TagflowPresentation(
         variant: 'body',
         width: 320,
+        inlineSemantics: const {TagflowInlineSemantic.strong},
         hints: const {'htmlTag': 'p', 'strong': false},
       );
       final override = TagflowPresentation(
         height: 180,
+        inlineSemantics: const {TagflowInlineSemantic.emphasis},
         hints: const {'strong': true, 'className': 'lead'},
       );
 
@@ -159,11 +161,19 @@ void main() {
       expect(merged.variant, 'body');
       expect(merged.width, 320);
       expect(merged.height, 180);
+      expect(merged.inlineSemantics, {
+        TagflowInlineSemantic.strong,
+        TagflowInlineSemantic.emphasis,
+      });
       expect(merged.hints, {
         'htmlTag': 'p',
         'strong': true,
         'className': 'lead',
       });
+      expect(
+        () => merged.inlineSemantics.add(TagflowInlineSemantic.underline),
+        throwsUnsupportedError,
+      );
       expect(() => merged.hints['another'] = 'value', throwsUnsupportedError);
     });
   });

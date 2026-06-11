@@ -66,21 +66,87 @@ void main() {
       expect(find.textContaining('custom element'), findsNothing);
     });
 
-    testWidgets('renders html emphasis hints through the semantic fallback', (
+    testWidgets('renders first-class inline presentation semantics', (
       tester,
     ) async {
-      final document = const TagflowHtmlAdapter().parse(
-        '<p>Hello <strong>bold</strong> and <em>italic</em></p>',
+      final document = TagflowDocument(
+        id: 'doc-inline-semantics',
+        children: [
+          TagflowDocumentNode.paragraph(
+            id: 'p',
+            children: [
+              TagflowDocumentNode.text(id: 't0', text: 'Hello '),
+              TagflowDocumentNode.container(
+                id: 'strong',
+                presentation: TagflowPresentation(
+                  inlineSemantics: const {TagflowInlineSemantic.strong},
+                ),
+                children: [TagflowDocumentNode.text(id: 't1', text: 'bold')],
+              ),
+              TagflowDocumentNode.text(id: 't2', text: ' and '),
+              TagflowDocumentNode.container(
+                id: 'emphasis',
+                presentation: TagflowPresentation(
+                  inlineSemantics: const {TagflowInlineSemantic.emphasis},
+                ),
+                children: [TagflowDocumentNode.text(id: 't3', text: 'italic')],
+              ),
+              TagflowDocumentNode.text(id: 't4', text: ' and '),
+              TagflowDocumentNode.container(
+                id: 'mark',
+                presentation: TagflowPresentation(
+                  inlineSemantics: const {TagflowInlineSemantic.highlight},
+                ),
+                children: [TagflowDocumentNode.text(id: 't5', text: 'marked')],
+              ),
+            ],
+          ),
+        ],
       );
 
       await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
 
       expect(find.text('Hello '), findsOneWidget);
       expect(find.text('bold'), findsOneWidget);
-      expect(find.text(' and '), findsOneWidget);
+      expect(find.text(' and '), findsNWidgets(2));
       expect(find.text('italic'), findsOneWidget);
+      expect(find.text('marked'), findsOneWidget);
       expect(_richTextStyle(tester, 'bold')?.fontWeight, FontWeight.w700);
       expect(_richTextStyle(tester, 'italic')?.fontStyle, FontStyle.italic);
+      expect(
+        find.ancestor(
+          of: find.text('marked'),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('keeps html hint fallback for legacy unsupported nodes', (
+      tester,
+    ) async {
+      final document = TagflowDocument(
+        id: 'doc-legacy-inline-hints',
+        children: [
+          TagflowDocumentNode.paragraph(
+            id: 'p',
+            children: [
+              TagflowDocumentNode.unsupported(
+                id: 'legacy-strong',
+                presentation: TagflowPresentation(
+                  hints: const {'htmlTag': 'strong'},
+                ),
+                children: [TagflowDocumentNode.text(id: 't1', text: 'bold')],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(find.text('bold'), findsOneWidget);
+      expect(_richTextStyle(tester, 'bold')?.fontWeight, FontWeight.w700);
     });
 
     testWidgets('applies link callbacks from semantic runtime nodes', (

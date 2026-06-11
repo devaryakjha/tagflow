@@ -112,7 +112,7 @@ final class TagflowComponentRegistry {
 
 final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.root: _renderBlockChildren,
-  TagflowNodeKind.container: _renderBlockChildren,
+  TagflowNodeKind.container: _renderContainer,
   TagflowNodeKind.paragraph: _renderParagraph,
   TagflowNodeKind.heading: _renderHeading,
   TagflowNodeKind.text: _renderText,
@@ -128,6 +128,20 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.tableCell: _renderTableCell,
   TagflowNodeKind.horizontalRule: _renderHorizontalRule,
 };
+
+Widget _renderContainer(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  final isInline =
+      node.presentation.inlineSemantics.isNotEmpty ||
+      _isInlineFallbackTag(_htmlTag(node));
+  final child = isInline
+      ? Wrap(children: context.renderChildren(node))
+      : _renderBlockChildren(context, node);
+
+  return _applyInlinePresentation(node.presentation, child);
+}
 
 Widget _renderBlockChildren(
   TagflowComponentContext context,
@@ -171,7 +185,7 @@ Widget _renderHeading(
 }
 
 Widget _renderText(TagflowComponentContext context, TagflowDocumentNode node) {
-  return Text(node.text ?? '');
+  return _applyInlinePresentation(node.presentation, Text(node.text ?? ''));
 }
 
 Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
@@ -429,6 +443,62 @@ Widget _defaultFallback(
   }
 
   return child;
+}
+
+Widget _applyInlinePresentation(
+  TagflowPresentation presentation,
+  Widget child,
+) {
+  final semantics = presentation.inlineSemantics;
+  if (semantics.isEmpty) return child;
+
+  var current = child;
+  final textStyle = _inlineTextStyle(semantics);
+  if (textStyle != null) {
+    current = DefaultTextStyle.merge(style: textStyle, child: current);
+  }
+
+  if (semantics.contains(TagflowInlineSemantic.highlight)) {
+    current = DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x33FFE082),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: current,
+    );
+  }
+
+  return current;
+}
+
+TextStyle? _inlineTextStyle(Set<TagflowInlineSemantic> semantics) {
+  final decorations = <TextDecoration>[];
+  if (semantics.contains(TagflowInlineSemantic.underline)) {
+    decorations.add(TextDecoration.underline);
+  }
+  if (semantics.contains(TagflowInlineSemantic.deleted)) {
+    decorations.add(TextDecoration.lineThrough);
+  }
+
+  final style = TextStyle(
+    fontWeight: semantics.contains(TagflowInlineSemantic.strong)
+        ? FontWeight.w700
+        : null,
+    fontStyle: semantics.contains(TagflowInlineSemantic.emphasis)
+        ? FontStyle.italic
+        : null,
+    decoration: decorations.isEmpty
+        ? null
+        : TextDecoration.combine(decorations),
+    fontSize:
+        semantics.contains(TagflowInlineSemantic.small) ||
+            semantics.contains(TagflowInlineSemantic.subscript) ||
+            semantics.contains(TagflowInlineSemantic.superscript)
+        ? 12
+        : null,
+  );
+
+  return style == const TextStyle() ? null : style;
 }
 
 double? _clampDimension(double? value, double? maxValue) {
