@@ -195,9 +195,16 @@ Release scope boundaries:
 Coordinator release-gate evidence for alpha.2:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed from current candidate commit `54566c8`.
-- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
-  publish:dry-run` validated only `tagflow`, with registry version
+  passed from the current alpha.2 candidate.
+- Publish dry-run passed with the Flutter SDK path exported:
+
+  ```bash
+  PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+    FLUTTER_ROOT=/Users/arya/fvm/cache.git \
+    dart run melos run publish:dry-run
+  ```
+
+  The command validated only `tagflow`, with registry version
   `1.0.0-alpha.1`, local version `1.0.0-alpha.2`, and `0` package warnings.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
   benchmark:native-transport` passed after the version bump and reported

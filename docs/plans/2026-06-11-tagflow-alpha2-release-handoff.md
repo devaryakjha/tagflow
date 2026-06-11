@@ -29,11 +29,15 @@ slice does not change the table extension package.
 
 ## Verified Gates
 
-The coordinator has run these gates from current candidate commit `54566c8`:
+The coordinator has run these gates from the current alpha.2 candidate. Use
+the Flutter SDK path explicitly for Melos publish validation so workspace
+dependencies such as `integration_test` resolve through Flutter:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
-PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+  FLUTTER_ROOT=/Users/arya/fvm/cache.git \
+  dart run melos run publish:dry-run
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run benchmark:native-transport
 cd examples/tagflow
 PATH=/Users/arya/fvm/cache.git/bin:$PATH flutter drive \
@@ -49,8 +53,9 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH flutter drive \
 Results:
 
 - `validate`: passed.
-- `publish:dry-run`: validated only `tagflow`; registry version
-  `1.0.0-alpha.1`, local version `1.0.0-alpha.2`, `0` package warnings.
+- `publish:dry-run`: validated only `tagflow` from the current release
+  handoff content; registry version `1.0.0-alpha.1`, local version
+  `1.0.0-alpha.2`, `0` package warnings.
 - `benchmark:native-transport`: passed and reported package version
   `1.0.0-alpha.2`.
 - Native JSON profile smoke: passed on macOS profile mode. Flutter reported
@@ -82,7 +87,9 @@ Only run these steps after explicit coordinator approval to publish.
    ```bash
    git status --short --branch
    PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
-   PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+     FLUTTER_ROOT=/Users/arya/fvm/cache.git \
+     dart run melos run publish:dry-run
    ```
 
 2. Push the candidate commit if it is not already on GitHub:
