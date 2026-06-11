@@ -86,6 +86,10 @@ The benchmark harness is real but still alpha-grade:
    the two hosted package constraints, the two IPO legacy imports, and the
    regenerated lockfile, with no diagnostics proof scaffolding or local path
    overrides.
+4. Clean hosted-alpha real-route validation has now reached Kite's real
+   `IPOInstrumentSheet` from an authenticated normal app session in Kite's
+   in-app Dark theme. Named screenshot artifacts and release-grade profile
+   evidence are still missing.
 
 ## Release Prep Status
 
@@ -229,6 +233,19 @@ The benchmark harness is real but still alpha-grade:
   `/ipo/applications`, supported UPI handles, and the selected RHP JSON URL;
   it should not revive the diagnostics proof screen or broad `main_local.dart`
   fixture behavior.
+- A real-route worker then ran the normal app entrypoint from the clean
+  hosted-alpha dependency branch content at `d9682aec`, using detached worktree
+  `/Users/arya/.codex/worktrees/2bc2/kite` because the branch was already
+  checked out elsewhere. It reconfirmed hosted `1.0.0-alpha.1` lockfile
+  resolution, no path overrides, `flutter pub get`, and focused analyzer
+  success. The simulator had an authenticated session; Kite's own app theme was
+  switched to Dark through Settings; Computer Use then reached Bids -> IPO and
+  tapped an IPO row. The worker reported that the real `IPOInstrumentSheet` was
+  reached for `UTKAL`, with logs showing `ShowIPOInstrumentSheet`,
+  `IPOInstrumentSheet UTKAL`, and `GetIPOInfo` returning `200`, but no
+  `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*` screenshot
+  artifacts were created before the bounded shutdown. This validates the route,
+  not the final dark screenshot or profile evidence gate.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.

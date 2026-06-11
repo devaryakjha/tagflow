@@ -166,8 +166,11 @@ not a continuation of the proof patch:
    `lib/component/tagflow_details_converter.dart`
 4. validation: repo-local `flutter pub get` passed, and focused analyzer passed
    for the two IPO Tagflow integration files
-5. remaining: capture dark-mode and profile-target evidence before considering
-   the migration production-ready
+5. latest real-route result: an authenticated simulator session reached Bids ->
+   IPO -> an IPO row -> the real `IPOInstrumentSheet` in Kite's in-app Dark
+   theme
+6. remaining: capture named dark-mode screenshots and profile-target evidence
+   before considering the migration production-ready
 
 ## Clean Alpha Validation Route
 
@@ -206,9 +209,47 @@ handles, and the selected instrument's `rhp_link?format=json` response. It
 should not re-add a diagnostics preview screen, broad local fixture behavior,
 or path dependency overrides.
 
-An isolated follow-up worker was queued to attempt this real authenticated
-route, capture dark-mode `IPOInstrumentSheet` screenshots if reachable, and
-attempt profile-mode evidence only on a supported physical target.
+An isolated follow-up worker attempted this real authenticated route from
+detached worktree `/Users/arya/.codex/worktrees/2bc2/kite` at the same
+`d9682aec` content, because the branch was already checked out elsewhere.
+
+The worker passed the clean-branch gates again:
+
+- no `pubspec_overrides.yaml`, local path dependency, diagnostics preview, local
+  IPO fixture, or broad lockfile churn
+- lockfile resolved hosted `tagflow` and `tagflow_table` at `1.0.0-alpha.1`
+- repo-local `flutter pub get`
+- focused analyzer for `lib/screens/ipos/ipo_instrument_sheet.dart` and
+  `lib/component/tagflow_details_converter.dart`
+
+The worker then launched the normal app entrypoint, not `main_local.dart`, on
+the iPhone 17 simulator with
+`--dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true`. The simulator already had
+an authenticated session. The worker set Kite's own stored theme to Dark via
+Settings; this matters because Kite reads theme from app state, not simulator
+appearance alone.
+
+Real-route result:
+
+- authenticated Home opened in the real app
+- Kite's in-app Dark theme was selected
+- Computer Use exposed the bottom tab and IPO list accessibility tree after the
+  semantic tap path failed to expose the tab bar
+- Bids -> IPO was reached
+- the first IPO row was tapped
+- the real `IPOInstrumentSheet` was reached for `UTKAL`
+- logs showed `ShowIPOInstrumentSheet`, `IPOInstrumentSheet UTKAL`, and
+  `GetIPOInfo` returning `200`
+- the Flutter session was stopped with `q` and reported `Application finished.`
+
+No release evidence files were produced before the bounded worker shutdown, so
+there are still no
+`docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*` artifacts. Treat
+this as route validation for the clean hosted-alpha branch, not screenshot or
+profile evidence. The next pass should repeat the same authenticated route and
+capture the named `IPOInstrumentSheet` screenshots before stopping. Profile-mode
+evidence still needs a supported physical target or a captured target failure in
+the benchmark manifest.
 
 ## Validation Commands
 
