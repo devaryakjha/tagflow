@@ -75,13 +75,16 @@ The benchmark harness is real but still alpha-grade:
 1. Benchmark-gating worker landed `34ea827`, adding an opt-in viewport and
    device-pixel-ratio guard to the profile baseline check. The default alpha
    collection-completeness gate remains unchanged.
-2. Kite alpha-dependency branch preparation is blocked on hosted alpha
-   availability. Live pub.dev state checked on 2026-06-11 still lists
-   `tagflow` at `0.0.8` and `tagflow_table` at `0.0.4+5`, so Kite should not
-   commit a hosted-alpha dependency update yet. The next clean Kite branch can
-   be prepared only after `1.0.0-alpha.1` is published for both packages.
-3. Release review can now decide whether to push the package-specific alpha tags:
+2. The package-specific alpha tags have been pushed and the publish workflows
+   succeeded:
    `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
+   pub.dev now contains `1.0.0-alpha.1` for both packages, although each
+   package's default latest version still points at the prior stable `0.0.x`
+   line because these are prereleases.
+3. Kite alpha-dependency branch preparation is unblocked for a clean hosted
+   dependency trial. That branch should update only the two package constraints,
+   the two IPO legacy imports, and the regenerated lockfile, with no diagnostics
+   proof scaffolding or local path overrides.
 
 ## Release Prep Status
 
@@ -107,6 +110,12 @@ The benchmark harness is real but still alpha-grade:
   --short --branch`, `git diff --check`, `dart run melos run validate`, and
   `dart run melos run publish:dry-run` all passed, with both packages
   validating at 0 warnings and no files changed in the audit worktree.
+- Release tags `tagflow-v1.0.0-alpha.1` and
+  `tagflow_table-v1.0.0-alpha.1` were pushed at coordinator commit `619c5f2`.
+  GitHub Actions publish runs `27336082485` (`Publish tagflow`) and
+  `27336081061` (`Publish tagflow_table`) both completed successfully.
+  The pub.dev package APIs include `1.0.0-alpha.1` in both package version
+  lists.
 
 ## Post-Alpha Stabilization Progress
 
@@ -177,11 +186,10 @@ The benchmark harness is real but still alpha-grade:
   content, financials, links, ordered lists, and table content.
 - The Kite proof patch has been cleaned out of `/Users/arya/projects/kite`.
   The app checkout is clean again on `feat/dashboard...origin/feat/dashboard`
-  and remains on hosted `tagflow: 0.0.8` / `tagflow_table: 0.0.4+5`. A future
-  Kite alpha migration should land after the hosted alpha packages are visible
-  on pub.dev, as a separate dependency branch with only the hosted alpha
-  constraint update, the two `legacy.dart` IPO converter imports, regenerated
-  lockfile, and fresh focused app validation.
+  and remains on hosted `tagflow: 0.0.8` / `tagflow_table: 0.0.4+5`. The next
+  Kite alpha migration can now land as a separate dependency branch with only
+  the hosted alpha constraint update, the two `legacy.dart` IPO converter
+  imports, regenerated lockfile, and fresh focused app validation.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -257,7 +265,6 @@ The benchmark harness is real but still alpha-grade:
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
   on the real app surface, and a deliberate Kite alpha-dependency migration
-  branch after the hosted `1.0.0-alpha.1` packages are available if Kite is the
-  first production consumer.
+  branch if Kite is the first production consumer.
   The first iOS simulator proof and debug timeline have been captured but
   should not be treated as a full production rollout or benchmark.
