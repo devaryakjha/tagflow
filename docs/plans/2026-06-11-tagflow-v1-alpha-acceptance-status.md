@@ -27,8 +27,8 @@ Snapshot:
 
 ## Benchmark Status
 
-Current local benchmark evidence is recorded in
-`docs/benchmarks/baselines/2026-06-11-local-alpha-baseline.md`.
+Current reviewed profile baseline evidence is recorded in
+`docs/benchmarks/baselines/2026-06-11-macos-reference-profile-baseline-capped.md`.
 
 Passed commands on this branch:
 
