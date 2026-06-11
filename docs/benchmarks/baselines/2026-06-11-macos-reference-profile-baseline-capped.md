@@ -65,6 +65,7 @@ dart run bin/run_profile_baselines.dart \
 Completed capped runs:
 
 ```bash
+cd <tagflow-repo-root>
 cd packages/tagflow_benchmarks
 dart run bin/run_profile_baselines.dart \
   --renderer=tagflow \
@@ -77,11 +78,17 @@ dart run bin/run_profile_baselines.dart \
   --repeat=1 \
   --run-id=2026-06-11-macos-ai-answer-competitors-r1
 
-dart run bin/summarize_profile_baselines.dart \
-  --run-id=2026-06-11-macos-tagflow-all-fixtures-r1
-
-dart run bin/summarize_profile_baselines.dart \
-  --run-id=2026-06-11-macos-ai-answer-competitors-r1
+cd <tagflow-repo-root>
+TAGFLOW_PROFILE_RUN_ID=2026-06-11-macos-tagflow-all-fixtures-r1 \
+  dart run melos run benchmark:profile:summarize
+TAGFLOW_PROFILE_RUN_ID=2026-06-11-macos-ai-answer-competitors-r1 \
+  dart run melos run benchmark:profile:summarize
+TAGFLOW_PROFILE_RUN_ID=2026-06-11-macos-tagflow-all-fixtures-r1 \
+  TAGFLOW_PROFILE_MIN_REPEATS=1 \
+  dart run melos run benchmark:profile:check
+TAGFLOW_PROFILE_RUN_ID=2026-06-11-macos-ai-answer-competitors-r1 \
+  TAGFLOW_PROFILE_MIN_REPEATS=1 \
+  dart run melos run benchmark:profile:check
 ```
 
 ## Artifact Sets
@@ -103,6 +110,16 @@ Aborted raw-only partial run:
 
 The aborted `repeat=5` attempt was interrupted before the runner finished,
 so it did not emit `profile-baseline-manifest.json`.
+
+Completeness gate status:
+
+- `2026-06-11-macos-tagflow-all-fixtures-r1` passes with
+  `TAGFLOW_PROFILE_MIN_REPEATS=1`.
+- `2026-06-11-macos-ai-answer-competitors-r1` passes with
+  `TAGFLOW_PROFILE_MIN_REPEATS=1`.
+- No run in this worktree passes the publishable reference-runner completeness
+  gate at `TAGFLOW_PROFILE_MIN_REPEATS=5`; the checked Tagflow all-fixtures
+  run fails with `insufficient_repeats` on all four fixtures.
 
 ## Completed Capped Results
 
