@@ -115,6 +115,9 @@ The benchmark harness is real but still alpha-grade:
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving
   the VM-service JSON result path used by `integrationDriver()`.
+- The example macOS benchmark host no longer carries legacy CocoaPods
+  integration files, so the separate Flutter CocoaPods/SPM migration warning is
+  no longer expected during benchmark dependency/build preparation.
 
 ## Known Non-Completion Points
 
@@ -127,6 +130,6 @@ The benchmark harness is real but still alpha-grade:
   gaps are mostly HTML/CSS-derived table styling parity, including border,
   padding/background, and spacing hints.
 - Profile benchmarking is real but not production-grade yet: broader competitor
-  coverage, additional fixtures, nightly/reference-runner baselines, and the
-  remaining macOS CocoaPods/SPM migration warning remain follow-up work before
-  using frame timings as a release gate.
+  coverage, additional fixtures, nightly/reference-runner baselines, and
+  repeated reference-device runs remain follow-up work before using frame
+  timings as a release gate.

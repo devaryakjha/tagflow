@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated implementation commit:
-  `daf32d8 fix(benchmarks): suppress macos integration warning`
+  `564709b fix(benchmarks): remove macos CocoaPods integration`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -36,13 +36,13 @@ published.
   selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus landed
   `flutter_html` and core-backed `flutter_widget_from_html` competitor
   adapters. The macOS integration-test plugin warning has a narrow
-  benchmark-script suppression while preserving JSON output.
+  benchmark-script suppression while preserving JSON output, and the separate
+  CocoaPods/SPM migration warning has been removed from the macOS example host.
 - Post-alpha stabilization in progress: broader competitor coverage, table
-  styling parity, richer fixtures, reference-runner baselines, macOS SPM
-  migration cleanup, and internal app validation.
-- Active stabilization workers are now split across `flutter_widget_from_html`
-  comparison coverage, broader fixture/profile baselines, and the macOS
-  CocoaPods/SPM warning diagnosis.
+  styling parity, richer fixtures, reference-runner baselines, and internal app
+  validation.
+- Active stabilization work is now focused on broader fixture/profile baselines,
+  especially the `table_stress` fixture and profile-run reliability.
 
 ## Current Constraints
 
@@ -363,8 +363,7 @@ Master review gate:
   passed on the coordinator branch.
 - Local benchmark baseline exists.
 - Do not treat profile timings as a release gate until reference-runner
-  baselines exist and the remaining macOS CocoaPods/SPM migration warning is
-  either fixed or explicitly accepted.
+  baselines exist.
 
 ## Branch and Thread Policy
 
@@ -387,16 +386,6 @@ Master review gate:
   fixtures adopt audio, video, SVG, or iframe content that requires those
   mixins for a fair comparison.
 
-### Flutter Widget From HTML Adapter
-
-- Thread ID: `019eb53b-c1ae-7590-ab43-75910875cc5c`
-- Worktree: `/Users/arya/.codex/worktrees/da6e/tagflow`
-- Status: active.
-- Scope: decide whether the base `flutter_widget_from_html` package can be a
-  fair, low-risk profile benchmark renderer without dragging in avoidable
-  media/webview plugins; implement and profile it if safe, otherwise commit a
-  precise docs diagnosis.
-
 ### Broader Benchmark Fixtures
 
 - Thread ID: `019eb53c-12a1-7223-847a-41a12817b025`
@@ -412,17 +401,18 @@ Master review gate:
 - Worktree: `/Users/arya/.codex/worktrees/bdde/tagflow`
 - Status: integrated as `daf32d8 fix(benchmarks): suppress macos integration
   warning`.
-- Remaining follow-up: the separate macOS CocoaPods/SPM migration warning still
-  appears during dependency/build preparation and is not fixed by this slice.
+- Follow-up: the separate CocoaPods/SPM migration warning was resolved by
+  `564709b fix(benchmarks): remove macos CocoaPods integration`.
 
 ### macOS SPM/CocoaPods Warning Diagnosis
 
 - Thread ID: `019eb53c-5f21-7df0-828b-9dcba2373bf7`
 - Worktree: `/Users/arya/.codex/worktrees/0b21/tagflow`
-- Status: active.
-- Scope: determine whether the example macOS benchmark host should migrate off
-  CocoaPods now, or whether the warning should remain documented until a safer
-  Flutter/macOS project migration slice.
+- Status: integrated as `564709b fix(benchmarks): remove macos CocoaPods
+  integration`.
+- Result: the example macOS host now follows the generated Swift Package plugin
+  path only; `flutter pub get`, example analysis, and a profile benchmark run
+  passed in the worker, and the CocoaPods/SPM warning was not observed.
 
 ## Alpha Decisions
 
