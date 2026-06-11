@@ -61,6 +61,48 @@ final class TagflowDocument {
   /// Runtime document schema version.
   final int version;
 
+  /// Creates a copy of this document with selected fields replaced.
+  ///
+  /// This method preserves the default constructor's permissive alpha
+  /// compatibility behavior. Use [copyWithValidated] when app-authored,
+  /// CMS-authored, or AI-authored document updates should fail fast on
+  /// duplicate node IDs.
+  TagflowDocument copyWith({
+    String? id,
+    List<TagflowDocumentNode>? children,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+    int? version,
+  }) {
+    return TagflowDocument(
+      id: id ?? this.id,
+      children: children ?? this.children,
+      metadata: metadata ?? this.metadata,
+      source: source ?? this.source,
+      version: version ?? this.version,
+    );
+  }
+
+  /// Creates a validated copy of this document with selected fields replaced.
+  ///
+  /// Throws [StateError] when the resulting child tree contains duplicate node
+  /// IDs.
+  TagflowDocument copyWithValidated({
+    String? id,
+    List<TagflowDocumentNode>? children,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+    int? version,
+  }) {
+    return TagflowDocument.validated(
+      id: id ?? this.id,
+      children: children ?? this.children,
+      metadata: metadata ?? this.metadata,
+      source: source ?? this.source,
+      version: version ?? this.version,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||

@@ -100,12 +100,16 @@ helpers now add `TagflowDocument.nodeById(...)`,
 duplicate-ID rules as patch application. `TagflowDocument.validated(...)` is the
 fail-fast construction path for app-authored, CMS-authored, or AI-authored
 native documents that need duplicate-ID validation before rendering or patch
-application. Remaining gaps for broader diff tooling:
+application. The immutable copy helper slice now adds
+`TagflowDocument.copyWith(...)`, `TagflowDocument.copyWithValidated(...)`, and
+`TagflowDocumentNode.copyWith(...)` for app-authored/native producers that need
+small local updates without introducing a controller. Remaining gaps for broader
+diff tooling:
 
-- no copy/update helpers outside patch application
 - no diff or patch result type
 
-The next API should add immutable update helpers before any controller.
+Diff tooling can build on those helpers later, but no controller should be added
+until real app integration proves an imperative lifecycle API is needed.
 
 ### Cache boundaries
 
@@ -214,6 +218,10 @@ Contract:
   not eagerly reject duplicates in this slice. Use
   `TagflowDocument.validated(...)` when a producer needs construction-time
   duplicate-ID validation.
+- Immutable copy helpers preserve the same validation boundary:
+  `TagflowDocument.copyWith(...)` is permissive, while
+  `TagflowDocument.copyWithValidated(...)` rejects duplicate node IDs in the
+  resulting tree.
 - Replacement can change node kind, but the replacement node's ID must match
   `nodeId` unless an explicit rename operation is added later.
 - Append operations are allowed for any node with `children`, including table

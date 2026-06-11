@@ -440,6 +440,54 @@ final class TagflowDocumentNode {
   /// Optional unsupported-content reason.
   final String? unsupportedReason;
 
+  /// Creates a copy of this node with selected fields replaced.
+  ///
+  /// The copied node remains immutable: replacement children are copied into an
+  /// unmodifiable list by the private runtime constructor.
+  TagflowDocumentNode copyWith({
+    String? id,
+    TagflowNodeKind? kind,
+    List<TagflowDocumentNode>? children,
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+    String? text,
+    Uri? url,
+    int? level,
+    bool? ordered,
+    int? startIndex,
+    String? alt,
+    double? width,
+    double? height,
+    String? language,
+    int? rowSpan,
+    int? colSpan,
+    bool? header,
+    String? unsupportedReason,
+  }) {
+    return TagflowDocumentNode._(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      children: children ?? this.children,
+      presentation: presentation ?? this.presentation,
+      metadata: metadata ?? this.metadata,
+      source: source ?? this.source,
+      text: text ?? this.text,
+      url: url ?? this.url,
+      level: level ?? this.level,
+      ordered: ordered ?? this.ordered,
+      startIndex: startIndex ?? this.startIndex,
+      alt: alt ?? this.alt,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      language: language ?? this.language,
+      rowSpan: rowSpan ?? this.rowSpan,
+      colSpan: colSpan ?? this.colSpan,
+      header: header ?? this.header,
+      unsupportedReason: unsupportedReason ?? this.unsupportedReason,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||

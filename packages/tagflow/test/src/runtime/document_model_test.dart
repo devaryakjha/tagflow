@@ -93,6 +93,56 @@ void main() {
       expect(document.children, hasLength(2));
       expect(document.validateUniqueNodeIds, throwsStateError);
     });
+
+    test('copyWith replaces document fields immutably', () {
+      final original = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'paragraph')],
+        metadata: TagflowMetadata(const {'origin': 'old'}),
+        source: TagflowSourceInfo(kind: TagflowSourceKind.app),
+      );
+      final replacement = TagflowDocumentNode.heading(
+        id: 'heading',
+        level: 2,
+        children: [
+          TagflowDocumentNode.text(id: 'heading-text', text: 'Updated'),
+        ],
+      );
+
+      final copied = original.copyWith(
+        id: 'doc-copy',
+        children: [replacement],
+        metadata: TagflowMetadata(const {'origin': 'ai'}),
+        source: TagflowSourceInfo(kind: TagflowSourceKind.json),
+        version: 2,
+      );
+
+      expect(copied.id, 'doc-copy');
+      expect(copied.children, [replacement]);
+      expect(copied.metadata['origin'], 'ai');
+      expect(copied.source?.kind, TagflowSourceKind.json);
+      expect(copied.version, 2);
+      expect(original.id, 'doc');
+      expect(original.children.single.id, 'paragraph');
+      expect(() => copied.children.add(replacement), throwsUnsupportedError);
+    });
+
+    test('copyWithValidated rejects duplicate replacement node ids', () {
+      final document = TagflowDocument.validated(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'paragraph')],
+      );
+
+      expect(
+        () => document.copyWithValidated(
+          children: [
+            TagflowDocumentNode.paragraph(id: 'duplicate'),
+            TagflowDocumentNode.text(id: 'duplicate', text: 'Collision'),
+          ],
+        ),
+        throwsStateError,
+      );
+    });
   });
 
   group('TagflowDocumentNode', () {
@@ -170,6 +220,74 @@ void main() {
         TagflowNodeIds.fromPath([1, 3, 2]),
         TagflowNodeIds.fromPath([1, 3, 2]),
       );
+    });
+
+    test('copyWith updates typed node fields without dropping others', () {
+      final child = TagflowDocumentNode.text(id: 'child', text: 'child');
+      final node = TagflowDocumentNode.heading(
+        id: 'heading',
+        level: 1,
+        children: [child],
+        presentation: TagflowPresentation(
+          variant: 'display',
+          inlineSemantics: const {TagflowInlineSemantic.strong},
+        ),
+        metadata: TagflowMetadata(const {'role': 'title'}),
+        source: TagflowSourceInfo(kind: TagflowSourceKind.app),
+      );
+      final replacementChild = TagflowDocumentNode.link(
+        id: 'link',
+        url: Uri.parse('https://example.com'),
+        children: [
+          TagflowDocumentNode.text(id: 'link-text', text: 'Read more'),
+        ],
+      );
+
+      final copied = node.copyWith(
+        id: 'heading-copy',
+        children: [replacementChild],
+        presentation: TagflowPresentation(
+          variant: 'headline',
+          inlineSemantics: const {TagflowInlineSemantic.emphasis},
+        ),
+        level: 3,
+        text: 'Synthetic heading payload',
+        url: Uri.parse('https://example.com/heading'),
+        ordered: true,
+        startIndex: 4,
+        alt: 'alt text',
+        width: 120,
+        height: 80,
+        language: 'dart',
+        rowSpan: 2,
+        colSpan: 3,
+        header: true,
+        unsupportedReason: 'custom',
+      );
+
+      expect(copied.id, 'heading-copy');
+      expect(copied.kind, TagflowNodeKind.heading);
+      expect(copied.children, [replacementChild]);
+      expect(copied.presentation.variant, 'headline');
+      expect(copied.metadata['role'], 'title');
+      expect(copied.source?.kind, TagflowSourceKind.app);
+      expect(copied.level, 3);
+      expect(copied.text, 'Synthetic heading payload');
+      expect(copied.url, Uri.parse('https://example.com/heading'));
+      expect(copied.ordered, isTrue);
+      expect(copied.startIndex, 4);
+      expect(copied.alt, 'alt text');
+      expect(copied.width, 120);
+      expect(copied.height, 80);
+      expect(copied.language, 'dart');
+      expect(copied.rowSpan, 2);
+      expect(copied.colSpan, 3);
+      expect(copied.header, isTrue);
+      expect(copied.unsupportedReason, 'custom');
+      expect(node.id, 'heading');
+      expect(node.level, 1);
+      expect(node.children, [child]);
+      expect(() => copied.children.add(child), throwsUnsupportedError);
     });
   });
 
