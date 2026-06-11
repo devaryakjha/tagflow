@@ -30,17 +30,33 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   `TagflowNativeBlockAdapter.adaptPatch(...)` /
   `adaptPatches(...)`, covering replace, append-children, insert-before, and
   remove operations without widening the runtime mutation model.
+- Native block transport now has a deliberately small adapter-side JSON codec:
+  `TagflowNativeBlockCodec` decodes and encodes
+  `TagflowNativeBlockDocument`, `TagflowNativeBlock`, and
+  `TagflowNativeBlockPatchEnvelope` payloads without introducing a generic
+  serializer framework.
+- The patch transport envelope carries document ID, adapter schema version,
+  optional `baseRevision` / `revision` producer tokens, and ordered operations.
+  Decoded operations still flow through
+  `TagflowNativeBlockAdapter.adaptPatch(...)` / `adaptPatches(...)` and then
+  `TagflowDocument.applyPatch(...)`; no second mutation model was introduced.
 - Replacement updates validate block-ID stability before runtime patch
   creation, and append/insert payloads reject duplicate block IDs within the
   update payload before runtime patch application.
 - Non-semantic table attributes are not promoted into new typed runtime fields
   in this slice; they remain available in adapter metadata for diagnostics and
   future renderer work.
-- Follow-up slices remain for serializer helpers and any future dedicated
-  runtime callout renderer contract.
-- Patch envelopes carrying document IDs, schema versions, or producer revision
-  coordination remain follow-up work; this landed slice is operation-shaped
-  only so it can map directly to `TagflowDocumentPatch`.
+- Transport metadata and attributes are limited to JSON-like data: null, bool,
+  finite numbers, strings, arrays, and string-keyed objects. Callbacks,
+  widgets, opaque Dart objects, non-string map keys, and non-finite numbers fail
+  with `FormatException`.
+- Source round-tripping is intentionally limited to the existing
+  `TagflowSourceInfo` fields: `kind`, `adapter`, `uri`, `line`, `column`, and
+  JSON-like metadata. Unknown source kinds fail instead of being silently
+  widened.
+- Follow-up slices remain for any future dedicated runtime callout renderer
+  contract and for broader storage/sync protocol decisions outside this
+  adapter-side transport shape.
 
 ## 1. Problem Statement
 
