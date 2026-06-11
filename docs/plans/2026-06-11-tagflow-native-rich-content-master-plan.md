@@ -50,7 +50,8 @@ It should not claim a CMS sync protocol or public performance result.
   roadmap, and the alpha migration guide have been updated for the native rich
   content runtime line. `tagflow` is now prepared as a core-only
   `1.0.0-alpha.2` candidate, with full validation and publish dry-run passing;
-  `tagflow_table` remains at `1.0.0-alpha.1`.
+  `tagflow_table` remains at `1.0.0-alpha.1`. The tag-driven release handoff
+  lives in `docs/plans/2026-06-11-tagflow-alpha2-release-handoff.md`.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection

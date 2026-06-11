@@ -200,6 +200,9 @@ Coordinator publish gap before alpha.2:
 3. After publish, update Kite's alpha branch to hosted `^1.0.0-alpha.2` and
    add the native transport test fixture against hosted dependencies.
 
+The concrete publish/tag sequence and post-publish Kite follow-up are recorded
+in `docs/plans/2026-06-11-tagflow-alpha2-release-handoff.md`.
+
 ## Post-Alpha Stabilization Progress
 
 - `tagflow_table` now exposes `tagflowTableComponents(...)`, a first-party
