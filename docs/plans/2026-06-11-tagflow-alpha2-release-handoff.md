@@ -1,5 +1,10 @@
 # Tagflow 1.0.0-alpha.2 Release Handoff
 
+> Superseded on 2026-06-12 by
+> `docs/plans/2026-06-12-tagflow-alpha3-release-handoff.md`. Keep this file as
+> alpha.2 release history only. Do not use its `tagflow-v1.0.0-alpha.2` tag or
+> Kite follow-up commands for the current coordinator branch.
+
 **Date:** 2026-06-11
 **Coordinator branch:** `codex/tagflow-native-runtime-master`
 **Release package:** `tagflow`
