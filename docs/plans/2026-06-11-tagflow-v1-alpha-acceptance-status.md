@@ -3,6 +3,11 @@
 This tracker records the coordination state for the `1.0.0-alpha.1` native
 rich content runtime line.
 
+Current-state note: preserve this tracker as alpha.1 history plus the alpha.2
+prep section below. It is not a beta-readiness gate, and alpha.3 planning
+should start from
+`docs/specs/2026-06-11-post-alpha2-native-runtime-roadmap.md`.
+
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`

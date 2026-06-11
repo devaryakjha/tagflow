@@ -6,6 +6,13 @@
 **Primary Audience:** implementation workers for `packages/tagflow`,
 `packages/tagflow_table`, docs, and example-app migration work
 
+**Current-state note:** this is the original alpha.1 architecture SPEC. For
+alpha.3 planning, treat
+`docs/specs/2026-06-11-post-alpha2-native-runtime-roadmap.md` and the
+alpha.2 handoff as newer coordination sources. The implemented public runtime
+node type is `TagflowDocumentNode`; older `TagflowNode` examples in this SPEC
+should be read as historical shorthand only where not corrected below.
+
 ## 1. Context
 
 Tagflow today is an HTML-first Flutter renderer:
@@ -124,7 +131,7 @@ Tagflow.document(...)
 final document = TagflowHtmlAdapter(...).parse(html);
 
 TagflowDocument
-TagflowNode
+TagflowDocumentNode
 TagflowContentPolicy
 TagflowComponentRegistry
 TagflowTheme
@@ -208,7 +215,7 @@ final class TagflowDocument {
   });
 
   final String id;
-  final List<TagflowNode> children;
+  final List<TagflowDocumentNode> children;
   final Map<String, Object?> metadata;
   final TagflowSourceInfo? source;
   final int version;
@@ -502,6 +509,12 @@ not pretend to deliver them.
 
 ## 14. Caching
 
+Current alpha.2/alpha.3 posture: do not treat this historical alpha.1 cache
+section as an implementation instruction. Later update and adapter SPECs
+deliberately defer parser and adapter cache APIs until stable IDs, patch
+semantics, benchmark evidence, and real-app integration evidence show the
+right boundary.
+
 ### Alpha requirements
 
 Alpha should include lightweight, explicit caching at the document and adapter
@@ -577,6 +590,10 @@ important constraint is boundary clarity.
 
 ## 17. Alpha Acceptance Criteria
 
+Current-state note: these criteria describe the alpha.1 gate and are preserved
+as history. Alpha.3 planning should use the post-alpha.2 roadmap instead of
+treating this list as a beta-readiness or alpha.3 release gate.
+
 `1.0.0-alpha.1` is acceptable only if all of the following are true:
 
 1. A public `TagflowDocument` model exists and is the canonical renderer input.
@@ -602,7 +619,8 @@ important constraint is boundary clarity.
 These items are intentionally later than `1.0.0-alpha.1`:
 
 - Markdown adapter
-- JSON/native document serialization format
+- broader JSON/native document serialization beyond the narrow native block
+  transport prepared for the alpha.2 candidate
 - editor-facing APIs
 - virtualization for very large documents
 - richer unsupported-content diagnostics

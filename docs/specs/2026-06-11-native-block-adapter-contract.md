@@ -6,6 +6,12 @@
 **Primary Audience:** Tagflow runtime, adapter, benchmark, and internal-app
 validation workers
 
+**Current-state note:** the implementation-status section below reflects the
+newer alpha.2 candidate state and supersedes older deferred-first-slice wording
+later in this SPEC. In particular, the narrow
+`TagflowNativeBlockPatchEnvelope` JSON transport has landed; broader
+controller, cache, storage, sync, and conflict semantics remain deferred.
+
 ## Implementation Status
 
 The first compileable adapter foundation landed in `packages/tagflow` on
@@ -419,8 +425,9 @@ Landed first slice:
 
 Explicitly deferred:
 
-- patch envelopes that include `documentId`, `schemaVersion`, `revision`, or
-  `baseRevision`
+- producer conflict handling or revision enforcement beyond the landed narrow
+  patch envelope fields: `documentId`, `schemaVersion`, `baseRevision`, and
+  `revision`
 - cross-patch batch conflict validation against an already-evolving runtime
   document
 - controller or cache APIs layered above immutable document patches

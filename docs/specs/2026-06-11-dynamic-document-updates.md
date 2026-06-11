@@ -6,6 +6,11 @@
 **Primary Audience:** Tagflow runtime, adapter, table-extension, and benchmark
 workers
 
+**Current-state note:** this SPEC remains the source for immutable patch
+semantics. For alpha.3 planning after the alpha.2 candidate, keep the
+controller and cache deferrals below unless real-app integration evidence
+proves a narrower API is needed.
+
 ## 1. Problem Statement
 
 Tagflow now has the right alpha foundation for Flutter-native dynamic content:
