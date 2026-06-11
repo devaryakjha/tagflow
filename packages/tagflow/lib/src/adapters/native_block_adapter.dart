@@ -15,14 +15,10 @@ final class TagflowNativeBlockAdapter {
   /// Creates a native block adapter.
   const TagflowNativeBlockAdapter({
     this.policy = TagflowContentPolicy.defaults,
-    this.strictUnsupportedKinds = true,
   });
 
   /// Content policy applied to URL-bearing blocks.
   final TagflowContentPolicy policy;
-
-  /// Whether unsupported block kinds throw instead of using policy fallback.
-  final bool strictUnsupportedKinds;
 
   /// Converts [document] into the canonical runtime document model.
   TagflowDocument adapt(TagflowNativeBlockDocument document) {

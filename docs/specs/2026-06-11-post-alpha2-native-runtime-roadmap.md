@@ -77,10 +77,8 @@ publish, tag, package-version bump, or source-code implementation by itself.
   but plain `TagflowDocument(...)` construction does not eagerly validate the
   whole tree.
 - Native block transport validates JSON-like values and known enum kinds at
-  codec decode time; unknown future block kinds currently fail before adapter
-  fallback behavior can preserve placeholders.
-- `TagflowNativeBlockAdapter.strictUnsupportedKinds` exists, but the current
-  public enum-based block model leaves little room for unknown producer kinds.
+  codec decode time; unknown future block kinds fail before adapter fallback
+  behavior can preserve placeholders.
 - Link taps and image loading remain view-owned through `TagflowViewOptions`
   and the compatibility `TagflowOptions` bridge.
 - The core built-in table renderer is intentionally basic; higher fidelity
@@ -314,8 +312,9 @@ Rules:
   are outside the contract;
 - unsupported content behavior must be explicit and test-covered.
 
-Alpha.3 should close the unknown native block behavior gap before telling
-producers that placeholders are a portable fallback.
+Alpha.3 should keep telling producers that placeholders are a policy fallback
+for known blocks rejected by policy, not a portable fallback for unknown native
+JSON `kind` values.
 
 ## 10. Extension Points
 
@@ -469,11 +468,11 @@ Files:
 
 Work:
 
-- decide whether unknown producer kinds fail in the codec, decode into an
-  explicit unknown block representation, or stay unsupported until beta;
-- decide whether schema versions other than `1` fail strictly in alpha.3;
-- add tests for the chosen behavior;
-- document the behavior in the adapter SPEC.
+- keep unknown producer kinds failing in the codec until beta explicitly
+  introduces a versioned unknown-block representation;
+- keep schema versions other than `1` failing strictly in alpha.3;
+- keep tests covering the chosen document and patch payload behavior;
+- document the behavior in the adapter SPEC and release-facing docs.
 
 Acceptance:
 

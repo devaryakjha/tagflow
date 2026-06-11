@@ -450,5 +450,26 @@ void main() {
       expect(image?.kind, TagflowNodeKind.unsupported);
       expect(image?.unsupportedReason, contains('rejected by policy'));
     });
+
+    test('drops policy-rejected native image blocks by default', () {
+      const adapter = TagflowNativeBlockAdapter(
+        policy: TagflowContentPolicy(allowRemoteImages: false),
+      );
+      final document = TagflowNativeBlockDocument(
+        id: 'doc',
+        schemaVersion: 1,
+        blocks: [
+          TagflowNativeBlock.image(
+            id: 'remote-image',
+            url: 'https://example.com/blocked.png',
+          ),
+        ],
+      );
+
+      final adapted = adapter.adapt(document);
+
+      expect(adapted.nodeById('remote-image'), isNull);
+      expect(adapted.children, isEmpty);
+    });
   });
 }

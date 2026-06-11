@@ -365,21 +365,16 @@ typed `TagflowNativeBlock` is created. Unknown patch operation names fail in
 `decodePatchEnvelope(...)` before runtime patch adaptation. There is no public
 unknown-block model in the native JSON transport yet.
 
-Unknown kinds are expected in real producer pipelines. The contract must define
-predictable normalization.
-
-Allowed behaviors:
-
-- drop the unsupported block
-- preserve an `unsupported` runtime placeholder node with reason metadata
-- preserve supported descendants when that can be done without inventing false
-  semantics
+Known blocks rejected by adapter policy are different from unknown producer
+kinds. For example, a known `image` block with a URL rejected by
+`TagflowContentPolicy` follows the policy's `unsupportedBehavior`: it is
+dropped, or it becomes a runtime `unsupported` placeholder with reason
+metadata.
 
 Rules:
 
 - behavior must be policy-driven, not adapter-accidental
-- unknown blocks must not throw away the entire document unless strict mode is
-  explicitly selected
+- unknown native JSON block kinds fail the payload before adaptation
 - placeholders must retain enough metadata to explain what was rejected
 - apps should be able to benchmark and validate unsupported behavior the same
   way they already do for blocked HTML content

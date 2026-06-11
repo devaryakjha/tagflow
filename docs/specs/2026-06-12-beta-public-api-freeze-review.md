@@ -167,15 +167,17 @@ runtime model.
 `alpha-only review required`:
 
 - native block kind vocabulary
-- strict unsupported-kind behavior
+- future unknown-block compatibility behavior
 - transport revision semantics
 - patch envelope revision semantics
 
 Rationale: strict `schemaVersion == 1` is now the right alpha contract. Before
 beta, Tagflow still needs real-app evidence using hosted alpha packages, and
-the team must decide whether unknown future block kinds fail strictly, preserve
-placeholders, or require versioned codecs. Revision fields are currently
-producer tokens, not a core sync/conflict protocol.
+the alpha transport currently keeps unknown future block kinds strict at codec
+decode time. Beta must decide whether to keep that policy, preserve
+placeholders through an explicit unknown-block model, or require versioned
+codecs. Revision fields are currently producer tokens, not a core sync/conflict
+protocol.
 
 ### Content Policy
 
@@ -195,10 +197,10 @@ runtime input.
 
 `alpha-only review required`:
 
-- exact default behavior for unsupported native blocks.
+- exact default behavior for known native blocks rejected by policy.
 
 Rationale: HTML blocked-tag behavior is documented and tested more clearly than
-future native unknown-kind behavior. Beta needs those policy stories aligned.
+native policy-rejected block behavior. Beta needs those policy stories aligned.
 
 ### Style and Theme Surface
 
@@ -284,7 +286,8 @@ Windows".
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
-  documented.
+  documented for the alpha strict policy. Future unknown-block compatibility
+  remains a beta vocabulary decision.
 - `tagflow_table` beta posture is decided and documented. Partly done in
   "Compatibility Support Windows"; dependency posture and release cadence still
   need hosted alpha evidence.

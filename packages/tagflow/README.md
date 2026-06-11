@@ -179,6 +179,11 @@ must use `schemaVersion: 1`; other values fail during
 `TagflowNativeBlockCodec` decode until a reviewed compatibility policy exists.
 Do not emit future schema versions speculatively.
 
+Unknown native JSON `kind` values and unknown patch `op` values also fail
+during codec decode. `TagflowUnsupportedBehavior` applies after decode to
+known blocks rejected by adapter policy, such as a known image block whose URL
+policy rejects the source.
+
 Patch envelopes use `TagflowNativeBlockPatchEnvelope`: decode the producer
 envelope, adapt the ordered native operations, then apply runtime document
 patches.

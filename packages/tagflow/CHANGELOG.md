@@ -1,3 +1,10 @@
+## Unreleased
+
+- Removes the unused `TagflowNativeBlockAdapter.strictUnsupportedKinds`
+  constructor option. Unknown native JSON block kinds fail during
+  `TagflowNativeBlockCodec` decode in the alpha transport; placeholder fallback
+  applies only to known blocks rejected by adapter policy.
+
 ## 1.0.0-alpha.2 - 2026-06-11
 
 - Adds `TagflowNativeBlockCodec` for decoding and encoding trusted, data-only
