@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow_example/benchmarks/benchmark_host.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
+import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
 
 Future<void> _pumpBenchmarkScreen(WidgetTester tester) async {
@@ -50,6 +51,22 @@ void main() {
     final segmentedButtons = _segmentedButtons(tester);
     expect(segmentedButtons.first.selected, {'ai_answer_rich_md'});
     expect(segmentedButtons[1].selected, {'flutter_markdown_plus'});
+  });
+
+  testWidgets('switching to streaming fixture keeps an HTML renderer', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
+    await _pumpBenchmarkScreen(tester);
+
+    final streamingFixtureFinder = find.text('streaming_ai_chunks');
+    await tester.ensureVisible(streamingFixtureFinder);
+    await tester.tap(streamingFixtureFinder);
+    await _pumpBenchmarkScreen(tester);
+
+    final segmentedButtons = _segmentedButtons(tester);
+    expect(segmentedButtons.first.selected, {'streaming_ai_chunks'});
+    expect(segmentedButtons[1].selected, {defaultBenchmarkRendererId});
   });
 
   testWidgets('can switch benchmark renderers', (tester) async {

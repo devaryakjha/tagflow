@@ -5,6 +5,7 @@ const List<String> profileBenchmarkFixtureIds = [
   'table_dense',
   'large_article',
   'table_stress',
+  'streaming_ai_chunks',
 ];
 
 /// Default fixture used by the manual benchmark route and integration test.
@@ -36,6 +37,15 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
           'packages/tagflow_benchmarks/fixtures/markdown/ai_answer_rich.md',
     ),
   ),
+  'streaming_ai_chunks': const ProfileBenchmarkFixture(
+    id: 'streaming_ai_chunks',
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.html,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/html/ai_answer_rich.html',
+    ),
+    scenario: BenchmarkScenario.streamingChunks,
+  ),
   for (final id in ['table_dense', 'large_article', 'table_stress'])
     id: ProfileBenchmarkFixture(
       id: id,
@@ -45,6 +55,15 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
       ),
     ),
 };
+
+/// Benchmark interaction shape for a fixture.
+enum BenchmarkScenario {
+  /// Render the fixture once, then measure scrolling.
+  staticDocument,
+
+  /// Re-render progressively larger chunks of one source document.
+  streamingChunks,
+}
 
 /// Supported benchmark source formats.
 enum BenchmarkSourceType {
@@ -70,11 +89,18 @@ final class BenchmarkFixtureSource {
 /// Runtime fixture descriptor for the example-app profile benchmark route.
 final class ProfileBenchmarkFixture {
   /// Creates a profile benchmark fixture descriptor.
-  const ProfileBenchmarkFixture({required this.id, required this.source});
+  const ProfileBenchmarkFixture({
+    required this.id,
+    required this.source,
+    this.scenario = BenchmarkScenario.staticDocument,
+  });
 
   /// Stable fixture id shared with `tagflow_benchmarks`.
   final String id;
 
   /// Source payload loaded by the benchmark host.
   final BenchmarkFixtureSource source;
+
+  /// Interaction pattern used by automated profile benchmarks.
+  final BenchmarkScenario scenario;
 }

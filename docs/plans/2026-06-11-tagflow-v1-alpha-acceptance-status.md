@@ -170,6 +170,12 @@ The benchmark harness is real but still alpha-grade:
   with fixture validity coverage and exercised by parser and widget render
   benchmark lanes. A Tagflow-only profile smoke run for
   `TAGFLOW_FIXTURE=table_stress` passed locally on macOS.
+- The profile harness now includes a Tagflow-only `streaming_ai_chunks`
+  scenario for dynamic AI-answer updates. It renders four progressively larger
+  chunks of `ai_answer_rich`, records per-chunk update latencies, and then runs
+  the existing scroll measurement on the final document. A local macOS profile
+  smoke run passed and emitted viewport, update, update-latency, and scroll
+  payloads.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving

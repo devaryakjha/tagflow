@@ -363,6 +363,10 @@ Master review gate:
 - The profile harness supports renderer and fixture selection.
 - The deterministic fixture corpus now includes `table_stress`, with local
   parser/render benchmark evidence and a Tagflow profile smoke run.
+- The example profile harness now registers `streaming_ai_chunks` as a
+  Tagflow-only dynamic-content scenario that renders 25%, 50%, 75%, and 100%
+  chunks of `ai_answer_rich` and records update latency before the final scroll
+  measurement.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.

@@ -14,6 +14,14 @@ void main() {
       expect(markdownFixture.source.assetPath, endsWith('ai_answer_rich.md'));
     });
 
+    test('resolves streaming fixture as an HTML chunk scenario', () {
+      final fixture = profileBenchmarkFixtureById('streaming_ai_chunks');
+
+      expect(fixture.source.type, BenchmarkSourceType.html);
+      expect(fixture.source.assetPath, endsWith('ai_answer_rich.html'));
+      expect(fixture.scenario, BenchmarkScenario.streamingChunks);
+    });
+
     test('throws for an unknown fixture id', () {
       expect(
         () => profileBenchmarkFixtureById('missing_fixture'),

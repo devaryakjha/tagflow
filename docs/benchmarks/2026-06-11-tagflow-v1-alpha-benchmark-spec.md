@@ -127,6 +127,8 @@ Recommended fixtures:
 7. `streaming_ai_chunks`
    - Four incremental payloads: 25%, 50%, 75%, 100% of `ai_answer_rich`
    - Purpose: measure full reparses now, incremental work later
+   - Implementation status: registered in the example-app profile harness as a
+     Tagflow-only streaming scenario with per-chunk update latency reporting.
 
 ## Benchmark Matrix
 
