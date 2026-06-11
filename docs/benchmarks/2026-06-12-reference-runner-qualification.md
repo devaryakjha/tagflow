@@ -263,8 +263,8 @@ Blocked until all qualification gates pass:
 3. Add an Android physical-device qualification note with a real
    `flutter devices` target id, one-repeat probe result, and failure
    classification if it fails.
-4. Add an iOS physical-device qualification note after the device is wired and
-   not wireless-only from Flutter's perspective.
+4. Add an iOS physical-device qualification note after the paired physical
+   target produces a one-repeat manifest and integration artifact.
 5. Capture DevTools Memory summaries for `large_article`, `table_stress`, and
    authored-insertion patch lanes.
 6. Draft a numeric threshold proposal only after a stable reference target has
