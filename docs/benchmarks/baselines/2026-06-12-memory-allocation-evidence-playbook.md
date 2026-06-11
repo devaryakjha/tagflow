@@ -68,6 +68,7 @@ TAGFLOW_PROFILE_REPEAT=5 \
 TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
 TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
 dart run melos run benchmark:profile:baselines
 ```
 
@@ -83,6 +84,7 @@ TAGFLOW_PROFILE_REPEAT=5 \
 TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
 TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
 dart run melos run benchmark:profile:baselines
 ```
 
@@ -98,6 +100,7 @@ TAGFLOW_PROFILE_REPEAT=5 \
 TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
 TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
 dart run melos run benchmark:profile:baselines
 ```
 
@@ -113,6 +116,7 @@ TAGFLOW_PROFILE_REPEAT=5 \
 TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
 TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
 dart run melos run benchmark:profile:baselines
 ```
 
@@ -164,6 +168,12 @@ jq -r '.runs[] | select(.renderer=="tagflow_semantic_patch" and .fixture=="strea
 
 Use the raw profile artifact and the VM service URI from the benchmark run to
 pair the baseline with DevTools Memory evidence.
+
+When `TAGFLOW_PROFILE_MEMORY=true`, the repeated profile runner requests a
+per-cell `flutter drive --profile-memory` file and records the expected memory
+profile path plus any VM service URI printed by Flutter in
+`profile-baseline-manifest.json`. This bounded file is useful evidence, but it
+does not replace the checkpoint snapshots or allocation diffs below.
 
 Two supported capture modes exist:
 

@@ -13,6 +13,7 @@ final class ProfileBaselineCliOptions {
     required this.device,
     required this.outputDirectory,
     required this.continueOnFailure,
+    required this.profileMemory,
     this.pairs,
     this.runId,
   });
@@ -70,6 +71,9 @@ final class ProfileBaselineCliOptions {
         values['continue-on-failure'] ??
             env['TAGFLOW_PROFILE_CONTINUE_ON_FAILURE'],
       ),
+      profileMemory: _boolFlag(
+        values['profile-memory'] ?? env['TAGFLOW_PROFILE_MEMORY'],
+      ),
       pairs: pairs,
       runId: values['run-id'] ?? env['TAGFLOW_PROFILE_RUN_ID'],
     );
@@ -95,6 +99,9 @@ final class ProfileBaselineCliOptions {
 
   /// Whether to continue after failed profile runs.
   final bool continueOnFailure;
+
+  /// Whether each profile cell should request `flutter drive --profile-memory`.
+  final bool profileMemory;
 
   /// Optional stable run id.
   final String? runId;

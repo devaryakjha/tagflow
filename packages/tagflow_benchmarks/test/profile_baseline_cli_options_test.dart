@@ -71,6 +71,19 @@ void main() {
     expect(options.runId, 'semantic-pair-r1');
   });
 
+  test('parses profile memory opt-in from cli and environment', () {
+    final cliOptions = ProfileBaselineCliOptions.parse(const [
+      '--profile-memory=true',
+    ], environment: const {});
+    final envOptions = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {'TAGFLOW_PROFILE_MEMORY': 'yes'},
+    );
+
+    expect(cliOptions.profileMemory, isTrue);
+    expect(envOptions.profileMemory, isTrue);
+  });
+
   test('rejects malformed profile pairs', () {
     expect(
       () => ProfileBaselineCliOptions.parse(const [

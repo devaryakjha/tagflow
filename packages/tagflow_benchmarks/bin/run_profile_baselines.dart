@@ -30,6 +30,7 @@ Future<void> main(List<String> arguments) async {
     runId: options.runId ?? defaultProfileBaselineRunId(),
     device: options.device,
     failFast: !options.continueOnFailure,
+    profileMemory: options.profileMemory,
   );
 
   final manifest = await runner.run();
@@ -58,6 +59,9 @@ Options:
   --continue-on-failure=true
                     Keep running the selected matrix and write failed runs to
                     the manifest instead of failing on the first process error.
+  --profile-memory=true
+                    Request a per-cell flutter drive --profile-memory JSON.
+                    Also accepts TAGFLOW_PROFILE_MEMORY.
 
 Example:
   TAGFLOW_RENDERER=tagflow \

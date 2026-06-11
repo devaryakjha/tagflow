@@ -76,6 +76,7 @@ final class ProfileBaselineManifest {
     required this.environment,
     required this.device,
     required this.repeatCount,
+    required this.profileMemory,
     required this.renderers,
     required this.fixtures,
     required this.selectionMode,
@@ -101,6 +102,9 @@ final class ProfileBaselineManifest {
 
   /// Number of repeats per renderer/fixture pair.
   final int repeatCount;
+
+  /// Whether per-cell `flutter drive --profile-memory` capture was requested.
+  final bool profileMemory;
 
   /// Renderer ids included in this run.
   final List<String> renderers;
@@ -136,6 +140,7 @@ final class ProfileBaselineManifest {
     'environment': environment.toJson(),
     'device': device,
     'repeatCount': repeatCount,
+    'profileMemory': profileMemory,
     'renderers': renderers,
     'fixtures': fixtures,
     'selectionMode': selectionMode,
@@ -199,6 +204,9 @@ final class ProfileBaselineRun {
     required this.status,
     required this.exitCode,
     required this.artifactPath,
+    required this.memoryProfilePath,
+    required this.memoryProfileStatus,
+    required this.vmServiceUri,
     required this.logPath,
     required this.startedAt,
     required this.finishedAt,
@@ -222,6 +230,15 @@ final class ProfileBaselineRun {
   /// Copied raw integration-test JSON artifact path.
   final String? artifactPath;
 
+  /// Per-cell `--profile-memory` JSON path when profile memory is enabled.
+  final String? memoryProfilePath;
+
+  /// `notRequested`, `captured`, or `missing`.
+  final String memoryProfileStatus;
+
+  /// VM service URI observed in stdout/stderr, when Flutter prints one.
+  final String? vmServiceUri;
+
   /// Per-run stdout/stderr and command log path.
   final String logPath;
 
@@ -239,6 +256,9 @@ final class ProfileBaselineRun {
     'status': status,
     'exitCode': exitCode,
     'artifactPath': artifactPath,
+    'memoryProfilePath': memoryProfilePath,
+    'memoryProfileStatus': memoryProfileStatus,
+    'vmServiceUri': vmServiceUri,
     'logPath': logPath,
     'startedAt': startedAt.toUtc().toIso8601String(),
     'finishedAt': finishedAt.toUtc().toIso8601String(),
@@ -257,6 +277,7 @@ final class ProfileBaselineRunner {
     required this.runId,
     this.device = 'macos',
     this.failFast = true,
+    this.profileMemory = false,
     this.pairs,
     ProfileProcessRunner? processRunner,
     ProfileEnvironmentProcessRunner? environmentProcessRunner,
@@ -326,6 +347,9 @@ final class ProfileBaselineRunner {
   /// Whether to stop on the first failed profile process or missing artifact.
   final bool failFast;
 
+  /// Whether to request per-cell `flutter drive --profile-memory` JSON.
+  final bool profileMemory;
+
   /// Explicit renderer/fixture cells to run instead of the renderer matrix.
   final List<ProfileBaselineCell>? pairs;
 
@@ -356,30 +380,50 @@ final class ProfileBaselineRunner {
         }
 
         final startedAt = _clock().toUtc();
+        final cellDirectory = Directory(
+          p.join(runDirectory.path, renderer, fixture),
+        )..createSync(recursive: true);
+        final repeatId = 'repeat-${repeat.toString().padLeft(2, '0')}';
+        final memoryProfile = profileMemory
+            ? File(p.join(cellDirectory.path, '$repeatId-memory.json'))
+            : null;
+        if (memoryProfile != null && memoryProfile.existsSync()) {
+          memoryProfile.deleteSync();
+        }
+
+        final processEnvironment = <String, String>{
+          'TAGFLOW_RENDERER': renderer,
+          'TAGFLOW_FIXTURE': fixture,
+          'TAGFLOW_PROFILE_DEVICE': device,
+        };
+        if (memoryProfile != null) {
+          processEnvironment['TAGFLOW_PROFILE_MEMORY_FILE'] =
+              memoryProfile.absolute.path;
+        }
+
         final result = await _processRunner(
           'dart',
           _command,
           ProfileProcessOptions(
             workingDirectory: workspaceRoot.path,
-            environment: <String, String>{
-              'TAGFLOW_RENDERER': renderer,
-              'TAGFLOW_FIXTURE': fixture,
-              'TAGFLOW_PROFILE_DEVICE': device,
-            },
+            environment: processEnvironment,
           ),
         );
         final finishedAt = _clock().toUtc();
-        final cellDirectory = Directory(
-          p.join(runDirectory.path, renderer, fixture),
-        )..createSync(recursive: true);
-        final repeatId = 'repeat-${repeat.toString().padLeft(2, '0')}';
         final logFile = File(p.join(cellDirectory.path, '$repeatId.log'));
+        final vmServiceUri = _extractVmServiceUri(result);
+        final memoryProfilePath = memoryProfile == null
+            ? null
+            : p.relative(memoryProfile.path, from: workspaceRoot.path);
         _writeRunLog(
           logFile: logFile,
           renderer: renderer,
           fixture: fixture,
           repeat: repeat,
           result: result,
+          memoryProfilePath: memoryProfilePath,
+          memoryProfileStatus: _memoryProfileStatus(memoryProfile),
+          vmServiceUri: vmServiceUri,
           startedAt: startedAt,
           finishedAt: finishedAt,
         );
@@ -394,6 +438,9 @@ final class ProfileBaselineRunner {
               status: 'failed',
               exitCode: result.exitCode,
               artifactPath: null,
+              memoryProfilePath: memoryProfilePath,
+              memoryProfileStatus: _memoryProfileStatus(memoryProfile),
+              vmServiceUri: vmServiceUri,
               logPath: logPath,
               startedAt: startedAt,
               finishedAt: finishedAt,
@@ -418,6 +465,9 @@ final class ProfileBaselineRunner {
               status: 'missingArtifact',
               exitCode: result.exitCode,
               artifactPath: null,
+              memoryProfilePath: memoryProfilePath,
+              memoryProfileStatus: _memoryProfileStatus(memoryProfile),
+              vmServiceUri: vmServiceUri,
               logPath: logPath,
               startedAt: startedAt,
               finishedAt: finishedAt,
@@ -434,6 +484,36 @@ final class ProfileBaselineRunner {
 
         final artifact = File(p.join(cellDirectory.path, '$repeatId.json'));
         sourceResponse.copySync(artifact.path);
+        final artifactPath = p.relative(
+          artifact.path,
+          from: workspaceRoot.path,
+        );
+
+        if (memoryProfile != null && !memoryProfile.existsSync()) {
+          runs.add(
+            ProfileBaselineRun(
+              renderer: renderer,
+              fixture: fixture,
+              repeat: repeat,
+              status: 'missingMemoryProfile',
+              exitCode: result.exitCode,
+              artifactPath: artifactPath,
+              memoryProfilePath: memoryProfilePath,
+              memoryProfileStatus: 'missing',
+              vmServiceUri: vmServiceUri,
+              logPath: logPath,
+              startedAt: startedAt,
+              finishedAt: finishedAt,
+            ),
+          );
+          if (!failFast) {
+            continue;
+          }
+          throw StateError(
+            'Profile benchmark completed but did not write '
+            '${memoryProfile.path}.',
+          );
+        }
 
         runs.add(
           ProfileBaselineRun(
@@ -442,7 +522,10 @@ final class ProfileBaselineRunner {
             repeat: repeat,
             status: 'passed',
             exitCode: result.exitCode,
-            artifactPath: p.relative(artifact.path, from: workspaceRoot.path),
+            artifactPath: artifactPath,
+            memoryProfilePath: memoryProfilePath,
+            memoryProfileStatus: _memoryProfileStatus(memoryProfile),
+            vmServiceUri: vmServiceUri,
             logPath: logPath,
             startedAt: startedAt,
             finishedAt: finishedAt,
@@ -458,6 +541,7 @@ final class ProfileBaselineRunner {
       environment: _detectEnvironment(workspaceRoot, _environmentProcessRunner),
       device: device,
       repeatCount: repeatCount,
+      profileMemory: profileMemory,
       renderers: List<String>.unmodifiable(renderers),
       fixtures: List<String>.unmodifiable(fixtures),
       selectionMode: selectedPairs == null ? 'matrix' : 'pairs',
@@ -514,6 +598,9 @@ void _writeRunLog({
   required String fixture,
   required int repeat,
   required ProcessResult result,
+  required String? memoryProfilePath,
+  required String memoryProfileStatus,
+  required String? vmServiceUri,
   required DateTime startedAt,
   required DateTime finishedAt,
 }) {
@@ -523,6 +610,9 @@ void _writeRunLog({
       'fixture': fixture,
       'repeat': repeat,
       'command': ['dart', ...ProfileBaselineRunner._command],
+      'memoryProfilePath': memoryProfilePath,
+      'memoryProfileStatus': memoryProfileStatus,
+      'vmServiceUri': vmServiceUri,
       'startedAt': startedAt.toUtc().toIso8601String(),
       'finishedAt': finishedAt.toUtc().toIso8601String(),
       'exitCode': result.exitCode,
@@ -530,6 +620,29 @@ void _writeRunLog({
       'stderr': result.stderr.toString(),
     })}\n',
   );
+}
+
+String _memoryProfileStatus(File? memoryProfile) {
+  if (memoryProfile == null) {
+    return 'notRequested';
+  }
+  return memoryProfile.existsSync() ? 'captured' : 'missing';
+}
+
+String? _extractVmServiceUri(ProcessResult result) {
+  final combined = '${result.stdout}\n${result.stderr}';
+  final serviceMatch = RegExp(
+    r'(?:Dart VM service|VM Service|Observatory)[^\n]*(https?://[^\s]+)',
+    caseSensitive: false,
+  ).firstMatch(combined);
+  if (serviceMatch != null) {
+    return serviceMatch.group(1);
+  }
+
+  final localhostMatch = RegExp(
+    r'https?://(?:127\.0\.0\.1|localhost):\d+/[^\s]+',
+  ).firstMatch(combined);
+  return localhostMatch?.group(0);
 }
 
 ProfileBaselineEnvironment _detectEnvironment(

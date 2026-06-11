@@ -232,6 +232,135 @@ void main() {
     ]);
   });
 
+  test('requests profile memory files and records VM service URIs', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_memory_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    late Map<String, String> environment;
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow'],
+      fixtures: const ['large_article'],
+      repeatCount: 1,
+      runId: '2026-06-12T12-00-00Z',
+      profileMemory: true,
+      processRunner: (executable, arguments, options) async {
+        environment = options.environment;
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': 1,
+            'results': <String, Object?>{},
+          }),
+        );
+        File(environment['TAGFLOW_PROFILE_MEMORY_FILE']!)
+          ..parent.createSync(recursive: true)
+          ..writeAsStringSync('{"samples":[]}');
+        return ProcessResult(
+          501,
+          0,
+          'The Dart VM service is listening on '
+              'http://127.0.0.1:12345/abc=/',
+          '',
+        );
+      },
+    );
+
+    final manifest = await runner.run();
+    final run = manifest.runs.single;
+
+    expect(environment['TAGFLOW_PROFILE_MEMORY_FILE'], isNotNull);
+    expect(
+      environment['TAGFLOW_PROFILE_MEMORY_FILE'],
+      endsWith('repeat-01-memory.json'),
+    );
+    expect(manifest.profileMemory, isTrue);
+    expect(run.status, 'passed');
+    expect(run.memoryProfileStatus, 'captured');
+    expect(run.memoryProfilePath, endsWith('repeat-01-memory.json'));
+    expect(run.vmServiceUri, 'http://127.0.0.1:12345/abc=/');
+
+    final manifestPath = p.join(
+      workspaceRoot.path,
+      'build',
+      'benchmarks',
+      'profile',
+      '2026-06-12T12-00-00Z',
+      'profile-baseline-manifest.json',
+    );
+    final json =
+        jsonDecode(File(manifestPath).readAsStringSync())
+            as Map<String, Object?>;
+    final runs = json['runs']! as List<Object?>;
+    expect(json['profileMemory'], isTrue);
+    expect(
+      runs.single,
+      containsPair('vmServiceUri', 'http://127.0.0.1:12345/abc=/'),
+    );
+    expect(runs.single, containsPair('memoryProfileStatus', 'captured'));
+  });
+
+  test('classifies missing requested profile memory separately', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_missing_memory_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow'],
+      fixtures: const ['large_article'],
+      repeatCount: 1,
+      runId: '2026-06-12T12-05-00Z',
+      failFast: false,
+      profileMemory: true,
+      processRunner: (executable, arguments, options) async {
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': 1,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(601, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+    final run = manifest.runs.single;
+
+    expect(run.status, 'missingMemoryProfile');
+    expect(run.artifactPath, isNotNull);
+    expect(run.memoryProfileStatus, 'missing');
+    expect(run.memoryProfilePath, endsWith('repeat-01-memory.json'));
+  });
+
   test('can continue through failed profile runs and write logs', () async {
     final workspaceRoot = Directory.systemTemp.createTempSync(
       'tagflow_profile_runner_failed_test_',

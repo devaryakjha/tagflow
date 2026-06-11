@@ -38,13 +38,17 @@ The playbook requires DevTools Memory checkpoints and allocation evidence:
 - after final patch for the patch lane
 - class allocation diffs or equivalent retained-object review
 
-The current repeat runner in
+The repeat runner in
 `packages/tagflow_benchmarks/lib/src/profile/profile_baseline_runner.dart`
-reuses `dart run melos run benchmark:profile` and copies only
-`examples/tagflow/build/integration_response_data.json` into the run directory.
-It does not pass a `--profile-memory` output path through the repeated harness
-and does not preserve a durable VM service URI for checkpointed DevTools
-snapshot export.
+reuses `dart run melos run benchmark:profile` for each selected cell. The
+runner now has an opt-in `TAGFLOW_PROFILE_MEMORY=true` path that sets
+`TAGFLOW_PROFILE_MEMORY_FILE` per cell, lets the root Melos script pass
+`--profile-memory=<file>` to `flutter drive`, and records the expected memory
+profile path plus any VM service URI found in stdout/stderr.
+
+That support preserves bounded memory sample artifacts for repeated runs. It
+still does not keep the benchmark process alive for reviewed DevTools
+checkpoint snapshot export after the profile cell exits.
 
 The local SDK exposes headless DevTools memory sampling:
 
@@ -68,9 +72,9 @@ The next playbook-complete slice needs either:
 1. an interactive DevTools Memory session attached to a kept-alive benchmark
    run, with exported checkpoint snapshots and allocation diffs under
    `build/benchmarks/profile-memory-evidence/<run-id>/devtools/`, or
-2. a harness change that keeps the benchmark VM service URI available and
-   automates snapshot/diff export without weakening the existing repeat-5
-   manifest/check flow.
+2. a further harness change that keeps the benchmark VM service URI available
+   long enough to automate or manually export snapshot/diff evidence without
+   weakening the existing repeat-5 manifest/check flow.
 
 Either path must keep raw exports ignored under `build/` and commit only a
 reviewed baseline note with filenames, run ids, commands, and reviewer
@@ -91,6 +95,7 @@ TAGFLOW_PROFILE_REPEAT=1 \
 TAGFLOW_PROFILE_RUN_ID="$RUN_ID" \
 TAGFLOW_PROFILE_OUTPUT_DIR="$OUT" \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
+TAGFLOW_PROFILE_MEMORY=true \
 dart run melos run benchmark:profile:baselines
 ```
 
@@ -105,9 +110,9 @@ benchmark process exits before the snapshots can be exported, stop and treat
 that as a harness blocker rather than substituting another bounded memory
 sample.
 
-If automating this instead, the smallest code slice should first prove the
-runner can persist the benchmark VM service URI and a `--profile-memory` output
-path per cell without changing package versions or public benchmark claims.
+If automating this instead, the next code slice should make a selected
+benchmark cell pause or expose controlled checkpoints so the recorded VM service
+URI remains usable for snapshot and allocation-diff export.
 
 ## Validation
 

@@ -138,6 +138,7 @@ melos:
         --dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false
         --dart-define=TAGFLOW_RENDERER=${TAGFLOW_RENDERER:-tagflow}
         --dart-define=TAGFLOW_FIXTURE=${TAGFLOW_FIXTURE:-ai_answer_rich}
+        ${TAGFLOW_PROFILE_MEMORY_FILE:+--profile-memory=$TAGFLOW_PROFILE_MEMORY_FILE}
       description: Run Tagflow profile-mode frame benchmark
 
     benchmark:profile:baselines:
