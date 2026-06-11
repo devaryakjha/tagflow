@@ -22,8 +22,11 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated implementation commit: `8ed0686 fix(table): preserve HTML
-  table captions`
+- Latest integrated coordinator commit: `ed6f04f docs(validation): record kite
+  proof cleanup`
+- Latest integrated implementation commit: `2b2a809 bench(profile): add
+  baseline summary gate`; the latest runtime/table implementation commit remains
+  `8ed0686 fix(table): preserve HTML table captions`.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -37,12 +40,13 @@ published.
   through environment variables, plus landed `flutter_html` and core-backed
   `flutter_widget_from_html` competitor adapters. A reference-baseline runner
   can now execute a selected renderer/fixture matrix and preserve copied
-  profile JSON artifacts under ignored build output. A profile-baseline
-  summarizer and capped macOS reference note now turn raw profile JSON into
-  reviewed internal stabilization evidence. The macOS integration-test plugin
-  warning has a narrow benchmark-script suppression while preserving JSON
-  output, and the separate CocoaPods/SPM migration warning has been removed from
-  the macOS example host.
+  profile JSON artifacts under ignored workspace-root build output. A
+  profile-baseline summarizer, completeness gate, Melos summary/check aliases,
+  and capped macOS reference note now turn raw profile JSON into reviewed
+  internal stabilization evidence. The macOS integration-test plugin warning
+  has a narrow benchmark-script suppression while preserving JSON output, and
+  the separate CocoaPods/SPM migration warning has been removed from the macOS
+  example host.
 - Post-alpha stabilization in progress: broader competitor coverage, remaining
   table styling parity beyond normalized uniform table hints, repeated
   reference-runner baselines, dark-mode/internal app validation passes, and
@@ -55,8 +59,9 @@ published.
   links, and table rendering. A debug VM timeline attribution probe exists, but
   it is not release-grade performance evidence because Flutter profile mode was
   unavailable on the simulator and Xcode Animation Hitches was unsupported on
-  that runtime. The remaining Kite action is to discard the proof-only
-  scaffolding or later land a clean alpha dependency/import update.
+  that runtime. The proof-only Kite scaffolding has been removed; the remaining
+  Kite action is a future clean alpha dependency/import branch plus dark-mode
+  and supported-target profile evidence.
 
 ## Current Constraints
 

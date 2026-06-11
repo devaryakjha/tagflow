@@ -6,8 +6,10 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest validated implementation commit: `8ed0686 fix(table): preserve HTML
-  table captions`
+- Latest validated coordinator commit: `ed6f04f docs(validation): record kite
+  proof cleanup`
+- Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
+  table captions`, `2b2a809 bench(profile): add baseline summary gate`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -52,7 +54,10 @@ dart run melos run validate
 The benchmark harness is real but still alpha-grade:
 
 - parser and widget-test render benchmarks are reproducible locally
-- generated JSON artifacts stay ignored under `packages/tagflow_benchmarks/build/`
+- generated parser/render microbenchmark JSON artifacts stay ignored under
+  `packages/tagflow_benchmarks/build/`
+- profile baseline artifacts stay ignored under workspace-root
+  `build/benchmarks/profile/`
 - direct Dart CLI execution is not valid yet because the benchmark package
   imports Flutter-facing Tagflow code and plain Dart has no `dart:ui`
 - profile-mode frame timing is automated enough for repeatable local and
@@ -136,10 +141,10 @@ The benchmark harness is real but still alpha-grade:
   integration files, so the separate Flutter CocoaPods/SPM migration warning is
   no longer expected during benchmark dependency/build preparation.
 - `benchmark:profile:baselines` now runs a selected profile renderer/fixture
-  matrix, copies each raw profile JSON artifact under ignored
-  `packages/tagflow_benchmarks/build/benchmarks/profile/<run-id>/`, and writes
-  a manifest with toolchain, OS, git commit, device, renderer, fixture, repeat,
-  exit code, and artifact paths.
+  matrix, copies each raw profile JSON artifact under ignored workspace-root
+  `build/benchmarks/profile/<run-id>/`, and writes a manifest with toolchain,
+  OS, git commit, device, renderer, fixture, repeat, exit code, and artifact
+  paths.
 - `docs/benchmarks/2026-06-11-reference-runner-baseline-plan.md` defines the
   reference-runner workflow and keeps frame timings report-only until a named
   reference machine has run the default matrix with repeated passes and reviewed
