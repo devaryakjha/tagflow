@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commit before this status refresh:
-  `a299244 docs(validation): record kite profile blocker`
+  `e21e573 feat(benchmarks): add markdown renderer lane`
 - Latest integrated implementation commits include `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
   manifests`, `c137a7b bench(profile): support custom baseline output dirs`,
@@ -40,9 +40,13 @@ published.
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection
   through environment variables, plus landed `flutter_html` and core-backed
-  `flutter_widget_from_html` competitor adapters. A reference-baseline runner
-  can now execute a selected renderer/fixture matrix and preserve copied
-  profile JSON artifacts under ignored workspace-root build output. A
+  `flutter_widget_from_html` competitor adapters. The markdown-only comparison
+  lane now has `flutter_markdown_plus` and `markdown_widget` adapters, an
+  explicit `ai_answer_rich_md` fixture, source-type compatibility checks, and
+  passing macOS profile smokes for both markdown renderers. A
+  reference-baseline runner can now execute a selected renderer/fixture matrix
+  and preserve copied profile JSON artifacts under ignored workspace-root build
+  output. A
   profile-baseline summarizer, completeness gate, Melos summary/check aliases,
   capped macOS reference note, and complete repeat-5 macOS matrix note now turn
   raw profile JSON into reviewed internal stabilization evidence. The complete
@@ -51,10 +55,10 @@ published.
   plugin warning has a narrow benchmark-script suppression while preserving
   JSON output, and the separate CocoaPods/SPM migration warning has been
   removed from the macOS example host.
-- Post-alpha stabilization in progress: markdown-only benchmark comparison,
-  remaining table styling parity beyond normalized uniform table hints, stable
-  reference-environment selection and threshold policy for benchmark claims,
-  and profile-mode evidence on a supported real-app target.
+- Post-alpha stabilization in progress: remaining table styling parity beyond
+  normalized uniform table hints, stable reference-environment selection and
+  threshold policy for benchmark claims, and profile-mode evidence on a
+  supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -231,6 +235,7 @@ Benchmark implementation order:
    `table_dense`, and `large_article`.
 6. Add `flutter_html` and `flutter_widget_from_html` comparison adapters.
 7. Add `flutter_markdown_plus` and `markdown_widget` markdown-only adapters.
+   Done in `e21e573 feat(benchmarks): add markdown renderer lane`.
 8. Add `webview_flutter` only after native baselines exist, and keep it
    report-only.
 9. Establish reviewed baselines on one reference machine before regression
@@ -442,6 +447,20 @@ Master review gate:
   path only; `flutter pub get`, example analysis, and a profile benchmark run
   passed in the worker, and the CocoaPods/SPM warning was not observed.
 
+### Markdown Benchmark Lane
+
+- Thread ID: `019eb61c-8f87-7090-99c9-eea06bb25588`
+- Worktree: `/Users/arya/.codex/worktrees/1f3a/tagflow`
+- Status: integrated as `e21e573 feat(benchmarks): add markdown renderer lane`.
+- Result: the example benchmark harness now models fixture source type
+  explicitly, exposes `ai_answer_rich_md`, filters manual renderer choices by
+  compatible source type, and rejects invalid renderer/fixture pairs with a
+  direct `StateError`.
+- Validation: example analysis passed; focused benchmark fixture, registry,
+  host, and screen tests passed; profile-mode macOS smokes passed for
+  `TAGFLOW_RENDERER=flutter_markdown_plus TAGFLOW_FIXTURE=ai_answer_rich_md`
+  and `TAGFLOW_RENDERER=markdown_widget TAGFLOW_FIXTURE=ai_answer_rich_md`.
+
 ## Alpha Decisions
 
 - The primary alpha APIs are constructor-based:
@@ -467,8 +486,8 @@ Master review gate:
 - First implementation waves have tests and validation. Done for alpha.
 - Benchmark harness records baseline Tagflow numbers before major rewrites.
   Done for parser/render/profile smoke; `flutter_html` and core-backed
-  `flutter_widget_from_html` comparisons landed; `table_stress` is in the
-  deterministic corpus. Broader competitors and reference baselines are still
-  in progress.
+  `flutter_widget_from_html` comparisons landed; the markdown-only
+  `flutter_markdown_plus` and `markdown_widget` lane landed; `table_stress` is
+  in the deterministic corpus. Reference baselines are still in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.
