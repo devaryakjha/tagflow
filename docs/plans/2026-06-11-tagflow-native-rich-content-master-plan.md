@@ -651,10 +651,16 @@ Master review gate:
 ### Memory Checkpoint Harness
 
 - Pending worktree: `local:43f33e18-8a59-4457-8028-4732d9071c13`
-- Status: queued from `codex/tagflow-native-runtime-master`.
-- Scope: add the narrowest opt-in profile hold/checkpoint mode so DevTools can
-  attach to a live benchmark VM service for memory snapshots and allocation
-  diffs.
+- Thread ID: `019eb905-172d-74a0-9a65-de8a56597f80`
+- Status: integrated as
+  `ffbb9bd feat(benchmarks): add profile checkpoint hold mode`; archived after
+  handoff.
+- Result: the profile baseline runner now supports opt-in checkpoint holds via
+  `TAGFLOW_PROFILE_HOLD_OPEN=true`, `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=<n>`,
+  `--profile-hold-open=true`, and `--profile-hold-open-seconds=<n>`. The
+  example profile harness replays named post-measurement checkpoints so
+  DevTools can attach to a still-live VM service for manual snapshot or
+  allocation-diff export.
 - Constraints: default profile benchmark behavior must remain unchanged; output
   stays under ignored `build/`; all interpretation remains report-only.
 
