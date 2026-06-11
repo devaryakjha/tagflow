@@ -109,9 +109,10 @@ Future<void> _runStreamingBenchmark({
   );
 
   await binding.watchPerformance(() async {
-    for (final indexedFraction in streamingChunkFractions.indexed) {
-      final fraction = indexedFraction.$2;
-      final chunk = _chunkDocument(fullDocument, fraction);
+    for (final snapshot in benchmarkStreamingSnapshots(
+      fixture.id,
+      fullDocument,
+    )) {
       final stopwatch = Stopwatch()..start();
 
       await tester.pumpWidget(
@@ -119,7 +120,7 @@ Future<void> _runStreamingBenchmark({
           home: _BenchmarkDocumentFrame(
             document: BenchmarkSourceDocument(
               type: fixture.source.type,
-              data: chunk,
+              data: snapshot.html,
               assetPath: fixture.source.assetPath,
             ),
             renderer: renderer,
@@ -130,9 +131,9 @@ Future<void> _runStreamingBenchmark({
       stopwatch.stop();
 
       updateLatencies.add(<String, Object?>{
-        'chunk': indexedFraction.$1 + 1,
-        'fraction': fraction,
-        'inputLength': chunk.length,
+        'chunk': snapshot.chunk,
+        'fraction': snapshot.fraction,
+        'inputLength': snapshot.inputLength,
         'elapsedMicros': stopwatch.elapsedMicroseconds,
       });
     }
@@ -159,7 +160,7 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   required BenchmarkRenderer renderer,
 }) async {
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
-  final stream = SemanticPatchStream.fromHtml(fullDocument);
+  final stream = SemanticPatchStream.fromFixture(fixture, fullDocument);
   final updateLatencies = <Map<String, Object?>>[];
 
   binding.reportData ??= <String, dynamic>{};
@@ -231,20 +232,6 @@ void _recordViewport(
         'physicalHeight': physicalSize.height,
         'devicePixelRatio': devicePixelRatio,
       };
-}
-
-String _chunkDocument(String document, double fraction) {
-  if (fraction >= 1) {
-    return document;
-  }
-
-  final targetLength = (document.length * fraction).round();
-  final nextBoundary = document.indexOf('>', targetLength);
-  if (nextBoundary == -1) {
-    return document;
-  }
-
-  return '${document.substring(0, nextBoundary + 1)}</article>';
 }
 
 final class _BenchmarkDocumentFrame extends StatelessWidget {

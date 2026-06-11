@@ -105,6 +105,32 @@ void main() {
     );
   });
 
+  test(
+    'returns only the semantic renderer for the authored insertion fixture',
+    () {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionBenchmarkFixtureId,
+      );
+      final renderers = benchmarkRenderersForFixture(fixture);
+
+      expect(renderers.map((renderer) => renderer.id), ['tagflow_semantic']);
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById('tagflow_semantic'),
+          fixture,
+        ),
+        isTrue,
+      );
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById(defaultBenchmarkRendererId),
+          fixture,
+        ),
+        isFalse,
+      );
+    },
+  );
+
   test('returns markdown-only renderers for markdown fixtures', () {
     final markdownRenderers = benchmarkRenderersForSourceType(
       BenchmarkSourceType.markdown,
@@ -158,4 +184,36 @@ void main() {
       ),
     );
   });
+
+  testWidgets(
+    'builds the authored insertion fixture with the semantic renderer',
+    (tester) async {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionBenchmarkFixtureId,
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) =>
+                benchmarkRendererById('tagflow_semantic').build(
+                  context,
+                  BenchmarkSourceDocument(
+                    type: fixture.source.type,
+                    data: authoredInsertionStreamingHtmlSnapshots.last,
+                    assetPath: fixture.source.assetPath,
+                  ),
+                ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.text('Lead'), findsOneWidget);
+      expect(find.text('Summary'), findsOneWidget);
+      expect(find.text('Details'), findsOneWidget);
+    },
+  );
 }

@@ -152,15 +152,18 @@ void main() {
         p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
       ),
       renderers: const ['tagflow_semantic', 'tagflow_semantic_patch'],
-      fixtures: const ['streaming_ai_chunks', 'streaming_ai_patches'],
+      fixtures: const [
+        'streaming_ai_authored_insertions',
+        'streaming_ai_authored_insertion_patches',
+      ],
       pairs: const [
         ProfileBaselineCell(
           renderer: 'tagflow_semantic',
-          fixture: 'streaming_ai_chunks',
+          fixture: 'streaming_ai_authored_insertions',
         ),
         ProfileBaselineCell(
           renderer: 'tagflow_semantic_patch',
-          fixture: 'streaming_ai_patches',
+          fixture: 'streaming_ai_authored_insertion_patches',
         ),
       ],
       repeatCount: 1,
@@ -193,14 +196,17 @@ void main() {
             '${environment['TAGFLOW_FIXTURE']}';
       }),
       <String>[
-        'tagflow_semantic:streaming_ai_chunks',
-        'tagflow_semantic_patch:streaming_ai_patches',
+        'tagflow_semantic:streaming_ai_authored_insertions',
+        'tagflow_semantic_patch:streaming_ai_authored_insertion_patches',
       ],
     );
     expect(manifest.runs.first.renderer, 'tagflow_semantic');
-    expect(manifest.runs.first.fixture, 'streaming_ai_chunks');
+    expect(manifest.runs.first.fixture, 'streaming_ai_authored_insertions');
     expect(manifest.runs.last.renderer, 'tagflow_semantic_patch');
-    expect(manifest.runs.last.fixture, 'streaming_ai_patches');
+    expect(
+      manifest.runs.last.fixture,
+      'streaming_ai_authored_insertion_patches',
+    );
 
     final manifestPath = p.join(
       workspaceRoot.path,
@@ -217,11 +223,11 @@ void main() {
     expect(json['pairs'], <Object?>[
       <String, Object?>{
         'renderer': 'tagflow_semantic',
-        'fixture': 'streaming_ai_chunks',
+        'fixture': 'streaming_ai_authored_insertions',
       },
       <String, Object?>{
         'renderer': 'tagflow_semantic_patch',
-        'fixture': 'streaming_ai_patches',
+        'fixture': 'streaming_ai_authored_insertion_patches',
       },
     ]);
   });

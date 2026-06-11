@@ -1,9 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_example/benchmarks/fixtures.dart';
 
 /// Progressive update fractions shared by streaming profile benchmarks.
 const List<double> streamingChunkFractions = [0.25, 0.5, 0.75, 1.0];
+
+const _semanticBenchmarkHtmlAdapter = TagflowHtmlAdapter(
+  nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+);
 
 /// Patch target and updates for one semantic document streaming run.
 final class SemanticPatchStream {
@@ -14,7 +19,7 @@ final class SemanticPatchStream {
 
   /// Creates a patch stream by adapting [html] exactly once.
   factory SemanticPatchStream.fromHtml(String html) {
-    final fullDocument = const TagflowHtmlAdapter().parse(html);
+    final fullDocument = _semanticBenchmarkHtmlAdapter.parse(html);
     final streamSource = _streamSourceFor(fullDocument);
     final initialDocument = TagflowDocument(
       id: '${fullDocument.id}:patch-stream',
@@ -48,6 +53,72 @@ final class SemanticPatchStream {
             children: children,
           ),
           appendedNodeCount: children.length,
+        ),
+      );
+    }
+
+    return SemanticPatchStream._(
+      initialDocument: initialDocument,
+      steps: List.unmodifiable(steps),
+    );
+  }
+
+  /// Creates a patch stream for one benchmark fixture.
+  factory SemanticPatchStream.fromFixture(
+    ProfileBenchmarkFixture fixture,
+    String html,
+  ) {
+    if (fixture.id == authoredInsertionSemanticPatchBenchmarkFixtureId) {
+      return SemanticPatchStream._fromSnapshots(
+        benchmarkStreamingSnapshots(fixture.id, html),
+      );
+    }
+
+    return SemanticPatchStream.fromHtml(html);
+  }
+
+  factory SemanticPatchStream._fromSnapshots(
+    List<BenchmarkStreamingSnapshot> snapshots,
+  ) {
+    final documents = [
+      for (final snapshot in snapshots)
+        _semanticBenchmarkHtmlAdapter.parse(snapshot.html),
+    ];
+    final firstSource = _streamSourceFor(documents.first);
+    final initialDocument = TagflowDocument(
+      id: '${documents.first.id}:patch-stream',
+      children: [_copyNodeWithChildren(firstSource.parent, const [])],
+      metadata: documents.first.metadata,
+      source: documents.first.source,
+      version: documents.first.version,
+    );
+
+    var previousChildIds = const <String>{};
+    final steps = <SemanticPatchStreamStep>[];
+    for (final indexedDocument in documents.indexed) {
+      final snapshot = snapshots[indexedDocument.$1];
+      final streamSource = _streamSourceFor(indexedDocument.$2);
+      final currentChildIds = {
+        for (final child in streamSource.children) child.id,
+      };
+      final insertedNodeCount = currentChildIds
+          .difference(previousChildIds)
+          .length;
+      previousChildIds = currentChildIds;
+
+      steps.add(
+        SemanticPatchStreamStep(
+          chunk: snapshot.chunk,
+          fraction: snapshot.fraction,
+          inputLength: snapshot.inputLength,
+          patch: TagflowDocumentPatch.replaceNode(
+            nodeId: streamSource.parent.id,
+            node: _copyNodeWithChildren(
+              streamSource.parent,
+              streamSource.children,
+            ),
+          ),
+          appendedNodeCount: insertedNodeCount,
         ),
       );
     }

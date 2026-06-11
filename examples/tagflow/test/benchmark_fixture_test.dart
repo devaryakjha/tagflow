@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
+import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 
 void main() {
   group('profileBenchmarkFixtureById', () {
@@ -35,6 +37,84 @@ void main() {
         true,
       );
       expect(fixture.supportsRendererId('tagflow'), false);
+    });
+
+    test('resolves authored insertion fixture as a semantic HTML scenario', () {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionBenchmarkFixtureId,
+      );
+
+      expect(fixture.source.type, BenchmarkSourceType.html);
+      expect(
+        fixture.source.assetPath,
+        endsWith('streaming_ai_authored_insertions.html'),
+      );
+      expect(fixture.scenario, BenchmarkScenario.streamingChunks);
+      expect(fixture.supportsRendererId('tagflow_semantic'), true);
+      expect(fixture.supportsRendererId(defaultBenchmarkRendererId), false);
+    });
+
+    test(
+      'resolves authored insertion patch fixture as a restricted pair lane',
+      () {
+        final fixture = profileBenchmarkFixtureById(
+          authoredInsertionSemanticPatchBenchmarkFixtureId,
+        );
+
+        expect(fixture.source.type, BenchmarkSourceType.html);
+        expect(
+          fixture.source.assetPath,
+          endsWith('streaming_ai_authored_insertions.html'),
+        );
+        expect(fixture.scenario, BenchmarkScenario.semanticPatchStreaming);
+        expect(
+          fixture.supportsRendererId(semanticPatchBenchmarkRendererId),
+          true,
+        );
+        expect(fixture.supportsRendererId('tagflow_semantic'), false);
+      },
+    );
+
+    test('authored insertion snapshots keep stable data-tagflow-id values', () {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionBenchmarkFixtureId,
+      );
+      final snapshots = benchmarkStreamingSnapshots(
+        fixture.id,
+        authoredInsertionStreamingHtmlSnapshots.last,
+      );
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+      );
+
+      final stableTailIds = <String>['summary', 'details'];
+      for (final snapshot in snapshots) {
+        final document = adapter.parse(snapshot.html);
+        final childIds = document.children.single.children
+            .map((node) => node.id)
+            .toList();
+
+        expect(
+          childIds.skip(childIds.length - stableTailIds.length),
+          orderedEquals(stableTailIds),
+        );
+      }
+
+      final finalDocument = adapter.parse(snapshots.last.html);
+      expect(
+        finalDocument.children.map((node) => node.id),
+        orderedEquals(<String>['answer']),
+      );
+      expect(
+        finalDocument.children.single.children.map((node) => node.id),
+        orderedEquals(<String>[
+          'lead',
+          'context',
+          'callout',
+          'summary',
+          'details',
+        ]),
+      );
     });
 
     test('throws for an unknown fixture id', () {

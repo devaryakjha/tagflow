@@ -46,8 +46,8 @@ void main() {
 
   test('parses profile pairs from environment', () {
     final pairValue = [
-      'tagflow_semantic:streaming_ai_chunks',
-      'tagflow_semantic_patch:streaming_ai_patches',
+      'tagflow_semantic:streaming_ai_authored_insertions',
+      'tagflow_semantic_patch:streaming_ai_authored_insertion_patches',
     ].join(',');
     final options = ProfileBaselineCliOptions.parse(
       const [],
@@ -56,7 +56,10 @@ void main() {
 
     expect(options.pairs, hasLength(2));
     expect(options.pairs!.last.renderer, 'tagflow_semantic_patch');
-    expect(options.pairs!.last.fixture, 'streaming_ai_patches');
+    expect(
+      options.pairs!.last.fixture,
+      'streaming_ai_authored_insertion_patches',
+    );
   });
 
   test('parses stable run id from environment', () {

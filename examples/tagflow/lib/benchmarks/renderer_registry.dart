@@ -8,6 +8,10 @@ import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
+const _semanticBenchmarkHtmlAdapter = TagflowHtmlAdapter(
+  nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+);
+
 /// Builds a benchmark renderer for one fixture.
 typedef BenchmarkRendererBuilder =
     Widget Function(BuildContext context, BenchmarkSourceDocument document);
@@ -255,7 +259,7 @@ Widget _buildTagflowSemanticRenderer(
   BuildContext context,
   BenchmarkSourceDocument document,
 ) {
-  final runtimeDocument = const TagflowHtmlAdapter().parse(document.data);
+  final runtimeDocument = _semanticBenchmarkHtmlAdapter.parse(document.data);
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
@@ -269,7 +273,7 @@ Widget _buildTagflowSemanticPatchRenderer(
 ) {
   final runtimeDocument =
       document.runtimeDocument ??
-      const TagflowHtmlAdapter().parse(document.data);
+      _semanticBenchmarkHtmlAdapter.parse(document.data);
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
