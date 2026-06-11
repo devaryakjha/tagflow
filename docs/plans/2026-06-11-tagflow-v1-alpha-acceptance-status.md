@@ -208,6 +208,10 @@ The benchmark harness is real but still alpha-grade:
   `TAGFLOW_PROFILE_MIN_REPEATS=5 dart run melos run benchmark:profile:check`
   passed with no issues. This is alpha-grade internal stabilization evidence,
   not external benchmark copy.
+- Future profile-baseline manifests now detect Flutter version/channel via
+  `flutter --version --machine` when `FLUTTER_VERSION` is not set. A one-cell
+  smoke run, `2026-06-11T08-39-14-109697Z`, recorded
+  `flutterVersion: 3.45.0-0.1.pre (master)` automatically.
 
 ## Known Non-Completion Points
 

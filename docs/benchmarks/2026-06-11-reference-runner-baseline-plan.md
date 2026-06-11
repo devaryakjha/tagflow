@@ -28,12 +28,13 @@ Every reviewed reference baseline must record:
 - display scale and window size when desktop frame timings are collected
 - benchmark command, renderer id, fixture id, repeat count, and run timestamp
 
-The new profile matrix runner writes the fields it can detect automatically:
-Tagflow version, Dart version, optional `FLUTTER_VERSION`, host OS/version, git
-commit, Flutter device id, renderer id, fixture id, repeat count, and artifact
-paths. Hardware model, power state, Flutter channel, Melos version, display
-state, and reviewer notes still need to be added to the reviewed baseline
-document before any external performance claim is made.
+The profile matrix runner writes the fields it can detect automatically:
+Tagflow version, Dart version, Flutter version/channel from `FLUTTER_VERSION`
+or `flutter --version --machine`, host OS/version, git commit, Flutter device
+id, renderer id, fixture id, repeat count, and artifact paths. Hardware model,
+power state, Melos version, display state, and reviewer notes still need to be
+added to the reviewed baseline document before any external performance claim
+is made.
 
 ## Collection Command
 

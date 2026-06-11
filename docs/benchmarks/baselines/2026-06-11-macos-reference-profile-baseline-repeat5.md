@@ -37,13 +37,18 @@ the committed evidence handoff.
 - Displays attached: built-in `3456 x 2234` Retina display and external
   `2560 x 1440 @ 75 Hz` display
 
-The manifest recorded `flutterVersion: unknown` because the runner currently
-only reads `FLUTTER_VERSION`; the Flutter version above was verified manually
-with:
+The manifest recorded `flutterVersion: unknown` because, at collection time,
+the runner only read `FLUTTER_VERSION`; the Flutter version above was verified
+manually with:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH flutter --version
 ```
+
+Follow-up status: this runner gap was fixed after the baseline was collected.
+A later one-cell smoke run,
+`build/benchmarks/profile/2026-06-11T08-39-14-109697Z/`, recorded
+`flutterVersion: 3.45.0-0.1.pre (master)` without setting `FLUTTER_VERSION`.
 
 ## Commands
 
@@ -156,10 +161,8 @@ Reasons:
 
 ## Follow-Up
 
-1. Teach the runner to detect `flutter --version --machine` when
-   `FLUTTER_VERSION` is not set, so future manifests are self-contained.
-2. Pin or record benchmark window size and display placement.
-3. Repeat the matrix on the chosen stable reference machine after Flutter and
+1. Pin or record benchmark window size and display placement.
+2. Repeat the matrix on the chosen stable reference machine after Flutter and
    macOS versions are intentionally selected.
-4. Collect supported-target profile evidence in Kite or another internal app
+3. Collect supported-target profile evidence in Kite or another internal app
    before stable `1.0.0`.

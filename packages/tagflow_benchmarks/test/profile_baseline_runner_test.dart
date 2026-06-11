@@ -203,4 +203,66 @@ void main() {
     expect(runs.first, containsPair('status', 'failed'));
     expect(runs.first, containsPair('artifactPath', null));
   });
+
+  test('records flutter version from flutter version machine output', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_flutter_version_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    File(p.join(workspaceRoot.path, 'packages', 'tagflow', 'pubspec.yaml'))
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync('version: 1.0.0-alpha.1\n');
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow'],
+      fixtures: const ['ai_answer_rich'],
+      repeatCount: 1,
+      runId: '2026-06-11T12-10-00Z',
+      processRunner: (executable, arguments, options) async {
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': 1,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(301, 0, 'ok', '');
+      },
+      environmentProcessRunner: (executable, arguments, {workingDirectory}) {
+        if (executable == 'flutter' &&
+            arguments.length == 2 &&
+            arguments[0] == '--version' &&
+            arguments[1] == '--machine') {
+          return ProcessResult(
+            302,
+            0,
+            jsonEncode(<String, Object?>{
+              'frameworkVersion': '3.45.0-0.1.pre',
+              'channel': 'master',
+            }),
+            '',
+          );
+        }
+        return ProcessResult(303, 1, '', 'unexpected command');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(manifest.environment.flutterVersion, '3.45.0-0.1.pre (master)');
+  });
 }

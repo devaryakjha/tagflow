@@ -41,6 +41,14 @@ typedef ProfileProcessRunner =
       ProfileProcessOptions options,
     );
 
+/// Runs a synchronous environment probe process.
+typedef ProfileEnvironmentProcessRunner =
+    ProcessResult Function(
+      String executable,
+      List<String> arguments, {
+      String? workingDirectory,
+    });
+
 /// Profile baseline manifest written after a matrix run.
 final class ProfileBaselineManifest {
   /// Creates a profile baseline manifest.
@@ -130,7 +138,7 @@ final class ProfileBaselineEnvironment {
   /// Dart SDK version used to launch the runner.
   final String dartVersion;
 
-  /// Flutter SDK version from `FLUTTER_VERSION`, when provided.
+  /// Flutter SDK version from `FLUTTER_VERSION` or `flutter --version`.
   final String flutterVersion;
 
   /// Host operating system id.
@@ -222,8 +230,11 @@ final class ProfileBaselineRunner {
     this.device = 'macos',
     this.failFast = true,
     ProfileProcessRunner? processRunner,
+    ProfileEnvironmentProcessRunner? environmentProcessRunner,
     DateTime Function()? clock,
   }) : _processRunner = processRunner ?? _defaultProcessRunner,
+       _environmentProcessRunner =
+           environmentProcessRunner ?? _defaultEnvironmentProcessRunner,
        _clock = clock ?? DateTime.now {
     if (repeatCount < 1) {
       throw ArgumentError.value(
@@ -265,6 +276,7 @@ final class ProfileBaselineRunner {
   final bool failFast;
 
   final ProfileProcessRunner _processRunner;
+  final ProfileEnvironmentProcessRunner _environmentProcessRunner;
   final DateTime Function() _clock;
 
   static const List<String> _command = [
@@ -388,7 +400,7 @@ final class ProfileBaselineRunner {
     final manifest = ProfileBaselineManifest(
       runId: runId,
       generatedAt: _clock().toUtc(),
-      environment: _detectEnvironment(workspaceRoot),
+      environment: _detectEnvironment(workspaceRoot, _environmentProcessRunner),
       device: device,
       repeatCount: repeatCount,
       renderers: List<String>.unmodifiable(renderers),
@@ -447,11 +459,14 @@ void _writeRunLog({
   );
 }
 
-ProfileBaselineEnvironment _detectEnvironment(Directory workspaceRoot) {
+ProfileBaselineEnvironment _detectEnvironment(
+  Directory workspaceRoot,
+  ProfileEnvironmentProcessRunner processRunner,
+) {
   return ProfileBaselineEnvironment(
     tagflowVersion: _readTagflowVersion(workspaceRoot),
     dartVersion: Platform.version.split(' ').first,
-    flutterVersion: Platform.environment['FLUTTER_VERSION'] ?? 'unknown',
+    flutterVersion: _readFlutterVersion(workspaceRoot, processRunner),
     hostOs: Platform.operatingSystem,
     hostOsVersion: Platform.operatingSystemVersion,
     gitCommit: _readGitCommit(workspaceRoot),
@@ -472,6 +487,44 @@ String _readTagflowVersion(Directory workspaceRoot) {
     }
   }
   return 'unknown';
+}
+
+String _readFlutterVersion(
+  Directory workspaceRoot,
+  ProfileEnvironmentProcessRunner processRunner,
+) {
+  final override = Platform.environment['FLUTTER_VERSION'];
+  if (override != null && override.trim().isNotEmpty) {
+    return override.trim();
+  }
+
+  try {
+    final result = processRunner('flutter', const [
+      '--version',
+      '--machine',
+    ], workingDirectory: workspaceRoot.path);
+    if (result.exitCode != 0) {
+      return 'unknown';
+    }
+
+    final decoded = jsonDecode(result.stdout.toString());
+    if (decoded is! Map<String, Object?>) {
+      return 'unknown';
+    }
+
+    final frameworkVersion = decoded['frameworkVersion'];
+    if (frameworkVersion is! String || frameworkVersion.trim().isEmpty) {
+      return 'unknown';
+    }
+
+    final channel = decoded['channel'];
+    if (channel is String && channel.trim().isNotEmpty) {
+      return '${frameworkVersion.trim()} (${channel.trim()})';
+    }
+    return frameworkVersion.trim();
+  } on Object {
+    return 'unknown';
+  }
 }
 
 String _readGitCommit(Directory workspaceRoot) {
@@ -495,6 +548,18 @@ Future<ProcessResult> _defaultProcessRunner(
     arguments,
     workingDirectory: options.workingDirectory,
     environment: options.environment,
+  );
+}
+
+ProcessResult _defaultEnvironmentProcessRunner(
+  String executable,
+  List<String> arguments, {
+  String? workingDirectory,
+}) {
+  return Process.runSync(
+    executable,
+    arguments,
+    workingDirectory: workingDirectory,
   );
 }
 
