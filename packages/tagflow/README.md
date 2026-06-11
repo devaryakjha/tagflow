@@ -138,6 +138,81 @@ final document = TagflowDocument(
 Tagflow.document(document);
 ```
 
+### Native JSON Transport
+
+Use `TagflowNativeBlockCodec` when a trusted app backend, CMS, or AI pipeline
+already emits structured data and you do not want to route it through HTML.
+The codec accepts a deliberately small data-only JSON shape, the adapter turns
+that payload into a `TagflowDocument`, and the same document runtime renders it:
+
+```dart
+const codec = TagflowNativeBlockCodec();
+const adapter = TagflowNativeBlockAdapter();
+
+final nativePayload = codec.decodeDocument({
+  'id': 'announcement-42',
+  'schemaVersion': 1,
+  'revision': 'cms-rev-7',
+  'blocks': [
+    {
+      'id': 'announcement-42.title',
+      'kind': 'heading',
+      'attributes': {'level': 1},
+      'children': [
+        {
+          'id': 'announcement-42.title.text',
+          'kind': 'text',
+          'text': 'Structured update',
+        },
+      ],
+    },
+  ],
+});
+
+final document = adapter.adapt(nativePayload);
+
+Tagflow.document(document);
+```
+
+Patch envelopes follow the same path: decode the producer envelope, adapt the
+ordered native operations, then apply runtime document patches.
+
+```dart
+final envelope = codec.decodePatchEnvelope({
+  'id': 'announcement-42',
+  'schemaVersion': 1,
+  'baseRevision': 'cms-rev-7',
+  'revision': 'cms-rev-8',
+  'operations': [
+    {
+      'op': 'append-children',
+      'parentNodeId': 'announcement-42.list',
+      'blocks': [
+        {
+          'id': 'announcement-42.list.new-item',
+          'kind': 'listItem',
+          'children': [
+            {
+              'id': 'announcement-42.list.new-item.text',
+              'kind': 'text',
+              'text': 'New rollout step',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
+final updatedDocument = document.applyPatches(
+  adapter.adaptPatches(envelope.operations),
+);
+```
+
+This transport is for trusted, app-controlled structured content. It is not a
+webpage renderer, JavaScript environment, arbitrary CMS sync layer, or generic
+serializer for Flutter widgets and callbacks.
+
 ### Semantic Renderer Overrides
 
 ```dart
@@ -233,6 +308,9 @@ Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and
 
 For the v1 alpha migration direction, see
 [`docs/migration/2026-06-11-tagflow-v1-alpha-migration.md`](../../docs/migration/2026-06-11-tagflow-v1-alpha-migration.md).
+The example app also includes a `Native JSON Transport` screen that decodes
+native block JSON, renders it with `Tagflow.document(...)`, and applies a patch
+envelope through `TagflowNativeBlockAdapter.adaptPatches(...)`.
 
 ## Contributing
 

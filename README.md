@@ -63,6 +63,23 @@ final document = TagflowDocument(
 Tagflow.document(document);
 ```
 
+Trusted app-controlled JSON can use the native block transport instead of
+round-tripping through HTML:
+
+```dart
+const codec = TagflowNativeBlockCodec();
+const adapter = TagflowNativeBlockAdapter();
+
+final nativePayload = codec.decodeDocument(nativeJson);
+final document = adapter.adapt(nativePayload);
+
+Tagflow.document(document);
+```
+
+Patch envelopes decode through the same codec, adapt with
+`TagflowNativeBlockAdapter.adaptPatches(...)`, and apply with
+`TagflowDocument.applyPatches(...)`.
+
 Parser, converter, selector, and legacy node APIs remain available during the
 alpha transition from `package:tagflow/legacy.dart`.
 

@@ -4,6 +4,7 @@ import 'package:tagflow_example/screens/benchmark_screen.dart';
 import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/internal_app_validation_screen.dart';
+import 'package:tagflow_example/screens/native_json_example.dart';
 import 'package:tagflow_example/screens/table_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 
@@ -89,6 +90,13 @@ final allExamples = <Example>[
     path: '/code',
     builder: (context) => CodeExample(),
     icon: Icons.code,
+  ),
+  Example(
+    title: 'Native JSON Transport',
+    description: 'Decode trusted JSON blocks and apply semantic patches',
+    path: '/native-json',
+    builder: (context) => const NativeJsonExample(),
+    icon: Icons.data_object,
   ),
   Example(
     title: 'Benchmarks',

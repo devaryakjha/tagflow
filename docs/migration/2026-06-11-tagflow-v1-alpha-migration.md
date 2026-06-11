@@ -93,6 +93,55 @@ Tagflow.document(document);
 
 This is the canonical runtime entry point for alpha.
 
+## Native JSON Transport
+
+Use the native block transport when content is already trusted structured data
+from your app, backend, CMS, or AI pipeline. This path keeps semantic block IDs
+and data-only attributes without forcing the payload through an HTML string.
+
+```dart
+const codec = TagflowNativeBlockCodec();
+const adapter = TagflowNativeBlockAdapter();
+
+final nativePayload = codec.decodeDocument({
+  'id': 'announcement-42',
+  'schemaVersion': 1,
+  'revision': 'cms-rev-7',
+  'blocks': [
+    {
+      'id': 'announcement-42.title',
+      'kind': 'heading',
+      'attributes': {'level': 1},
+      'children': [
+        {
+          'id': 'announcement-42.title.text',
+          'kind': 'text',
+          'text': 'Structured update',
+        },
+      ],
+    },
+  ],
+});
+
+final document = adapter.adapt(nativePayload);
+
+Tagflow.document(document);
+```
+
+Patch envelopes decode into ordered native operations. Apps should adapt those
+operations and then use the runtime document patch API:
+
+```dart
+final envelope = codec.decodePatchEnvelope(patchJson);
+final updatedDocument = document.applyPatches(
+  adapter.adaptPatches(envelope.operations),
+);
+```
+
+The native JSON transport is intentionally data-only. It does not execute
+JavaScript, render arbitrary webpages, serialize Flutter widgets, or define a
+complete CMS sync protocol.
+
 ## HTML Adapter and Content Policy
 
 Use `TagflowHtmlAdapter` directly when an app wants to parse once, inspect the
