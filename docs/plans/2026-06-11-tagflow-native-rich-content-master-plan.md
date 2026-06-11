@@ -140,6 +140,27 @@ path that does not rely on the legacy converter bridge for production behavior.
   analysis passed. Limitation: Kite production IPO rendering still uses the
   legacy converter bridge for stability; the built-in disclosure path is proven
   in a Kite test harness, not yet in a live backend IPO payload.
+- Follow-up Kite hosted-alpha3 reconciliation thread
+  `019eb906-47fd-7543-a6b2-5349f2e5aa00` completed with
+  `DONE_WITH_CONCERNS`. The main Kite checkout is still at local commit
+  `80160401 test(ipo): validate hosted tagflow alpha3` on `feat/dashboard`,
+  one commit ahead of `origin/feat/dashboard`; a single push retry failed with
+  `ssh: Could not resolve hostname gitlab.zerodha.tech: nodename nor servname
+  provided, or not known`. The worker reran
+  `fvm flutter test test/ipos/tagflow_hosted_alpha3_test.dart` and focused
+  analysis over `lib/screens/ipos/ipo_instrument_sheet.dart`,
+  `lib/component/tagflow_details_converter.dart`, and
+  `test/ipos/tagflow_hosted_alpha3_test.dart`; both passed. No new Kite patch
+  was made.
+- The next production-safe Kite migration candidate is intentionally narrow:
+  move only the real `store.ipoInfo.content` render in
+  `lib/screens/ipos/ipo_instrument_sheet.dart` from legacy `Tagflow(...)`
+  converters to `Tagflow.html(..., registry: ...)` with
+  `tagflowTableComponents(...)`, while keeping `store.ipoInfo.excerpt` on the
+  legacy path for now. Preserve the current mobile-only HTML boundary crop and
+  link callback, and add one focused widget test using existing
+  `docs/ipo-info.md` content; do not add local fixtures, diagnostics UI, or a
+  broad production migration.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through
@@ -649,10 +670,12 @@ Master review gate:
 ### Kite Hosted Alpha3 Reconciliation
 
 - Pending worktree: `local:e200a636-dd09-4659-9fa6-45cc57dd1e1f`
-- Status: queued from Kite `feat/dashboard`.
-- Scope: reconcile the local hosted-alpha3 validation commit, retry or diagnose
-  the blocked GitLab push once, and identify the smallest production-safe path
-  from the legacy IPO converter bridge toward native runtime/registry rendering.
+- Thread ID: `019eb906-47fd-7543-a6b2-5349f2e5aa00`
+- Status: complete; archived after handoff.
+- Result: hosted-alpha3 validation remains clean locally, but GitLab push is
+  blocked by DNS for `gitlab.zerodha.tech`. Recommended next Kite code slice is
+  content-only IPO rendering through `Tagflow.html(..., registry: ...)` while
+  leaving the excerpt path on the legacy bridge.
 - Constraints: no local Tagflow path overrides, diagnostics screens, broad Kite
   rewrites, or release-grade profile claims while network and physical-device
   blockers remain open.
