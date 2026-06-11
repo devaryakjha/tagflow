@@ -56,6 +56,12 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   finite numbers, strings, arrays, and string-keyed objects. Callbacks,
   widgets, opaque Dart objects, non-string map keys, and non-finite numbers fail
   with `FormatException`.
+- Native JSON transport currently accepts only `schemaVersion: 1` for document
+  envelopes and patch envelopes. Future schema versions must fail during codec
+  decode until a reviewed compatibility policy exists.
+- Unknown block kinds and unknown patch operation names fail during codec
+  decode with pathful `FormatException`s. The alpha transport does not yet
+  include an explicit unknown-block representation.
 - Source round-tripping is intentionally limited to the existing
   `TagflowSourceInfo` fields: `kind`, `adapter`, `uri`, `line`, `column`, and
   JSON-like metadata. Unknown source kinds fail instead of being silently
@@ -353,6 +359,12 @@ Policy design direction:
 
 ## 7. Unsupported and Unknown Block Behavior
 
+Current alpha transport behavior is intentionally strict: unknown native block
+`kind` values fail in `TagflowNativeBlockCodec.decodeDocument(...)` before a
+typed `TagflowNativeBlock` is created. Unknown patch operation names fail in
+`decodePatchEnvelope(...)` before runtime patch adaptation. There is no public
+unknown-block model in the native JSON transport yet.
+
 Unknown kinds are expected in real producer pipelines. The contract must define
 predictable normalization.
 
@@ -387,7 +399,8 @@ Recommended transport operations:
 Patch-envelope requirements:
 
 - `documentId`
-- `schemaVersion`
+- `schemaVersion: 1`; other values fail during codec decode until a reviewed
+  compatibility policy exists
 - operation payloads referencing stable block IDs
 
 Recommended patch fields:
@@ -422,6 +435,9 @@ Landed first slice:
   `TagflowDocumentPatch.removeNode(...)`.
 - Policy and normalization reuse `TagflowNativeBlockAdapter` so callout, table,
   link, and image behavior stays aligned with full-document adaptation.
+- Patch envelope schema is validated at the codec boundary. Direct patch
+  adaptation accepts typed `TagflowNativeBlockPatch` operations only, so there
+  is no adapter-level envelope schema hook in this slice.
 
 Explicitly deferred:
 
@@ -538,8 +554,8 @@ Rules for sequencing:
 The following decisions should stay open until implementation evidence exists:
 
 - whether the public adapter surface is Dart-model-first, JSON-first, or both
-- whether adapter `schemaVersion` should be integer-only, string-only, or allow
-  a richer compatibility marker
+- whether a future adapter `schemaVersion` should support negotiated
+  compatibility beyond strict integer version `1`
 - whether native block policy extends `TagflowContentPolicy` directly or wraps
   it with a semantic-kind policy layer
 - whether `callout` deserves a first-class runtime node kind or should stay a

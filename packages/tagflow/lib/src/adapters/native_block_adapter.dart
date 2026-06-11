@@ -3,6 +3,7 @@ import 'package:tagflow/src/adapters/native_block_patch.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 
 const _nativeBlockAdapterName = 'native_block_v1';
+const _supportedNativeBlockSchemaVersion = 1;
 const _nativeBlockKindKey = 'blockKind';
 const _nativeBlockAttributesKey = 'blockAttributes';
 const _nativeBlockSchemaVersionKey = 'schemaVersion';
@@ -269,11 +270,12 @@ final class TagflowNativeBlockAdapter {
 
   void _validateDocument(TagflowNativeBlockDocument document) {
     _requireNonBlankId(document.id, label: 'document');
-    if (document.schemaVersion <= 0) {
+    if (document.schemaVersion != _supportedNativeBlockSchemaVersion) {
       throw ArgumentError.value(
         document.schemaVersion,
         'schemaVersion',
-        'Native block schemaVersion must be greater than 0.',
+        'Native block schemaVersion must be '
+            '$_supportedNativeBlockSchemaVersion.',
       );
     }
 

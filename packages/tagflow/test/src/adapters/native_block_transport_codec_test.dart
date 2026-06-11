@@ -251,6 +251,70 @@ void main() {
       );
     });
 
+    test('rejects unsupported document schema versions', () {
+      expect(
+        () => codec.decodeDocument({
+          'id': 'doc',
+          'schemaVersion': 2,
+          'blocks': const [],
+        }),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('document.schemaVersion must be 1'),
+          ),
+        ),
+      );
+
+      expect(
+        () => codec.decodeDocument({
+          'id': 'doc',
+          'schemaVersion': 0,
+          'blocks': const [],
+        }),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('document.schemaVersion must be greater than 0'),
+          ),
+        ),
+      );
+    });
+
+    test('rejects unsupported patch envelope schema versions', () {
+      expect(
+        () => codec.decodePatchEnvelope({
+          'id': 'doc',
+          'schemaVersion': 2,
+          'operations': const [],
+        }),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('patch.schemaVersion must be 1'),
+          ),
+        ),
+      );
+
+      expect(
+        () => codec.decodePatchEnvelope({
+          'id': 'doc',
+          'schemaVersion': 0,
+          'operations': const [],
+        }),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('patch.schemaVersion must be greater than 0'),
+          ),
+        ),
+      );
+    });
+
     test('fails predictably for unknown patch operations', () {
       expect(
         () => codec.decodePatchEnvelope({
@@ -260,7 +324,16 @@ void main() {
             {'op': 'move', 'nodeId': 'x'},
           ],
         }),
-        throwsFormatException,
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains(
+              'Unknown native block patch operation "move" '
+              'at patch.operations[0].op',
+            ),
+          ),
+        ),
       );
     });
 

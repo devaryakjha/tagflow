@@ -346,6 +346,25 @@ void main() {
       );
     });
 
+    test('fails when typed document schema version is unsupported', () {
+      final document = TagflowNativeBlockDocument(
+        id: 'doc',
+        schemaVersion: 2,
+        blocks: const [],
+      );
+
+      expect(
+        () => const TagflowNativeBlockAdapter().adapt(document),
+        throwsA(
+          isA<ArgumentError>().having(
+            (error) => error.message,
+            'message',
+            contains('Native block schemaVersion must be 1'),
+          ),
+        ),
+      );
+    });
+
     test('normalizes callout blocks to container nodes predictably', () {
       final document = TagflowNativeBlockDocument(
         id: 'doc',

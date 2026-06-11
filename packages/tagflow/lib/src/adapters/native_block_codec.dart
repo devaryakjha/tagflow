@@ -4,6 +4,8 @@ import 'package:tagflow/src/adapters/native_block_patch.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
 import 'package:tagflow/src/runtime/source.dart';
 
+const _supportedNativeBlockSchemaVersion = 1;
+
 /// JSON codec for the native block adapter transport shape.
 final class TagflowNativeBlockCodec {
   /// Creates a native block JSON codec.
@@ -13,7 +15,7 @@ final class TagflowNativeBlockCodec {
   TagflowNativeBlockDocument decodeDocument(Map<String, Object?> json) {
     return TagflowNativeBlockDocument(
       id: _requiredString(json, 'id', path: 'document.id'),
-      schemaVersion: _requiredPositiveInt(
+      schemaVersion: _requiredSupportedSchemaVersion(
         json,
         'schemaVersion',
         path: 'document.schemaVersion',
@@ -67,7 +69,7 @@ final class TagflowNativeBlockCodec {
   ) {
     return TagflowNativeBlockPatchEnvelope(
       documentId: _requiredString(json, 'id', path: 'patch.id'),
-      schemaVersion: _requiredPositiveInt(
+      schemaVersion: _requiredSupportedSchemaVersion(
         json,
         'schemaVersion',
         path: 'patch.schemaVersion',
@@ -217,7 +219,9 @@ TagflowNativeBlockPatch _decodePatchOperation(
     'remove' => TagflowNativeBlockPatch.removeNode(
       nodeId: _requiredString(json, 'nodeId', path: '$path.nodeId'),
     ),
-    _ => throw FormatException('Unknown native block patch operation "$op".'),
+    _ => throw FormatException(
+      'Unknown native block patch operation "$op" at $path.op.',
+    ),
   };
 }
 
@@ -355,6 +359,18 @@ int _requiredPositiveInt(
   final value = _intValue(json[key], path: path);
   if (value <= 0) {
     throw FormatException('$path must be greater than 0.');
+  }
+  return value;
+}
+
+int _requiredSupportedSchemaVersion(
+  Map<String, Object?> json,
+  String key, {
+  required String path,
+}) {
+  final value = _requiredPositiveInt(json, key, path: path);
+  if (value != _supportedNativeBlockSchemaVersion) {
+    throw FormatException('$path must be $_supportedNativeBlockSchemaVersion.');
   }
   return value;
 }
