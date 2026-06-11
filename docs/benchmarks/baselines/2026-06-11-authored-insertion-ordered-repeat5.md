@@ -187,3 +187,50 @@ performance claim, and it does not justify a threshold update. The direct
 check passed at the reference policy's repeat count, but the report-only
 outlier findings mean update-path stability still deserves coordinator review
 before anyone treats this as stronger than internal evidence.
+
+## Outlier Triage
+
+A follow-up read-only triage inspected the raw repeat JSON and logs for the two
+report-only findings:
+
+- `tagflow_semantic` repeat 1
+- `tagflow_semantic_patch` repeat 4
+
+The outliers do not implicate patch application cost. In the patch lane,
+`applyPatchMicros` stayed negligible across all repeats; the flagged repeat's
+chunk-1 patch application cost was `13` microseconds. The outliers also do not
+show a GC signature. The full-reparse lane reported `new_gen_gc_count=2` and
+`old_gen_gc_count=0` across all repeats, and the patch lane reported
+`new_gen_gc_count=0` and `old_gen_gc_count=0` across all repeats.
+
+The evidence instead points to update-path frame variance near the first
+measured updates:
+
+- `tagflow_semantic` repeat 1 had an unusual chunk-2 update:
+  `pumpWidgetMicros=24,749`, `settleMicros=103,347`, and
+  `elapsedMicros=128,097`.
+- Nearby full-reparse repeats for the same chunk had much lower pump times,
+  such as repeat 2 at `8,840` microseconds and repeat 3 at `8,860`
+  microseconds.
+- `tagflow_semantic_patch` repeat 4's flagged chunk-1 update was
+  `applyPatchMicros=13`, `pumpWidgetMicros=9,831`,
+  `settleMicros=110,447`, and `elapsedMicros=120,292`.
+- Nearby patch repeats had similar settle times without necessarily crossing
+  the raster-budget boundary.
+
+The warning lines in the logs were not unique to the flagged repeats. The
+semantic timestamp-clamp warning also appeared in a non-outlier repeat, and the
+patch foregrounding warning appeared in neighboring non-outlier repeats.
+
+The practical gap is attribution detail. Current artifacts expose per-update
+latency phases and an aggregate update-frame array for each repeat, but they do
+not map the over-budget frame back to a specific update chunk or whether it
+happened during `pumpWidget` or `settle`.
+
+Recommended next benchmark action:
+
+- do not broad-rerun this pair yet
+- add targeted update-frame attribution first
+- record update-frame timing per chunk/fraction
+- capture frame index to chunk mapping and phase ownership where possible
+- rerun only this authored-insertion pair after that instrumentation lands
