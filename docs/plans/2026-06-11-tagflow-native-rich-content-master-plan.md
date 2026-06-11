@@ -39,6 +39,9 @@ published.
 - Post-alpha stabilization in progress: broader competitor coverage, table
   styling parity, richer fixtures, reference-runner baselines, macOS SPM
   migration cleanup, and internal app validation.
+- Active stabilization workers are now split across `flutter_widget_from_html`
+  comparison coverage, broader fixture/profile baselines, and the macOS
+  CocoaPods/SPM warning diagnosis.
 
 ## Current Constraints
 
@@ -380,6 +383,25 @@ Master review gate:
 - Remaining follow-up: add `flutter_widget_from_html` only if its broader
   dependency stack is accepted as fair/low-risk for a second comparison lane.
 
+### Flutter Widget From HTML Adapter
+
+- Thread ID: `019eb53b-c1ae-7590-ab43-75910875cc5c`
+- Worktree: `/Users/arya/.codex/worktrees/da6e/tagflow`
+- Status: active.
+- Scope: decide whether the base `flutter_widget_from_html` package can be a
+  fair, low-risk profile benchmark renderer without dragging in avoidable
+  media/webview plugins; implement and profile it if safe, otherwise commit a
+  precise docs diagnosis.
+
+### Broader Benchmark Fixtures
+
+- Thread ID: `019eb53c-12a1-7223-847a-41a12817b025`
+- Worktree: `/Users/arya/.codex/worktrees/7bf4/tagflow`
+- Status: active.
+- Scope: add the missing deterministic `table_stress` fixture, validate the
+  fixture manifest, and record broader local profile smoke evidence where
+  feasible.
+
 ### Profile Benchmark Warning Diagnosis
 
 - Thread ID: `019eb530-0400-7c62-8211-834b5e8fe0f3`
@@ -388,6 +410,15 @@ Master review gate:
   warning`.
 - Remaining follow-up: the separate macOS CocoaPods/SPM migration warning still
   appears during dependency/build preparation and is not fixed by this slice.
+
+### macOS SPM/CocoaPods Warning Diagnosis
+
+- Thread ID: `019eb53c-5f21-7df0-828b-9dcba2373bf7`
+- Worktree: `/Users/arya/.codex/worktrees/0b21/tagflow`
+- Status: active.
+- Scope: determine whether the example macOS benchmark host should migrate off
+  CocoaPods now, or whether the warning should remain documented until a safer
+  Flutter/macOS project migration slice.
 
 ## Alpha Decisions
 
