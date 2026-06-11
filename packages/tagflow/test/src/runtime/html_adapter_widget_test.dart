@@ -4,11 +4,10 @@ import 'package:tagflow/tagflow.dart';
 
 void main() {
   group('Tagflow HTML adapter runtime entrypoints', () {
-    testWidgets('render legacy, html, and document entrypoints equivalently', (
+    testWidgets('legacy and html entrypoints render existing HTML cases', (
       tester,
     ) async {
       const html = '<p>Hello <strong>runtime</strong></p>';
-      final document = const TagflowHtmlAdapter().parse(html);
 
       await tester.pumpWidget(const MaterialApp(home: Tagflow(html: html)));
       expect(find.textContaining('Hello runtime'), findsOneWidget);
@@ -17,9 +16,62 @@ void main() {
         const MaterialApp(home: Tagflow.html(html: html)),
       );
       expect(find.textContaining('Hello runtime'), findsOneWidget);
+    });
 
-      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
-      expect(find.textContaining('Hello runtime'), findsOneWidget);
+    testWidgets('document entrypoint renders semantic paragraph content', (
+      tester,
+    ) async {
+      final document = _documentWithParagraph('Native runtime');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            converters: const [_LegacyParagraphConverter()],
+          ),
+        ),
+      );
+
+      expect(find.text('Native runtime'), findsOneWidget);
+      expect(find.text('Legacy bridge'), findsNothing);
+    });
+
+    testWidgets('document entrypoint uses registry overrides', (tester) async {
+      final document = _documentWithParagraph('Built-in runtime');
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.paragraph: (context, node) {
+            return const Text('Registry paragraph');
+          },
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      expect(find.text('Registry paragraph'), findsOneWidget);
+      expect(find.text('Built-in runtime'), findsNothing);
+    });
+
+    testWidgets('selectable wrapping applies around semantic content', (
+      tester,
+    ) async {
+      final document = _documentWithParagraph('Selectable runtime');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            options: TagflowOptions.defaults.copyWith(
+              selectable: const TagflowSelectableOptions(enabled: true),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SelectionArea), findsOneWidget);
+      expect(find.text('Selectable runtime'), findsOneWidget);
     });
 
     test('adapts HTML into a source-tagged runtime document', () {
@@ -107,6 +159,34 @@ void main() {
       },
     );
   });
+}
+
+final class _LegacyParagraphConverter extends ElementConverter<TagflowNode> {
+  const _LegacyParagraphConverter();
+
+  @override
+  Set<String> get supportedTags => {'p'};
+
+  @override
+  Widget convert(
+    TagflowNode element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    return const Text('Legacy bridge');
+  }
+}
+
+TagflowDocument _documentWithParagraph(String text) {
+  return TagflowDocument(
+    id: 'doc',
+    children: [
+      TagflowDocumentNode.paragraph(
+        id: 'p1',
+        children: [TagflowDocumentNode.text(id: 't1', text: text)],
+      ),
+    ],
+  );
 }
 
 String _flattenText(List<TagflowDocumentNode> nodes) {

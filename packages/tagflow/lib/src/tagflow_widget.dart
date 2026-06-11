@@ -31,7 +31,8 @@ class Tagflow extends StatefulWidget {
     this.options = TagflowOptions.defaults,
     super.key,
   }) : document = null,
-       adapter = null;
+       adapter = null,
+       registry = null;
 
   /// Creates a new [Tagflow] widget from HTML.
   const Tagflow.html({
@@ -43,12 +44,14 @@ class Tagflow extends StatefulWidget {
     this.loadingBuilder = _defaultLoadingWidget,
     this.options = TagflowOptions.defaults,
     super.key,
-  }) : document = null;
+  }) : document = null,
+       registry = null;
 
   /// Creates a new [Tagflow] widget from a native runtime document.
   const Tagflow.document(
     TagflowDocument this.document, {
     this.theme,
+    this.registry,
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
@@ -68,6 +71,9 @@ class Tagflow extends StatefulWidget {
 
   /// Custom theme for styling HTML elements
   final TagflowTheme? theme;
+
+  /// Semantic component registry used by [Tagflow.document].
+  final TagflowComponentRegistry? registry;
 
   /// Additional converters to use
   final List<ElementConverter> converters;
@@ -113,6 +119,10 @@ class _TagflowState extends State<Tagflow> {
       _converter = TagflowConverter(widget.converters);
       if (_element != null) setState(() {});
     }
+
+    if (oldWidget.registry != widget.registry && widget.document != null) {
+      setState(() {});
+    }
   }
 
   void _loadDocument() {
@@ -123,7 +133,9 @@ class _TagflowState extends State<Tagflow> {
             widget.html ?? '',
             options: widget.options,
           );
-      _element = TagflowHtmlDocumentBridge.toLegacyNode(_document!);
+      _element = widget.document == null
+          ? TagflowHtmlDocumentBridge.toLegacyNode(_document!)
+          : null;
       _error = null;
     } catch (e, stack) {
       _error = e;
@@ -139,11 +151,23 @@ class _TagflowState extends State<Tagflow> {
       return widget.errorBuilder(context, _error);
     }
 
-    if (_element == null) {
+    Widget? content;
+    if (widget.document != null) {
+      if (_document == null) {
+        return widget.loadingBuilder(context);
+      }
+      content = (widget.registry ?? TagflowComponentRegistry.builtIn).render(
+        context,
+        TagflowDocumentNode.root(
+          id: '${_document!.id}:root',
+          children: _document!.children,
+        ),
+      );
+    } else if (_element != null) {
+      content = _converter.convert(_element!, context);
+    } else {
       return widget.loadingBuilder(context);
     }
-
-    final content = _converter.convert(_element!, context);
 
     return widget.options.selectable.enabled
         ? SelectionArea(child: content)
@@ -172,6 +196,12 @@ class _TagflowState extends State<Tagflow> {
       ..add(DiagnosticsProperty<TagflowDocument>('document', _document))
       ..add(DiagnosticsProperty<TagflowHtmlAdapter>('adapter', widget.adapter))
       ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
+      ..add(
+        DiagnosticsProperty<TagflowComponentRegistry>(
+          'registry',
+          widget.registry,
+        ),
+      )
       ..add(IterableProperty<ElementConverter>('converters', widget.converters))
       ..add(DiagnosticsProperty<TagflowOptions>('options', widget.options))
       ..add(DiagnosticsProperty<TagflowNode>('element', _element))
