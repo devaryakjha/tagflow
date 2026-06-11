@@ -15,6 +15,10 @@ void main() {
       ],
     );
     const adapter = api.TagflowHtmlAdapter();
+    const nodeIdStrategy = api.TagflowHtmlNodeIdStrategy.attribute(
+      attribute: 'data-node-id',
+      fallbackToPath: false,
+    );
     const policy = api.TagflowContentPolicy.defaults;
     final registry = api.TagflowComponentRegistry.components(
       components: {
@@ -30,6 +34,8 @@ void main() {
 
     expect(document.children.single.kind, api.TagflowNodeKind.paragraph);
     expect(adapter.policy, policy);
+    expect(nodeIdStrategy.attribute, 'data-node-id');
+    expect(nodeIdStrategy.fallbackToPath, isFalse);
     expect(registry.hasComponent(api.TagflowNodeKind.paragraph), isTrue);
     expect(theme.defaultStyle, api.TagflowStyle.empty);
     expect(api.TagflowViewOptions.defaults, isA<api.TagflowViewOptions>());

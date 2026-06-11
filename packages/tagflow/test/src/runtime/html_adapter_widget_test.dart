@@ -236,6 +236,121 @@ void main() {
       expect(document.children.last.kind, TagflowNodeKind.paragraph);
     });
 
+    test('default adapter keeps deterministic path-based node ids', () {
+      const html = '<p>Hello <strong>runtime</strong></p>';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final paragraph = document.children.single;
+
+      expect(paragraph.id, TagflowNodeIds.fromPath([0]));
+      expect(paragraph.children.first.id, TagflowNodeIds.fromPath([0, 0]));
+      expect(
+        _singleNodeWithHtmlTag(document, 'strong').id,
+        TagflowNodeIds.fromPath([0, 1]),
+      );
+    });
+
+    test('attribute node id strategy keeps authored element ids stable', () {
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+      );
+      const beforeHtml = '''
+<p data-tagflow-id="intro">Intro</p>
+<p data-tagflow-id="body">Body</p>
+''';
+      const afterHtml = '''
+<p data-tagflow-id="lead">Lead</p>
+<p data-tagflow-id="intro">Intro</p>
+<p data-tagflow-id="body">Body</p>
+''';
+
+      final before = adapter.parse(beforeHtml);
+      final after = adapter.parse(afterHtml);
+
+      expect(before.children[0].id, 'intro');
+      expect(before.children[1].id, 'body');
+      expect(after.children[1].id, 'intro');
+      expect(after.children[2].id, 'body');
+    });
+
+    test('attribute strategy falls back to path ids for unannotated nodes', () {
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+      );
+      const html =
+          '<p data-tagflow-id="intro">Hello <strong>runtime</strong></p>';
+      final document = adapter.parse(html);
+      final paragraph = document.children.single;
+      final text = paragraph.children.first;
+      final strong = paragraph.children.last;
+
+      expect(paragraph.id, 'intro');
+      expect(text.id, TagflowNodeIds.fromPath([0, 0]));
+      expect(strong.id, TagflowNodeIds.fromPath([0, 1]));
+      expect(strong.children.single.id, TagflowNodeIds.fromPath([0, 1, 0]));
+    });
+
+    test('attribute strategy rejects duplicate authored ids', () {
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+      );
+
+      expect(
+        () => adapter.parse('''
+<p data-tagflow-id="duplicate">One</p>
+<p data-tagflow-id="duplicate">Two</p>
+'''),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            contains('duplicate'),
+          ),
+        ),
+      );
+    });
+
+    test('attribute strategy rejects duplicate authored and fallback ids', () {
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+      );
+
+      expect(
+        () => adapter.parse('''
+<p data-tagflow-id="0.1">Intro</p>
+<p>Body</p>
+'''),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            contains('0.1'),
+          ),
+        ),
+      );
+    });
+
+    test('attribute strategy without fallback fails on missing ids', () {
+      const adapter = TagflowHtmlAdapter(
+        nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(
+          fallbackToPath: false,
+        ),
+      );
+
+      expect(
+        () => adapter.parse('<div data-tagflow-id="root"><hr></div>'),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            allOf(
+              contains('data-tagflow-id'),
+              contains('Missing required HTML node id attribute'),
+            ),
+          ),
+        ),
+      );
+    });
+
     test('maps inline HTML semantics into first-class presentation', () {
       const html =
           '<p><strong>Strong</strong><b>Bold</b><em>Em</em><i>Italic</i>'

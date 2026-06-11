@@ -22,6 +22,32 @@ const _tableRowSpacingHintKey = 'tableRowSpacing';
 const _tableCellPaddingHintKey = 'tableCellPadding';
 const _textAlignHintKey = 'textAlign';
 const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
+const _defaultHtmlNodeIdAttribute = 'data-tagflow-id';
+
+enum _TagflowHtmlNodeIdStrategyKind { path, attribute }
+
+/// Configures how the HTML adapter assigns runtime node IDs.
+final class TagflowHtmlNodeIdStrategy {
+  /// Uses deterministic path-based IDs for every adapted node.
+  const TagflowHtmlNodeIdStrategy.path()
+    : _kind = _TagflowHtmlNodeIdStrategyKind.path,
+      attribute = null,
+      fallbackToPath = true;
+
+  /// Uses an HTML attribute when present and optionally falls back to path IDs.
+  const TagflowHtmlNodeIdStrategy.attribute({
+    this.attribute = _defaultHtmlNodeIdAttribute,
+    this.fallbackToPath = true,
+  }) : _kind = _TagflowHtmlNodeIdStrategyKind.attribute;
+
+  final _TagflowHtmlNodeIdStrategyKind _kind;
+
+  /// Attribute read for authored IDs in attribute mode.
+  final String? attribute;
+
+  /// Whether nodes without authored IDs fall back to path IDs.
+  final bool fallbackToPath;
+}
 
 /// Converts HTML input into the native Tagflow runtime document model.
 ///
@@ -34,6 +60,7 @@ final class TagflowHtmlAdapter {
     this.debug,
     this.renderBoundary,
     this.policy = TagflowContentPolicy.defaults,
+    this.nodeIdStrategy = const TagflowHtmlNodeIdStrategy.path(),
   });
 
   /// Optional debug override for the underlying HTML parser.
@@ -44,6 +71,9 @@ final class TagflowHtmlAdapter {
 
   /// Content policy used while adapting HTML into runtime document nodes.
   final TagflowContentPolicy policy;
+
+  /// Strategy used to assign [TagflowDocumentNode.id] values.
+  final TagflowHtmlNodeIdStrategy nodeIdStrategy;
 
   /// Parses [html] into a source-tagged [TagflowDocument].
   TagflowDocument parse(
@@ -68,12 +98,19 @@ final class TagflowHtmlAdapter {
       uri: uri,
     );
     final rootNodes = _isSyntheticRoot(root) ? root.children : [root];
+    final nodeIds = _TagflowHtmlNodeIds(nodeIdStrategy);
 
     return TagflowDocument(
       id: id ?? _documentIdFor(html),
       children: [
         for (final indexed in rootNodes.indexed)
-          if (_documentNodeFromLegacy(indexed.$2, [indexed.$1], source, policy)
+          if (_documentNodeFromLegacy(
+                indexed.$2,
+                [indexed.$1],
+                source,
+                policy,
+                nodeIds,
+              )
               case final node?)
             node,
       ],
@@ -109,8 +146,9 @@ TagflowDocumentNode? _documentNodeFromLegacy(
   List<int> path,
   TagflowSourceInfo documentSource,
   TagflowContentPolicy policy,
+  _TagflowHtmlNodeIds nodeIds,
 ) {
-  final id = TagflowNodeIds.fromPath(path);
+  final id = nodeIds.resolve(node, path);
   final source = TagflowSourceInfo(
     kind: TagflowSourceKind.html,
     adapter: _htmlAdapterName,
@@ -145,6 +183,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
             [...path, indexed.$1],
             documentSource,
             policy,
+            nodeIds,
           )
           case final child?)
         child,
@@ -154,6 +193,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
             [...path, node.children.length],
             documentSource,
             policy,
+            nodeIds,
           )
           case final child?)
         child,
@@ -351,6 +391,48 @@ TagflowDocumentNode? _documentNodeFromLegacy(
   };
 }
 
+final class _TagflowHtmlNodeIds {
+  _TagflowHtmlNodeIds(this.strategy);
+
+  final TagflowHtmlNodeIdStrategy strategy;
+  final Set<String> _seen = <String>{};
+
+  String resolve(TagflowNode node, List<int> path) {
+    final id = switch (strategy._kind) {
+      _TagflowHtmlNodeIdStrategyKind.path => TagflowNodeIds.fromPath(path),
+      _TagflowHtmlNodeIdStrategyKind.attribute => _resolveAttributeId(
+        node,
+        path,
+      ),
+    };
+
+    if (!_seen.add(id)) {
+      throw StateError(
+        'duplicate HTML adapter node id "$id" detected at '
+        '${TagflowNodeIds.fromPath(path)}.',
+      );
+    }
+
+    return id;
+  }
+
+  String _resolveAttributeId(TagflowNode node, List<int> path) {
+    final attribute = strategy.attribute ?? _defaultHtmlNodeIdAttribute;
+    final authoredId = _trimmedAttributeValue(node, attribute);
+    if (authoredId != null) {
+      return authoredId;
+    }
+    if (strategy.fallbackToPath) {
+      return TagflowNodeIds.fromPath(path);
+    }
+
+    throw StateError(
+      'Missing required HTML node id attribute "$attribute" for '
+      '${_htmlNodeLabel(node)} at ${TagflowNodeIds.fromPath(path)}.',
+    );
+  }
+}
+
 TagflowNode _legacyNodeFromDocumentNode(TagflowDocumentNode node) {
   final tag = _htmlTagForDocumentNode(node);
   final attributes = _attributesForDocumentNode(node);
@@ -521,6 +603,16 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
     TagflowNodeKind.horizontalRule => 'hr',
     TagflowNodeKind.unsupported => 'div',
   };
+}
+
+String? _trimmedAttributeValue(TagflowNode node, String attribute) {
+  final value = node[attribute]?.trim();
+  if (value == null || value.isEmpty) return null;
+  return value;
+}
+
+String _htmlNodeLabel(TagflowNode node) {
+  return node.isTextNode ? '#text' : '<${node.tag}>';
 }
 
 String? _variantForHtmlTag(String tag) {
