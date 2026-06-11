@@ -64,16 +64,25 @@ was used instead.
 
 ## External State Check
 
-Before publishing, confirm pub.dev still shows `1.0.0-alpha.1` as the latest
-published prerelease unless another approved publish happened first:
+The approved publish completed successfully:
 
-```bash
-open https://pub.dev/packages/tagflow/versions
-```
+- Branch pushed: `codex/tagflow-native-runtime-master`
+- Published commit: `7f5d3ae4f2cc7837edd44f9b26a3720c72aae240`
+- Published tag: `tagflow-v1.0.0-alpha.3`
+- GitHub Actions run:
+  `https://github.com/devaryakjha/tagflow/actions/runs/27372720018`
+- Workflow result: `Publish tagflow` completed with conclusion `success`
+- pub.dev accepted `tagflow` `1.0.0-alpha.3` at
+  `2026-06-11T19:41:08.272476Z`
+- Hosted resolver check:
+  `dart pub cache add tagflow --version 1.0.0-alpha.3` resolved the published
+  package
+
+`tagflow_table` was not tagged or released as part of this handoff.
 
 ## Publish Sequence
 
-Only run these steps after explicit coordinator approval to publish.
+These are the steps that were run after coordinator approval.
 
 1. Re-run the final local checks:
 
@@ -105,10 +114,29 @@ Only run these steps after explicit coordinator approval to publish.
 5. Verify pub.dev after the workflow completes:
 
    ```bash
-   open https://pub.dev/packages/tagflow/versions
+   python3 - <<'PY'
+   import json, urllib.request
+
+   req = urllib.request.Request(
+       'https://pub.dev/api/packages/tagflow',
+       headers={'cache-control': 'no-cache'},
+   )
+   with urllib.request.urlopen(req, timeout=20) as response:
+       payload = json.load(response)
+
+   print([
+       version['version']
+       for version in payload['versions']
+       if version['version'].startswith('1.0.0-alpha')
+   ])
+   PY
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+     dart pub cache add tagflow --version 1.0.0-alpha.3
    ```
 
-   Expected result: latest prerelease is `1.0.0-alpha.3`.
+   Result: pub.dev listed `1.0.0-alpha.3` and the hosted resolver reported the
+   package as available. The API still reports stable `0.0.8` as `latest`,
+   which is expected while the `1.0.0` line is prerelease-only.
 
 ## Post-Publish Kite Follow-Up
 
