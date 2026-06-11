@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `339cebc fix(tagflow_table): preserve inline semantic cell flow`
+- Snapshot commit: `1437d95 feat(benchmarks): add flutter_html profile adapter`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -102,6 +102,10 @@ The benchmark harness is real but still alpha-grade:
   competitor adapters can plug into the same result path. `dart run melos run
   benchmark:profile` passed locally on macOS and wrote ignored frame timing
   output to `examples/tagflow/build/integration_response_data.json`.
+- The first competitor profile adapter has landed for `flutter_html`, using
+  `flutter_html_table` for the shared `ai_answer_rich` table fixture. Local
+  `benchmark:profile` smoke runs passed for both `TAGFLOW_RENDERER=tagflow` and
+  `TAGFLOW_RENDERER=flutter_html`.
 
 ## Known Non-Completion Points
 
@@ -113,7 +117,7 @@ The benchmark harness is real but still alpha-grade:
   legacy HTML converter bridge has not been fully removed or replaced. Remaining
   gaps are mostly HTML/CSS-derived table styling parity, including border,
   padding/background, and spacing hints.
-- Profile benchmarking is real but not production-grade yet: competitor
-  adapters, additional fixtures, nightly/reference-runner baselines, and the
+- Profile benchmarking is real but not production-grade yet: broader competitor
+  coverage, additional fixtures, nightly/reference-runner baselines, and the
   current Flutter `integration_test plugin was not detected` warning remain
   follow-up work before using frame timings as a release gate.

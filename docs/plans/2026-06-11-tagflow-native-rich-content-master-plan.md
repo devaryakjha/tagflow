@@ -22,7 +22,8 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Current coordinator head: `339cebc fix(tagflow_table): preserve inline semantic cell flow`
+- Latest integrated implementation commit:
+  `1437d95 feat(benchmarks): add flutter_html profile adapter`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -32,8 +33,9 @@ published.
   line.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the example app has a profile-mode benchmark harness with renderer and fixture
-  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`.
-- Post-alpha stabilization in progress: competitor benchmark adapters, profile
+  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`, plus a first
+  `flutter_html` competitor adapter.
+- Post-alpha stabilization in progress: broader competitor coverage, profile
   warning diagnosis, table styling parity, richer fixtures, reference-runner
   baselines, and internal app validation.
 
@@ -323,9 +325,10 @@ Master review gate:
 - Fixtures, parser microbenchmarks, widget render microbenchmarks, and the
   profile-mode example harness are committed.
 - The profile harness supports renderer and fixture selection.
-- Active work: add the first competitor adapter with fair caveats, diagnose the
-  current `integration_test plugin was not detected` warning, and record only
-  profile data that was actually run.
+- The first fair native competitor adapter, `flutter_html` plus
+  `flutter_html_table`, is committed with local smoke evidence.
+- Active work: diagnose the current `integration_test plugin was not detected`
+  warning and record only profile data that was actually run.
 
 ### Wave 3: Runtime Features for Alpha
 
@@ -368,10 +371,10 @@ Master review gate:
 
 - Thread ID: `019eb525-170f-7380-a753-62f242cb02f0`
 - Worktree: `/Users/arya/.codex/worktrees/5829/tagflow`
-- Ownership: first fair native competitor renderer adapter, profile smoke
-  evidence, dependency wiring, and benchmark docs/baseline caveats.
-- Exclusions: release state, broad harness rewrites already owned by the
-  coordinator branch.
+- Status: integrated as `1437d95 feat(benchmarks): add flutter_html profile
+  adapter`.
+- Remaining follow-up: add `flutter_widget_from_html` only if its broader
+  dependency stack is accepted as fair/low-risk for a second comparison lane.
 
 ### Profile Benchmark Warning Diagnosis
 
@@ -395,8 +398,9 @@ Master review gate:
   table registry is the forward path, but full HTML/CSS styling parity is not
   complete yet.
 - Benchmark fixtures, parser microbenchmarks, and widget render benchmarks are
-  local alpha harnesses. Production benchmark claims still need competitor
-  adapters, profile-warning diagnosis, and reference-runner baselines.
+  local alpha harnesses. Production benchmark claims still need broader
+  competitor coverage, profile-warning diagnosis, and reference-runner
+  baselines.
 - Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
@@ -407,7 +411,7 @@ Master review gate:
 - A release/docs plan exists. Done.
 - First implementation waves have tests and validation. Done for alpha.
 - Benchmark harness records baseline Tagflow numbers before major rewrites.
-  Done for parser/render/profile smoke; competitor and reference baselines are
-  still in progress.
+  Done for parser/render/profile smoke; first `flutter_html` comparison landed.
+  Broader competitors and reference baselines are still in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.
