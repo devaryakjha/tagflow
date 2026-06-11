@@ -147,6 +147,11 @@ extension model without coupling the core runtime freeze to the full table
 renderer. The package may also keep HTML table converter compatibility through
 `package:tagflow/legacy.dart` during the same support window.
 
+The beta-facing `package:tagflow_table/tagflow_table.dart` barrel should stay
+focused on `tagflowTableComponents(...)`, `TagflowTableBorder`, and the legacy
+converter pair. Low-level widget and render-object classes remain package
+internals rather than part of the beta extension contract.
+
 For `1.0.0-beta.0`, release `tagflow_table` in lockstep with `tagflow` so the
 first beta validates core runtime, package constraint, and first-party table
 registry compatibility together. After `beta.0`, `tagflow_table` may publish

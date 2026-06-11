@@ -29,7 +29,7 @@ toward a semantic rich content runtime.
 - HTML table converter compatibility through `package:tagflow/legacy.dart`
 - Support for complex table structures, headers, and merged cells
 - Customizable table borders, spacing, separators, and header backgrounds
-- Low-level `TagflowTable` render widget for direct table layouts
+- A focused beta-facing API centered on semantic registry extensions
 
 ## 📦 Installation
 
@@ -46,7 +46,15 @@ dependencies:
 `tagflow_table` remains a separate first-party extension package through the
 Tagflow beta line. Use `tagflowTableComponents(...)` as the canonical
 high-fidelity table registry extension for native `TagflowDocument` table
-nodes.
+nodes. `TagflowTableBorder` remains the public configuration type for that
+semantic path.
+
+The legacy HTML converter bridge remains publicly available for compatibility:
+`TagflowTableConverter` and `TagflowTableCellConverter`.
+
+Low-level render-object classes such as `TagflowTable`, `TableCell`,
+`RenderTagflowTable`, and `TableCellData` are package internals rather than the
+beta extension contract.
 
 The current `tagflow: ^1.0.0-alpha.1` dependency constraint is intentionally
 compatible with the `tagflow` alpha prerelease line while the core runtime moves

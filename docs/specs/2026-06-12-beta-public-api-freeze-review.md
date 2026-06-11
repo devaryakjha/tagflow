@@ -366,18 +366,6 @@ runtime direction. `tagflowTableComponents(...)` is the primary registry
 fragment apps should compose, and `TagflowTableBorder` is the only obviously
 intentional public configuration type in that flow.
 
-`alpha-only review required`:
-
-- `TagflowTable`
-- `TableCell`
-- `RenderTagflowTable`
-- `TableCellData`
-
-Rationale: these low-level render-object exports are public today, but they
-are not required for the beta semantic-registry story. Beta should decide
-whether they are intentionally supported low-level APIs or should be hidden
-before the freeze.
-
 `compatibility surface`:
 
 - `TagflowTableConverter`
@@ -386,6 +374,20 @@ before the freeze.
 Rationale: these exports extend the legacy HTML converter path, not the
 semantic runtime model. They are useful during migration, but they should not
 define the first-party beta table story.
+
+Resolved beta decision:
+
+- hide `TagflowTable`, `TableCell`, `RenderTagflowTable`, and `TableCellData`
+  from `package:tagflow_table/tagflow_table.dart`;
+- keep package-internal tests on `package:tagflow_table/src/...` imports where
+  they intentionally exercise render-object internals;
+- keep `TagflowTableConverter` and `TagflowTableCellConverter` publicly
+  exported as the legacy HTML compatibility surface.
+
+Rationale: no reviewed beta docs depend on the low-level render-object types as
+part of the first-party extension story. The semantic contract is the registry
+fragment plus border configuration, while the converter pair remains the
+bounded compatibility surface for HTML migrations.
 
 Rationale:
 

@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart' as material;
 import 'package:tagflow/legacy.dart';
-import 'package:tagflow_table/tagflow_table.dart';
+import 'package:tagflow_table/src/rendering/tagflow_table.dart';
+import 'package:tagflow_table/src/widgets/tagflow_table.dart';
 
 /// Represents a cell in the grid with its ownership and span information
 class _GridCell {
