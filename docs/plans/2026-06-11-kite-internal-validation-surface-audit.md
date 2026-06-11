@@ -268,8 +268,8 @@ dark-mode IPO sheet with live list context, the top summary/excerpt area, and
 the lower company/financials/table content. This closes the dark-mode screenshot
 gate for the hosted-alpha dependency branch.
 
-Profile qualification remains incomplete. `flutter devices` exposed a wireless
-physical iPhone target, and the worker attempted:
+Profile qualification remains incomplete. A first bounded worker saw a wireless
+physical iPhone target and attempted:
 
 ```bash
 flutter run --profile -d 00008150-00110C960186401C --no-pub \
@@ -279,8 +279,18 @@ flutter run --profile -d 00008150-00110C960186401C --no-pub \
 The command started and emitted only the expected wireless-debugging
 performance warning, but produced no clear success or failure within the
 bounded wait. The worker interrupted it and confirmed no `flutter run` process
-remained. Treat this as inconclusive physical-target qualification, not
-release-grade profile evidence.
+remained. A follow-up profile-qualification worker then diagnosed the blocker
+more precisely and recorded:
+
+- `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`
+
+That worker found the target iPhone was only reachable as a wireless Flutter
+device, not as an actively USB-enumerated phone. `xctrace` listed it under
+`Devices Offline`, USB enumeration did not show an attached iPhone, and the
+verbose profile run stalled at the Xcode Profile build-settings step before any
+credible install, app launch, attachable profile session, frame timing capture,
+or real-device `IPOInstrumentSheet` observation. Treat this as a documented
+supported-target blocker, not release-grade profile evidence.
 
 ## Validation Commands
 
@@ -481,8 +491,9 @@ Verified behavior:
    the diagnostics proof screen just to repeat that evidence.
 4. Capture profile evidence for the IPO sheet on a supported physical iOS
    device or Android profile target. The current simulator debug timeline is
-   path-attribution evidence only, and the first wireless physical iPhone
-   profile launch stayed pending until interrupted.
+   path-attribution evidence only. The first physical iPhone target was
+   wireless-only in Flutter and stalled before install/launch, so the next run
+   needs an actively USB-enumerated device or another clearly supported target.
 5. Confirm the custom `details` and `summary` converter behavior still matches
    product expectations while Kite remains on the alpha compatibility path.
 6. Only after the real IPO flow is acceptable should Bulletins be considered as

@@ -262,9 +262,18 @@ The benchmark harness is real but still alpha-grade:
     --dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true
   ```
 
-  It stayed pending until interrupted. No `flutter run` process remained
-  afterward, and this remains inconclusive target qualification rather than
-  release-grade profile evidence.
+  That first run stayed pending until interrupted. No `flutter run` process
+  remained afterward, and it was not counted as release-grade profile evidence.
+- A focused profile-qualification worker then diagnosed that blocker more
+  precisely and recorded
+  `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
+  The physical iPhone was only reachable as a wireless Flutter target, not as an
+  actively USB-enumerated phone; Xcode listed the device under
+  `Devices Offline`, and a verbose profile run stalled at the Xcode Profile
+  build-settings step before credible install, app launch, VM/profile
+  attachment, frame timing capture, or real-device `IPOInstrumentSheet`
+  observation. This is a documented supported-target blocker, not release-grade
+  profile evidence.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
