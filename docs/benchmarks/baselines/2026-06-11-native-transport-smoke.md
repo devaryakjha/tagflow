@@ -99,3 +99,38 @@ This smoke is enough to prove the native transport lane is runnable from the
 repo's documented Melos command and captures useful phase-level evidence for
 the current native JSON document and four-operation patch envelope. It is not
 enough to make a public performance claim or set a regression threshold.
+
+## Alpha.2 Candidate Rerun
+
+After the `tagflow` package metadata was bumped to `1.0.0-alpha.2`, the
+coordinator reran the same report-only smoke command:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+dart run melos run benchmark:native-transport
+```
+
+Scope:
+
+- Generated at: `2026-06-11T17:53:58.460718Z`
+- `tagflow` version: `1.0.0-alpha.2`
+- Fixture: `native_ai_answer_patch`
+- Document payload: `2165` bytes
+- Patch payload: `749` bytes
+- Runtime node count after patches: `24`
+- Patch operation count: `4`
+
+Results:
+
+| Phase | Samples us | Median us | p95 us | Min us | Max us | Mean us | CV |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `decodeDocument` | `215, 166, 164` | 166 | 215 | 164 | 215 | 181.67 | 0.130 |
+| `adaptDocument` | `96, 114, 94` | 96 | 114 | 94 | 114 | 101.33 | 0.089 |
+| `decodePatchEnvelope` | `42, 94, 44` | 44 | 94 | 42 | 94 | 60.00 | 0.401 |
+| `adaptPatches` | `27, 39, 26` | 27 | 39 | 26 | 39 | 30.67 | 0.193 |
+| `applyPatches` | `107, 103, 101` | 103 | 107 | 101 | 107 | 103.67 | 0.024 |
+| `totalTransport` | `490, 519, 431` | 490 | 519 | 431 | 519 | 480.00 | 0.076 |
+
+This rerun keeps the same caveats as the first smoke run: it proves the lane
+runs and records phase-level evidence for the alpha.2 candidate, but it is not
+a profile-mode benchmark or a public performance claim.

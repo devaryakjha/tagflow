@@ -182,24 +182,23 @@ Release scope boundaries:
   fixture or production integration until a hosted prerelease exposes those
   symbols.
 
+Coordinator release-gate evidence for alpha.2:
+
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
+  passed after the manual core-only version bump.
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
+  publish:dry-run` validated only `tagflow`, with registry version
+  `1.0.0-alpha.1`, local version `1.0.0-alpha.2`, and `0` package warnings.
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
+  benchmark:native-transport` passed after the version bump and reported
+  package version `1.0.0-alpha.2`.
+
 Coordinator publish gap before alpha.2:
 
-1. Run the branch gate:
-
-   ```bash
-   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-   dart run melos run validate
-   ```
-
-2. Run publish validation without publishing:
-
-   ```bash
-   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-   dart run melos run publish:dry-run
-   ```
-
-3. Publish only after the version/changelog diff, validation gate, and dry-run
-   output are reviewed by the coordinator.
+1. Review the version/changelog diff and release-gate output.
+2. Publish `tagflow` `1.0.0-alpha.2` only after coordinator approval.
+3. After publish, update Kite's alpha branch to hosted `^1.0.0-alpha.2` and
+   add the native transport test fixture against hosted dependencies.
 
 ## Post-Alpha Stabilization Progress
 

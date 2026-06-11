@@ -28,6 +28,8 @@ It should not claim a CMS sync protocol or public performance result.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits before this status refresh include
+  `6287cc2 chore(release): prepare tagflow alpha.2`,
+  `801a5b0 docs(plan): record kite native transport blocker`,
   `db7dd4e docs(release): prep alpha.2 native transport notes`,
   `5887c17 feat(benchmarks): add native transport benchmark lane`,
   `e5ee11f feat(example): add native dynamic content demo`, and
@@ -46,7 +48,9 @@ It should not claim a CMS sync protocol or public performance result.
 - Release posture: `tagflow` and `tagflow_table` are both published as
   `1.0.0-alpha.1` prereleases. Package descriptions, changelogs, READMEs,
   roadmap, and the alpha migration guide have been updated for the native rich
-  content runtime line.
+  content runtime line. `tagflow` is now prepared as a core-only
+  `1.0.0-alpha.2` candidate, with full validation and publish dry-run passing;
+  `tagflow_table` remains at `1.0.0-alpha.1`.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection
@@ -71,8 +75,9 @@ It should not claim a CMS sync protocol or public performance result.
   removed from the macOS example host. The native block JSON transport now has
   a report-only microbenchmark lane, `benchmark:native-transport`, with smoke
   evidence recorded in
-  `docs/benchmarks/baselines/2026-06-11-native-transport-smoke.md`. The HTML
-  adapter now also supports
+  `docs/benchmarks/baselines/2026-06-11-native-transport-smoke.md`. The
+  alpha.2 candidate rerun reports package version `1.0.0-alpha.2` for the same
+  native transport smoke surface. The HTML adapter now also supports
   authored node ID strategies for controlled dynamic content through
   `TagflowHtmlNodeIdStrategy.attribute()`, which reads `data-tagflow-id` by
   default while preserving path IDs as the compatibility fallback.
