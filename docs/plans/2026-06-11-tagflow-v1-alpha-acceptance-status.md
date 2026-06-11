@@ -52,8 +52,9 @@ The benchmark harness is real but still alpha-grade:
 - generated JSON artifacts stay ignored under `packages/tagflow_benchmarks/build/`
 - direct Dart CLI execution is not valid yet because the benchmark package
   imports Flutter-facing Tagflow code and plain Dart has no `dart:ui`
-- profile-mode frame timing and competitor comparisons remain later benchmark
-  slices
+- profile-mode frame timing is automated enough for repeatable local and
+  reference-runner collection, but remains report-only until a reviewed
+  reference machine baseline exists
 
 ## Current Integration Queue
 
@@ -125,6 +126,22 @@ The benchmark harness is real but still alpha-grade:
 - The example macOS benchmark host no longer carries legacy CocoaPods
   integration files, so the separate Flutter CocoaPods/SPM migration warning is
   no longer expected during benchmark dependency/build preparation.
+- `benchmark:profile:baselines` now runs a selected profile renderer/fixture
+  matrix, copies each raw profile JSON artifact under ignored
+  `packages/tagflow_benchmarks/build/benchmarks/profile/<run-id>/`, and writes
+  a manifest with toolchain, OS, git commit, device, renderer, fixture, repeat,
+  exit code, and artifact paths.
+- `docs/benchmarks/2026-06-11-reference-runner-baseline-plan.md` defines the
+  reference-runner workflow and keeps frame timings report-only until a named
+  reference machine has run the default matrix with repeated passes and reviewed
+  outliers.
+- `docs/plans/2026-06-11-internal-app-validation-plan.md` now describes the
+  first internal app trial path, including local dependency overrides, content
+  selection, rendering fidelity, interaction, performance, theming, failure
+  policy, rollback, and evidence capture. The example app also exposes a
+  deterministic internal-app validation screen that exercises app-authored
+  `TagflowDocument` content, app-owned link handling, controlled HTML policy,
+  image fallback, and table content.
 
 ## Known Non-Completion Points
 
@@ -138,6 +155,9 @@ The benchmark harness is real but still alpha-grade:
   semantic presentation hints, and full package-wide proof that the legacy table
   bridge can be removed.
 - Profile benchmarking is real but not production-grade yet: broader competitor
-  coverage beyond the current HTML-native lanes, nightly/reference-runner
-  baselines, and repeated reference-device runs remain follow-up work before
-  using frame timings as a release gate.
+  coverage beyond the current HTML-native lanes, a committed reviewed baseline
+  from a named reference machine, and repeated reference-device runs remain
+  follow-up work before using frame timings as a release gate.
+- Stable `1.0.0` still requires running the internal-app validation plan against
+  a real app surface; the Tagflow repo now has the recipe and deterministic
+  example fixture, but no external app has been modified in this thread.
