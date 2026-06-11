@@ -193,11 +193,19 @@ final registry = TagflowComponentRegistry(
 );
 
 Tagflow.document(document, registry: registry);
+
+Tagflow.html(
+  html: htmlContent,
+  registry: registry,
+);
 ```
 
-The registry is the alpha direction for renderer customization. Legacy
-`ElementConverter` and selector-based customizations may remain during the alpha
-transition, but they are not the long-term extension contract.
+The registry is the alpha direction for renderer customization.
+`Tagflow.html(..., registry: registry)` applies the same semantic registry
+override path to HTML-origin runtime documents. Legacy `ElementConverter` and
+selector-based customizations may remain during the alpha transition, and custom
+HTML converters continue to use the legacy bridge instead of the semantic
+registry. They are not the long-term extension contract.
 
 First-party extension packages should expose registry fragments. For example,
 `tagflow_table` can render native document table nodes through its custom table

@@ -69,8 +69,9 @@ publish, tag, package-version bump, or source-code implementation by itself.
 
 ### Code constraints that shape the next slice
 
-- `Tagflow.html(...)` does not accept a semantic component registry directly.
-  Apps that need registry overrides for HTML must parse with
+- `Tagflow.html(...)` accepts a semantic component registry directly for
+  HTML-origin runtime documents. Apps that also need authored IDs, strict ID
+  policy, source metadata, or parse-time inspection should still parse with
   `TagflowHtmlAdapter` and render with `Tagflow.document(...)`.
 - Runtime patch application validates duplicate IDs during patch application,
   but plain `TagflowDocument(...)` construction does not eagerly validate the
@@ -280,14 +281,14 @@ Non-goals:
 
 Alpha.3 renderer decision:
 
-- either document that HTML content needing custom semantic components should
-  use `TagflowHtmlAdapter(...).parse(...)` plus `Tagflow.document(...)`, or add
-  a scoped implementation slice that lets `Tagflow.html(...)` accept a
-  `TagflowComponentRegistry`.
+- `Tagflow.html(...)` accepts a `TagflowComponentRegistry` for HTML-origin
+  runtime documents;
+- `TagflowHtmlAdapter(...).parse(...)` plus `Tagflow.document(...)` remains the
+  path for parse-time control, authored IDs, source metadata, and strict policy.
 
-The first option is lower risk. The second option is ergonomic, but it changes
-the public widget API and needs focused tests for HTML rendering, legacy custom
-converters, and registry precedence.
+The ergonomic widget API must keep custom legacy `ElementConverter`s on the
+compatibility bridge and preserve semantic registry precedence for built-in HTML
+rendering.
 
 ## 9. Content Trust Model
 
@@ -381,7 +382,9 @@ Contract:
 
 - prefer `Tagflow.html(...)` for simple built-in rendering;
 - use `TagflowHtmlAdapter` plus `Tagflow.document(...)` when the app needs
-  authored IDs, strict ID policy, source metadata, or registry overrides;
+  authored IDs, strict ID policy, source metadata, or parse-time inspection;
+- pass `registry` to `Tagflow.html(...)` when HTML-origin content only needs
+  semantic component overrides;
 - use `data-tagflow-id` or configured authored IDs for dynamic controlled HTML;
 - keep custom `ElementConverter`s on the compatibility path only.
 
@@ -490,9 +493,7 @@ Files:
 
 Work:
 
-- choose one contract:
-  - document manual adapter usage for HTML registry overrides, or
-  - add `registry` to `Tagflow.html(...)`;
+- chosen contract: add `registry` to `Tagflow.html(...)`;
 - if adding the parameter, preserve legacy custom-converter behavior and
   registry precedence;
 - add focused tests for HTML built-in rendering with a registry override.

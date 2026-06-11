@@ -232,7 +232,17 @@ final registry = TagflowComponentRegistry(
 );
 
 Tagflow.document(document, registry: registry);
+
+Tagflow.html(
+  html: htmlContent,
+  registry: registry,
+);
 ```
+
+Use `Tagflow.html(..., registry: registry)` when HTML-origin content only needs
+semantic render overrides. Use `TagflowHtmlAdapter` plus `Tagflow.document(...)`
+when the app also needs authored IDs, strict HTML policy, inspection, or caching
+before rendering.
 
 ### Compatibility Imports
 

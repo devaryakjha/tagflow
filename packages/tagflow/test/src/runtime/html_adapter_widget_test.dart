@@ -155,6 +155,53 @@ void main() {
       expect(find.text('Built-in runtime'), findsNothing);
     });
 
+    testWidgets('html entrypoint uses registry overrides', (tester) async {
+      const html = '<p>Built-in HTML runtime</p>';
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.paragraph: (context, node) {
+            return const Text('Registry HTML paragraph');
+          },
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.html(html: html, registry: registry),
+        ),
+      );
+
+      expect(find.text('Registry HTML paragraph'), findsOneWidget);
+      expect(find.text('Built-in HTML runtime'), findsNothing);
+    });
+
+    testWidgets('html registry does not replace legacy converters', (
+      tester,
+    ) async {
+      const html = '<p>Built-in paragraph</p>';
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.paragraph: (context, node) {
+            return const Text('Registry paragraph');
+          },
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.html(
+            html: html,
+            registry: registry,
+            converters: const [_LegacyParagraphConverter()],
+          ),
+        ),
+      );
+
+      expect(find.text('Legacy bridge'), findsOneWidget);
+      expect(find.text('Registry paragraph'), findsNothing);
+      expect(find.text('Built-in paragraph'), findsNothing);
+    });
+
     testWidgets('selectable wrapping applies around semantic content', (
       tester,
     ) async {

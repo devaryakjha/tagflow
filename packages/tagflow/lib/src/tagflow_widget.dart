@@ -53,6 +53,7 @@ class Tagflow extends StatefulWidget {
     required String this.html,
     this.adapter,
     this.theme,
+    this.registry,
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
@@ -67,8 +68,7 @@ class Tagflow extends StatefulWidget {
        _viewOptions = viewOptions,
        _legacyOptions = options,
        _renderBoundary = renderBoundary,
-       document = null,
-       registry = null;
+       document = null;
 
   /// Creates a new [Tagflow] widget from a native runtime document.
   const Tagflow.document(
@@ -103,7 +103,7 @@ class Tagflow extends StatefulWidget {
   /// Custom theme for styling HTML elements
   final TagflowTheme? theme;
 
-  /// Semantic component registry used by [Tagflow.document].
+  /// Semantic component registry used by [Tagflow.document] and [Tagflow.html].
   final TagflowComponentRegistry? registry;
 
   /// Additional converters to use
@@ -176,7 +176,8 @@ class _TagflowState extends State<Tagflow> {
       return;
     }
 
-    if (oldWidget.registry != widget.registry && widget.document != null) {
+    if (oldWidget.registry != widget.registry &&
+        !_usesLegacyCompatibilityRenderer) {
       setState(() {});
     }
   }
