@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 void main() {
   group('StyleParser', () {

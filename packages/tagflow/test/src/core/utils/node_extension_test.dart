@@ -3,7 +3,7 @@
 import 'dart:collection';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 class TestNode extends TagflowNode {
   TestNode({

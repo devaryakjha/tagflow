@@ -18,6 +18,12 @@ content while keeping HTML available through `TagflowHtmlAdapter`.
 Breaking changes should be expected around parser internals, converter
 internals, broad public exports, and selector-based extension points.
 
+Parser, converter, legacy HTML node models, and selector-based extension APIs
+are available from `package:tagflow/legacy.dart` during the alpha transition.
+New code should import `package:tagflow/tagflow.dart` and use
+`Tagflow.document(...)`, `Tagflow.html(...)`, `TagflowHtmlAdapter`, and
+`TagflowComponentRegistry`.
+
 ## HTML-First Usage
 
 Existing code may look like this:

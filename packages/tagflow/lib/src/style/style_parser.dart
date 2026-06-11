@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Utility class to parse CSS-like values into Flutter values
 class StyleParser {

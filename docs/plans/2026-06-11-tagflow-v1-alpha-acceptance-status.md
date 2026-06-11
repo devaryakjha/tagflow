@@ -22,7 +22,7 @@ Snapshot:
 | 6 | Semantic `TagflowComponentRegistry` exists and can override a built-in renderer. | Done | Registry exists, is public, and `Tagflow.document(..., registry:)` tests prove override behavior. |
 | 7 | Render-boundary behavior still works for HTML input. | Done | `da6de66` adds `Tagflow.html(..., renderBoundary: ...)` coverage and proves legacy `TagflowOptions(renderBoundary: ...)` still works. |
 | 8 | Public API separates runtime view options from HTML-adapter options. | Mostly done | `da6de66` adds `TagflowViewOptions`, keeps `TagflowOptions` as a compatibility wrapper, and removes `renderBoundary` from the runtime view-options surface. |
-| 9 | Package exports are curated so new adopters do not import internals accidentally. | Incomplete | Export curation was intentionally deferred to keep the API/options checkpoint reviewable. `packages/tagflow/lib/tagflow.dart` still exports broad internals. |
+| 9 | Package exports are curated so new adopters do not import internals accidentally. | Done | `packages/tagflow/lib/tagflow.dart` now exports the alpha-facing runtime API, while parser/converter/core compatibility surfaces moved to `package:tagflow/legacy.dart`; `test/src/public_api/export_test.dart` covers both barrels. |
 | 10 | Migration document exists from `0.0.x` HTML-first usage to alpha runtime. | Done | `docs/migration/2026-06-11-tagflow-v1-alpha-migration.md`. |
 
 ## Benchmark Status
@@ -53,15 +53,13 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Curate package exports and add a deliberate legacy barrel so alpha adopters
-   do not import parser/converter internals by accident.
-2. Decide whether emphasis/strong should become first-class runtime semantics
+1. Decide whether emphasis/strong should become first-class runtime semantics
    or remain an adapter-hint bridge for `1.0.0-alpha.1`.
-3. Switch `Tagflow.html(...)` from the compatibility legacy bridge to semantic
+2. Switch `Tagflow.html(...)` from the compatibility legacy bridge to semantic
    registry rendering once the built-in parity decision is accepted.
-4. Re-run package-level validation and benchmarks after export/runtime routing
+3. Re-run package-level validation and benchmarks after export/runtime routing
    changes.
-5. Re-audit criteria 3, 4, and 9 before any alpha version bump.
+4. Re-audit criteria 3 and 4 before any alpha version bump.
 
 ## Known Non-Completion Points
 
@@ -70,8 +68,6 @@ The benchmark harness is real but still alpha-grade:
   for `Tagflow.document(...)`.
 - Semantic inline emphasis needs either first-class runtime representation or a
   deliberately documented adapter-hint bridge.
-- Public API curation is not complete until `tagflow.dart` stops exporting broad
-  parser/converter/core internals directly.
 - Root full validation has a known unrelated issue when the empty
   `examples/tagflow/test/` directory causes Melos to select the example package
   for coverage without test files.

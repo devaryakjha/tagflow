@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// A converter for the `blockquote` tag.
 final class BlockquoteConverter extends ElementConverter<TagflowElement> {

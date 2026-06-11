@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 import 'package:tagflow_benchmarks/src/fixtures/fixture_manifest.dart';
 import 'package:tagflow_benchmarks/src/results/benchmark_result.dart';
 import 'package:tagflow_benchmarks/src/results/environment_detector.dart';

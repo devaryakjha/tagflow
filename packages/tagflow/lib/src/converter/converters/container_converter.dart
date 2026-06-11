@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Converts container elements (div, section, article, etc.)
 class ContainerConverter extends ElementConverter<TagflowElement> {

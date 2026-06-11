@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart'
+import 'package:tagflow/legacy.dart'
     show AlignItems, FlexDirection, JustifyContent;
 
 /// Extension methods for converting style enums to Flutter types
