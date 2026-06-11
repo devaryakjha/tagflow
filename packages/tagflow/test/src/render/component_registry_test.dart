@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow/tagflow.dart';
@@ -63,5 +65,229 @@ void main() {
       expect(find.byType(SizedBox), findsOneWidget);
       expect(find.textContaining('custom element'), findsNothing);
     });
+
+    testWidgets('renders html emphasis hints through the semantic fallback', (
+      tester,
+    ) async {
+      final document = const TagflowHtmlAdapter().parse(
+        '<p>Hello <strong>bold</strong> and <em>italic</em></p>',
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(find.text('Hello '), findsOneWidget);
+      expect(find.text('bold'), findsOneWidget);
+      expect(find.text(' and '), findsOneWidget);
+      expect(find.text('italic'), findsOneWidget);
+      expect(_richTextStyle(tester, 'bold')?.fontWeight, FontWeight.w700);
+      expect(_richTextStyle(tester, 'italic')?.fontStyle, FontStyle.italic);
+    });
+
+    testWidgets('applies link callbacks from semantic runtime nodes', (
+      tester,
+    ) async {
+      String? tappedUrl;
+      LinkedHashMap<String, String>? tappedAttributes;
+      final document = const TagflowHtmlAdapter().parse(
+        '<p><a href="https://example.com/story" title="Story">Open</a></p>',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            options: TagflowOptions(
+              linkTapCallback: (url, attributes) {
+                tappedUrl = url;
+                tappedAttributes = attributes;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pump();
+
+      expect(tappedUrl, 'https://example.com/story');
+      expect(tappedAttributes?['href'], 'https://example.com/story');
+      expect(tappedAttributes?['title'], 'Story');
+    });
+
+    testWidgets('renders ordered and unordered list markers semantically', (
+      tester,
+    ) async {
+      final document = const TagflowHtmlAdapter().parse(
+        '<ol start="3"><li>Third</li><li>Fourth</li></ol> '
+        '<ul><li>Bullet</li></ul>',
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(find.text('3.'), findsOneWidget);
+      expect(find.text('4.'), findsOneWidget);
+      expect(find.text('•'), findsOneWidget);
+      expect(find.text('Third'), findsOneWidget);
+      expect(find.text('Fourth'), findsOneWidget);
+      expect(find.text('Bullet'), findsOneWidget);
+    });
+
+    testWidgets('renders native blockquote and code styling', (tester) async {
+      final document = TagflowDocument(
+        id: 'doc-quote-code',
+        children: [
+          TagflowDocumentNode.blockquote(
+            id: 'quote',
+            children: [
+              TagflowDocumentNode.paragraph(
+                id: 'quote-p',
+                children: [
+                  TagflowDocumentNode.text(id: 'quote-t', text: 'Quoted copy'),
+                ],
+              ),
+            ],
+          ),
+          TagflowDocumentNode.codeBlock(id: 'code', text: 'final value = 1;'),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(
+        find.ancestor(
+          of: find.text('Quoted copy'),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsWidgets,
+      );
+      expect(
+        find.ancestor(
+          of: find.text('final value = 1;'),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsWidgets,
+      );
+      expect(
+        tester.widget<Text>(find.text('final value = 1;')).style?.fontFamily,
+        'monospace',
+      );
+    });
+
+    testWidgets('applies semantic image view options from context', (
+      tester,
+    ) async {
+      final document = TagflowDocument(
+        id: 'doc-image',
+        children: [
+          TagflowDocumentNode.image(
+            id: 'image',
+            url: Uri.parse('https://example.com/image.png'),
+            alt: 'Hero image',
+            width: 640,
+            height: 480,
+          ),
+        ],
+      );
+
+      Widget loadingBuilder(
+        BuildContext context,
+        Widget child,
+        ImageChunkEvent? loadingProgress,
+      ) {
+        return const Text('Loading image');
+      }
+
+      Widget errorBuilder(
+        BuildContext context,
+        Object error,
+        StackTrace? stackTrace,
+      ) {
+        return const Text('Broken image');
+      }
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            options: TagflowOptions(
+              imageLoadingBuilder: loadingBuilder,
+              imageErrorBuilder: errorBuilder,
+              maxImageWidth: 320,
+              maxImageHeight: 240,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final image = tester.widget<Image>(find.byType(Image));
+      tester.takeException();
+
+      expect(image.width, 320);
+      expect(image.height, 240);
+      expect(image.loadingBuilder, same(loadingBuilder));
+      expect(image.errorBuilder, same(errorBuilder));
+    });
+
+    testWidgets('renders simple semantic tables', (tester) async {
+      final document = TagflowDocument(
+        id: 'doc-table',
+        children: [
+          TagflowDocumentNode.table(
+            id: 'table',
+            children: [
+              TagflowDocumentNode.tableRow(
+                id: 'row-header',
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'cell-header',
+                    header: true,
+                    children: [
+                      TagflowDocumentNode.text(id: 'header-text', text: 'Name'),
+                    ],
+                  ),
+                ],
+              ),
+              TagflowDocumentNode.tableRow(
+                id: 'row-body',
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'cell-body',
+                    children: [
+                      TagflowDocumentNode.text(
+                        id: 'body-text',
+                        text: 'Tagflow',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      final table = tester.widget<Table>(find.byType(Table));
+
+      expect(table.children, hasLength(2));
+      expect(find.text('Name'), findsOneWidget);
+      expect(find.text('Tagflow'), findsOneWidget);
+      expect(_richTextStyle(tester, 'Name')?.fontWeight, FontWeight.w700);
+    });
   });
+}
+
+TextStyle? _richTextStyle(WidgetTester tester, String text) {
+  final finder = find.byWidgetPredicate((widget) {
+    if (widget is! RichText) return false;
+    return widget.text.toPlainText() == text;
+  });
+
+  if (finder.evaluate().isEmpty) {
+    return null;
+  }
+
+  return tester.widget<RichText>(finder.first).text.style;
 }

@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
+import 'package:tagflow/src/tagflow_options.dart';
 
 /// Builds a Flutter widget for a semantic Tagflow document node.
 typedef TagflowComponentBuilder =
@@ -114,7 +117,7 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.heading: _renderHeading,
   TagflowNodeKind.text: _renderText,
   TagflowNodeKind.link: _renderLink,
-  TagflowNodeKind.list: _renderBlockChildren,
+  TagflowNodeKind.list: _renderList,
   TagflowNodeKind.listItem: _renderListItem,
   TagflowNodeKind.blockquote: _renderBlockquote,
   TagflowNodeKind.codeBlock: _renderCodeBlock,
@@ -172,14 +175,58 @@ Widget _renderText(TagflowComponentContext context, TagflowDocumentNode node) {
 }
 
 Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
+  final options = TagflowOptions.of(context.buildContext);
+  final linkAttributes = _linkAttributes(node);
+
   return Semantics(
     link: true,
-    child: DefaultTextStyle.merge(
-      style: const TextStyle(
-        color: Color(0xFF0B57D0),
-        decoration: TextDecoration.underline,
+    child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: node.url == null
+            ? null
+            : () => options.linkTapCallback?.call(
+                node.url.toString(),
+                linkAttributes,
+              ),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            color: Color(0xFF0B57D0),
+            decoration: TextDecoration.underline,
+          ),
+          child: Wrap(children: context.renderChildren(node)),
+        ),
       ),
-      child: Wrap(children: context.renderChildren(node)),
+    ),
+  );
+}
+
+Widget _renderList(TagflowComponentContext context, TagflowDocumentNode node) {
+  final startIndex = node.startIndex ?? 1;
+  final children = <Widget>[];
+
+  for (var index = 0; index < node.children.length; index++) {
+    final child = node.children[index];
+    if (child.kind == TagflowNodeKind.listItem) {
+      children.add(
+        _renderListRow(
+          context,
+          child,
+          marker: (node.ordered ?? false) ? '${startIndex + index}.' : '•',
+        ),
+      );
+      continue;
+    }
+    children.add(context.render(child));
+  }
+
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     ),
   );
 }
@@ -188,12 +235,29 @@ Widget _renderListItem(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('- '),
-      Expanded(child: _renderBlockChildren(context, node)),
-    ],
+  return _renderListRow(context, node, marker: '•');
+}
+
+Widget _renderListRow(
+  TagflowComponentContext context,
+  TagflowDocumentNode node, {
+  required String marker,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8, top: 1),
+          child: Text(
+            marker,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        Expanded(child: _renderBlockChildren(context, node)),
+      ],
+    ),
   );
 }
 
@@ -202,8 +266,17 @@ Widget _renderBlockquote(
   TagflowDocumentNode node,
 ) {
   return Padding(
-    padding: const EdgeInsets.only(left: 16),
-    child: _renderBlockChildren(context, node),
+    padding: const EdgeInsets.only(bottom: 12),
+    child: DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0x14000000),
+        border: Border(left: BorderSide(color: Color(0x661F4B99), width: 4)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+        child: _renderBlockChildren(context, node),
+      ),
+    ),
   );
 }
 
@@ -211,11 +284,24 @@ Widget _renderCodeBlock(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Text(
-      node.text ?? '',
-      style: const TextStyle(fontFamily: 'monospace'),
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x12000000),
+        border: Border.all(color: const Color(0x1F000000)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Text(
+            node.text ?? '',
+            style: const TextStyle(fontFamily: 'monospace'),
+          ),
+        ),
+      ),
     ),
   );
 }
@@ -224,18 +310,33 @@ Widget _renderInlineCode(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return Text(node.text ?? '', style: const TextStyle(fontFamily: 'monospace'));
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: const Color(0x12000000),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Text(
+        node.text ?? '',
+        style: const TextStyle(fontFamily: 'monospace'),
+      ),
+    ),
+  );
 }
 
 Widget _renderImage(TagflowComponentContext context, TagflowDocumentNode node) {
   final url = node.url;
   if (url == null) return const SizedBox.shrink();
+  final options = TagflowOptions.of(context.buildContext);
 
   return Image.network(
     url.toString(),
-    width: node.width,
-    height: node.height,
+    width: _clampDimension(node.width, options.maxImageWidth),
+    height: _clampDimension(node.height, options.maxImageHeight),
     semanticLabel: node.alt,
+    loadingBuilder: options.imageLoadingBuilder,
+    errorBuilder: options.imageErrorBuilder,
   );
 }
 
@@ -244,13 +345,18 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
     (child) => child.kind == TagflowNodeKind.tableRow,
   );
 
-  return Table(
-    children: [
-      for (final row in rows)
-        TableRow(
-          children: [for (final cell in row.children) context.render(cell)],
-        ),
-    ],
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Table(
+      border: TableBorder.all(color: const Color(0x1F000000)),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        for (final row in rows)
+          TableRow(
+            children: [for (final cell in row.children) context.render(cell)],
+          ),
+      ],
+    ),
   );
 }
 
@@ -265,9 +371,21 @@ Widget _renderTableCell(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return Padding(
+  final child = Padding(
     padding: const EdgeInsets.all(8),
     child: _renderBlockChildren(context, node),
+  );
+
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: node.header ? const Color(0x12000000) : null,
+    ),
+    child: node.header
+        ? DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            child: child,
+          )
+        : child,
   );
 }
 
@@ -286,5 +404,96 @@ Widget _defaultFallback(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return const SizedBox.shrink();
+  if (node.children.isEmpty) {
+    return const SizedBox.shrink();
+  }
+
+  final htmlTag = _htmlTag(node);
+  final child = _isInlineFallbackTag(htmlTag)
+      ? Wrap(children: context.renderChildren(node))
+      : _renderBlockChildren(context, node);
+
+  final textStyle = _fallbackTextStyle(htmlTag);
+  if (textStyle != null) {
+    return DefaultTextStyle.merge(style: textStyle, child: child);
+  }
+
+  if (htmlTag == 'mark') {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x33FFE082),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: child,
+    );
+  }
+
+  return child;
+}
+
+double? _clampDimension(double? value, double? maxValue) {
+  if (value == null || maxValue == null) return value;
+  return value > maxValue ? maxValue : value;
+}
+
+String? _htmlTag(TagflowDocumentNode node) {
+  final metadataTag = node.metadata['htmlTag'];
+  if (metadataTag is String && metadataTag.isNotEmpty) {
+    return metadataTag;
+  }
+
+  final hintTag = node.presentation.hints['htmlTag'];
+  if (hintTag is String && hintTag.isNotEmpty) {
+    return hintTag;
+  }
+
+  return null;
+}
+
+LinkedHashMap<String, String>? _linkAttributes(TagflowDocumentNode node) {
+  final attributes = <String, String>{};
+  final rawAttributes = node.metadata['htmlAttributes'];
+  if (rawAttributes is Map) {
+    for (final entry in rawAttributes.entries) {
+      attributes['${entry.key}'] = '${entry.value}';
+    }
+  }
+
+  if (node.url != null) {
+    attributes.putIfAbsent('href', () => node.url.toString());
+  }
+
+  return attributes.isEmpty ? null : LinkedHashMap.of(attributes);
+}
+
+bool _isInlineFallbackTag(String? htmlTag) {
+  return switch (htmlTag) {
+    'a' ||
+    'b' ||
+    'strong' ||
+    'i' ||
+    'em' ||
+    'u' ||
+    'span' ||
+    'small' ||
+    'mark' ||
+    'del' ||
+    'ins' ||
+    'sub' ||
+    'sup' => true,
+    _ => false,
+  };
+}
+
+TextStyle? _fallbackTextStyle(String? htmlTag) {
+  return switch (htmlTag) {
+    'b' || 'strong' => const TextStyle(fontWeight: FontWeight.w700),
+    'i' || 'em' => const TextStyle(fontStyle: FontStyle.italic),
+    'u' || 'ins' => const TextStyle(decoration: TextDecoration.underline),
+    'del' => const TextStyle(decoration: TextDecoration.lineThrough),
+    'small' => const TextStyle(fontSize: 12),
+    'sub' => const TextStyle(fontSize: 12),
+    'sup' => const TextStyle(fontSize: 12),
+    _ => null,
+  };
 }
