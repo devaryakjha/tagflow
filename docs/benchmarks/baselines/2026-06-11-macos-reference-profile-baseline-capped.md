@@ -117,9 +117,12 @@ Completeness gate status:
   `TAGFLOW_PROFILE_MIN_REPEATS=1`.
 - `2026-06-11-macos-ai-answer-competitors-r1` passes with
   `TAGFLOW_PROFILE_MIN_REPEATS=1`.
-- No run in this worktree passes the publishable reference-runner completeness
-  gate at `TAGFLOW_PROFILE_MIN_REPEATS=5`; the checked Tagflow all-fixtures
-  run fails with `insufficient_repeats` on all four fixtures.
+- No run in this worktree passes the reference-runner repeat-count
+  completeness check at `TAGFLOW_PROFILE_MIN_REPEATS=5`; the checked Tagflow
+  all-fixtures run fails with `insufficient_repeats` on all four fixtures.
+- A passing `TAGFLOW_PROFILE_MIN_REPEATS=5` check would still be insufficient
+  for publishable or stable performance claims until the reference-machine,
+  window/display, and regression-threshold follow-up work below is completed.
 
 ## Completed Capped Results
 
