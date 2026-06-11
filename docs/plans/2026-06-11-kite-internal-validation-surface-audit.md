@@ -168,9 +168,10 @@ not a continuation of the proof patch:
    for the two IPO Tagflow integration files
 5. latest real-route result: an authenticated simulator session reached Bids ->
    IPO -> an IPO row -> the real `IPOInstrumentSheet` in Kite's in-app Dark
-   theme
-6. remaining: capture named dark-mode screenshots and profile-target evidence
-   before considering the migration production-ready
+   theme and produced named evidence screenshots
+6. remaining: capture release-grade profile evidence on a supported physical or
+   otherwise qualified target before considering the migration
+   production-ready
 
 ## Clean Alpha Validation Route
 
@@ -242,14 +243,44 @@ Real-route result:
   `GetIPOInfo` returning `200`
 - the Flutter session was stopped with `q` and reported `Application finished.`
 
-No release evidence files were produced before the bounded worker shutdown, so
-there are still no
-`docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*` artifacts. Treat
-this as route validation for the clean hosted-alpha branch, not screenshot or
-profile evidence. The next pass should repeat the same authenticated route and
-capture the named `IPOInstrumentSheet` screenshots before stopping. Profile-mode
-evidence still needs a supported physical target or a captured target failure in
-the benchmark manifest.
+No release evidence files were produced before that bounded worker shutdown, so
+that pass was treated as route validation for the clean hosted-alpha branch, not
+screenshot or profile evidence.
+
+A follow-up evidence worker repeated the same clean hosted-alpha route from the
+detached worktree at `d9682aec`. It rechecked that the Kite worktree was clean,
+that no `pubspec_overrides.yaml` or local path dependency existed, and that the
+lockfile resolved hosted `tagflow` and `tagflow_table` at `1.0.0-alpha.1`. It
+then launched the normal app entrypoint on the iPhone 17 simulator with
+`--dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true`, reused the authenticated
+session, confirmed Kite's in-app Dark theme, and reached Bids -> IPO -> first
+IPO row -> real `IPOInstrumentSheet` again. Logs confirmed
+`IPOInstrumentSheet UTKAL` and `GetIPOInfo` returning `200`.
+
+Captured clean hosted-alpha evidence:
+
+- `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-route-context.jpg`
+- `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-excerpt.jpg`
+- `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-content-table.jpg`
+
+The coordinator visually checked the screenshots. They show the real Kite
+dark-mode IPO sheet with live list context, the top summary/excerpt area, and
+the lower company/financials/table content. This closes the dark-mode screenshot
+gate for the hosted-alpha dependency branch.
+
+Profile qualification remains incomplete. `flutter devices` exposed a wireless
+physical iPhone target, and the worker attempted:
+
+```bash
+flutter run --profile -d 00008150-00110C960186401C --no-pub \
+  --dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true
+```
+
+The command started and emitted only the expected wireless-debugging
+performance warning, but produced no clear success or failure within the
+bounded wait. The worker interrupted it and confirmed no `flutter run` process
+remained. Treat this as inconclusive physical-target qualification, not
+release-grade profile evidence.
 
 ## Validation Commands
 
@@ -444,22 +475,17 @@ Verified behavior:
 2. Continue validation from `codex/kite-tagflow-alpha-runtime`; do not re-add
    the absolute-path `pubspec_overrides.yaml`, current lockfile churn,
    diagnostics preview, or local IPO fixture as-is.
-3. Capture dark-mode screenshots of:
-   - excerpt section
-   - long-form content section
-   - table rendering
-   - link handling
-4. Restore or provide a non-production, non-committed way to reach
-   `IPOInstrumentSheet` on the clean alpha branch without broad diagnostics
-   scaffolding. The latest clean-branch attempt launched Home but did not reach
-   IPO details because existing local data handlers returned `500` and
-   watchlist decoding failed.
-5. Capture profile evidence for the IPO sheet on a supported physical iOS
+3. Keep the real authenticated Bids -> IPO -> IPO row path as the preferred
+   clean-branch evidence route. The named dark-mode screenshots now exist for
+   the excerpt/summary and company/financials/table sections, so do not revive
+   the diagnostics proof screen just to repeat that evidence.
+4. Capture profile evidence for the IPO sheet on a supported physical iOS
    device or Android profile target. The current simulator debug timeline is
-   path-attribution evidence only.
-6. Confirm the custom `details` and `summary` converter behavior still matches
+   path-attribution evidence only, and the first wireless physical iPhone
+   profile launch stayed pending until interrupted.
+5. Confirm the custom `details` and `summary` converter behavior still matches
    product expectations while Kite remains on the alpha compatibility path.
-7. Only after the real IPO flow is acceptable should Bulletins be considered as
+6. Only after the real IPO flow is acceptable should Bulletins be considered as
    a second migration candidate.
 
 ## Rollback Plan
@@ -491,10 +517,9 @@ needs to be repeated after a future local proof:
   toolchain.
 - The main Kite checkout is clean and still on hosted `0.0.x` Tagflow packages.
   The alpha dependency migration is isolated on
-  `codex/kite-tagflow-alpha-runtime`; the next risk is validating that branch
-  against the real IPO surface in dark mode and on a profile-capable target
-  without reintroducing proof scaffolding.
-- The clean alpha branch can currently launch Home on the simulator, but the
-  clean app-local data path does not reliably reach IPO details without the
-  prior fixture. Any next proof should avoid committing diagnostics scaffolding
-  while still giving validation a deterministic real `IPOInstrumentSheet` route.
+  `codex/kite-tagflow-alpha-runtime`; the real authenticated route now validates
+  that branch against the dark-mode IPO surface without reintroducing proof
+  scaffolding. The remaining release risk is supported-target profile evidence.
+- The clean app-local data path still does not reliably reach IPO details
+  without the prior fixture. Keep using the authenticated real route for
+  evidence, or make any future local fallback narrow, uncommitted, and IPO-only.

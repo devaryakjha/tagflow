@@ -7,7 +7,7 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `42dae38 docs(release): record alpha publish success`
+  `5eebe5b docs(validation): record kite real route result`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `74a9c9c bench(profile): record viewport metadata`,
   `c137a7b bench(profile): support custom baseline output dirs`,
@@ -88,8 +88,9 @@ The benchmark harness is real but still alpha-grade:
    overrides.
 4. Clean hosted-alpha real-route validation has now reached Kite's real
    `IPOInstrumentSheet` from an authenticated normal app session in Kite's
-   in-app Dark theme. Named screenshot artifacts and release-grade profile
-   evidence are still missing.
+   in-app Dark theme, and named dark-mode screenshot artifacts now exist.
+   Release-grade physical or otherwise qualified profile evidence is still
+   missing.
 
 ## Release Prep Status
 
@@ -246,6 +247,24 @@ The benchmark harness is real but still alpha-grade:
   `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*` screenshot
   artifacts were created before the bounded shutdown. This validates the route,
   not the final dark screenshot or profile evidence gate.
+- A bounded follow-up worker repeated the same clean hosted-alpha authenticated
+  route, captured the real dark-mode IPO sheet screenshots, and kept Kite clean:
+  `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-route-context.jpg`,
+  `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-excerpt.jpg`, and
+  `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-content-table.jpg`.
+  The coordinator visually checked these files; they show the live IPO list
+  context, the top summary/excerpt area, and the lower company/financials/table
+  area in Kite's in-app Dark theme. A bounded physical iPhone profile launch was
+  attempted with:
+
+  ```bash
+  flutter run --profile -d 00008150-00110C960186401C --no-pub \
+    --dart-define=KITE_ENABLE_DEV_SESSION_TOOLS=true
+  ```
+
+  It stayed pending until interrupted. No `flutter run` process remained
+  afterward, and this remains inconclusive target qualification rather than
+  release-grade profile evidence.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -319,9 +338,9 @@ The benchmark harness is real but still alpha-grade:
   viewport values when explicitly configured, but the runner still does not set
   the desktop window or identify the physical display by itself.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
-  dark-mode screenshots, physical-device or supported-target profile evidence
-  on the real IPO surface, and a deterministic way to reach
-  `IPOInstrumentSheet` from the clean Kite alpha-dependency branch without
-  committing proof-only diagnostics scaffolding.
-  The first iOS simulator proof and debug timeline have been captured but
-  should not be treated as a full production rollout or benchmark.
+  physical-device or supported-target profile evidence on the real IPO surface,
+  and a repeatable operating path for the clean Kite alpha-dependency branch
+  that does not depend on proof-only diagnostics scaffolding.
+  The first iOS simulator proof, real dark-mode screenshots, and debug timeline
+  have been captured, but they should not be treated as a full production
+  rollout or release-grade benchmark.
