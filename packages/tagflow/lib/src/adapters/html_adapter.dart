@@ -7,7 +7,9 @@ import 'package:tagflow/src/tagflow_options.dart';
 
 const _htmlAdapterName = 'html';
 const _htmlTagKey = 'htmlTag';
+const _blockedHtmlTagKey = 'blockedHtmlTag';
 const _htmlAttributesKey = 'htmlAttributes';
+const _policyDecisionReasonKey = 'policyDecisionReason';
 const _tableRowCountKey = 'tableRowCount';
 const _tableColumnCountKey = 'tableColumnCount';
 const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
@@ -19,13 +21,20 @@ const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
 /// [TagflowDocument] becomes the public render input.
 final class TagflowHtmlAdapter {
   /// Creates an HTML adapter.
-  const TagflowHtmlAdapter({this.debug, this.renderBoundary});
+  const TagflowHtmlAdapter({
+    this.debug,
+    this.renderBoundary,
+    this.policy = TagflowContentPolicy.defaults,
+  });
 
   /// Optional debug override for the underlying HTML parser.
   final bool? debug;
 
   /// Optional render-boundary override for the underlying HTML parser.
   final TagflowRenderBoundary? renderBoundary;
+
+  /// Content policy used while adapting HTML into runtime document nodes.
+  final TagflowContentPolicy policy;
 
   /// Parses [html] into a source-tagged [TagflowDocument].
   TagflowDocument parse(
@@ -51,7 +60,9 @@ final class TagflowHtmlAdapter {
       id: id ?? _documentIdFor(html),
       children: [
         for (final indexed in rootNodes.indexed)
-          _documentNodeFromLegacy(indexed.$2, [indexed.$1], source),
+          if (_documentNodeFromLegacy(indexed.$2, [indexed.$1], source, policy)
+              case final node?)
+            node,
       ],
       metadata: metadata,
       source: source,
@@ -80,10 +91,11 @@ abstract final class TagflowHtmlDocumentBridge {
   }
 }
 
-TagflowDocumentNode _documentNodeFromLegacy(
+TagflowDocumentNode? _documentNodeFromLegacy(
   TagflowNode node,
   List<int> path,
   TagflowSourceInfo documentSource,
+  TagflowContentPolicy policy,
 ) {
   final id = TagflowNodeIds.fromPath(path);
   final source = TagflowSourceInfo(
@@ -92,7 +104,19 @@ TagflowDocumentNode _documentNodeFromLegacy(
     uri: documentSource.uri,
     metadata: TagflowMetadata({_htmlTagKey: node.tag}),
   );
-  final metadata = _metadataForLegacyNode(node);
+  final tagDecision = node.isTextNode
+      ? const TagflowTagPolicyDecision.allow('#text')
+      : policy.decideTag(node.tag);
+  if (!tagDecision.isAllowed) {
+    return _disallowedNode(
+      id: id,
+      node: node,
+      source: source,
+      policy: policy,
+      reason: tagDecision.reason?.name ?? 'disallowedTag',
+    );
+  }
+
   final presentation = TagflowPresentation(
     variant: _variantForHtmlTag(node.tag),
     width: _parseDimension(node['width']),
@@ -104,21 +128,43 @@ TagflowDocumentNode _documentNodeFromLegacy(
   );
   final children = [
     for (final indexed in node.children.indexed)
-      _documentNodeFromLegacy(indexed.$2, [
-        ...path,
-        indexed.$1,
-      ], documentSource),
+      if (_documentNodeFromLegacy(
+            indexed.$2,
+            [...path, indexed.$1],
+            documentSource,
+            policy,
+          )
+          case final child?)
+        child,
   ];
 
   if (node.isTextNode) {
     return TagflowDocumentNode.text(
       id: id,
       text: node.textContent ?? '',
-      metadata: metadata,
+      metadata: _metadataForLegacyNode(node),
       presentation: presentation,
       source: source,
     );
   }
+
+  final hrefDecision = node.tag == 'a'
+      ? policy.decideUrl(
+          node['href'] ?? '',
+          resourceType: TagflowResourceType.link,
+        )
+      : null;
+  final srcDecision = node.tag == 'img'
+      ? policy.decideUrl(
+          node['src'] ?? '',
+          resourceType: TagflowResourceType.image,
+        )
+      : null;
+  final metadata = _metadataForLegacyNode(
+    node,
+    hrefDecision: hrefDecision,
+    srcDecision: srcDecision,
+  );
 
   return switch (node.tag) {
     'p' => TagflowDocumentNode.paragraph(
@@ -136,14 +182,26 @@ TagflowDocumentNode _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
-    'a' => TagflowDocumentNode.link(
-      id: id,
-      url: Uri.tryParse(node['href'] ?? '') ?? Uri(),
-      children: children,
-      metadata: metadata,
-      presentation: presentation,
-      source: source,
-    ),
+    'a' =>
+      hrefDecision == null || !hrefDecision.isAllowed
+          ? TagflowDocumentNode.container(
+              id: id,
+              children: children,
+              metadata: _metadataForRejectedUrl(
+                metadata,
+                hrefDecision?.reason?.name ?? 'malformedUrl',
+              ),
+              presentation: presentation,
+              source: source,
+            )
+          : TagflowDocumentNode.link(
+              id: id,
+              url: hrefDecision.uri!,
+              children: children,
+              metadata: metadata,
+              presentation: presentation,
+              source: source,
+            ),
     'ul' || 'ol' => TagflowDocumentNode.list(
       id: id,
       ordered: node.tag == 'ol',
@@ -182,16 +240,25 @@ TagflowDocumentNode _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
-    'img' => TagflowDocumentNode.image(
-      id: id,
-      url: Uri.tryParse(node['src'] ?? '') ?? Uri(),
-      alt: node['alt'],
-      width: _parseDimension(node['width']),
-      height: _parseDimension(node['height']),
-      metadata: metadata,
-      presentation: presentation,
-      source: source,
-    ),
+    'img' =>
+      srcDecision == null || !srcDecision.isAllowed
+          ? _disallowedNode(
+              id: id,
+              node: node,
+              source: source,
+              policy: policy,
+              reason: srcDecision?.reason?.name ?? 'malformedUrl',
+            )
+          : TagflowDocumentNode.image(
+              id: id,
+              url: srcDecision.uri!,
+              alt: node['alt'],
+              width: _parseDimension(node['width']),
+              height: _parseDimension(node['height']),
+              metadata: metadata,
+              presentation: presentation,
+              source: source,
+            ),
     'table' => TagflowDocumentNode.table(
       id: id,
       children: children,
@@ -282,18 +349,70 @@ TagflowNode _legacyNodeFromDocumentNode(TagflowDocumentNode node) {
   return TagflowElement(tag: tag, children: children, attributes: attributes);
 }
 
-TagflowMetadata _metadataForLegacyNode(TagflowNode node) {
+TagflowMetadata _metadataForLegacyNode(
+  TagflowNode node, {
+  TagflowUrlPolicyDecision? hrefDecision,
+  TagflowUrlPolicyDecision? srcDecision,
+}) {
   final attributes = node.attributes == null
       ? const <String, String>{}
       : Map<String, String>.from(node.attributes!);
+  final sanitizedAttributes = Map<String, String>.fromEntries(
+    attributes.entries.where((entry) {
+      final key = entry.key.toLowerCase();
+      if (key.startsWith('on')) return false;
+      if (key == 'href' && hrefDecision != null && !hrefDecision.isAllowed) {
+        return false;
+      }
+      if (key == 'src' && srcDecision != null && !srcDecision.isAllowed) {
+        return false;
+      }
+      return true;
+    }),
+  );
+
   return TagflowMetadata({
     _htmlTagKey: node.tag,
-    if (attributes.isNotEmpty) _htmlAttributesKey: attributes,
+    if (sanitizedAttributes.isNotEmpty) _htmlAttributesKey: sanitizedAttributes,
     if (node is TagflowTableElement) ...{
       _tableRowCountKey: node.rowCount,
       _tableColumnCountKey: node.columnCount,
     },
   });
+}
+
+TagflowMetadata _metadataForRejectedUrl(
+  TagflowMetadata metadata,
+  String reason,
+) {
+  return metadata.merge(TagflowMetadata({_policyDecisionReasonKey: reason}));
+}
+
+TagflowDocumentNode? _disallowedNode({
+  required String id,
+  required TagflowNode node,
+  required TagflowSourceInfo source,
+  required TagflowContentPolicy policy,
+  required String reason,
+}) {
+  if (policy.unsupportedBehavior == TagflowUnsupportedBehavior.drop) {
+    return null;
+  }
+
+  return TagflowDocumentNode.unsupported(
+    id: id,
+    unsupportedReason: 'HTML tag "${node.tag}" was rejected by policy.',
+    metadata: TagflowMetadata({
+      _htmlTagKey: 'div',
+      _blockedHtmlTagKey: node.tag,
+      _policyDecisionReasonKey: reason,
+    }),
+    presentation: TagflowPresentation(
+      variant: 'unsupported',
+      hints: {_blockedHtmlTagKey: node.tag},
+    ),
+    source: source,
+  );
 }
 
 Map<String, String> _attributesForDocumentNode(TagflowDocumentNode node) {
