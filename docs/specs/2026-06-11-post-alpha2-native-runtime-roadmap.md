@@ -454,9 +454,11 @@ Acceptance:
 
 ### Slice 2: hosted alpha real-app native transport validation
 
-Status: completed for the hosted-alpha3 widget-test slice in Kite commit
-`a5468eee` (`test(ipo): validate hosted tagflow alpha3`). Production
-integration and profile-mode evidence remain separate follow-up work.
+Status: completed for the hosted-alpha3 widget-test slice in Kite, first as
+evidence commit `be97da15` and then adopted locally on Kite `feat/dashboard`
+as `80160401 test(ipo): validate hosted tagflow alpha3`. Production
+integration and profile-mode evidence remain separate follow-up work, and the
+Kite push remains blocked by `gitlab.zerodha.tech` DNS resolution.
 
 Files:
 
@@ -513,10 +515,11 @@ Acceptance:
 ### Slice 4: HTML registry ergonomics validation
 
 Status: completed for focused package coverage and hosted Kite alpha3
-widget-test evidence. Kite commit `a5468eee` renders checked-in IPO HTML
+widget-test evidence. Kite commit `80160401` renders checked-in IPO HTML
 fixture content through `Tagflow.html(..., registry: ...)` with
 `tagflowTableComponents(...)`, while preserving production IPO rendering on the
-legacy converter bridge.
+legacy converter bridge. That commit is local on Kite `feat/dashboard` until
+GitLab DNS access is restored.
 
 Files:
 
@@ -552,12 +555,20 @@ Files:
 
 Work:
 
-- list every export from `package:tagflow/tagflow.dart`;
+- list every export from `package:tagflow/tagflow.dart`,
+  `package:tagflow/legacy.dart`, and
+  `package:tagflow_table/tagflow_table.dart`;
 - classify each as beta-stable, alpha-only, or compatibility;
 - decide `TagflowOptions` and `package:tagflow/legacy.dart` support windows;
+- decide whether primary-barrel style APIs are allowed to keep exposing
+  `legacy.dart` CSS value types such as `Display` and `SizeValue` through
+  beta;
 - decide table extension package posture through beta. Current decision:
-  separate first-party package through beta, lockstep `beta.0`, then compatible
-  independent patch/minor prereleases only with green registry API tests.
+  separate first-party package through beta, lockstep `beta.0`, then
+  compatible independent patch/minor prereleases only with green registry API
+  tests;
+- decide whether low-level `tagflow_table` render-object exports are
+  intentionally public beta surface or should be narrowed before freeze.
 
 Acceptance:
 
@@ -571,8 +582,9 @@ Acceptance:
    - docs-only cleanup of stale alpha.1 wording and native block deferred
      sections.
 2. `test(kite): validate hosted tagflow alpha3`
-   - completed in Kite commit `a5468eee`; use it as hosted-package app
-     evidence, not as production profile evidence.
+   - completed as evidence commit `be97da15` and adopted locally as Kite
+     commit `80160401`; use it as hosted-package app evidence, not as
+     production profile evidence.
 3. `feat(adapter): define native transport version policy`
    - small code and test slice for unknown kind and schema-version behavior.
 4. `test(app): migrate one production content surface to the registry path`

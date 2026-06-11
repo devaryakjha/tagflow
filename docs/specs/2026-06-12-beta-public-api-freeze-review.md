@@ -2,8 +2,9 @@
 
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
-**Reviewed Baseline:** published `tagflow` `1.0.0-alpha.3` plus
-`codex/tagflow-native-runtime-master` follow-up benchmark evidence
+**Reviewed Baseline:** current coordinator `HEAD` `0e256cd` after published
+`tagflow-v1.0.0-alpha.3`; this includes post-publish public API follow-ups in
+`packages/tagflow`, not only benchmark/docs evidence
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -20,6 +21,25 @@ is fully frozen, and table extension release ownership is decided.
 
 This document does not authorize publishing, tagging, package-version changes,
 or beta release copy.
+
+## Coordinator-Head Delta Since Published `1.0.0-alpha.3`
+
+The current review baseline is not identical to the already-published alpha.3
+package.
+
+- `package:tagflow/tagflow.dart` now hides `TagflowHtmlDocumentBridge`; the
+  bridge remains public only through `package:tagflow/legacy.dart`.
+- `TagflowDocument.validated(...)`, `TagflowDocument.copyWith(...)`,
+  `TagflowDocument.copyWithValidated(...)`, and
+  `TagflowDocumentNode.copyWith(...)` are public on current coordinator `HEAD`
+  and therefore need beta classification even though they are not part of the
+  published alpha.3 payload.
+- The built-in runtime registry now gives `TagflowNodeKind.unsupported` a
+  dedicated placeholder renderer instead of relying on the generic empty-leaf
+  fallback.
+
+This review therefore classifies the current coordinator export surface, not
+only the published alpha.3 artifact.
 
 ## Classification Terms
 
@@ -148,10 +168,13 @@ behavior such as links, selection, images, cache behavior, and error rendering.
 Rationale: this is the right ergonomic bridge for HTML-origin content that
 needs semantic registry overrides. Focused package widget tests now cover the
 semantic override path, legacy-converter precedence, and registry-only
-rebuilds without reparsing. Kite hosted-alpha3 validation commit `a5468eee`
-now exercises real IPO HTML fixture content through
+rebuilds without reparsing. Kite hosted-alpha3 widget-test evidence was first
+captured in commit `be97da15` and is now adopted locally on Kite
+`feat/dashboard` as `80160401`; it exercises real IPO HTML fixture content
+through
 `Tagflow.html(..., registry: ...)` with `tagflow_table` registry extensions and
-no legacy converters in the validation path.
+no legacy converters in the focused validation path. The Kite push remains
+blocked by DNS for `gitlab.zerodha.tech`.
 
 `compatibility surface`:
 
@@ -188,8 +211,9 @@ integration because apps need deterministic or authored IDs.
 
 Rationale: this is explicitly transitional. It exists so legacy custom
 converters can still run, but the future extension model is semantic registry
-rendering, not conversion back into the legacy node tree. Keep it available
-from `package:tagflow/legacy.dart`, not the primary
+rendering, not conversion back into the legacy node tree. The current
+coordinator barrel already hides it from `package:tagflow/tagflow.dart`. Keep
+it available from `package:tagflow/legacy.dart`, not the primary
 `package:tagflow/tagflow.dart` runtime barrel.
 
 ### Native Block Transport
@@ -207,10 +231,10 @@ from `package:tagflow/legacy.dart`, not the primary
 
 Rationale: native block JSON is the right first transport for AI/CMS/app
 generated rich content because it is data-only and adapts into the canonical
-runtime model. Kite hosted-alpha3 validation commit `a5468eee` now decodes a
-native block document from real IPO fixture values, adapts it, decodes a patch
-envelope, adapts the patch operations, and applies them against hosted package
-APIs.
+runtime model. Kite hosted-alpha3 widget-test evidence, now adopted locally as
+commit `80160401`, decodes a native block document from real IPO fixture
+values, adapts it, decodes a patch envelope, adapts the patch operations, and
+applies them against hosted package APIs in a focused downstream test harness.
 
 `alpha-only review required`:
 
@@ -284,6 +308,18 @@ than the primary component-registry contract.
 Recommendation: keep these exported through beta for migration stability, but
 avoid presenting CSS parsing as the future app-extension model.
 
+Current blocker:
+
+- `TagflowStyle`, `StyleParser`, and the exported style helper extensions still
+  expose `legacy.dart` value types such as `Display`, `SizeValue`,
+  `FlexDirection`, `JustifyContent`, and `AlignItems` in public signatures or
+  return types.
+
+Beta cannot describe `package:tagflow/legacy.dart` as a neatly optional
+compatibility import while primary-barrel styling still depends on those
+legacy types. Before beta, either freeze that coupling explicitly or move the
+shared CSS value types out of the compatibility barrel.
+
 ## `package:tagflow/legacy.dart` Support Window
 
 `package:tagflow/legacy.dart` should be treated as a compatibility surface
@@ -310,6 +346,39 @@ Windows".
 
 `tagflow_table` should remain a separate first-party extension package through
 beta.
+
+Current public export classification:
+
+`beta-stable candidate`:
+
+- `tagflowTableComponents(...)`
+- `TagflowTableBorder`
+
+Rationale: these are the semantic extension points that match the native
+runtime direction. `tagflowTableComponents(...)` is the primary registry
+fragment apps should compose, and `TagflowTableBorder` is the only obviously
+intentional public configuration type in that flow.
+
+`alpha-only review required`:
+
+- `TagflowTable`
+- `TableCell`
+- `RenderTagflowTable`
+- `TableCellData`
+
+Rationale: these low-level render-object exports are public today, but they
+are not required for the beta semantic-registry story. Beta should decide
+whether they are intentionally supported low-level APIs or should be hidden
+before the freeze.
+
+`compatibility surface`:
+
+- `TagflowTableConverter`
+- `TagflowTableCellConverter`
+
+Rationale: these exports extend the legacy HTML converter path, not the
+semantic runtime model. They are useful during migration, but they should not
+define the first-party beta table story.
 
 Rationale:
 
@@ -347,8 +416,9 @@ to republish the extension package.
 `1.0.0-beta.0` is not ready until all of these are complete:
 
 - Hosted alpha package is consumed by at least one real app through
-  `Tagflow.html(...)` or `TagflowHtmlAdapter`. Done for Kite widget-test and
-  real-route validation; production profile evidence is still separate.
+  `Tagflow.html(...)` or `TagflowHtmlAdapter`. Done for a Kite hosted widget
+  test that uses real IPO fixture content; live production-route and profile
+  evidence remain separate.
 - Hosted alpha package is consumed by at least one real app through native block
   document and patch transport. Done for a Kite hosted-alpha widget-test
   fixture; production integration remains pending.
@@ -363,13 +433,20 @@ to republish the extension package.
   helpers; omitted nullable arguments continue to preserve current values.
 - `Tagflow.html(..., registry: ...)` has focused package widget coverage for
   semantic overrides, legacy-converter precedence, and registry-only rebuilds
-  without reparsing. Hosted real-app validation is done in Kite commit
-  `a5468eee`; current production rendering still uses the legacy converter
-  bridge, so production profile evidence remains separate.
+  without reparsing. Hosted widget-test validation is done in Kite commit
+  `80160401` locally on `feat/dashboard`; current production rendering still
+  uses the legacy converter bridge, and the push/profile evidence remains
+  separate.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
   Done in "Compatibility Support Windows".
+- Main-barrel style APIs either stop depending on `legacy.dart` value types or
+  that coupling is explicitly frozen as part of beta compatibility policy.
+- `tagflow_table` low-level render-object exports are either intentionally
+  classified for beta support or narrowed before the freeze. The semantic table
+  candidate surface is currently `tagflowTableComponents(...)` plus
+  `TagflowTableBorder`.
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
