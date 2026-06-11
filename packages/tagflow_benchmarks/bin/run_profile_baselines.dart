@@ -54,6 +54,7 @@ Options:
   --output-dir=<path> Output directory. Defaults to build/benchmarks/profile.
                       Also accepts TAGFLOW_PROFILE_OUTPUT_DIR.
   --run-id=<id>       Optional stable run id for deterministic artifact paths.
+                      Also accepts TAGFLOW_PROFILE_RUN_ID.
   --continue-on-failure=true
                     Keep running the selected matrix and write failed runs to
                     the manifest instead of failing on the first process error.

@@ -59,6 +59,15 @@ void main() {
     expect(options.pairs!.last.fixture, 'streaming_ai_patches');
   });
 
+  test('parses stable run id from environment', () {
+    final options = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {'TAGFLOW_PROFILE_RUN_ID': 'semantic-pair-r1'},
+    );
+
+    expect(options.runId, 'semantic-pair-r1');
+  });
+
   test('rejects malformed profile pairs', () {
     expect(
       () => ProfileBaselineCliOptions.parse(const [

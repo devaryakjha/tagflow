@@ -71,7 +71,7 @@ final class ProfileBaselineCliOptions {
             env['TAGFLOW_PROFILE_CONTINUE_ON_FAILURE'],
       ),
       pairs: pairs,
-      runId: values['run-id'],
+      runId: values['run-id'] ?? env['TAGFLOW_PROFILE_RUN_ID'],
     );
   }
 
