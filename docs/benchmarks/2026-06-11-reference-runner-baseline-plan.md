@@ -4,7 +4,8 @@
 
 - Date: 2026-06-11
 - Scope: reference-runner methodology plus a small profile matrix runner
-- Current evidence level: repeatable local collection, not publishable claims
+- Current evidence level: complete repeat-5 local macOS collection plus a
+  report-only checker policy, not publishable claims
 
 ## Goal
 
@@ -175,6 +176,36 @@ renderer/fixture cell, and the requested successful repeat count per cell. It
 does not enforce frame-time thresholds until a named reference machine has a
 reviewed baseline and regression policy.
 
+The current report-only policy fixture lives at
+`docs/benchmarks/policies/profile-reference-runner-policy.json`. It sets the
+default alpha policy to five successful repeats, the candidate pinned macOS
+viewport of `800x600` at device-pixel-ratio `2`, and
+`thresholdPolicy.mode: report_only`.
+
+Direct checker usage with the policy:
+
+```bash
+cd packages/tagflow_benchmarks
+dart run bin/check_profile_baseline.dart \
+  --run-id=<run-id> \
+  --policy=../../docs/benchmarks/policies/profile-reference-runner-policy.json
+```
+
+Melos usage with the policy:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<run-id> \
+TAGFLOW_PROFILE_CHECK_POLICY=docs/benchmarks/policies/profile-reference-runner-policy.json \
+dart run melos run benchmark:profile:check
+```
+
+Explicit `TAGFLOW_PROFILE_MIN_REPEATS`,
+`TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE`, and
+`TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO` values override the policy for
+ad hoc checks. The policy parser rejects any mode other than `report_only` so
+timing gates cannot be introduced by configuration alone.
+
 When a stable reference machine is intentionally pinned, the same check command
 can also enforce the expected logical viewport size and device-pixel ratio:
 
@@ -199,9 +230,10 @@ dart run bin/check_profile_baseline.dart \
   --expected-device-pixel-ratio=2
 ```
 
-This viewport guard remains opt-in. If the expected logical size or
-device-pixel ratio is not configured, viewport metadata stays report-only so
-existing alpha artifacts are not retroactively failed.
+This viewport guard remains opt-in unless a policy with `expectedViewport` is
+provided. If the expected logical size or device-pixel ratio is not configured,
+viewport metadata stays report-only so existing alpha artifacts are not
+retroactively failed.
 
 The underlying package CLIs remain available for direct use:
 
@@ -296,9 +328,11 @@ Until those conditions are met, benchmark copy must use cautious language:
 
 - choose and document the physical reference machine
 - pin the Flutter channel and record `flutter --version`
-- run the default matrix with at least five repeats per cell
+- repeat the default matrix with at least five repeats per cell on the chosen
+  stable reference machine
 - run `--continue-on-failure=true` once for each new target before treating it
   as a candidate reference runner
 - inspect raw artifacts for outliers and failed scrolls
-- create a reviewed baseline note under `docs/benchmarks/baselines/`
+- create or refresh a reviewed stable-runner baseline note under
+  `docs/benchmarks/baselines/`
 - decide regression thresholds only after the reviewed baseline exists

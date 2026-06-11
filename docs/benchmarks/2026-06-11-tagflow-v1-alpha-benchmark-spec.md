@@ -3,7 +3,7 @@
 ## Status
 
 - Date: 2026-06-11
-- Scope: planning only, no harness implementation in this worker
+- Scope: benchmark methodology plus current alpha harness policy
 - Audience: Tagflow maintainers preparing v1 alpha performance validation
 
 ## Repo Facts This Plan Assumes
@@ -292,6 +292,19 @@ Primary recommendation for alpha:
 
 - `macos` profile mode first
 
+Current alpha state:
+
+- A complete local macOS repeat-5 matrix is recorded in
+  [`baselines/2026-06-11-macos-reference-profile-baseline-repeat5.md`](baselines/2026-06-11-macos-reference-profile-baseline-repeat5.md).
+- The machine-readable checker policy is
+  [`policies/profile-reference-runner-policy.json`](policies/profile-reference-runner-policy.json).
+- That policy keeps frame timings report-only, requires five successful
+  repeats, and can require the candidate `800x600` logical viewport at device
+  pixel ratio `2` when used by `check_profile_baseline.dart`.
+- Numeric regression thresholds remain unset until a stable reference machine,
+  Flutter channel, desktop window/display configuration, and real-app target
+  evidence are reviewed.
+
 Optional second wave:
 
 - physical iOS device profile mode
@@ -346,8 +359,9 @@ Do not commit every raw run. Commit only approved baseline files and benchmark m
 8. Add `webview_flutter` only after the native baselines exist, and keep it report-only.
 9. Establish reviewed baselines on one reference machine and only then
    introduce regression thresholds. Policy is clarified in
-   `2026-06-11-reference-runner-baseline-plan.md`; current gates remain
-   collection-completeness and viewport-guard only.
+   `2026-06-11-reference-runner-baseline-plan.md`; a local macOS repeat-5
+   baseline and report-only policy exist, while numeric thresholds remain
+   deferred.
 
 ## External References
 

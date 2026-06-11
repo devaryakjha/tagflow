@@ -155,7 +155,10 @@ melos:
         dart run bin/check_profile_baseline.dart
         --run-id=${TAGFLOW_PROFILE_RUN_ID}
         --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
-        --min-repeats=${TAGFLOW_PROFILE_MIN_REPEATS:-1}
+        ${TAGFLOW_PROFILE_CHECK_POLICY:+--policy=$TAGFLOW_PROFILE_CHECK_POLICY}
+        ${TAGFLOW_PROFILE_MIN_REPEATS:+--min-repeats=$TAGFLOW_PROFILE_MIN_REPEATS}
+        ${TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE:+--expected-logical-size=$TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE}
+        ${TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO:+--expected-device-pixel-ratio=$TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO}
       description: Check profile benchmark baseline collection completeness
 
     combine-coverage:

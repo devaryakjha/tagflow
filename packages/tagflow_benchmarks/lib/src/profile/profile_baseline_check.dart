@@ -10,6 +10,23 @@ final class ProfileBaselineExpectedViewport {
     required this.devicePixelRatio,
   });
 
+  /// Reads expected viewport metadata from machine-readable policy JSON.
+  factory ProfileBaselineExpectedViewport.fromJson(Map<String, Object?> json) {
+    final viewport = ProfileBaselineExpectedViewport(
+      logicalWidth: _readDouble(json, 'logicalWidth'),
+      logicalHeight: _readDouble(json, 'logicalHeight'),
+      devicePixelRatio: _readDouble(json, 'devicePixelRatio'),
+    );
+    if (viewport.logicalWidth <= 0 ||
+        viewport.logicalHeight <= 0 ||
+        viewport.devicePixelRatio <= 0) {
+      throw const FormatException(
+        'Expected viewport values must be greater than 0.',
+      );
+    }
+    return viewport;
+  }
+
   /// Expected logical Flutter view width.
   final double logicalWidth;
 
@@ -33,12 +50,124 @@ final class ProfileBaselineExpectedViewport {
   }
 }
 
+/// Machine-readable policy for the profile baseline checker.
+final class ProfileBaselineCheckPolicy {
+  /// Creates a profile baseline check policy.
+  const ProfileBaselineCheckPolicy({
+    required this.id,
+    required this.minRepeats,
+    required this.expectedViewport,
+    required this.thresholdMode,
+  });
+
+  /// Reads a checker policy from a JSON file.
+  factory ProfileBaselineCheckPolicy.fromFile(File file) {
+    final decoded = jsonDecode(file.readAsStringSync());
+    if (decoded is! Map<String, Object?>) {
+      throw const FormatException(
+        'Profile baseline policy must be a JSON map.',
+      );
+    }
+    return ProfileBaselineCheckPolicy.fromJson(decoded);
+  }
+
+  /// Reads a checker policy from machine-readable JSON.
+  factory ProfileBaselineCheckPolicy.fromJson(Map<String, Object?> json) {
+    final schemaVersion = json['schemaVersion'];
+    if (schemaVersion != 1) {
+      throw const FormatException(
+        'Profile baseline policy schemaVersion must be 1.',
+      );
+    }
+
+    final id = json['id'];
+    if (id is! String || id.trim().isEmpty) {
+      throw const FormatException(
+        'Profile baseline policy id must be a non-empty string.',
+      );
+    }
+
+    final check = json['check'];
+    if (check is! Map<String, Object?>) {
+      throw const FormatException(
+        'Profile baseline policy check must be a map.',
+      );
+    }
+
+    final minRepeats = check['minRepeats'];
+    if (minRepeats is! int || minRepeats < 1) {
+      throw const FormatException(
+        'Profile baseline policy check.minRepeats must be an integer >= 1.',
+      );
+    }
+
+    final thresholdPolicy = json['thresholdPolicy'];
+    if (thresholdPolicy is! Map<String, Object?>) {
+      throw const FormatException(
+        'Profile baseline policy thresholdPolicy must be a map.',
+      );
+    }
+
+    final thresholdMode = thresholdPolicy['mode'];
+    if (thresholdMode is! String || thresholdMode != 'report_only') {
+      throw const FormatException(
+        'Profile baseline policy thresholdPolicy.mode must be report_only.',
+      );
+    }
+
+    final rawExpectedViewport = check['expectedViewport'];
+    final ProfileBaselineExpectedViewport? expectedViewport;
+    if (rawExpectedViewport == null) {
+      expectedViewport = null;
+    } else if (rawExpectedViewport is Map<String, Object?>) {
+      expectedViewport = ProfileBaselineExpectedViewport.fromJson(
+        rawExpectedViewport,
+      );
+    } else {
+      throw const FormatException(
+        'Profile baseline policy check.expectedViewport must be a map.',
+      );
+    }
+
+    return ProfileBaselineCheckPolicy(
+      id: id,
+      minRepeats: minRepeats,
+      expectedViewport: expectedViewport,
+      thresholdMode: thresholdMode,
+    );
+  }
+
+  /// Stable policy id.
+  final String id;
+
+  /// Minimum successful repeat count per renderer/fixture cell.
+  final int minRepeats;
+
+  /// Expected viewport for a pinned reference runner, when known.
+  final ProfileBaselineExpectedViewport? expectedViewport;
+
+  /// Threshold behavior for performance metrics.
+  ///
+  /// Alpha policies must stay `report_only` until a stable reference
+  /// environment and numeric regression policy are reviewed.
+  final String thresholdMode;
+
+  /// Converts this policy to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'id': id,
+    'minRepeats': minRepeats,
+    'expectedViewport': expectedViewport?.toJson(),
+    'thresholdMode': thresholdMode,
+  };
+}
+
 /// Machine-checkable result for a profile baseline summary.
 final class ProfileBaselineCheckResult {
   /// Creates a profile baseline check result.
   const ProfileBaselineCheckResult({
     required this.summaryPath,
     required this.minRepeats,
+    required this.policy,
     required this.passed,
     required this.issues,
   });
@@ -48,6 +177,9 @@ final class ProfileBaselineCheckResult {
 
   /// Required successful repeat count per renderer/fixture cell.
   final int minRepeats;
+
+  /// Policy applied by the check, when one was provided.
+  final ProfileBaselineCheckPolicy? policy;
 
   /// Whether the summary satisfies collection-completeness invariants.
   final bool passed;
@@ -59,6 +191,7 @@ final class ProfileBaselineCheckResult {
   Map<String, Object?> toJson() => <String, Object?>{
     'summaryPath': summaryPath,
     'minRepeats': minRepeats,
+    if (policy != null) 'policy': policy!.toJson(),
     'passed': passed,
     'issues': issues.map((issue) => issue.toJson()).toList(),
   };
@@ -93,11 +226,18 @@ final class ProfileBaselineCheckIssue {
 /// Checks a profile baseline summary without introducing performance gates.
 ProfileBaselineCheckResult checkProfileBaselineSummary({
   required File summaryFile,
-  int minRepeats = 1,
+  int? minRepeats,
   ProfileBaselineExpectedViewport? expectedViewport,
+  ProfileBaselineCheckPolicy? policy,
 }) {
-  if (minRepeats < 1) {
-    throw ArgumentError.value(minRepeats, 'minRepeats', 'Must be at least 1.');
+  final effectiveMinRepeats = minRepeats ?? policy?.minRepeats ?? 1;
+  final effectiveViewport = expectedViewport ?? policy?.expectedViewport;
+  if (effectiveMinRepeats < 1) {
+    throw ArgumentError.value(
+      effectiveMinRepeats,
+      'minRepeats',
+      'Must be at least 1.',
+    );
   }
 
   final summary =
@@ -149,7 +289,7 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
 
   for (final cell in cellSummaries) {
     final observedRepeats = cell['observedRepeats']! as int;
-    if (observedRepeats < minRepeats) {
+    if (observedRepeats < effectiveMinRepeats) {
       issues.add(
         ProfileBaselineCheckIssue(
           code: 'insufficient_repeats',
@@ -158,13 +298,13 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
             'renderer': cell['renderer'],
             'fixture': cell['fixture'],
             'observedRepeats': observedRepeats,
-            'minRepeats': minRepeats,
+            'minRepeats': effectiveMinRepeats,
           },
         ),
       );
     }
 
-    if (expectedViewport == null) {
+    if (effectiveViewport == null) {
       continue;
     }
 
@@ -180,14 +320,14 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
           details: <String, Object?>{
             'renderer': cell['renderer'],
             'fixture': cell['fixture'],
-            'expectedViewport': expectedViewport.toJson(),
+            'expectedViewport': effectiveViewport.toJson(),
           },
         ),
       );
       continue;
     }
 
-    if (viewports.every(expectedViewport.matches)) {
+    if (viewports.every(effectiveViewport.matches)) {
       continue;
     }
 
@@ -200,7 +340,7 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
         details: <String, Object?>{
           'renderer': cell['renderer'],
           'fixture': cell['fixture'],
-          'expectedViewport': expectedViewport.toJson(),
+          'expectedViewport': effectiveViewport.toJson(),
           'observedViewports': viewports,
         },
       ),
@@ -209,7 +349,8 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
 
   return ProfileBaselineCheckResult(
     summaryPath: summaryFile.path,
-    minRepeats: minRepeats,
+    minRepeats: effectiveMinRepeats,
+    policy: policy,
     passed: issues.isEmpty,
     issues: List<ProfileBaselineCheckIssue>.unmodifiable(issues),
   );

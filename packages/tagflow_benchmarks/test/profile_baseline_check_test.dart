@@ -235,6 +235,64 @@ void main() {
     expect(result.passed, isTrue);
     expect(result.issues, isEmpty);
   });
+
+  test('loads a report-only check policy from JSON', () {
+    final policyFile = _writePolicy();
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+
+    final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
+
+    expect(policy.id, 'tagflow-alpha-macos-reference-report-only');
+    expect(policy.minRepeats, 5);
+    expect(policy.thresholdMode, 'report_only');
+    expect(policy.expectedViewport?.logicalWidth, 800);
+    expect(policy.expectedViewport?.logicalHeight, 600);
+    expect(policy.expectedViewport?.devicePixelRatio, 2);
+  });
+
+  test('applies policy repeat count and viewport guard', () {
+    final policyFile = _writePolicy();
+    final summaryFile = _writeSummary(
+      totalRuns: 5,
+      successfulRuns: 5,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: policy,
+    );
+
+    expect(result.passed, isTrue);
+    expect(result.minRepeats, 5);
+    expect(result.toJson(), containsPair('policy', policy.toJson()));
+  });
+
+  test('rejects policy modes that would add performance gates', () {
+    final policyFile = _writePolicy(thresholdMode: 'enforced');
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+
+    expect(
+      () => ProfileBaselineCheckPolicy.fromFile(policyFile),
+      throwsA(isA<FormatException>()),
+    );
+  });
 }
 
 File _writeSummary({
@@ -290,3 +348,27 @@ Map<String, Object?> _viewport({
   'physicalHeight': logicalHeight.toDouble() * devicePixelRatio.toDouble(),
   'devicePixelRatio': devicePixelRatio.toDouble(),
 };
+
+File _writePolicy({String thresholdMode = 'report_only'}) {
+  final directory = Directory.systemTemp.createTempSync(
+    'tagflow_profile_policy_test_',
+  );
+  return File(p.join(directory.path, 'profile-policy.json'))..writeAsStringSync(
+    jsonEncode(<String, Object?>{
+      'schemaVersion': 1,
+      'id': 'tagflow-alpha-macos-reference-report-only',
+      'check': <String, Object?>{
+        'minRepeats': 5,
+        'expectedViewport': <String, Object?>{
+          'logicalWidth': 800,
+          'logicalHeight': 600,
+          'devicePixelRatio': 2,
+        },
+      },
+      'thresholdPolicy': <String, Object?>{
+        'mode': thresholdMode,
+        'performanceGates': <Object?>[],
+      },
+    }),
+  );
+}

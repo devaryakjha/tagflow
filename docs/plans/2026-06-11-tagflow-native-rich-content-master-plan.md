@@ -49,16 +49,19 @@ published.
   output. A
   profile-baseline summarizer, completeness gate, Melos summary/check aliases,
   capped macOS reference note, and complete repeat-5 macOS matrix note now turn
-  raw profile JSON into reviewed internal stabilization evidence. The complete
+  raw profile JSON into reviewed internal stabilization evidence. A
+  machine-readable report-only checker policy now records the candidate
+  repeat-count and viewport guard without introducing timing thresholds. The
+  complete
   run `2026-06-11T08-14-32-397331Z` passed all `60 / 60` profile cells and the
   `TAGFLOW_PROFILE_MIN_REPEATS=5` completeness gate. The macOS integration-test
   plugin warning has a narrow benchmark-script suppression while preserving
   JSON output, and the separate CocoaPods/SPM migration warning has been
   removed from the macOS example host.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
-  normalized uniform table and horizontal-alignment hints, promotion of a stable
-  reference environment for claim-grade benchmark thresholds, and profile-mode
-  evidence on a supported real-app target.
+  normalized uniform table and horizontal-alignment hints, stable
+  reference-environment selection, numeric regression threshold policy for
+  benchmark claims, and profile-mode evidence on a supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -489,8 +492,11 @@ Master review gate:
   table registry is the forward path, but full HTML/CSS styling parity is not
   complete yet.
 - Benchmark fixtures, parser microbenchmarks, widget render benchmarks, and
-  profile smoke runs are local alpha harnesses. Production benchmark claims
-  still need broader competitor coverage and reference-runner baselines.
+  profile smoke runs are local alpha harnesses. The profile checker now has a
+  report-only policy fixture for repeat count and candidate viewport
+  invariants. Production benchmark claims still need a stable reference
+  environment, supported real-app target evidence, and reviewed numeric
+  thresholds.
 - Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
@@ -504,7 +510,8 @@ Master review gate:
   Done for parser/render/profile smoke; `flutter_html` and core-backed
   `flutter_widget_from_html` comparisons landed; the markdown-only
   `flutter_markdown_plus` and `markdown_widget` lane landed; `table_stress` is
-  in the deterministic corpus. Reference-runner collection gates exist;
-  claim-grade performance thresholds still need a promoted stable environment.
+  in the deterministic corpus; a complete local macOS repeat-5 reference
+  baseline and report-only checker policy exist. Stable reference-machine
+  selection and numeric regression thresholds are still in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.
