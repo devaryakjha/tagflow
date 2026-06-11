@@ -173,6 +173,10 @@ The benchmark harness is real but still alpha-grade:
   `--continue-on-failure=true` is used. This turns physical-device and CI
   target qualification failures into reviewable evidence instead of transient
   terminal output.
+- `profile-baseline-summary.json` now carries `successfulRuns`,
+  `runStatusCounts`, and `failedRuns`, so reviewed benchmark notes can reject a
+  target or matrix from the summary artifact without manually mining the full
+  manifest.
 
 ## Known Non-Completion Points
 

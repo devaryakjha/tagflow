@@ -138,6 +138,19 @@ relative artifact paths. Failed or missing-artifact cells are recorded with a
 `status: passed` and an `artifactPath`. The manifest is the handoff point for a
 later reviewed baseline document.
 
+The summary command:
+
+```bash
+cd packages/tagflow_benchmarks
+dart run bin/summarize_profile_baselines.dart --run-id=<run-id>
+```
+
+writes `profile-baseline-summary.json` next to the manifest. In addition to
+metric distributions for passed artifacts, the summary reports `successfulRuns`,
+`runStatusCounts`, and `failedRuns` with log paths. Reviewers should treat any
+non-empty `failedRuns` list as a target qualification or benchmark collection
+failure until the logs are inspected and the run is repeated successfully.
+
 ## Metrics Policy
 
 Report-only today:
@@ -155,6 +168,8 @@ reference environment:
 
 - no test exceptions, overflows, OOMs, or missing JSON artifacts
 - every selected cell has `status: passed` in the manifest
+- `profile-baseline-summary.json` has an empty `failedRuns` list and
+  `successfulRuns == totalRuns`
 - standard fixtures keep build p90 and raster p90 under the reviewed baseline
   regression threshold
 - `table_stress` remains visible and scrollable without crash

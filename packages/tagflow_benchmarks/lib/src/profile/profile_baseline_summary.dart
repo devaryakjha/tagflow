@@ -14,6 +14,9 @@ final class ProfileBaselineSummary {
     required this.runDirectory,
     required this.generatedAt,
     required this.totalRuns,
+    required this.successfulRuns,
+    required this.runStatusCounts,
+    required this.failedRuns,
     required this.cellSummaries,
   });
 
@@ -29,8 +32,17 @@ final class ProfileBaselineSummary {
   /// UTC timestamp when the summary was generated.
   final DateTime generatedAt;
 
-  /// Number of raw profile artifacts summarized.
+  /// Number of manifest entries seen in this run.
   final int totalRuns;
+
+  /// Number of successful profile artifacts summarized.
+  final int successfulRuns;
+
+  /// Count of manifest entries by status.
+  final Map<String, int> runStatusCounts;
+
+  /// Failed or incomplete manifest entries requiring reviewer attention.
+  final List<ProfileBaselineFailedRun> failedRuns;
 
   /// Summary for each renderer/fixture cell.
   final List<ProfileBaselineCellSummary> cellSummaries;
@@ -42,7 +54,56 @@ final class ProfileBaselineSummary {
     'runDirectory': runDirectory,
     'generatedAt': generatedAt.toUtc().toIso8601String(),
     'totalRuns': totalRuns,
+    'successfulRuns': successfulRuns,
+    'runStatusCounts': runStatusCounts,
+    'failedRuns': failedRuns.map((run) => run.toJson()).toList(),
     'cellSummaries': cellSummaries.map((cell) => cell.toJson()).toList(),
+  };
+}
+
+/// A failed or incomplete profile baseline manifest entry.
+final class ProfileBaselineFailedRun {
+  /// Creates a failed run summary.
+  const ProfileBaselineFailedRun({
+    required this.renderer,
+    required this.fixture,
+    required this.repeat,
+    required this.status,
+    required this.exitCode,
+    required this.logPath,
+    required this.artifactPath,
+  });
+
+  /// Renderer id.
+  final String renderer;
+
+  /// Fixture id.
+  final String fixture;
+
+  /// One-based repeat index.
+  final int repeat;
+
+  /// Manifest status for this run.
+  final String status;
+
+  /// Process exit code, when present in the manifest.
+  final int? exitCode;
+
+  /// Per-run stdout/stderr log path, when present.
+  final String? logPath;
+
+  /// Raw profile JSON artifact path, when present.
+  final String? artifactPath;
+
+  /// Converts this failed run to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'renderer': renderer,
+    'fixture': fixture,
+    'repeat': repeat,
+    'status': status,
+    'exitCode': exitCode,
+    'logPath': logPath,
+    'artifactPath': artifactPath,
   };
 }
 
@@ -262,6 +323,23 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
   final manifestDirectory = manifestFile.parent.path;
   final workspaceRoot = manifestFile.parent.parent.parent.parent.parent.path;
   final runs = _readRuns(manifest['runs']);
+  final successfulRuns = runs
+      .where((run) => run.status == 'passed' && run.artifactPath != null)
+      .length;
+  final failedRuns = runs
+      .where((run) => run.status != 'passed' || run.artifactPath == null)
+      .map(
+        (run) => ProfileBaselineFailedRun(
+          renderer: run.renderer,
+          fixture: run.fixture,
+          repeat: run.repeat,
+          status: run.status,
+          exitCode: run.exitCode,
+          logPath: run.logPath,
+          artifactPath: run.artifactPath,
+        ),
+      )
+      .toList(growable: false);
 
   final grouped = <String, List<_ProfileBaselineRunRecord>>{};
   for (final run in runs) {
@@ -344,6 +422,9 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
     runDirectory: p.relative(manifestDirectory, from: workspaceRoot),
     generatedAt: (clock ?? DateTime.now)().toUtc(),
     totalRuns: runs.length,
+    successfulRuns: successfulRuns,
+    runStatusCounts: Map<String, int>.unmodifiable(_countRunStatuses(runs)),
+    failedRuns: List<ProfileBaselineFailedRun>.unmodifiable(failedRuns),
     cellSummaries: List<ProfileBaselineCellSummary>.unmodifiable(cellSummaries),
   );
 }
@@ -376,6 +457,8 @@ final class _ManifestRun {
     required this.fixture,
     required this.repeat,
     required this.status,
+    required this.exitCode,
+    required this.logPath,
     required this.artifactPath,
   });
 
@@ -383,6 +466,8 @@ final class _ManifestRun {
   final String fixture;
   final int repeat;
   final String status;
+  final int? exitCode;
+  final String? logPath;
   final String? artifactPath;
 }
 
@@ -396,10 +481,20 @@ List<_ManifestRun> _readRuns(Object? rawRuns) {
           fixture: json['fixture']! as String,
           repeat: json['repeat']! as int,
           status: json['status'] as String? ?? 'passed',
+          exitCode: json['exitCode'] as int?,
+          logPath: json['logPath'] as String?,
           artifactPath: json['artifactPath'] as String?,
         );
       })
       .toList(growable: false);
+}
+
+Map<String, int> _countRunStatuses(List<_ManifestRun> runs) {
+  final counts = <String, int>{};
+  for (final run in runs) {
+    counts.update(run.status, (count) => count + 1, ifAbsent: () => 1);
+  }
+  return counts;
 }
 
 final class _ProfileMetrics {

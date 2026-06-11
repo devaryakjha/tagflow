@@ -114,6 +114,16 @@ void main() {
     );
 
     expect(summary.totalRuns, 3);
+    expect(summary.successfulRuns, 2);
+    expect(summary.runStatusCounts, <String, int>{'passed': 2, 'failed': 1});
+    expect(summary.failedRuns, hasLength(1));
+    expect(summary.failedRuns.single.status, 'failed');
+    expect(summary.failedRuns.single.exitCode, 1);
+    expect(
+      summary.failedRuns.single.logPath,
+      'build/benchmarks/profile/2026-06-11-reference/'
+      'tagflow/ai_answer_rich/repeat-03.log',
+    );
     expect(summary.cellSummaries, hasLength(1));
 
     final cell = summary.cellSummaries.single;
