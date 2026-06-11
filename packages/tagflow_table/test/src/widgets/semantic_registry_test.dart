@@ -187,6 +187,67 @@ void main() {
       expect(tester.getTopLeft(find.text('Three')).dy, oneY);
       expect(_richTextStyle(tester, 'Two')?.fontWeight, FontWeight.w700);
     });
+
+    testWidgets('applies semantic cell padding and background hints', (
+      tester,
+    ) async {
+      const rowBackground = Color(0xFFE8F1FF);
+      const cellBackground = Color(0xFFFFF4CC);
+      const cellPadding = EdgeInsets.fromLTRB(12, 10, 8, 6);
+      final document = TagflowDocument(
+        id: 'doc-cell-presentation',
+        children: [
+          TagflowDocumentNode.table(
+            id: 'table',
+            children: [
+              TagflowDocumentNode.tableRow(
+                id: 'row',
+                presentation: TagflowPresentation(
+                  hints: const {'backgroundColor': rowBackground},
+                ),
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'row-backed-cell',
+                    children: [
+                      TagflowDocumentNode.text(
+                        id: 'row-backed-text',
+                        text: 'Row backed',
+                      ),
+                    ],
+                  ),
+                  TagflowDocumentNode.tableCell(
+                    id: 'cell-backed-cell',
+                    presentation: TagflowPresentation(
+                      hints: const {
+                        'backgroundColor': cellBackground,
+                        'padding': cellPadding,
+                      },
+                    ),
+                    children: [
+                      TagflowDocumentNode.text(
+                        id: 'cell-backed-text',
+                        text: 'Cell backed',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      expect(_decoratedBoxColorForText(tester, 'Row backed'), rowBackground);
+      expect(_decoratedBoxColorForText(tester, 'Cell backed'), cellBackground);
+      expect(_paddingForText(tester, 'Cell backed'), cellPadding);
+    });
   });
 }
 
@@ -210,4 +271,26 @@ TextStyle? _richTextStyle(WidgetTester tester, String text) {
   }
 
   return tester.widget<RichText>(finder.first).text.style;
+}
+
+Color? _decoratedBoxColorForText(WidgetTester tester, String text) {
+  final finder = find.ancestor(
+    of: find.text(text),
+    matching: find.byWidgetPredicate((widget) => widget is DecoratedBox),
+  );
+  expect(finder, findsOneWidget);
+
+  final decoratedBox = tester.widget<DecoratedBox>(finder);
+  final decoration = decoratedBox.decoration;
+  return decoration is BoxDecoration ? decoration.color : null;
+}
+
+EdgeInsetsGeometry? _paddingForText(WidgetTester tester, String text) {
+  final finder = find.ancestor(
+    of: find.text(text),
+    matching: find.byWidgetPredicate((widget) => widget is Padding),
+  );
+  expect(finder, findsOneWidget);
+
+  return tester.widget<Padding>(finder).padding;
 }

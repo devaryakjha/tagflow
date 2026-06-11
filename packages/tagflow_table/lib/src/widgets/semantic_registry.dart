@@ -113,7 +113,7 @@ final class _SemanticTableLayout {
             column: columnIndex,
             rowSpan: rowSpan,
             colSpan: colSpan,
-            child: _renderCell(context, cell),
+            child: _renderCell(context, row, cell),
           ),
         );
 
@@ -148,12 +148,22 @@ final class _SemanticTableLayout {
   final List<TableCell> cells;
 }
 
-Widget _renderCell(TagflowComponentContext context, TagflowDocumentNode cell) {
+Widget _renderCell(
+  TagflowComponentContext context,
+  TagflowDocumentNode row,
+  TagflowDocumentNode cell,
+) {
   final content = _renderCellContent(context, cell);
-  final padded = Padding(padding: const EdgeInsets.all(8), child: content);
+  final padded = Padding(
+    padding: _edgeInsetsHint(cell, 'padding') ?? const EdgeInsets.all(8),
+    child: content,
+  );
   final decorated = DecoratedBox(
     decoration: BoxDecoration(
-      color: cell.header ? const Color(0x12000000) : null,
+      color:
+          _colorHint(cell, 'backgroundColor') ??
+          _colorHint(row, 'backgroundColor') ??
+          (cell.header ? const Color(0x12000000) : null),
     ),
     child: padded,
   );
@@ -257,3 +267,13 @@ bool _isInlineFallbackTag(String? htmlTag) {
 }
 
 int _positiveSpan(int value) => value < 1 ? 1 : value;
+
+Color? _colorHint(TagflowDocumentNode node, String key) {
+  final value = node.presentation.hints[key];
+  return value is Color ? value : null;
+}
+
+EdgeInsetsGeometry? _edgeInsetsHint(TagflowDocumentNode node, String key) {
+  final value = node.presentation.hints[key];
+  return value is EdgeInsetsGeometry ? value : null;
+}
