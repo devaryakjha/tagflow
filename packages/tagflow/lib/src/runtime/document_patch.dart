@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:tagflow/src/runtime/document.dart';
 import 'package:tagflow/src/runtime/document_node.dart';
+import 'package:tagflow/src/runtime/document_traversal.dart';
 
 /// Immutable structural update operation for a [TagflowDocument].
 @immutable
@@ -44,8 +45,8 @@ extension TagflowDocumentUpdates on TagflowDocument {
   /// replacement node does not use the target ID. Throws [StateError] when the
   /// current or updated document contains duplicate node IDs.
   TagflowDocument applyPatch(TagflowDocumentPatch patch) {
-    _validateUniqueNodeIds(children);
-    if (!_containsNodeId(children, patch._targetNodeId)) {
+    validateUniqueNodeIdsInChildren(children);
+    if (!containsNodeIdInChildren(children, patch._targetNodeId)) {
       throw ArgumentError.value(
         patch._targetNodeId,
         'nodeId',
@@ -69,7 +70,7 @@ extension TagflowDocumentUpdates on TagflowDocument {
         patch._targetNodeId,
       ),
     };
-    _validateUniqueNodeIds(updatedChildren);
+    validateUniqueNodeIdsInChildren(updatedChildren);
     return _copyDocumentWithChildren(this, updatedChildren);
   }
 
@@ -113,32 +114,6 @@ TagflowDocument _copyDocumentWithChildren(
     source: document.source,
     version: document.version,
   );
-}
-
-bool _containsNodeId(Iterable<TagflowDocumentNode> nodes, String nodeId) {
-  for (final node in nodes) {
-    if (node.id == nodeId || _containsNodeId(node.children, nodeId)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void _validateUniqueNodeIds(Iterable<TagflowDocumentNode> nodes) {
-  final seen = <String>{};
-
-  void visit(TagflowDocumentNode node) {
-    if (!seen.add(node.id)) {
-      throw StateError('Duplicate TagflowDocumentNode id: ${node.id}.');
-    }
-    for (final child in node.children) {
-      visit(child);
-    }
-  }
-
-  for (final node in nodes) {
-    visit(node);
-  }
 }
 
 List<TagflowDocumentNode> _replaceNode(

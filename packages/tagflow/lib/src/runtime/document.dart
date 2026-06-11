@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:tagflow/src/runtime/document_node.dart';
+import 'package:tagflow/src/runtime/document_traversal.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
 import 'package:tagflow/src/runtime/source.dart';
 
@@ -54,4 +55,24 @@ final class TagflowDocument {
     source,
     version,
   );
+}
+
+/// Query and validation helpers for [TagflowDocument].
+extension TagflowDocumentQueries on TagflowDocument {
+  /// Returns the first node with [nodeId], or `null` when none exists.
+  TagflowDocumentNode? nodeById(String nodeId) {
+    return findNodeByIdInChildren(children, nodeId);
+  }
+
+  /// Returns whether any node in the document uses [nodeId].
+  bool containsNodeId(String nodeId) {
+    return containsNodeIdInChildren(children, nodeId);
+  }
+
+  /// Validates that every node ID in the document tree is unique.
+  ///
+  /// Throws [StateError] when a duplicate node ID is found.
+  void validateUniqueNodeIds() {
+    validateUniqueNodeIdsInChildren(children);
+  }
 }

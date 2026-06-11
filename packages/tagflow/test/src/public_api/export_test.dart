@@ -33,6 +33,9 @@ void main() {
     );
 
     expect(document.children.single.kind, api.TagflowNodeKind.paragraph);
+    expect(document.nodeById('paragraph'), same(document.children.single));
+    expect(document.containsNodeId('text'), isTrue);
+    document.validateUniqueNodeIds();
     expect(adapter.policy, policy);
     expect(nodeIdStrategy.attribute, 'data-node-id');
     expect(nodeIdStrategy.fallbackToPath, isFalse);

@@ -87,10 +87,13 @@ First slice requirement:
 
 The document and node classes are immutable and deeply comparable, which is a
 good base. The landed patch API now covers append, replace, remove, and
-duplicate-ID checks during patch application. Remaining gaps for broader diff
+duplicate-ID checks during patch application. The landed query/validation
+helpers now add `TagflowDocument.nodeById(...)`,
+`TagflowDocument.containsNodeId(...)`, and
+`TagflowDocument.validateUniqueNodeIds()` using the same runtime traversal and
+duplicate-ID rules as patch application. Remaining gaps for broader diff
 tooling:
 
-- no public node lookup by ID
 - no copy/update helpers outside patch application
 - no diff or patch result type
 - no eager whole-document duplicate-ID validation for plain
@@ -177,6 +180,14 @@ extension TagflowDocumentUpdates on TagflowDocument {
 
   TagflowDocument applyPatches(Iterable<TagflowDocumentPatch> patches);
 }
+
+extension TagflowDocumentQueries on TagflowDocument {
+  TagflowDocumentNode? nodeById(String nodeId);
+
+  bool containsNodeId(String nodeId);
+
+  void validateUniqueNodeIds();
+}
 ```
 
 Contract:
@@ -187,6 +198,9 @@ Contract:
   introduced.
 - Patch application preserves all untouched node object identities where
   practical.
+- Query helpers return existing node instances and do not mutate the document.
+- Validation helpers remain explicit; `TagflowDocument(...)` construction does
+  not eagerly reject duplicates in this slice.
 - Replacement can change node kind, but the replacement node's ID must match
   `nodeId` unless an explicit rename operation is added later.
 - Append operations are allowed for any node with `children`, including table
