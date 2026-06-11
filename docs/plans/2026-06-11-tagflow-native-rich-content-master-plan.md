@@ -23,7 +23,7 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated implementation commit:
-  `564709b fix(benchmarks): remove macos CocoaPods integration`
+  `c4d2c74 feat(benchmarks): add table stress fixture baseline`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
