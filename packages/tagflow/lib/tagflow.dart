@@ -1,3 +1,4 @@
+export 'src/adapters/adapters.dart';
 export 'src/converter/converter.dart';
 export 'src/converter/converters/converters.dart';
 export 'src/converter/styled_container.dart';

@@ -9,7 +9,7 @@ typedef ErrorWidgetBuilder =
 /// Default error widget builder
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
   return SelectableText(
-    'Failed to render HTML: $error',
+    'Failed to render content: $error',
     style: const TextStyle(color: Color(0xFFB00020)),
   );
 }
@@ -19,21 +19,52 @@ Widget _defaultLoadingWidget(BuildContext context) {
   return const Center(child: CircularProgressIndicator());
 }
 
-/// Main widget for rendering HTML content.
+/// Main widget for rendering rich content.
 class Tagflow extends StatefulWidget {
-  /// Creates a new [Tagflow] widget.
+  /// Creates a new legacy HTML [Tagflow] widget.
   const Tagflow({
-    required this.html,
+    required String this.html,
     this.theme,
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
     this.options = TagflowOptions.defaults,
     super.key,
-  });
+  }) : document = null,
+       adapter = null;
+
+  /// Creates a new [Tagflow] widget from HTML.
+  const Tagflow.html({
+    required String this.html,
+    this.adapter,
+    this.theme,
+    this.converters = const [],
+    this.errorBuilder = _defaultErrorWidget,
+    this.loadingBuilder = _defaultLoadingWidget,
+    this.options = TagflowOptions.defaults,
+    super.key,
+  }) : document = null;
+
+  /// Creates a new [Tagflow] widget from a native runtime document.
+  const Tagflow.document(
+    TagflowDocument this.document, {
+    this.theme,
+    this.converters = const [],
+    this.errorBuilder = _defaultErrorWidget,
+    this.loadingBuilder = _defaultLoadingWidget,
+    this.options = TagflowOptions.defaults,
+    super.key,
+  }) : html = null,
+       adapter = null;
 
   /// The HTML content to render.
-  final String html;
+  final String? html;
+
+  /// The canonical runtime document to render.
+  final TagflowDocument? document;
+
+  /// Adapter used by [Tagflow.html] to produce a runtime document.
+  final TagflowHtmlAdapter? adapter;
 
   /// Custom theme for styling HTML elements
   final TagflowTheme? theme;
@@ -56,6 +87,7 @@ class Tagflow extends StatefulWidget {
 
 class _TagflowState extends State<Tagflow> {
   late TagflowConverter _converter;
+  TagflowDocument? _document;
   TagflowNode? _element;
   Object? _error;
 
@@ -63,7 +95,7 @@ class _TagflowState extends State<Tagflow> {
   void initState() {
     super.initState();
     _converter = TagflowConverter(widget.converters);
-    _parseHtml();
+    _loadDocument();
   }
 
   @override
@@ -71,8 +103,10 @@ class _TagflowState extends State<Tagflow> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.html != widget.html ||
+        oldWidget.document != widget.document ||
+        oldWidget.adapter != widget.adapter ||
         oldWidget.options.renderBoundary != widget.options.renderBoundary) {
-      _parseHtml();
+      _loadDocument();
     }
 
     if (!listEquals(oldWidget.converters, widget.converters)) {
@@ -81,18 +115,20 @@ class _TagflowState extends State<Tagflow> {
     }
   }
 
-  void _parseHtml() {
+  void _loadDocument() {
     try {
-      final parser = TagflowParser(
-        debug: widget.options.debug,
-        renderBoundary: widget.options.renderBoundary,
-      );
-      _element = parser.parse(widget.html);
+      _document =
+          widget.document ??
+          (widget.adapter ?? const TagflowHtmlAdapter()).parse(
+            widget.html ?? '',
+            options: widget.options,
+          );
+      _element = TagflowHtmlDocumentBridge.toLegacyNode(_document!);
       _error = null;
     } catch (e, stack) {
       _error = e;
       if (widget.options.debug) {
-        debugPrint('Error parsing HTML: $e\n$stack');
+        debugPrint('Error loading Tagflow document: $e\n$stack');
       }
     }
     if (mounted) setState(() {});
@@ -133,6 +169,8 @@ class _TagflowState extends State<Tagflow> {
     super.debugFillProperties(properties);
     properties
       ..add(StringProperty('html', widget.html))
+      ..add(DiagnosticsProperty<TagflowDocument>('document', _document))
+      ..add(DiagnosticsProperty<TagflowHtmlAdapter>('adapter', widget.adapter))
       ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
       ..add(IterableProperty<ElementConverter>('converters', widget.converters))
       ..add(DiagnosticsProperty<TagflowOptions>('options', widget.options))
