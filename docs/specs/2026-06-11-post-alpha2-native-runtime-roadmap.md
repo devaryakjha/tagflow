@@ -518,13 +518,17 @@ Work:
 - keep the shipped `registry` parameter on `Tagflow.html(...)` documented as
   the simple HTML-origin semantic override path;
 - preserve legacy custom-converter behavior and registry precedence;
-- add or retain focused tests and real-app evidence for HTML built-in rendering
-  with a registry override.
+- retain focused package widget tests for HTML built-in rendering with a
+  registry override, including registry-only rebuild coverage;
+- keep hosted real-app evidence as a separate beta gate for this path.
 
 Acceptance:
 
 - apps know how to override semantic rendering for HTML-origin content;
 - legacy `converters:` compatibility keeps its current behavior;
+- focused package widget tests cover registry override and registry-update
+  behavior for `Tagflow.html(...)`;
+- hosted real-app evidence is still tracked separately before beta;
 - no broad parser or converter refactor lands in the same slice.
 
 ### Slice 5: beta public API freeze review
@@ -559,8 +563,9 @@ Acceptance:
    - hosted-package real-app fixture after alpha.2 is published.
 3. `feat(adapter): define native transport version policy`
    - small code and test slice for unknown kind and schema-version behavior.
-4. `test(widget): validate html registry overrides`
-   - focused widget or real-app evidence for the shipped
-     `Tagflow.html(..., registry: ...)` path.
+4. `test(app): validate hosted html registry overrides`
+   - real-app hosted-package evidence for the shipped
+     `Tagflow.html(..., registry: ...)` path after focused package widget
+     coverage.
 5. `docs(api): prepare beta public surface review`
    - export and compatibility classification before any beta.0 version work.

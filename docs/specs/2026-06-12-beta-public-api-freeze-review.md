@@ -146,8 +146,10 @@ behavior such as links, selection, images, cache behavior, and error rendering.
 - `Tagflow.html(..., registry: ...)`
 
 Rationale: this is the right ergonomic bridge for HTML-origin content that
-needs semantic registry overrides. It should not be called beta-stable until at
-least one real app consumes a hosted alpha package through this path.
+needs semantic registry overrides. Focused package widget tests now cover the
+semantic override path, legacy-converter precedence, and registry-only
+rebuilds without reparsing. It should not be called beta-stable until at least
+one real app consumes a hosted alpha package through this path.
 
 `compatibility surface`:
 
@@ -354,9 +356,10 @@ to republish the extension package.
 - App-authored/native document copy helpers have explicit nullable-field
   clearing semantics. Done with `clearX` flags on document and node copy
   helpers; omitted nullable arguments continue to preserve current values.
-- `Tagflow.html(..., registry: ...)` is validated in a real app or explicitly
-  scoped as still alpha. Done for Kite widget-test validation with
-  `tagflow_table`; production rendering still uses the legacy converter bridge.
+- `Tagflow.html(..., registry: ...)` has focused package widget coverage for
+  semantic overrides, legacy-converter precedence, and registry-only rebuilds
+  without reparsing. Hosted real-app validation is still pending before beta,
+  and current production rendering still uses the legacy converter bridge.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.

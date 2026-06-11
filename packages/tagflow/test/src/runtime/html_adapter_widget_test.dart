@@ -267,6 +267,55 @@ void main() {
       expect(find.text('Built-in paragraph'), findsNothing);
     });
 
+    testWidgets(
+      'html registry changes rebuild semantic rendering without reparsing',
+      (tester) async {
+        const html = '<p>Built-in HTML runtime</p>';
+        TagflowDocumentNode? firstParagraphNode;
+        TagflowDocumentNode? secondParagraphNode;
+
+        final firstRegistry = TagflowComponentRegistry(
+          overrides: {
+            TagflowNodeKind.paragraph: (context, node) {
+              firstParagraphNode = node;
+              return const Text('First registry paragraph');
+            },
+          },
+        );
+        final secondRegistry = TagflowComponentRegistry(
+          overrides: {
+            TagflowNodeKind.paragraph: (context, node) {
+              secondParagraphNode = node;
+              return Text(
+                identical(node, firstParagraphNode)
+                    ? 'Second registry reused node'
+                    : 'Second registry reparsed node',
+              );
+            },
+          },
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.html(html: html, registry: firstRegistry),
+          ),
+        );
+
+        expect(find.text('First registry paragraph'), findsOneWidget);
+        expect(firstParagraphNode, isNotNull);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.html(html: html, registry: secondRegistry),
+          ),
+        );
+
+        expect(find.text('Second registry reused node'), findsOneWidget);
+        expect(find.text('Second registry reparsed node'), findsNothing);
+        expect(secondParagraphNode, same(firstParagraphNode));
+      },
+    );
+
     testWidgets('selectable wrapping applies around semantic content', (
       tester,
     ) async {
