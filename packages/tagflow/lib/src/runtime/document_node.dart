@@ -444,6 +444,10 @@ final class TagflowDocumentNode {
   ///
   /// The copied node remains immutable: replacement children are copied into an
   /// unmodifiable list by the private runtime constructor.
+  ///
+  /// Nullable fields use explicit clear flags so omitted values can continue
+  /// to mean "keep the current value". For example, set [clearAlt] to remove
+  /// image alt text or [clearText] to remove a text/code payload.
   TagflowDocumentNode copyWith({
     String? id,
     TagflowNodeKind? kind,
@@ -464,6 +468,17 @@ final class TagflowDocumentNode {
     int? colSpan,
     bool? header,
     String? unsupportedReason,
+    bool clearSource = false,
+    bool clearText = false,
+    bool clearUrl = false,
+    bool clearLevel = false,
+    bool clearOrdered = false,
+    bool clearStartIndex = false,
+    bool clearAlt = false,
+    bool clearWidth = false,
+    bool clearHeight = false,
+    bool clearLanguage = false,
+    bool clearUnsupportedReason = false,
   }) {
     return TagflowDocumentNode._(
       id: id ?? this.id,
@@ -471,20 +486,75 @@ final class TagflowDocumentNode {
       children: children ?? this.children,
       presentation: presentation ?? this.presentation,
       metadata: metadata ?? this.metadata,
-      source: source ?? this.source,
-      text: text ?? this.text,
-      url: url ?? this.url,
-      level: level ?? this.level,
-      ordered: ordered ?? this.ordered,
-      startIndex: startIndex ?? this.startIndex,
-      alt: alt ?? this.alt,
-      width: width ?? this.width,
-      height: height ?? this.height,
-      language: language ?? this.language,
+      source: _resolveNullableCopyField(
+        current: this.source,
+        replacement: source,
+        clear: clearSource,
+        name: 'source',
+      ),
+      text: _resolveNullableCopyField(
+        current: this.text,
+        replacement: text,
+        clear: clearText,
+        name: 'text',
+      ),
+      url: _resolveNullableCopyField(
+        current: this.url,
+        replacement: url,
+        clear: clearUrl,
+        name: 'url',
+      ),
+      level: _resolveNullableCopyField(
+        current: this.level,
+        replacement: level,
+        clear: clearLevel,
+        name: 'level',
+      ),
+      ordered: _resolveNullableCopyField(
+        current: this.ordered,
+        replacement: ordered,
+        clear: clearOrdered,
+        name: 'ordered',
+      ),
+      startIndex: _resolveNullableCopyField(
+        current: this.startIndex,
+        replacement: startIndex,
+        clear: clearStartIndex,
+        name: 'startIndex',
+      ),
+      alt: _resolveNullableCopyField(
+        current: this.alt,
+        replacement: alt,
+        clear: clearAlt,
+        name: 'alt',
+      ),
+      width: _resolveNullableCopyField(
+        current: this.width,
+        replacement: width,
+        clear: clearWidth,
+        name: 'width',
+      ),
+      height: _resolveNullableCopyField(
+        current: this.height,
+        replacement: height,
+        clear: clearHeight,
+        name: 'height',
+      ),
+      language: _resolveNullableCopyField(
+        current: this.language,
+        replacement: language,
+        clear: clearLanguage,
+        name: 'language',
+      ),
       rowSpan: rowSpan ?? this.rowSpan,
       colSpan: colSpan ?? this.colSpan,
       header: header ?? this.header,
-      unsupportedReason: unsupportedReason ?? this.unsupportedReason,
+      unsupportedReason: _resolveNullableCopyField(
+        current: this.unsupportedReason,
+        replacement: unsupportedReason,
+        clear: clearUnsupportedReason,
+        name: 'unsupportedReason',
+      ),
     );
   }
 
@@ -535,4 +605,20 @@ final class TagflowDocumentNode {
     header,
     unsupportedReason,
   );
+}
+
+T? _resolveNullableCopyField<T>({
+  required T? current,
+  required T? replacement,
+  required bool clear,
+  required String name,
+}) {
+  if (clear && replacement != null) {
+    throw ArgumentError.value(
+      replacement,
+      name,
+      'Cannot provide a replacement while also clearing the field.',
+    );
+  }
+  return clear ? null : replacement ?? current;
 }

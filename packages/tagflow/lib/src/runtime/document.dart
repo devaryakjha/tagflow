@@ -67,18 +67,27 @@ final class TagflowDocument {
   /// compatibility behavior. Use [copyWithValidated] when app-authored,
   /// CMS-authored, or AI-authored document updates should fail fast on
   /// duplicate node IDs.
+  ///
+  /// Nullable fields use explicit clear flags so omitted values can continue
+  /// to mean "keep the current value". Set [clearSource] to remove [source].
   TagflowDocument copyWith({
     String? id,
     List<TagflowDocumentNode>? children,
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
     int? version,
+    bool clearSource = false,
   }) {
     return TagflowDocument(
       id: id ?? this.id,
       children: children ?? this.children,
       metadata: metadata ?? this.metadata,
-      source: source ?? this.source,
+      source: _resolveNullableCopyField(
+        current: this.source,
+        replacement: source,
+        clear: clearSource,
+        name: 'source',
+      ),
       version: version ?? this.version,
     );
   }
@@ -87,18 +96,26 @@ final class TagflowDocument {
   ///
   /// Throws [StateError] when the resulting child tree contains duplicate node
   /// IDs.
+  ///
+  /// Set [clearSource] to remove [source].
   TagflowDocument copyWithValidated({
     String? id,
     List<TagflowDocumentNode>? children,
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
     int? version,
+    bool clearSource = false,
   }) {
     return TagflowDocument.validated(
       id: id ?? this.id,
       children: children ?? this.children,
       metadata: metadata ?? this.metadata,
-      source: source ?? this.source,
+      source: _resolveNullableCopyField(
+        current: this.source,
+        replacement: source,
+        clear: clearSource,
+        name: 'source',
+      ),
       version: version ?? this.version,
     );
   }
@@ -122,6 +139,22 @@ final class TagflowDocument {
     source,
     version,
   );
+}
+
+T? _resolveNullableCopyField<T>({
+  required T? current,
+  required T? replacement,
+  required bool clear,
+  required String name,
+}) {
+  if (clear && replacement != null) {
+    throw ArgumentError.value(
+      replacement,
+      name,
+      'Cannot provide a replacement while also clearing the field.',
+    );
+  }
+  return clear ? null : replacement ?? current;
 }
 
 /// Query and validation helpers for [TagflowDocument].

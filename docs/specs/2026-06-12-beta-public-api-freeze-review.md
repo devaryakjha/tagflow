@@ -38,7 +38,10 @@ or beta release copy.
 
 - `TagflowDocument`
 - `TagflowDocument.validated(...)`
+- `TagflowDocument.copyWith(...)`
+- `TagflowDocument.copyWithValidated(...)`
 - `TagflowDocumentNode`
+- `TagflowDocumentNode.copyWith(...)`
 - `TagflowNodeKind`
 - `TagflowDocumentQueries`
 - `TagflowDocumentPatch`
@@ -56,7 +59,11 @@ kinds, stable IDs, metadata, source records, presentation hints, and ordered
 patch application. `TagflowDocument.validated(...)` is the preferred
 fail-fast construction path for app-authored, CMS-authored, or AI-authored
 native documents that need duplicate-ID validation before rendering or patch
-application.
+application. The public copy helpers are additive structural-update helpers:
+omitted nullable arguments preserve existing values, while explicit `clearX`
+flags remove nullable runtime fields such as document `source` and node
+payloads. Calling a helper with both a replacement value and the matching clear
+flag is an `ArgumentError`.
 
 `alpha-only review required`:
 
@@ -292,6 +299,9 @@ cadence.
   validation path. Done with `TagflowDocument.validated(...)`; changing the
   permissive `TagflowDocument(...)` constructor remains a separate beta
   compatibility decision.
+- App-authored/native document copy helpers have explicit nullable-field
+  clearing semantics. Done with `clearX` flags on document and node copy
+  helpers; omitted nullable arguments continue to preserve current values.
 - `Tagflow.html(..., registry: ...)` is validated in a real app or explicitly
   scoped as still alpha. Done for Kite widget-test validation with
   `tagflow_table`; production rendering still uses the legacy converter bridge.

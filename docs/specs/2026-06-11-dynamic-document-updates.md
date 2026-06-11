@@ -103,8 +103,12 @@ native documents that need duplicate-ID validation before rendering or patch
 application. The immutable copy helper slice now adds
 `TagflowDocument.copyWith(...)`, `TagflowDocument.copyWithValidated(...)`, and
 `TagflowDocumentNode.copyWith(...)` for app-authored/native producers that need
-small local updates without introducing a controller. Remaining gaps for broader
-diff tooling:
+small local updates without introducing a controller. These helpers keep
+omitted nullable arguments as "leave unchanged" and use explicit `clearX` flags
+for nullable runtime fields such as document `source`, node `text`, `url`,
+`alt`, `language`, and `unsupportedReason`. Passing a replacement value and its
+matching clear flag in the same call fails with `ArgumentError` so payload
+clearing is deliberate before beta. Remaining gaps for broader diff tooling:
 
 - no diff or patch result type
 
@@ -222,6 +226,11 @@ Contract:
   `TagflowDocument.copyWith(...)` is permissive, while
   `TagflowDocument.copyWithValidated(...)` rejects duplicate node IDs in the
   resulting tree.
+- Immutable copy helpers use explicit clear flags for nullable fields. Omitted
+  nullable arguments preserve the current value; `clearSource`, `clearText`,
+  `clearUrl`, `clearAlt`, `clearLanguage`, and related clear flags remove the
+  current value. Supplying both a replacement value and the matching clear flag
+  is an `ArgumentError`.
 - Replacement can change node kind, but the replacement node's ID must match
   `nodeId` unless an explicit rename operation is added later.
 - Append operations are allowed for any node with `children`, including table

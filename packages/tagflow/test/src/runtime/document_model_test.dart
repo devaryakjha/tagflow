@@ -127,6 +127,26 @@ void main() {
       expect(() => copied.children.add(replacement), throwsUnsupportedError);
     });
 
+    test('copyWith clears nullable document fields explicitly', () {
+      final original = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'paragraph')],
+        source: TagflowSourceInfo(kind: TagflowSourceKind.app),
+      );
+
+      final copied = original.copyWith(clearSource: true);
+
+      expect(copied.source, isNull);
+      expect(original.source?.kind, TagflowSourceKind.app);
+      expect(
+        () => original.copyWith(
+          source: TagflowSourceInfo(kind: TagflowSourceKind.json),
+          clearSource: true,
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('copyWithValidated rejects duplicate replacement node ids', () {
       final document = TagflowDocument.validated(
         id: 'doc',
@@ -288,6 +308,36 @@ void main() {
       expect(node.level, 1);
       expect(node.children, [child]);
       expect(() => copied.children.add(child), throwsUnsupportedError);
+    });
+
+    test('copyWith clears nullable node payload fields explicitly', () {
+      final node = TagflowDocumentNode.image(
+        id: 'image',
+        url: Uri.parse('https://example.com/image.png'),
+        alt: 'Hero image',
+        width: 640,
+        height: 480,
+        source: TagflowSourceInfo(kind: TagflowSourceKind.html),
+      );
+
+      final copied = node.copyWith(
+        clearAlt: true,
+        clearWidth: true,
+        clearSource: true,
+      );
+
+      expect(copied.url, Uri.parse('https://example.com/image.png'));
+      expect(copied.alt, isNull);
+      expect(copied.width, isNull);
+      expect(copied.height, 480);
+      expect(copied.source, isNull);
+      expect(node.alt, 'Hero image');
+      expect(node.width, 640);
+      expect(node.source?.kind, TagflowSourceKind.html);
+      expect(
+        () => node.copyWith(alt: 'Replacement', clearAlt: true),
+        throwsArgumentError,
+      );
     });
   });
 
