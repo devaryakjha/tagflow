@@ -7,11 +7,12 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `74a9c9c bench(profile): record viewport metadata`
+  `59559b2 docs(validation): record kite alpha publish blocker`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `74a9c9c bench(profile): record viewport metadata`,
   `c137a7b bench(profile): support custom baseline output dirs`,
-  `3df1b5a bench(profile): detect flutter version in manifests`
+  `3df1b5a bench(profile): detect flutter version in manifests`,
+  `34ea827 feat(bench): add opt-in viewport gate`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -71,16 +72,15 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Benchmark-gating worker is queued to make the next stable-readiness slice:
-   opt-in viewport/environment guard or explicit threshold policy, without
-   changing the existing alpha collection-completeness gate.
+1. Benchmark-gating worker landed `34ea827`, adding an opt-in viewport and
+   device-pixel-ratio guard to the profile baseline check. The default alpha
+   collection-completeness gate remains unchanged.
 2. Kite alpha-dependency branch preparation is blocked on hosted alpha
    availability. Live pub.dev state checked on 2026-06-11 still lists
    `tagflow` at `0.0.8` and `tagflow_table` at `0.0.4+5`, so Kite should not
    commit a hosted-alpha dependency update yet. The next clean Kite branch can
    be prepared only after `1.0.0-alpha.1` is published for both packages.
-3. Release review should wait for the benchmark-gating worker result before
-   deciding whether to push the package-specific alpha tags:
+3. Release review can now decide whether to push the package-specific alpha tags:
    `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
 
 ## Release Prep Status
@@ -226,6 +226,12 @@ The benchmark harness is real but still alpha-grade:
   A one-cell smoke run, `viewport-smoke`, recorded
   `800.0 x 600.0` logical, `1600.0 x 1200.0` physical, and
   `devicePixelRatio=2.0` through the collect, summarize, and check handoff.
+- `34ea827` adds an opt-in environment gate for profile baseline checks:
+  `TAGFLOW_PROFILE_EXPECT_LOGICAL_WIDTH`,
+  `TAGFLOW_PROFILE_EXPECT_LOGICAL_HEIGHT`, and
+  `TAGFLOW_PROFILE_EXPECT_DEVICE_PIXEL_RATIO` can now require summarized
+  viewport metadata to match a selected reference window. If these values are
+  unset, viewport metadata remains report-only for alpha baseline handoff.
 
 ## Known Non-Completion Points
 
@@ -242,10 +248,12 @@ The benchmark harness is real but still alpha-grade:
 - Profile benchmarking is real but not production-grade yet: the macOS desktop
   default matrix now has a complete repeat-5 reviewed run, but stable
   performance claims still need an intentionally selected stable reference
-  machine, pinned display/window conditions, broader target qualification, and
-  threshold policy before using frame timings as a release gate. Future raw
-  artifacts can now report the Flutter viewport size and device-pixel ratio,
-  but they still do not pin the desktop window or identify the physical display.
+  machine, a documented command that pins the desktop window before collection,
+  broader target qualification, and threshold policy before using frame timings
+  as a release gate. Future raw artifacts can now report the Flutter viewport
+  size and device-pixel ratio, and the check command can enforce expected
+  viewport values when explicitly configured, but the runner still does not set
+  the desktop window or identify the physical display by itself.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
   on the real app surface, and a deliberate Kite alpha-dependency migration
