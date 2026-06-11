@@ -7,7 +7,7 @@ JSON artifacts from `packages/tagflow_benchmarks/build/`.
 ## Environment
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Package version reported by harness: `0.0.8`
+- Package version reported by harness: `1.0.0-alpha.1`
 - Dart version reported by harness: `3.11.0-81.0.dev`
 - Flutter version reported by harness: `unknown`
 - OS reported by harness: `macos`
@@ -39,11 +39,11 @@ Harness settings from `benchmark:micro`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 560 | 692 | 547.0 | 0.227 |
-| `ai_answer_rich` | 2059 | 68 | 2637 | 2809 | 2556.0 | 0.096 |
-| `table_dense` | 1741 | 226 | 2351 | 2654 | 2411.0 | 0.074 |
-| `large_article` | 4529 | 120 | 2372 | 2405 | 2246.7 | 0.089 |
-| `deep_nested_lists` | 1139 | 37 | 670 | 785 | 640.3 | 0.206 |
+| `smoke_short_html` | 356 | 19 | 574 | 672 | 552.0 | 0.196 |
+| `ai_answer_rich` | 2059 | 68 | 2398 | 3316 | 2559.7 | 0.220 |
+| `table_dense` | 1741 | 226 | 2084 | 2342 | 2149.3 | 0.064 |
+| `large_article` | 4529 | 120 | 1870 | 1955 | 1897.3 | 0.022 |
+| `deep_nested_lists` | 1139 | 37 | 586 | 621 | 551.0 | 0.137 |
 
 ## Render Benchmark
 
@@ -55,11 +55,11 @@ Harness settings from `benchmark:render`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 24528 | 24528 | 17677.0 | 0.388 |
-| `ai_answer_rich` | 2059 | 68 | 28597 | 28597 | 24430.5 | 0.171 |
-| `table_dense` | 1741 | 226 | 31496 | 31496 | 31206.0 | 0.009 |
-| `large_article` | 4529 | 120 | 23623 | 23623 | 21016.5 | 0.124 |
-| `deep_nested_lists` | 1139 | 37 | 8002 | 8002 | 7806.0 | 0.025 |
+| `smoke_short_html` | 356 | 19 | 21270 | 21270 | 14571.0 | 0.460 |
+| `ai_answer_rich` | 2059 | 68 | 19113 | 19113 | 16719.5 | 0.143 |
+| `table_dense` | 1741 | 226 | 31823 | 31823 | 29778.5 | 0.069 |
+| `large_article` | 4529 | 120 | 24415 | 24415 | 21305.0 | 0.146 |
+| `deep_nested_lists` | 1139 | 37 | 7620 | 7620 | 7455.0 | 0.022 |
 
 ## Limitations
 
