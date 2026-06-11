@@ -169,6 +169,13 @@ Release scope boundaries:
   rendering, Flutter widget serialization, or public performance wins.
 - `tagflow_table` has no required alpha.2 package change for the native JSON
   transport slice unless the coordinator chooses to release packages together.
+- Real-app consumption evidence from Kite confirms the publish need: hosted
+  `tagflow` `1.0.0-alpha.1` cannot compile against
+  `TagflowNativeBlockCodec` or `TagflowNativeBlockAdapter`, while a temporary
+  local override to the coordinator Tagflow checkout passed the test-only
+  decode/adapt/patch-apply path. Kite should not commit a native transport
+  fixture or production integration until a hosted prerelease exposes those
+  symbols.
 
 Coordinator publish gap before alpha.2:
 

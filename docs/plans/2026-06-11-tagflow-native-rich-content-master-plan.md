@@ -28,6 +28,7 @@ It should not claim a CMS sync protocol or public performance result.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits before this status refresh include
+  `db7dd4e docs(release): prep alpha.2 native transport notes`,
   `5887c17 feat(benchmarks): add native transport benchmark lane`,
   `e5ee11f feat(example): add native dynamic content demo`, and
   `5cd0ecf feat(adapter): add native block transport codec`.
@@ -95,6 +96,12 @@ It should not claim a CMS sync protocol or public performance result.
   supported-target blocker because the phone was wireless-only from Flutter's
   perspective and stalled before install/launch; see
   `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
+- A focused Kite native JSON transport probe confirmed the next release need:
+  hosted `1.0.0-alpha.1` lacks `TagflowNativeBlockCodec` and
+  `TagflowNativeBlockAdapter`, while a temporary local override to the
+  coordinator Tagflow checkout passed a test-only decode/adapt/patch-apply
+  path. Kite should wait for `1.0.0-alpha.2` before committing a native
+  transport fixture or production integration.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through

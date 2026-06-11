@@ -173,6 +173,41 @@ not a continuation of the proof patch:
    otherwise qualified target before considering the migration
    production-ready
 
+## Native JSON Transport Trial
+
+A focused Kite trial for the newer native JSON transport API ran from isolated
+worktree `/Users/arya/.codex/worktrees/ae10/kite` at
+`d9682aec chore(deps): trial tagflow alpha runtime`.
+
+Result: hosted `tagflow` `1.0.0-alpha.1` cannot compile against the transport
+symbols. It includes the alpha document runtime and `Tagflow.document(...)`, but
+does not export `TagflowNativeBlockCodec`, `TagflowNativeBlockAdapter`,
+`TagflowNativeBlockDocument`, `TagflowNativeBlockPatchEnvelope`, or
+`TagflowNativeBlockPatch`.
+
+The worker then used a temporary, uncommitted `pubspec_overrides.yaml` pointing
+`tagflow` and `tagflow_table` at `/Users/arya/projects/tagflow/packages/...`.
+The override preserved Kite's existing dependency overrides. Under that local
+override, a temporary test-only probe passed the full requested path:
+
+- decode trusted native JSON with `TagflowNativeBlockCodec`
+- adapt it through `TagflowNativeBlockAdapter`
+- inspect the resulting `TagflowDocument`
+- decode a patch envelope
+- apply `adapter.adaptPatches(...)` through `document.applyPatches(...)`
+- assert the patched text
+
+The temporary probe and override were removed before commit, and dependency
+resolution was restored to hosted `tagflow` and `tagflow_table`
+`1.0.0-alpha.1`. The worker committed only Kite docs at
+`9813b9ef docs(tagflow): record native JSON transport blocker`.
+
+Decision: do not add a Kite production path or even a committed Kite test
+fixture for native JSON transport until Tagflow publishes a prerelease that
+contains the native transport API. After that prerelease, the smallest clean
+Kite follow-up is a test fixture against hosted dependencies, not a diagnostics
+screen and not an IPO sheet rewrite.
+
 ## Clean Alpha Validation Route
 
 The clean hosted-alpha branch should not regain the old diagnostics proof
