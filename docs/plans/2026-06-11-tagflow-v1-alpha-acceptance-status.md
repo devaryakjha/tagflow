@@ -205,6 +205,17 @@ The benchmark harness is real but still alpha-grade:
   `tagflow` and `tagflow_table` to `1.0.0-alpha.1`; no
   `pubspec_overrides.yaml`, absolute path source, diagnostics preview, local
   fixture route, or broad dependency churn was committed.
+- A follow-up clean-branch validation worker launched
+  `lib/main_local.dart` from `d9682aec` on the iPhone 17 simulator and captured
+  Home screenshots under
+  `docs/validation/evidence/2026-06-11-kite-alpha-home-dark-launch.jpg` and
+  `docs/validation/evidence/2026-06-11-kite-alpha-home-after-dark-toggle.jpg`.
+  The branch passed dependency, focused analyzer, patch-scope, and no-override
+  gates, but the clean app-local data path did not reach `IPOInstrumentSheet`:
+  existing handlers returned multiple `500` responses, a watchlist
+  deserialization exception appeared, and the simulator remained visually light
+  after the dark-appearance toggle. This is evidence that the branch is clean
+  and launchable, not IPO dark-mode or release-grade profile evidence.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -279,7 +290,8 @@ The benchmark harness is real but still alpha-grade:
   the desktop window or identify the physical display by itself.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
-  on the real app surface, and review of the clean Kite alpha-dependency branch
-  if Kite is the first production consumer.
+  on the real IPO surface, and a deterministic way to reach
+  `IPOInstrumentSheet` from the clean Kite alpha-dependency branch without
+  committing proof-only diagnostics scaffolding.
   The first iOS simulator proof and debug timeline have been captured but
   should not be treated as a full production rollout or benchmark.

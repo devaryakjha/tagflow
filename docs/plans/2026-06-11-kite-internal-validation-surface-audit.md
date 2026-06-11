@@ -264,6 +264,49 @@ Evidence:
 - `docs/validation/evidence/2026-06-11-kite-ipo-sheet-financials-content.jpg`
 - `docs/validation/evidence/2026-06-11-kite-ipo-sheet-table.jpg`
 
+### Clean alpha branch validation attempt
+
+A fresh validation worker ran the clean hosted-alpha branch content at
+`d9682aec chore(deps): trial tagflow alpha runtime` from detached worktree
+`/Users/arya/.codex/worktrees/854b/kite`. Detached HEAD was accepted because the
+actual branch was already checked out in a separate Kite worktree and the commit
+content matched exactly.
+
+Validation gates that passed:
+
+- commit scope check: exactly `pubspec.yaml`, `pubspec.lock`,
+  `lib/screens/ipos/ipo_instrument_sheet.dart`, and
+  `lib/component/tagflow_details_converter.dart`
+- no `pubspec_overrides.yaml`, local path dependency, diagnostics preview,
+  local IPO fixture, or broad lockfile churn
+- repo-local `flutter pub get`
+- focused analyzer for the two IPO Tagflow integration files
+- `flutter devices` found a wireless physical iPhone as a profile-capable
+  target candidate
+
+The clean branch could launch `lib/main_local.dart` on the iPhone 17 simulator,
+but could not produce a usable IPO-details validation route without
+reintroducing proof-only fixture scaffolding. During launch, existing
+`main_local.dart` data handlers returned multiple `500` responses, and a
+watchlist deserialization exception appeared before the worker reached an IPO
+details flow.
+
+Captured evidence:
+
+- `docs/validation/evidence/2026-06-11-kite-alpha-home-dark-launch.jpg`
+- `docs/validation/evidence/2026-06-11-kite-alpha-home-after-dark-toggle.jpg`
+
+Conservative read:
+
+- these screenshots prove the clean alpha branch can launch the app to Home
+  without the previous diagnostics fixture
+- they do not validate the IPO Tagflow surface, because the existing clean app
+  flow did not reach `IPOInstrumentSheet`
+- the simulator remained visually light after the dark-appearance toggle, so no
+  IPO dark-mode claim should be made from this attempt
+- no release-grade profile evidence was captured; the profile-capable physical
+  device still needs a reachable IPO flow before measurement
+
 ### Debug timeline attribution probe
 
 A profiling worker captured a second simulator run with Flutter debug timeline
@@ -324,12 +367,17 @@ Verified behavior:
    - long-form content section
    - table rendering
    - link handling
-4. Capture profile evidence for the IPO sheet on a supported physical iOS
+4. Restore or provide a non-production, non-committed way to reach
+   `IPOInstrumentSheet` on the clean alpha branch without broad diagnostics
+   scaffolding. The latest clean-branch attempt launched Home but did not reach
+   IPO details because existing local data handlers returned `500` and
+   watchlist decoding failed.
+5. Capture profile evidence for the IPO sheet on a supported physical iOS
    device or Android profile target. The current simulator debug timeline is
    path-attribution evidence only.
-5. Confirm the custom `details` and `summary` converter behavior still matches
+6. Confirm the custom `details` and `summary` converter behavior still matches
    product expectations while Kite remains on the alpha compatibility path.
-6. Only after the real IPO flow is acceptable should Bulletins be considered as
+7. Only after the real IPO flow is acceptable should Bulletins be considered as
    a second migration candidate.
 
 ## Rollback Plan
@@ -364,3 +412,7 @@ needs to be repeated after a future local proof:
   `codex/kite-tagflow-alpha-runtime`; the next risk is validating that branch
   against the real IPO surface in dark mode and on a profile-capable target
   without reintroducing proof scaffolding.
+- The clean alpha branch can currently launch Home on the simulator, but the
+  clean app-local data path does not reliably reach IPO details without the
+  prior fixture. Any next proof should avoid committing diagnostics scaffolding
+  while still giving validation a deterministic real `IPOInstrumentSheet` route.
