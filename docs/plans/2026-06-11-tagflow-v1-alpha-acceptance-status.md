@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `226ea22 feat(benchmarks): add profile benchmark scaffold`
+- Snapshot commit: `339cebc fix(tagflow_table): preserve inline semantic cell flow`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 

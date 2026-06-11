@@ -19,6 +19,24 @@ and the package is still internally driven. Stable `1.0.0` should wait until a
 real internal Flutter app has integrated the new model and benchmark results are
 published.
 
+## Coordinator Snapshot
+
+- Branch: `codex/tagflow-native-runtime-master`
+- Current coordinator head: `339cebc fix(tagflow_table): preserve inline semantic cell flow`
+- Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
+  `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
+  done.
+- Release posture: `tagflow` and `tagflow_table` are both set to
+  `1.0.0-alpha.1`; package descriptions, changelogs, READMEs, roadmap, and the
+  alpha migration guide have been updated for the native rich content runtime
+  line.
+- Benchmark posture: parser and widget-render microbenchmarks are committed;
+  the example app has a profile-mode benchmark harness with renderer and fixture
+  selection through `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE`.
+- Post-alpha stabilization in progress: competitor benchmark adapters, profile
+  warning diagnosis, table styling parity, richer fixtures, reference-runner
+  baselines, and internal app validation.
+
 ## Current Constraints
 
 - Repo is a Melos 7-managed Flutter monorepo with workspace and Melos
@@ -112,20 +130,23 @@ Accepted messaging:
 - Package description for `tagflow_table`: "Table extension for Tagflow's
   native rich content runtime."
 
-Docs/release changes required before `1.0.0-alpha.1`:
+Completed docs/release changes for the alpha line:
 
-- Rewrite root `README.md` away from "Flutter HTML rendering engine" framing.
-- Rewrite `packages/tagflow/README.md` around alpha positioning, current install
-  instructions, and migration notes.
-- Rewrite `packages/tagflow_table/README.md` as an extension package for the
-  runtime.
-- Update `packages/tagflow/pubspec.yaml` and
-  `packages/tagflow_table/pubspec.yaml` descriptions.
-- Split `ROADMAP.md` into alpha scope, post-alpha, and not-promised-yet.
-- Add `1.0.0-alpha.1` entries to root and package changelogs when release work
-  starts.
-- Add Makefile/Melos lanes for alpha/beta/rc versioning; `dev` and `stable`
-  lanes are not enough for this release line.
+- Root `README.md` now frames Tagflow as a native rich content runtime instead
+  of a generic HTML rendering engine.
+- `packages/tagflow/README.md` documents `Tagflow.html(...)`,
+  `Tagflow.document(...)`, `TagflowViewOptions`, `TagflowHtmlAdapter`,
+  `TagflowContentPolicy`, `TagflowComponentRegistry`, and
+  `package:tagflow/legacy.dart`.
+- `packages/tagflow_table/README.md` describes the package as a first-party
+  runtime table extension while preserving legacy converter guidance.
+- `packages/tagflow/pubspec.yaml` and `packages/tagflow_table/pubspec.yaml`
+  describe the alpha runtime line and both publishable packages are versioned
+  `1.0.0-alpha.1`.
+- Package changelogs contain `1.0.0-alpha.1` entries.
+- `docs/migration/2026-06-11-tagflow-v1-alpha-migration.md` documents the
+  `0.0.x` to alpha migration.
+- Melos has a `version:alpha` lane and non-interactive publish dry-run lane.
 
 Claims to avoid in alpha:
 
@@ -281,35 +302,41 @@ Master review gate:
 
 ### Wave 0: SPEC and Baseline
 
-- Merge worker SPECs into a single master architecture decision.
-- Add a benchmark plan before any performance claims.
-- Run current validation commands and record baseline failures, if any.
-- Decide whether `docs/specs/` remains the canonical SPEC location.
+- Status: complete.
+- Worker SPECs are merged into the master branch.
+- Benchmark plan and local alpha baseline are committed.
+- `docs/specs/`, `docs/plans/`, and `docs/benchmarks/` are the current
+  coordination locations.
 
 ### Wave 1: Public Contract Skeleton
 
-- Introduce public document/content types behind tests.
-- Add HTML adapter entry point while keeping old `Tagflow(html: ...)` behavior
-  as a compatibility shim if feasible.
-- Define content policy interfaces without overbuilding sanitization.
-- Add registry boundaries for app-owned components and existing converters.
+- Status: complete for alpha.
+- `TagflowDocument`, `TagflowDocumentNode`, `TagflowHtmlAdapter`,
+  `TagflowContentPolicy`, `TagflowComponentRegistry`, `TagflowViewOptions`,
+  `Tagflow.html(...)`, and `Tagflow.document(...)` are implemented and tested.
+- Legacy parser/converter/core surfaces are available from
+  `package:tagflow/legacy.dart`.
 
 ### Wave 2: Benchmark Harness
 
-- Add fixtures and first local benchmark commands.
-- Measure current Tagflow before major rewrites.
-- Add competitor harness only where automated comparison is fair.
-- Publish benchmark methodology in docs before publishing results.
+- Status: in progress.
+- Fixtures, parser microbenchmarks, widget render microbenchmarks, and the
+  profile-mode example harness are committed.
+- The profile harness supports renderer and fixture selection.
+- Active work: add the first competitor adapter with fair caveats, diagnose the
+  current `integration_test plugin was not detected` warning, and record only
+  profile data that was actually run.
 
 ### Wave 3: Runtime Features for Alpha
 
-- Implement policy enforcement for tags, attributes, URL schemes, and image
-  handling.
-- Add document caching by content hash or caller-supplied cache key.
-- Add AI/CMS-oriented primitives only if represented in the document model:
-  callouts, citations, code blocks, tables, links, and optional actions.
-- Keep streaming/incremental rendering narrow: append block-level content before
-  attempting arbitrary partial HTML.
+- Status: alpha runtime complete, post-alpha stabilization open.
+- Policy enforcement, semantic rendering, links, lists, code, blockquotes,
+  images, and tables exist for the alpha supported set.
+- The first-party table package now has a semantic registry fragment and inline
+  cell-flow parity, but legacy HTML/CSS styling parity remains incomplete.
+- Document caching, streaming/incremental rendering, citations, callouts, and
+  optional actions remain later work unless internal app integration proves they
+  are required before beta.
 
 ### Wave 4: Migration and Internal App Trial
 
@@ -320,10 +347,12 @@ Master review gate:
 
 ### Wave 5: Release Hardening
 
-- Run `melos run validate`.
-- Run benchmark suite and record output.
-- Update README, package README, ROADMAP, CHANGELOG, and pubspec descriptions.
-- Publish `1.0.0-alpha.1` only after docs and benchmark methodology are in repo.
+- Status: alpha prerelease review-ready, not stable-ready.
+- `dart run melos run validate` and `dart run melos run publish:dry-run` have
+  passed on the coordinator branch.
+- Local benchmark baseline exists.
+- Do not treat profile timings as a release gate until the integration-test
+  warning is diagnosed and reference-runner baselines exist.
 
 ## Branch and Thread Policy
 
@@ -335,25 +364,24 @@ Master review gate:
 
 ## Active Implementation Threads
 
-### Runtime Contract Skeleton
+### Competitor Benchmark Adapters
 
-- Thread ID: `019eb492-a270-74c0-a723-dd6716a25f06`
-- Worktree: `/Users/arya/.codex/worktrees/d5cb/tagflow`
-- Ownership: new runtime/document/policy API skeleton under
-  `packages/tagflow/lib/src/`, exports, and focused tests under
-  `packages/tagflow/test/src/`.
-- Exclusions: docs, benchmark package, example app, release metadata, broad
-  parser/converter rewrites.
+- Thread ID: `019eb525-170f-7380-a753-62f242cb02f0`
+- Worktree: `/Users/arya/.codex/worktrees/5829/tagflow`
+- Ownership: first fair native competitor renderer adapter, profile smoke
+  evidence, dependency wiring, and benchmark docs/baseline caveats.
+- Exclusions: release state, broad harness rewrites already owned by the
+  coordinator branch.
 
-### Benchmark Foundation
+### Profile Benchmark Warning Diagnosis
 
-- Thread ID: `019eb492-ea8a-74e3-ba81-178120b0bb5f`
-- Worktree: `/Users/arya/.codex/worktrees/576f/tagflow`
-- Ownership: `packages/tagflow_benchmarks/**`, benchmark fixture corpus, parser
-  microbench runner, `docs/benchmarks/baselines/.gitkeep`, and root workspace
-  benchmark scripts only as needed.
-- Exclusions: runtime API implementation files, existing package source, release
-  docs, and example app.
+- Thread ID: `019eb530-0400-7c62-8211-834b5e8fe0f3`
+- Worktree: `/Users/arya/.codex/worktrees/bdde/tagflow`
+- Ownership: reproduce and diagnose `integration_test plugin was not detected`
+  during `benchmark:profile`, then either safely fix the harness or document a
+  precise limitation.
+- Exclusions: broad macOS project migration unless clearly required and
+  low-risk.
 
 ## Alpha Decisions
 
@@ -363,18 +391,23 @@ Master review gate:
 - `TagflowDocument` and `TagflowDocumentNode` are the alpha runtime model.
   Legacy `TagflowNode` remains available through `package:tagflow/legacy.dart`.
 - Table rendering remains a separate first-party package for the alpha line,
-  with compatibility through the legacy converter bridge.
+  with compatibility through the legacy converter bridge. The native semantic
+  table registry is the forward path, but full HTML/CSS styling parity is not
+  complete yet.
 - Benchmark fixtures, parser microbenchmarks, and widget render benchmarks are
-  local alpha harnesses. Production benchmark claims still need later
-  profile-mode and comparison work.
+  local alpha harnesses. Production benchmark claims still need competitor
+  adapters, profile-warning diagnosis, and reference-runner baselines.
 - Internal app validation remains a release gate before promoting beyond alpha.
 
 ## Master Acceptance Criteria
 
-- A committed architecture SPEC exists.
-- A committed benchmark SPEC exists.
-- A current-code audit has been reviewed.
-- A release/docs plan exists.
-- First implementation wave has a task-level plan with tests and validation.
+- A committed architecture SPEC exists. Done.
+- A committed benchmark SPEC exists. Done.
+- A current-code audit has been reviewed. Done.
+- A release/docs plan exists. Done.
+- First implementation waves have tests and validation. Done for alpha.
 - Benchmark harness records baseline Tagflow numbers before major rewrites.
-- `1.0.0-alpha.1` is not published until internal app validation is complete.
+  Done for parser/render/profile smoke; competitor and reference baselines are
+  still in progress.
+- `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
+  but stable `1.0.0` must wait for internal app validation.
