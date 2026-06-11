@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `b889b15 feat(tagflow): route html entrypoints through semantic runtime`
+- Snapshot commit: `c7b01c0 chore(release): make publish dry-run noninteractive`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -42,6 +42,7 @@ cd ../tagflow_benchmarks && flutter analyze && flutter test
 dart run melos run benchmark:fixtures
 dart run melos run benchmark:micro
 dart run melos run benchmark:render
+dart run melos run publish:dry-run
 ```
 
 The benchmark harness is real but still alpha-grade:
@@ -55,11 +56,23 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Review the `1.0.0-alpha.1` release-prep metadata/docs slice.
-2. Before any publish tag, re-run publish dry-run validation from the final
-   release branch.
-3. Push only the package-specific release tags after the final release review
-   accepts the alpha package metadata.
+1. Complete a final read-only alpha release audit against the current branch.
+2. If the audit finds no blockers, push only the package-specific release tags
+   after release review accepts the alpha package metadata.
+
+## Release Prep Status
+
+- `packages/tagflow` is set to `1.0.0-alpha.1` and describes Tagflow as a
+  native rich content runtime with HTML support through a first-party adapter.
+- `packages/tagflow_table` is set to `1.0.0-alpha.1` because it is a
+  publishable first-party extension constrained to the breaking alpha core line.
+- Workspace consumers in `examples/tagflow` and `packages/tagflow_benchmarks`
+  use `^1.0.0-alpha.1` constraints.
+- `publish:dry-run` runs `dart run melos publish --no-private --yes`, keeping
+  publish validation non-interactive while still using Melos dry-run mode.
+- Fresh coordinator evidence: `dart run melos run publish:dry-run`, with
+  `/Users/arya/fvm/cache.git/bin` on `PATH`, validates both `tagflow` and
+  `tagflow_table` with 0 warnings.
 
 ## Known Non-Completion Points
 
