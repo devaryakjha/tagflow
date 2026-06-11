@@ -10,6 +10,7 @@ void main() {
         benchmarkRendererIds,
         containsAll(<String>[
           defaultBenchmarkRendererId,
+          'tagflow_semantic',
           'flutter_html',
           'flutter_widget_from_html',
           'flutter_markdown_plus',
@@ -19,7 +20,11 @@ void main() {
 
       expect(
         benchmarkRendererById(defaultBenchmarkRendererId).label,
-        'Tagflow',
+        'Tagflow (compat)',
+      );
+      expect(
+        benchmarkRendererById('tagflow_semantic').label,
+        'Tagflow (semantic)',
       );
       expect(benchmarkRendererById('flutter_html').label, 'Flutter HTML');
       expect(
@@ -36,6 +41,25 @@ void main() {
     test('throws for an unknown renderer id', () {
       expect(() => benchmarkRendererById('missing'), throwsArgumentError);
     });
+  });
+
+  test('returns Tagflow and competitor renderers for HTML fixtures', () {
+    final htmlRenderers = benchmarkRenderersForSourceType(
+      BenchmarkSourceType.html,
+    );
+
+    expect(htmlRenderers.map((renderer) => renderer.id), [
+      'tagflow',
+      'tagflow_semantic',
+      'flutter_html',
+      'flutter_widget_from_html',
+    ]);
+    expect(
+      htmlRenderers.every(
+        (renderer) => renderer.supports(BenchmarkSourceType.html),
+      ),
+      isTrue,
+    );
   });
 
   test('returns markdown-only renderers for markdown fixtures', () {

@@ -370,6 +370,10 @@ Master review gate:
   Tagflow-only dynamic-content scenario that renders 25%, 50%, 75%, and 100%
   chunks of `ai_answer_rich` and records update latency before the final scroll
   measurement.
+- The example profile harness now has separate `tagflow` compatibility and
+  `tagflow_semantic` native-runtime renderer ids, so dynamic-content profiling
+  can target `TagflowDocument` plus semantic table components instead of only
+  the legacy converter bridge.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.

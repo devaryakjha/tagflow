@@ -81,6 +81,11 @@ Responsibilities:
 - Exercise scroll, build, layout, and raster behavior.
 - Produce machine-readable `Timeline` or `watchPerformance` output.
 - Offer a manual benchmark route for DevTools inspection.
+- Keep both Tagflow measurement lanes explicit:
+  - `tagflow` is the compatibility lane and may use legacy converter bridges.
+  - `tagflow_semantic` is the native runtime lane, rendering
+    `TagflowDocument` through semantic components and first-party table
+    registry extensions.
 
 ## Fixture Corpus
 
@@ -141,7 +146,7 @@ Recommended fixtures:
 | Table stress frame benchmark | Tagflow, `flutter_html`, `flutter_widget_from_html` | `table_stress` | same as above plus first-content-visible ms | Local profile run | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=table_stress dart run melos run benchmark:profile` | Pass if no overflow, exception, or OOM occurs and first content is visible within 1500 ms on the reference device. Treat this as release-significant. |
 | Markdown product-shape comparison | Tagflow, `flutter_markdown_plus`, `markdown_widget` | `ai_answer_rich.md` | first stable pump ms, build p90, raster p90, text selection behavior check | Local + optional report CI | `TAGFLOW_RENDERER=markdown_widget TAGFLOW_FIXTURE=ai_answer_rich_md dart run melos run benchmark:profile` after markdown fixtures land | Pass if Tagflow stays within 1.5x of the fastest markdown renderer on median build time for this fixture. If slower, open an issue; do not block alpha automatically. |
 | Large document stability | Tagflow, `flutter_html`, `flutter_widget_from_html` | `large_article` | peak elapsed time to first content, scroll completion, exceptions, memory notes, GC churn | Local profile + manual DevTools | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile` | Pass if the document fully renders, remains scrollable end-to-end, and shows no crash or unbounded memory growth in manual validation. |
-| Streaming / incremental updates | Tagflow only for alpha | `streaming_ai_chunks` | update latency per chunk, scroll position preservation, rebuild duration, GC counts | Local only | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_perf_test.dart -d macos --profile --dart-define=TAGFLOW_FIXTURE=streaming_ai_chunks` | Non-gating in alpha. Pass if every chunk applies without exception and update latency is captured. |
+| Streaming / incremental updates | `tagflow_semantic` primary, `tagflow` compatibility lane optional | `streaming_ai_chunks` | update latency per chunk, scroll position preservation, rebuild duration, GC counts | Local only | `TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks dart run melos run benchmark:profile` | Non-gating in alpha. Pass if every chunk applies without exception and update latency is captured. |
 
 ## Competitor Comparison Policy
 
@@ -230,6 +235,7 @@ dart run melos run benchmark:render
 dart run melos run benchmark:profile
 TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
 TAGFLOW_RENDERER=flutter_widget_from_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
+TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks dart run melos run benchmark:profile
 TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```

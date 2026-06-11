@@ -83,6 +83,7 @@ const String flutterWidgetFromHtmlCoreNote =
 /// Stable renderer order for the benchmark picker UI.
 const List<String> benchmarkRendererIds = [
   defaultBenchmarkRendererId,
+  'tagflow_semantic',
   'flutter_html',
   'flutter_widget_from_html',
   'flutter_markdown_plus',
@@ -92,6 +93,7 @@ const List<String> benchmarkRendererIds = [
 /// Benchmark renderers available to the example app harness.
 final List<BenchmarkRenderer> benchmarkRendererList = [
   tagflowBenchmarkRenderer,
+  tagflowSemanticBenchmarkRenderer,
   flutterHtmlBenchmarkRenderer,
   flutterWidgetFromHtmlBenchmarkRenderer,
   flutterMarkdownPlusBenchmarkRenderer,
@@ -122,10 +124,22 @@ List<BenchmarkRenderer> benchmarkRenderersForSourceType(
 /// Native Tagflow renderer for HTML fixture input.
 const BenchmarkRenderer tagflowBenchmarkRenderer = BenchmarkRenderer(
   id: defaultBenchmarkRendererId,
-  label: 'Tagflow',
+  label: 'Tagflow (compat)',
   builder: _buildTagflowRenderer,
   supportedSourceTypes: {BenchmarkSourceType.html},
   notes: ['Renders the fixture through Tagflow with table converters enabled.'],
+);
+
+/// Native Tagflow renderer using semantic document components.
+const BenchmarkRenderer tagflowSemanticBenchmarkRenderer = BenchmarkRenderer(
+  id: 'tagflow_semantic',
+  label: 'Tagflow (semantic)',
+  builder: _buildTagflowSemanticRenderer,
+  supportedSourceTypes: {BenchmarkSourceType.html},
+  notes: [
+    'Parses HTML through TagflowHtmlAdapter, then renders TagflowDocument',
+    'with the first-party semantic table registry extension.',
+  ],
 );
 
 /// `flutter_html` adapter used for native HTML benchmark comparison.
@@ -186,6 +200,18 @@ Widget _buildTagflowRenderer(
   return Tagflow.html(
     html: document.data,
     converters: const [TagflowTableConverter(), TagflowTableCellConverter()],
+    options: TagflowOptions(linkTapCallback: (_, _) {}),
+  );
+}
+
+Widget _buildTagflowSemanticRenderer(
+  BuildContext context,
+  BenchmarkSourceDocument document,
+) {
+  final runtimeDocument = const TagflowHtmlAdapter().parse(document.data);
+  return Tagflow.document(
+    runtimeDocument,
+    registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
     options: TagflowOptions(linkTapCallback: (_, _) {}),
   );
 }

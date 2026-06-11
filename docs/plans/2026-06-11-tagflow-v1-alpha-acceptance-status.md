@@ -186,6 +186,14 @@ The benchmark harness is real but still alpha-grade:
   the existing scroll measurement on the final document. A local macOS profile
   smoke run passed and emitted viewport, update, update-latency, and scroll
   payloads.
+- The example benchmark renderer registry now separates `tagflow` compatibility
+  measurements from `tagflow_semantic` native-runtime measurements. The
+  semantic lane parses HTML through `TagflowHtmlAdapter`, renders
+  `TagflowDocument` through semantic components, and uses the first-party
+  `tagflow_table` semantic registry extension for tables. A local
+  `TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks`
+  macOS profile smoke passed and emitted viewport, update, update-latency, and
+  scroll payloads; the result remains report-only.
 - The macOS `benchmark:profile` script now passes
   `INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false`, suppressing the
   Flutter `integration_test plugin was not detected` warning while preserving
