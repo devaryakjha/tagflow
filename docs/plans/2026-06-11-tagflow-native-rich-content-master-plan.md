@@ -22,8 +22,8 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated implementation/evidence commit: this commit,
-  `docs(validation): record kite ipo evidence`
+- Latest integrated implementation commit: `8ed0686 fix(table): preserve HTML
+  table captions`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -46,14 +46,17 @@ published.
 - Post-alpha stabilization in progress: broader competitor coverage, remaining
   table styling parity beyond normalized uniform table hints, repeated
   reference-runner baselines, dark-mode/internal app validation passes, and
-  profile evidence on the real app surface.
+  profile-mode evidence on a supported real-app target.
 - Kite validation evidence is now captured from an iPhone 17 simulator using
   the local alpha override. Diagnostics proves the native `TagflowDocument`
   path and controlled HTML adapter policy inside Kite; the real
   `IPOInstrumentSheet` proves the existing Tagflow-backed excerpt/content flow,
   RHP JSON fetch path, mobile render boundary, financials, ordered lists,
-  links, and table rendering. The remaining Kite decision is whether to keep,
-  reshape, or discard the uncommitted developer-only proof patch.
+  links, and table rendering. A debug VM timeline attribution probe exists, but
+  it is not release-grade performance evidence because Flutter profile mode was
+  unavailable on the simulator and Xcode Animation Hitches was unsupported on
+  that runtime. The remaining Kite action is to discard the proof-only
+  scaffolding or later land a clean alpha dependency/import update.
 
 ## Current Constraints
 

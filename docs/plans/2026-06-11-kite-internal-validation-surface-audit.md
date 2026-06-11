@@ -232,6 +232,40 @@ Evidence:
 - `docs/validation/evidence/2026-06-11-kite-ipo-sheet-financials-content.jpg`
 - `docs/validation/evidence/2026-06-11-kite-ipo-sheet-table.jpg`
 
+### Debug timeline attribution probe
+
+A profiling worker captured a second simulator run with Flutter debug timeline
+profiling extensions enabled after the IPO sheet rendering path was already
+visually validated.
+
+Committed compact artifacts:
+
+- `docs/validation/evidence/2026-06-11-kite-ipo-debug-profile-summary.json`
+- `docs/validation/evidence/2026-06-11-kite-ipo-debug-profile-reduced-timeline.json`
+- `docs/validation/evidence/2026-06-11-kite-ipo-debug-profile-sheet-open.jpg`
+
+The raw `6.4 MB` VM timeline remains local in the Kite checkout under
+`kite-devtools-exports/tagflow-ipo-sheet-debug-20260611-profiled/`.
+
+Conservative read:
+
+- the timeline contains `24,263` trace events and `11,646` reduced duration
+  events
+- Tagflow-labelled debug events include `Tagflow` total `7.927 ms`, max
+  `5.332 ms`; `RenderTagflowTable` total `2.404 ms`, max `1.638 ms`; and
+  `TableCell` total `1.292 ms`, max `0.151 ms`
+- the whole `IPOInstrumentSheet` debug build window was observed at max
+  `15.189 ms`
+
+Limitations:
+
+- `flutter run --profile` was rejected for the iPhone 17 simulator because
+  Flutter profile mode is unsupported there.
+- Xcode Animation Hitches attached to the Kite simulator process but reported
+  that the instrument is unsupported on this platform/runtime.
+- This debug timeline is useful for attribution and repeatability planning. It
+  is not a production performance benchmark.
+
 Verified behavior:
 
 - native `TagflowDocument` rendering works inside Kite diagnostics with app
@@ -247,17 +281,21 @@ Verified behavior:
 
 ## Next Integration Steps
 
-1. Keep the debug-only diagnostics proof only as a local smoke screen.
-2. Decide whether the Kite proof patch should be committed, reshaped into a
-   smaller developer-only diagnostic feature, or discarded after evidence
-   capture.
+1. Discard the current proof-only Kite scaffolding now that visual and debug
+   attribution evidence exists in Tagflow docs, unless Kite deliberately wants
+   to productize a developer-only diagnostics screen.
+2. If Kite moves to the Tagflow alpha dependency line, land only a clean
+   dependency update plus the two `package:tagflow/legacy.dart` import switches;
+   do not commit the absolute-path `pubspec_overrides.yaml`, current lockfile
+   churn, diagnostics preview, or local IPO fixture as-is.
 3. Capture dark-mode screenshots of:
    - excerpt section
    - long-form content section
    - table rendering
    - link handling
-4. Capture profile evidence for the IPO sheet once the app can run on a stable
-   local route without unrelated stub failures.
+4. Capture profile evidence for the IPO sheet on a supported physical iOS
+   device or Android profile target. The current simulator debug timeline is
+   path-attribution evidence only.
 5. Confirm the custom `details` and `summary` converter behavior still matches
    product expectations while Kite remains on the alpha compatibility path.
 6. Only after the real IPO flow is acceptable should Bulletins be considered as

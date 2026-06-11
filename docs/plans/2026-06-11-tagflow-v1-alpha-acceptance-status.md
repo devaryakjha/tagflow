@@ -6,7 +6,8 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: this commit, `docs(validation): record kite ipo evidence`
+- Latest validated implementation commit: `8ed0686 fix(table): preserve HTML
+  table captions`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -29,6 +30,8 @@ Snapshot:
 
 Current reviewed profile baseline evidence is recorded in
 `docs/benchmarks/baselines/2026-06-11-macos-reference-profile-baseline-capped.md`.
+The first real-app attribution probe is recorded in
+`docs/benchmarks/baselines/2026-06-11-kite-ipo-debug-profile-probe.md`.
 
 Passed commands on this branch:
 
@@ -155,6 +158,15 @@ The benchmark harness is real but still alpha-grade:
   `TagflowDocument` proof, and captured the real `IPOInstrumentSheet` rendering
   Tagflow-backed excerpt/content, local RHP JSON, mobile render-boundary
   content, financials, links, ordered lists, and table content.
+- `8ed0686` preserves HTML table captions across the adapter, built-in semantic
+  renderer, first-party table extension, and legacy bridge. This closes a
+  concrete table parity gap without removing the alpha compatibility bridge.
+- A Kite debug VM timeline probe now attributes sheet-open work to
+  `IPOInstrumentSheet`, `Tagflow`, `TagflowScope`, `TagflowThemeProvider`,
+  `RenderTagflowTable`, `TagflowTable`, and `TableCell`. Because the simulator
+  rejected Flutter profile mode and Xcode Animation Hitches was unsupported on
+  this runtime, this is path-attribution evidence only, not release-grade
+  performance evidence.
 
 ## Known Non-Completion Points
 
@@ -162,9 +174,10 @@ The benchmark harness is real but still alpha-grade:
   the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
-- The first-party table extension has a semantic registry fragment, but the
-  legacy HTML converter bridge has not been fully removed or replaced. Remaining
-  gaps are now mostly richer table-border fidelity beyond the normalized
+- The first-party table extension has a semantic registry fragment, and caption
+  preservation now works across semantic and compatibility paths. The legacy
+  HTML converter bridge has not been fully removed or replaced. Remaining gaps
+  are now mostly richer table-border fidelity beyond the normalized
   uniform/attribute-driven path, broader HTML table presentation coverage, and
   full package-wide proof that the legacy table bridge can be removed.
 - Profile benchmarking is real but not production-grade yet: broader competitor
@@ -172,7 +185,7 @@ The benchmark harness is real but still alpha-grade:
   from a named reference machine, and repeated reference-device runs remain
   follow-up work before using frame timings as a release gate.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
-  dark-mode screenshots, profile evidence on the real app surface, and a
-  decision on whether Kite's uncommitted developer-only proof patch should be
-  kept, reshaped, or discarded. The first iOS simulator proof has been captured
-  but should not be treated as a full production rollout.
+  dark-mode screenshots, physical-device or supported-target profile evidence
+  on the real app surface, and a clean Kite dependency/diagnostics decision.
+  The first iOS simulator proof and debug timeline have been captured but
+  should not be treated as a full production rollout or benchmark.
