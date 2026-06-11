@@ -106,10 +106,10 @@ melos run coverage
 ### Release Prep
 
 ```bash
-# Prepare the next alpha version locally, then dry-run publish validation
+# Mutate package versions for the next alpha, then run publish validation
 make release-alpha
 
-# Validate publishable package metadata without publishing
+# Validate the current publishable package metadata without publishing
 make publish-dry-run
 ```
 
