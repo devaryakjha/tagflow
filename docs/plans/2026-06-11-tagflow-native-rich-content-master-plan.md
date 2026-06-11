@@ -111,14 +111,20 @@ separate first-party extension at `1.0.0-alpha.1`.
   hosted `1.0.0-alpha.1` lacked `TagflowNativeBlockCodec` and
   `TagflowNativeBlockAdapter`, while a temporary local override to the
   coordinator Tagflow checkout passed a test-only decode/adapt/patch-apply
-  path. `tagflow` `1.0.0-alpha.3` is now hosted, and Kite validation thread
-  `019eb836-f538-7182-aeed-59550ad3e9a0` is checking the hosted alpha3 path
-  against the IPO dynamic content surface. Early worker evidence shows Kite
-  must move from `tagflow_table 0.0.4+5` to hosted `tagflow_table
-  1.0.0-alpha.1` because the old table package constrains `tagflow ^0.0.4`.
-  The same pass is evaluating whether Kite can remove app-specific
-  `details` / `summary` legacy converter wiring and exercise alpha3's built-in
-  semantic disclosure renderer through the registry path.
+  path. Hosted alpha3 validation thread `019eb836-f538-7182-aeed-59550ad3e9a0`
+  completed in isolated Kite worktree `/Users/arya/.codex/worktrees/cf2b/kite`
+  at `be97da15 test(ipo): validate hosted tagflow alpha3`. That slice resolved
+  hosted `tagflow` `1.0.0-alpha.3` and hosted `tagflow_table`
+  `1.0.0-alpha.1`, because the older `tagflow_table 0.0.4+5` constrained
+  `tagflow ^0.0.4`. It added a real Afcons IPO fixture and focused widget
+  coverage for the existing IPO render path plus converter-free built-in
+  `details` / `summary` disclosure through
+  `Tagflow.html(..., registry: TagflowComponentRegistry(extensions:
+  [tagflowTableComponents(...)]))`. `fvm flutter test
+  test/ipos/ipo_tagflow_render_test.dart` passed two tests, and focused
+  analysis passed. Limitation: Kite production IPO rendering still uses the
+  legacy converter bridge for stability; the built-in disclosure path is proven
+  in a Kite test harness, not yet in a live backend IPO payload.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through

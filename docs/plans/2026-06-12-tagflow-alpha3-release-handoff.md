@@ -140,30 +140,38 @@ These are the steps that were run after coordinator approval.
 
 ## Post-Publish Kite Follow-Up
 
-After pub.dev exposes `tagflow` `1.0.0-alpha.3`, start Kite validation in small
-slices:
+Kite hosted-alpha validation completed in isolated worktree
+`/Users/arya/.codex/worktrees/cf2b/kite` at commit
+`be97da15 test(ipo): validate hosted tagflow alpha3`.
 
-1. Update Kite's hosted dependency to `tagflow: ^1.0.0-alpha.3`.
-2. Keep `tagflow_table: ^1.0.0-alpha.1`.
-3. Move Kite's legacy custom converter imports to `package:tagflow/legacy.dart`.
-4. Change the IPO rich-content call sites to `Tagflow.html(...)`, preserving
-   `converters`, `theme`, `TagflowOptions`, `TagflowTableConverter`, render
-   boundaries, and link callbacks.
-5. Run Kite's repo-local validation, not the Tagflow FVM path.
-6. Treat that as HTML compatibility evidence only. Any non-empty custom
-   converter list intentionally routes through the legacy compatibility
-   renderer.
+The slice updated Kite to hosted `tagflow: ^1.0.0-alpha.3` and hosted
+`tagflow_table: 1.0.0-alpha.1`, moved the legacy custom converter import to
+`package:tagflow/legacy.dart`, and added focused IPO widget coverage around a
+real Afcons IPO payload fixture. The worker also added a converter-free
+`Tagflow.html(...)` test using
+`TagflowComponentRegistry(extensions: [tagflowTableComponents(...)])` so
+alpha3's built-in `details` / `summary` disclosure renderer is exercised in a
+downstream Flutter app.
 
-For semantic registry evidence, use a separate experiment without legacy
-custom converters:
+Validation evidence:
 
-- render IPO content through
-  `Tagflow.html(..., registry: TagflowComponentRegistry(extensions: [tagflowTableComponents(...)]))`;
-- preserve the production path until the experiment has screenshots or tests;
-- remove Kite's app-specific `details` / `summary` legacy converters from that
-  experiment so the built-in disclosure renderer is exercised directly;
-- compare the built-in disclosure behavior against Kite's current product
-  expectations before removing production legacy converters.
+1. `fvm flutter pub get`
+   - resolved hosted `tagflow 1.0.0-alpha.3` and hosted
+     `tagflow_table 1.0.0-alpha.1`;
+   - no local path override remained.
+2. `fvm flutter test test/ipos/ipo_tagflow_render_test.dart`
+   - passed two tests covering the real IPO payload render path and the
+     converter-free disclosure path.
+3. `fvm flutter analyze lib/component/tagflow_details_converter.dart lib/screens/ipos/ipo_instrument_sheet.dart test/ipos/ipo_tagflow_render_test.dart`
+   - passed with `No issues found!`.
+
+Limits:
+
+- Kite production IPO rendering still uses the legacy converter bridge to keep
+  current app behavior stable.
+- Built-in disclosure behavior is validated in a Kite widget harness, not yet
+  through a live backend IPO payload that already contains authored
+  `details` / `summary` markup.
 
 Do not claim public performance wins from the current benchmark evidence. The
 alpha.3 benchmark posture is collection-gate only.

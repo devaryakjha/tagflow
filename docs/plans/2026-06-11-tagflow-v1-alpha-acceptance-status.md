@@ -144,6 +144,15 @@ The benchmark harness is real but still alpha-grade:
   passed with Kite's repo-local Flutter SDK: `flutter pub get`, then
   `flutter analyze` for `lib/screens/ipos/ipo_instrument_sheet.dart` and
   `lib/component/tagflow_details_converter.dart`.
+- Post-publish Kite hosted-alpha validation completed in isolated worktree
+  `/Users/arya/.codex/worktrees/cf2b/kite` at
+  `be97da15 test(ipo): validate hosted tagflow alpha3`. That downstream slice
+  resolved hosted `tagflow 1.0.0-alpha.3` and hosted `tagflow_table
+  1.0.0-alpha.1`, added a real Afcons IPO fixture, and passed `fvm flutter test
+  test/ipos/ipo_tagflow_render_test.dart` plus focused `fvm flutter analyze`.
+  It validates alpha3's built-in disclosure renderer in a converter-free Kite
+  widget harness while leaving Kite's production IPO path on the legacy
+  converter bridge for behavior stability.
 
 ## `1.0.0-alpha.2` Native Transport Prep
 
