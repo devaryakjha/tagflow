@@ -242,6 +242,36 @@ void main() {
       }
     });
 
+    test('normalizes HTML table presentation hints for semantic renderers', () {
+      const rowBackground = Color(0xFFE8F1FF);
+      const cellBackground = Color(0xFFFFF4CC);
+      const html = '''
+<table border="2" cellpadding="6" cellspacing="4">
+  <tr style="background-color: #e8f1ff;">
+    <td>Row backed</td>
+    <td style="background-color: #fff4cc; padding: 4px;">Cell backed</td>
+  </tr>
+</table>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final table = document.children.single;
+      final row = table.children.single;
+      final cell = row.children.last;
+
+      expect(table.kind, TagflowNodeKind.table);
+      expect(table.presentation.hints['tableBorderWidth'], 2.0);
+      expect(table.presentation.hints['tableInsideBorderWidth'], 1.0);
+      expect(table.presentation.hints['tableColumnSpacing'], 4.0);
+      expect(table.presentation.hints['tableRowSpacing'], 4.0);
+      expect(
+        table.presentation.hints['tableCellPadding'],
+        const EdgeInsets.all(6),
+      );
+      expect(row.presentation.hints['backgroundColor'], rowBackground);
+      expect(cell.presentation.hints['backgroundColor'], cellBackground);
+      expect(cell.presentation.hints['padding'], const EdgeInsets.all(4));
+    });
+
     test('drops blocked elements with the default content policy', () {
       const html =
           '<p>Safe</p><script>alert(1)</script><iframe src="/x"></iframe>';

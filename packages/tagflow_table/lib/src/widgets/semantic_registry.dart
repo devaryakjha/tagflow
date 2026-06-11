@@ -5,6 +5,13 @@ import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_table/src/rendering/tagflow_table.dart';
 import 'package:tagflow_table/src/widgets/tagflow_table.dart';
 
+const _tableBorderWidthHintKey = 'tableBorderWidth';
+const _tableInsideBorderWidthHintKey = 'tableInsideBorderWidth';
+const _tableBorderColorHintKey = 'tableBorderColor';
+const _tableColumnSpacingHintKey = 'tableColumnSpacing';
+const _tableRowSpacingHintKey = 'tableRowSpacing';
+const _tableCellPaddingHintKey = 'tableCellPadding';
+
 /// Creates a semantic registry fragment backed by [TagflowTable].
 ///
 /// Use this extension with `TagflowComponentRegistry(extensions: [...])` when
@@ -16,8 +23,8 @@ TagflowComponentRegistry tagflowTableComponents({
   Color? headerBackgroundColor,
   EdgeInsets padding = EdgeInsets.zero,
   IndexedWidgetBuilder? separatorBuilder,
-  double columnSpacing = 0,
-  double rowSpacing = 0,
+  double columnSpacing = double.nan,
+  double rowSpacing = double.nan,
 }) {
   final renderer = _SemanticTableRenderer(
     border: border,
@@ -55,6 +62,16 @@ final class _SemanticTableRenderer {
 
   Widget render(TagflowComponentContext context, TagflowDocumentNode node) {
     final layout = _SemanticTableLayout.from(node, context);
+    final resolvedBorder =
+        border ??
+        _borderHint(node) ??
+        TagflowTableBorder.all(color: const Color(0x1F000000));
+    final resolvedColumnSpacing = columnSpacing.isNaN
+        ? _doubleHint(node, _tableColumnSpacingHintKey) ?? 0
+        : columnSpacing;
+    final resolvedRowSpacing = rowSpacing.isNaN
+        ? _doubleHint(node, _tableRowSpacingHintKey) ?? 0
+        : rowSpacing;
 
     if (layout.rowCount == 0 || layout.columnCount == 0) {
       return const SizedBox.shrink();
@@ -63,13 +80,13 @@ final class _SemanticTableRenderer {
     return TagflowTable(
       rowCount: layout.rowCount,
       columnCount: layout.columnCount,
-      border: border ?? TagflowTableBorder.all(color: const Color(0x1F000000)),
+      border: resolvedBorder,
       treatFirstRowAsHeader: treatFirstRowAsHeader,
       headerBackgroundColor: headerBackgroundColor,
       padding: padding,
       separatorBuilder: separatorBuilder,
-      columnSpacing: columnSpacing,
-      rowSpacing: rowSpacing,
+      columnSpacing: resolvedColumnSpacing,
+      rowSpacing: resolvedRowSpacing,
       children: layout.cells,
     );
   }
@@ -113,7 +130,7 @@ final class _SemanticTableLayout {
             column: columnIndex,
             rowSpan: rowSpan,
             colSpan: colSpan,
-            child: _renderCell(context, row, cell),
+            child: _renderCell(context, table, row, cell),
           ),
         );
 
@@ -150,12 +167,16 @@ final class _SemanticTableLayout {
 
 Widget _renderCell(
   TagflowComponentContext context,
+  TagflowDocumentNode table,
   TagflowDocumentNode row,
   TagflowDocumentNode cell,
 ) {
   final content = _renderCellContent(context, cell);
   final padded = Padding(
-    padding: _edgeInsetsHint(cell, 'padding') ?? const EdgeInsets.all(8),
+    padding:
+        _edgeInsetsHint(cell, 'padding') ??
+        _edgeInsetsHint(table, _tableCellPaddingHintKey) ??
+        const EdgeInsets.all(8),
     child: content,
   );
   final decorated = DecoratedBox(
@@ -268,9 +289,48 @@ bool _isInlineFallbackTag(String? htmlTag) {
 
 int _positiveSpan(int value) => value < 1 ? 1 : value;
 
+TagflowTableBorder? _borderHint(TagflowDocumentNode node) {
+  final outsideWidth = _doubleHint(node, _tableBorderWidthHintKey);
+  final insideWidth = _doubleHint(node, _tableInsideBorderWidthHintKey);
+  final color =
+      _colorHint(node, _tableBorderColorHintKey) ?? const Color(0xFF000000);
+
+  if (outsideWidth == null && insideWidth == null) {
+    return null;
+  }
+
+  final resolvedOutsideWidth = outsideWidth ?? 0;
+  final resolvedInsideWidth = insideWidth ?? resolvedOutsideWidth;
+  if (resolvedOutsideWidth <= 0 && resolvedInsideWidth <= 0) {
+    return TagflowTableBorder.none;
+  }
+
+  BorderSide side(double width) {
+    if (width <= 0) {
+      return BorderSide.none;
+    }
+
+    return BorderSide(color: color, width: width);
+  }
+
+  return TagflowTableBorder(
+    left: side(resolvedOutsideWidth),
+    right: side(resolvedOutsideWidth),
+    top: side(resolvedOutsideWidth),
+    bottom: side(resolvedOutsideWidth),
+    horizontalInside: side(resolvedInsideWidth),
+    verticalInside: side(resolvedInsideWidth),
+  );
+}
+
 Color? _colorHint(TagflowDocumentNode node, String key) {
   final value = node.presentation.hints[key];
   return value is Color ? value : null;
+}
+
+double? _doubleHint(TagflowDocumentNode node, String key) {
+  final value = node.presentation.hints[key];
+  return value is num ? value.toDouble() : null;
 }
 
 EdgeInsetsGeometry? _edgeInsetsHint(TagflowDocumentNode node, String key) {

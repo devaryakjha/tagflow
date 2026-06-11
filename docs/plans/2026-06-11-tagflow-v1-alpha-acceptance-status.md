@@ -100,6 +100,12 @@ The benchmark harness is real but still alpha-grade:
 - The `tagflow_table` semantic registry now applies normalized native
   presentation hints for row/cell `backgroundColor` and cell `padding`, reducing
   dependence on the legacy HTML table converter for styled semantic table cells.
+- The HTML adapter now normalizes semantic table presentation hints for
+  `border`, `cellpadding`, `cellspacing`, `border-spacing`,
+  `border-collapse: collapse`, and row/cell inline `background-color` or
+  `padding` styles. The `tagflow_table` semantic registry consumes those hints
+  to render native borders, spacing, and cell padding without re-parsing
+  HTML-shaped table state.
 - The example app now has a Tagflow-only benchmark route plus
   `integration_test`/`flutter drive --profile` scaffold. The profile harness
   accepts `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE` environment variables so
@@ -151,9 +157,9 @@ The benchmark harness is real but still alpha-grade:
   uses the semantic runtime.
 - The first-party table extension has a semantic registry fragment, but the
   legacy HTML converter bridge has not been fully removed or replaced. Remaining
-  gaps are mostly table border, spacing, HTML-adapter style normalization into
-  semantic presentation hints, and full package-wide proof that the legacy table
-  bridge can be removed.
+  gaps are now mostly richer table-border fidelity beyond the normalized
+  uniform/attribute-driven path, broader HTML table presentation coverage, and
+  full package-wide proof that the legacy table bridge can be removed.
 - Profile benchmarking is real but not production-grade yet: broader competitor
   coverage beyond the current HTML-native lanes, a committed reviewed baseline
   from a named reference machine, and repeated reference-device runs remain

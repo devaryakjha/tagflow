@@ -1,8 +1,10 @@
 import 'dart:collection';
 
+import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/core/parser/parser.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
+import 'package:tagflow/src/style/style_parser.dart';
 import 'package:tagflow/src/tagflow_options.dart';
 
 const _htmlAdapterName = 'html';
@@ -12,6 +14,12 @@ const _htmlAttributesKey = 'htmlAttributes';
 const _policyDecisionReasonKey = 'policyDecisionReason';
 const _tableRowCountKey = 'tableRowCount';
 const _tableColumnCountKey = 'tableColumnCount';
+const _tableBorderWidthHintKey = 'tableBorderWidth';
+const _tableInsideBorderWidthHintKey = 'tableInsideBorderWidth';
+const _tableBorderColorHintKey = 'tableBorderColor';
+const _tableColumnSpacingHintKey = 'tableColumnSpacing';
+const _tableRowSpacingHintKey = 'tableRowSpacing';
+const _tableCellPaddingHintKey = 'tableCellPadding';
 const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
 
 /// Converts HTML input into the native Tagflow runtime document model.
@@ -126,10 +134,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     width: _parseDimension(node['width']),
     height: _parseDimension(node['height']),
     inlineSemantics: _inlineSemanticsForHtmlTag(node.tag),
-    hints: {
-      _htmlTagKey: node.tag,
-      if (node.className != null) 'className': node.className,
-    },
+    hints: _presentationHintsForLegacyNode(node),
   );
   final children = [
     for (final indexed in node.children.indexed)
@@ -526,6 +531,185 @@ String _textContentFor(TagflowNode node) {
     buffer.write(_textContentFor(child));
   }
   return buffer.toString();
+}
+
+Map<String, Object?> _presentationHintsForLegacyNode(TagflowNode node) {
+  final hints = <String, Object?>{
+    _htmlTagKey: node.tag,
+    if (node.className != null) 'className': node.className,
+  };
+  final styles = _styleDeclarations(node.style);
+
+  if (node.tag == 'table') {
+    hints.addAll(_tablePresentationHints(node, styles));
+  }
+
+  if (node.tag == 'tr' || node.tag == 'td' || node.tag == 'th') {
+    final backgroundColor = _colorFromStyles(styles, 'background-color');
+    if (backgroundColor != null) {
+      hints['backgroundColor'] = backgroundColor;
+    }
+  }
+
+  if (node.tag == 'td' || node.tag == 'th') {
+    final padding = _edgeInsetsFromStyles(styles, 'padding');
+    if (padding != null) {
+      hints['padding'] = padding;
+    }
+  }
+
+  return hints;
+}
+
+Map<String, Object?> _tablePresentationHints(
+  TagflowNode node,
+  Map<String, String> styles,
+) {
+  final hints = <String, Object?>{};
+  final borderHints = _tableBorderHints(node, styles);
+  if (borderHints != null) {
+    hints.addAll(borderHints);
+  }
+
+  final spacingHints = _tableSpacingHints(node, styles);
+  if (spacingHints != null) {
+    hints.addAll(spacingHints);
+  }
+
+  final cellPadding = _tableCellPadding(node);
+  if (cellPadding != null) {
+    hints[_tableCellPaddingHintKey] = cellPadding;
+  }
+
+  return hints;
+}
+
+Map<String, Object?>? _tableBorderHints(
+  TagflowNode node,
+  Map<String, String> styles,
+) {
+  final borderStyle = styles['border'];
+  if (borderStyle != null) {
+    final border = StyleParser.parseBorder(borderStyle);
+    if (border == null) {
+      if (borderStyle.trim().toLowerCase() == 'none') {
+        return {
+          _tableBorderWidthHintKey: 0.0,
+          _tableInsideBorderWidthHintKey: 0.0,
+        };
+      }
+      return null;
+    }
+
+    return {
+      _tableBorderWidthHintKey: border.top.width,
+      _tableInsideBorderWidthHintKey: border.top.width,
+      _tableBorderColorHintKey: border.top.color,
+    };
+  }
+
+  final borderWidth = _sizeFromHtmlAttribute(node['border']);
+  if (borderWidth == null) {
+    return null;
+  }
+
+  if (borderWidth <= 0) {
+    return {_tableBorderWidthHintKey: 0.0, _tableInsideBorderWidthHintKey: 0.0};
+  }
+
+  return {
+    _tableBorderWidthHintKey: borderWidth,
+    _tableInsideBorderWidthHintKey: 1.0,
+    _tableBorderColorHintKey: const Color(0xFF000000),
+  };
+}
+
+Map<String, Object?>? _tableSpacingHints(
+  TagflowNode node,
+  Map<String, String> styles,
+) {
+  final borderCollapse = styles['border-collapse']?.trim().toLowerCase();
+  if (borderCollapse == 'collapse') {
+    return {_tableColumnSpacingHintKey: 0.0, _tableRowSpacingHintKey: 0.0};
+  }
+
+  final borderSpacing = styles['border-spacing'];
+  if (borderSpacing != null) {
+    final spacing = _borderSpacing(borderSpacing);
+    if (spacing != null) {
+      return {
+        _tableColumnSpacingHintKey: spacing.$1,
+        _tableRowSpacingHintKey: spacing.$2,
+      };
+    }
+  }
+
+  final cellSpacing = _sizeFromHtmlAttribute(node['cellspacing']);
+  if (cellSpacing == null) {
+    return null;
+  }
+
+  return {
+    _tableColumnSpacingHintKey: cellSpacing,
+    _tableRowSpacingHintKey: cellSpacing,
+  };
+}
+
+EdgeInsets? _tableCellPadding(TagflowNode node) {
+  final padding = _sizeFromHtmlAttribute(node['cellpadding']);
+  if (padding == null) {
+    return null;
+  }
+
+  return EdgeInsets.all(padding);
+}
+
+Map<String, String> _styleDeclarations(String? style) {
+  if (style == null || style.trim().isEmpty) {
+    return const {};
+  }
+
+  return StyleParser.parseDeclarations(style);
+}
+
+Color? _colorFromStyles(Map<String, String> styles, String key) {
+  final value = styles[key];
+  return value == null ? null : StyleParser.parseColor(value);
+}
+
+EdgeInsets? _edgeInsetsFromStyles(Map<String, String> styles, String key) {
+  final value = styles[key];
+  return value == null ? null : StyleParser.parseEdgeInsets(value);
+}
+
+(double, double)? _borderSpacing(String value) {
+  final parts = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList(growable: false);
+
+  if (parts.isEmpty || parts.length > 2) {
+    return null;
+  }
+
+  final horizontal = StyleParser.parseSize(parts.first);
+  final vertical = StyleParser.parseSize(
+    parts.length == 2 ? parts.last : parts.first,
+  );
+  if (horizontal == null || vertical == null) {
+    return null;
+  }
+
+  return (horizontal, vertical);
+}
+
+double? _sizeFromHtmlAttribute(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return null;
+  }
+
+  return StyleParser.parseSize(value);
 }
 
 double? _parseDimension(String? value) {

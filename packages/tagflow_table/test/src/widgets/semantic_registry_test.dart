@@ -248,6 +248,39 @@ void main() {
       expect(_decoratedBoxColorForText(tester, 'Cell backed'), cellBackground);
       expect(_paddingForText(tester, 'Cell backed'), cellPadding);
     });
+
+    testWidgets('renders HTML table presentation hints through the registry', (
+      tester,
+    ) async {
+      const rowBackground = Color(0xFFE8F1FF);
+      const cellBackground = Color(0xFFFFF4CC);
+      const html = '''
+<table border="2" cellpadding="6" cellspacing="4">
+  <tr style="background-color: #e8f1ff;">
+    <td>Row backed</td>
+    <td style="background-color: #fff4cc; padding: 4px;">Cell backed</td>
+  </tr>
+</table>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      final table = tester.widget<TagflowTable>(find.byType(TagflowTable));
+      expect(table.border.left.width, 2);
+      expect(table.border.horizontalInside.width, 1);
+      expect(table.columnSpacing, 4);
+      expect(table.rowSpacing, 4);
+      expect(_decoratedBoxColorForText(tester, 'Row backed'), rowBackground);
+      expect(_decoratedBoxColorForText(tester, 'Cell backed'), cellBackground);
+      expect(_paddingForText(tester, 'Row backed'), const EdgeInsets.all(6));
+      expect(_paddingForText(tester, 'Cell backed'), const EdgeInsets.all(4));
+    });
   });
 }
 
