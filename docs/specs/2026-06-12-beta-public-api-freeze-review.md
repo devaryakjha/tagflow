@@ -71,10 +71,12 @@ flag is an `ArgumentError`.
 - `TagflowDocument.version`
 
 Rationale: unsupported placeholders and document-version semantics are public.
-Preserved policy-rejection placeholders now have a tested neutral renderer, but
-the beta line still needs a vocabulary decision for future unknown native block
-kinds. `TagflowDocument.version` must also stay clearly described as runtime
-schema rather than app payload schema.
+Preserved policy-rejection placeholders now have a tested neutral renderer.
+Unknown producer block kinds are not placeholders in the alpha native JSON
+transport; they fail during codec decode before adaptation. The beta line still
+needs a vocabulary decision only if Tagflow wants a future unknown-block
+compatibility model. `TagflowDocument.version` must also stay clearly described
+as runtime schema rather than app payload schema.
 
 ### Rendering Registry
 
@@ -90,10 +92,13 @@ right direction for app-owned and first-party extension renderers.
 
 `alpha-only review required`:
 
-- Registry fallback behavior for unknown or unsupported node kinds.
+- Registry fallback behavior for unmapped or unsupported runtime node kinds.
 
 Rationale: the mechanism exists, but beta needs a documented policy for when
-fallbacks should preserve content, fail loudly, or render placeholders.
+fallbacks should preserve content, fail loudly, or render placeholders. Current
+alpha behavior is intentionally narrower: renderer fallbacks may render
+runtime `unsupported` nodes and unmapped semantic nodes, but they do not receive
+unknown native JSON producer kinds because those fail during codec decode.
 
 ### Widget Entry Points and View Options
 
@@ -187,11 +192,11 @@ runtime model.
 
 Rationale: strict `schemaVersion == 1` is now the right alpha contract. Before
 beta, Tagflow still needs real-app evidence using hosted alpha packages, and
-the alpha transport currently keeps unknown future block kinds strict at codec
-decode time. Beta must decide whether to keep that policy, preserve
-placeholders through an explicit unknown-block model, or require versioned
-codecs. Revision fields are currently producer tokens, not a core sync/conflict
-protocol.
+the alpha transport keeps unknown future block kinds strict at codec decode
+time. That strict alpha policy is tested and documented. Beta must decide
+whether to keep the strict policy, introduce placeholders through an explicit
+unknown-block model, or require versioned codecs. Revision fields are currently
+producer tokens, not a core sync/conflict protocol.
 
 ### Content Policy
 
@@ -211,10 +216,15 @@ runtime input.
 
 `alpha-only review required`:
 
-- exact default behavior for known native blocks rejected by policy.
+- exact default behavior for every known native block rejected by policy.
 
-Rationale: HTML blocked-tag behavior is documented and tested more clearly than
-native policy-rejected block behavior. Beta needs those policy stories aligned.
+Rationale: native policy-rejection behavior is now documented for the reviewed
+alpha cases but is not one uniform shape for every block. URL-bearing links
+whose URLs are rejected degrade to a neutral container that preserves child
+content with policy metadata; rejected image blocks are dropped by default or
+become runtime `unsupported` placeholders when `preservePlaceholder` is set.
+Beta should either keep those per-kind semantics or define a broader semantic
+policy matrix before calling the content-policy surface frozen.
 
 ### Style and Theme Surface
 
@@ -313,8 +323,11 @@ cadence.
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
   documented for the alpha strict policy. Done for strict unknown-kind decode
-  failures and preserved policy-rejection placeholders; future unknown-block
-  compatibility remains a beta vocabulary decision.
+  failures with pathful errors, strict schema-version failures, policy-rejected
+  links degrading to neutral containers, default drop behavior for rejected
+  image blocks, and preserved policy-rejection placeholders with neutral
+  rendering; future unknown-block compatibility remains a beta vocabulary
+  decision.
 - `tagflow_table` beta posture is decided and documented. Partly done in
   "Compatibility Support Windows"; hosted alpha dependency compatibility has
   evidence, but release cadence still needs a beta decision.

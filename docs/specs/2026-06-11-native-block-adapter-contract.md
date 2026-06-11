@@ -339,8 +339,8 @@ Required behavior:
   policy step before they become `TagflowDocumentPatch`
 - URL-bearing attributes must be checked with the same scheme and resource
   rules already established by `TagflowContentPolicy`
-- unsupported or blocked kinds must fail predictably according to adapter
-  policy, not leak through as half-trusted runtime nodes
+- unsupported or blocked native content must fail or degrade predictably
+  according to adapter policy, not leak through as half-trusted runtime nodes
 
 Security posture:
 
@@ -355,7 +355,8 @@ Policy design direction:
 - extend policy at the semantic-kind layer only where HTML-tag rules are not
   expressive enough
 - keep unsupported-content behavior aligned with the existing `drop` versus
-  `preservePlaceholder` posture
+  `preservePlaceholder` posture where the adapter chooses an `unsupported`
+  placeholder fallback
 
 ## 7. Unsupported and Unknown Block Behavior
 
@@ -366,19 +367,28 @@ typed `TagflowNativeBlock` is created. Unknown patch operation names fail in
 unknown-block model in the native JSON transport yet.
 
 Known blocks rejected by adapter policy are different from unknown producer
-kinds. For example, a known `image` block with a URL rejected by
-`TagflowContentPolicy` follows the policy's `unsupportedBehavior`: it is
-dropped, or it becomes a runtime `unsupported` placeholder with reason
-metadata. The built-in runtime renderer displays preserved leaf placeholders as
-neutral "Unsupported content" rather than leaking the rejected payload details.
+kinds. The current alpha implementation has two reviewed rejection paths:
+
+- a known `image` block with a URL rejected by `TagflowContentPolicy` follows
+  the policy's `unsupportedBehavior`: it is dropped, or it becomes a runtime
+  `unsupported` placeholder with reason metadata;
+- a known `link` block with a rejected URL does not become `unsupported`; it
+  degrades to a neutral `container` node, preserves already-adapted children,
+  and records the policy reason in metadata.
+
+The built-in runtime renderer displays preserved leaf placeholders as neutral
+"Unsupported content" rather than leaking the rejected payload details.
 
 Rules:
 
 - behavior must be policy-driven, not adapter-accidental
 - unknown native JSON block kinds fail the payload before adaptation
-- placeholders must retain enough metadata to explain what was rejected
+- link fallbacks and placeholders must retain enough metadata to explain what
+  was rejected
 - apps should be able to benchmark and validate unsupported behavior the same
   way they already do for blocked HTML content
+- producers must not rely on policy-rejected known blocks and unknown future
+  `kind` values sharing the same fallback behavior
 
 ## 8. Dynamic Updates
 

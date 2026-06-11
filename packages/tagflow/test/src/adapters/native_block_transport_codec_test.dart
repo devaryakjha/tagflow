@@ -236,7 +236,15 @@ void main() {
             {'id': 'x', 'kind': 'video'},
           ],
         }),
-        throwsFormatException,
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains(
+              'Unknown native block kind "video" at document.blocks[0].kind',
+            ),
+          ),
+        ),
       );
 
       expect(

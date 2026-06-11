@@ -150,7 +150,9 @@ Beta.0 should wait until these gates are true:
 - `package:tagflow/legacy.dart` has a documented support window;
 - native block schema-version policy is explicit for incompatible future wire
   shapes;
-- unsupported native block behavior is tested and documented;
+- unsupported native block behavior is tested and documented, including the
+  current split between rejected-link neutralization and rejected-leaf
+  placeholder/drop policy;
 - table extension ownership is decided for beta: keep separate package,
   promote extension registry as the canonical path, or plan a merge;
 - no unreviewed performance claims are present in release-facing docs.
@@ -313,9 +315,12 @@ Rules:
   are outside the contract;
 - unsupported content behavior must be explicit and test-covered.
 
-Alpha.3 should keep telling producers that placeholders are a policy fallback
-for known blocks rejected by policy, not a portable fallback for unknown native
-JSON `kind` values.
+Alpha.3 should keep telling producers that placeholders are only one policy
+fallback. Unknown native JSON `kind` values still fail at codec decode, known
+rejected `image` blocks follow `drop` versus `preservePlaceholder`, and known
+rejected `link` blocks currently neutralize into containers instead of
+preserved `unsupported` nodes. Producers should not rely on those alpha
+fallbacks becoming the future unknown-kind compatibility story.
 
 ## 10. Extension Points
 
@@ -460,6 +465,14 @@ Acceptance:
   alpha.2.
 
 ### Slice 3: native unknown-kind and schema-version decision
+
+Status: completed for the alpha strict policy. Unknown producer block kinds
+and unsupported schema versions fail during codec decode; rejected native image
+blocks drop by default or preserve a runtime `unsupported` placeholder when
+`TagflowContentPolicy.unsupportedBehavior` requests it; rejected native links
+degrade to neutral containers that preserve child content with policy metadata.
+A future unknown-block compatibility model remains a beta vocabulary decision,
+not an alpha placeholder behavior.
 
 Files:
 
