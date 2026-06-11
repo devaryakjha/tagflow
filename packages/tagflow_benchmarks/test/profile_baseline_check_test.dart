@@ -59,6 +59,45 @@ void main() {
     expect(result.reportOnlyFindings, isEmpty);
   });
 
+  test('surfaces unavailable launch attribution as a report-only finding', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          launchAttribution: <String, Object?>{
+            'status': 'unavailable',
+            'observedRepeats': 0,
+            'missingRepeats': 1,
+            'unavailableReasons': <String>['platform_not_supported'],
+          },
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(summaryFile: summaryFile);
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+    expect(result.reportOnlyFindings, hasLength(1));
+    expect(
+      result.reportOnlyFindings.single.code,
+      'launch_attribution_unavailable',
+    );
+    expect(
+      result.reportOnlyFindings.single.details,
+      containsPair('renderer', 'tagflow'),
+    );
+    expect(
+      result.reportOnlyFindings.single.details['launchAttribution'],
+      isA<Map<String, Object?>>(),
+    );
+  });
+
   test(
     'fails when failed runs are present or successful run count mismatches',
     () {
@@ -432,11 +471,30 @@ Map<String, Object?> _cellSummary({
   required int repeats,
   List<Map<String, Object?>> viewports = const <Map<String, Object?>>[],
   List<Map<String, Object?>> outlierRepeats = const <Map<String, Object?>>[],
+  Map<String, Object?>? launchAttribution,
 }) => <String, Object?>{
   'renderer': renderer,
   'fixture': fixture,
   'observedRepeats': repeats,
   'viewports': viewports,
+  'launchAttribution':
+      launchAttribution ??
+      <String, Object?>{
+        'status': 'available',
+        'observedRepeats': repeats,
+        'missingRepeats': 0,
+        'provenances': <String>['macos_app_delegate_uptime_markers_v1'],
+        'scopes': <String>['local_runner_only'],
+        'intervalMicros': <String, Object?>{
+          'appDelegateInitToIntegrationTestRequestMicros': <String, Object?>{
+            'min': 43000.0,
+            'max': 43000.0,
+            'mean': 43000.0,
+            'median': 43000.0,
+          },
+        },
+        'unavailableReasons': <String>[],
+      },
   'outlierRepeats': outlierRepeats,
 };
 

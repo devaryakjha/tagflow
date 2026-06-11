@@ -129,6 +129,7 @@ final class ProfileBaselineCellSummary {
     required this.oldGenGcCount,
     required this.viewports,
     required this.framePhaseSummaries,
+    required this.launchAttribution,
     required this.updateSummary,
     required this.outlierRepeats,
   });
@@ -181,6 +182,9 @@ final class ProfileBaselineCellSummary {
   /// Phase-labeled frame summaries across repeated runs.
   final Map<String, ProfileBaselineFramePhaseSummary> framePhaseSummaries;
 
+  /// Explicit launch-attribution status for this cell.
+  final ProfileBaselineLaunchAttributionSummary launchAttribution;
+
   /// Optional update-path summary for dynamic benchmarks.
   final ProfileBaselineCellUpdateSummary? updateSummary;
 
@@ -208,10 +212,60 @@ final class ProfileBaselineCellSummary {
       'framePhaseSummaries': framePhaseSummaries.map(
         (phase, summary) => MapEntry(phase, summary.toJson()),
       ),
+    'launchAttribution': launchAttribution.toJson(),
     if (updateSummary != null) 'updateSummary': updateSummary!.toJson(),
     'outlierRepeats': outlierRepeats
         .map((outlier) => outlier.toJson())
         .toList(),
+  };
+}
+
+/// Launch-attribution status and interval summaries for one benchmark cell.
+final class ProfileBaselineLaunchAttributionSummary {
+  /// Creates a launch-attribution summary.
+  const ProfileBaselineLaunchAttributionSummary({
+    required this.status,
+    required this.observedRepeats,
+    required this.missingRepeats,
+    required this.provenances,
+    required this.scopes,
+    required this.intervalMicros,
+    required this.unavailableReasons,
+  });
+
+  /// `available`, `partial`, or `unavailable`.
+  final String status;
+
+  /// Successful repeats that emitted explicit launch markers.
+  final int observedRepeats;
+
+  /// Successful repeats without explicit launch markers.
+  final int missingRepeats;
+
+  /// Unique provenance labels from supporting artifacts.
+  final List<String> provenances;
+
+  /// Unique evidence scopes from supporting artifacts.
+  final List<String> scopes;
+
+  /// Interval summaries keyed by interval name in microseconds.
+  final Map<String, ProfileBaselineNumberSummary> intervalMicros;
+
+  /// Unique reasons that launch attribution was unavailable.
+  final List<String> unavailableReasons;
+
+  /// Converts this summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'status': status,
+    'observedRepeats': observedRepeats,
+    'missingRepeats': missingRepeats,
+    if (provenances.isNotEmpty) 'provenances': provenances,
+    if (scopes.isNotEmpty) 'scopes': scopes,
+    if (intervalMicros.isNotEmpty)
+      'intervalMicros': intervalMicros.map(
+        (name, summary) => MapEntry(name, summary.toJson()),
+      ),
+    if (unavailableReasons.isNotEmpty) 'unavailableReasons': unavailableReasons,
   };
 }
 
@@ -743,6 +797,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       initialRenderMetrics: artifact.initialRenderMetrics,
       warmRebuildMetrics: artifact.warmRebuildMetrics,
       viewport: artifact.viewport,
+      launchAttribution: artifact.launchAttribution,
       updateMetrics: artifact.updateMetrics,
       updateLatencies: artifact.updateLatencies,
     );
@@ -800,6 +855,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
                     .whereType<ProfileBaselineViewport>(),
               ),
               framePhaseSummaries: _buildFramePhaseSummaries(records),
+              launchAttribution: _buildLaunchAttributionSummary(records),
               updateSummary: _buildUpdateSummary(records),
               outlierRepeats: _detectOutliers(records),
             );
@@ -870,6 +926,53 @@ Map<String, ProfileBaselineFramePhaseSummary> _buildFramePhaseSummaries(
   return Map<String, ProfileBaselineFramePhaseSummary>.unmodifiable(summaries);
 }
 
+ProfileBaselineLaunchAttributionSummary _buildLaunchAttributionSummary(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final available = records
+      .map((record) => record.launchAttribution)
+      .where((payload) => payload.status == 'available')
+      .toList(growable: false);
+  final missingRepeats = records.length - available.length;
+  final unavailableReasons = _uniqueStrings(
+    records
+        .map((record) => record.launchAttribution.reason)
+        .whereType<String>()
+        .where((reason) => reason.isNotEmpty),
+  );
+  final status = switch ((available.isNotEmpty, missingRepeats > 0)) {
+    (true, true) => 'partial',
+    (true, false) => 'available',
+    (false, _) => 'unavailable',
+  };
+  final intervalSamples = <String, List<double>>{};
+  for (final payload in available) {
+    for (final entry in payload.intervals.entries) {
+      intervalSamples
+          .putIfAbsent(entry.key, () => <double>[])
+          .add(entry.value.toDouble());
+    }
+  }
+
+  return ProfileBaselineLaunchAttributionSummary(
+    status: status,
+    observedRepeats: available.length,
+    missingRepeats: missingRepeats,
+    provenances: _uniqueStrings(
+      available.map((payload) => payload.provenance).whereType<String>(),
+    ),
+    scopes: _uniqueStrings(
+      available.map((payload) => payload.scope).whereType<String>(),
+    ),
+    intervalMicros: Map<String, ProfileBaselineNumberSummary>.unmodifiable(
+      intervalSamples.map(
+        (name, values) => MapEntry(name, _summarizeDoubles(values)),
+      ),
+    ),
+    unavailableReasons: unavailableReasons,
+  );
+}
+
 ProfileBaselineFramePhaseSummary _summarizeFramePhaseMetrics(
   Iterable<_ProfileMetrics> metrics,
 ) {
@@ -911,6 +1014,7 @@ final class _ProfileBaselineRunRecord {
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.launchAttribution,
     required this.updateMetrics,
     required this.updateLatencies,
   });
@@ -920,6 +1024,7 @@ final class _ProfileBaselineRunRecord {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
 }
@@ -1073,12 +1178,29 @@ final class _ProfileUpdateAttributedFrame {
   double get score => buildMillis > rasterMillis ? buildMillis : rasterMillis;
 }
 
+final class _ProfileLaunchAttributionPayload {
+  const _ProfileLaunchAttributionPayload({
+    required this.status,
+    required this.scope,
+    required this.provenance,
+    required this.reason,
+    required this.intervals,
+  });
+
+  final String status;
+  final String? scope;
+  final String? provenance;
+  final String? reason;
+  final Map<String, int> intervals;
+}
+
 final class _ProfileArtifact {
   const _ProfileArtifact({
     required this.metrics,
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.launchAttribution,
     required this.updateMetrics,
     required this.updateLatencies,
   });
@@ -1087,6 +1209,7 @@ final class _ProfileArtifact {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
   final List<_ProfileUpdateLatencySample> updateLatencies;
 }
@@ -1108,6 +1231,9 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
 
   final viewportKey = '${run.renderer}_${run.fixture}_viewport';
   final viewportPayload = root[viewportKey];
+  final launchAttributionKey =
+      '${run.renderer}_${run.fixture}_launch_attribution';
+  final launchAttributionPayload = root[launchAttributionKey];
   final updateMetricsKey = '${run.renderer}_${run.fixture}_updates';
   final updateMetricsPayload = root[updateMetricsKey];
   final updateLatenciesKey = '${run.renderer}_${run.fixture}_update_latencies';
@@ -1124,12 +1250,47 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)
         : null,
+    launchAttribution: launchAttributionPayload is Map<String, Object?>
+        ? _readLaunchAttributionPayload(launchAttributionPayload)
+        : const _ProfileLaunchAttributionPayload(
+            status: 'unavailable',
+            scope: null,
+            provenance: null,
+            reason: 'missing_launch_attribution_payload',
+            intervals: <String, int>{},
+          ),
     updateMetrics: updateMetricsPayload is Map<String, Object?>
         ? _readUpdateMetrics(updateMetricsPayload)
         : null,
     updateLatencies: updateLatenciesPayload is List<Object?>
         ? _readUpdateLatencies(updateLatenciesPayload)
         : const <_ProfileUpdateLatencySample>[],
+  );
+}
+
+_ProfileLaunchAttributionPayload _readLaunchAttributionPayload(
+  Map<String, Object?> payload,
+) {
+  final status = payload['status'] as String? ?? 'unavailable';
+  final intervals = <String, int>{};
+  final rawIntervals = payload['intervals'];
+  if (rawIntervals is Map<String, Object?>) {
+    for (final entry in rawIntervals.entries) {
+      final value = entry.value;
+      if (value is int) {
+        intervals[entry.key] = value;
+      } else if (value is num) {
+        intervals[entry.key] = value.round();
+      }
+    }
+  }
+
+  return _ProfileLaunchAttributionPayload(
+    status: status,
+    scope: payload['scope'] as String?,
+    provenance: payload['provenance'] as String?,
+    reason: payload['reason'] as String?,
+    intervals: Map<String, int>.unmodifiable(intervals),
   );
 }
 
@@ -1285,6 +1446,18 @@ List<ProfileBaselineViewport> _uniqueViewports(
     unique.putIfAbsent(jsonEncode(viewport.toJson()), () => viewport);
   }
   return List<ProfileBaselineViewport>.unmodifiable(unique.values);
+}
+
+List<String> _uniqueStrings(Iterable<String> values) {
+  final unique = <String>{};
+  for (final value in values) {
+    if (value.trim().isEmpty) {
+      continue;
+    }
+    unique.add(value);
+  }
+  final ordered = unique.toList()..sort();
+  return List<String>.unmodifiable(ordered);
 }
 
 ProfileBaselineCellUpdateSummary? _buildUpdateSummary(

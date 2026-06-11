@@ -7,6 +7,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/benchmark_host.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
+import 'package:tagflow_example/benchmarks/launch_attribution.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
@@ -55,6 +56,11 @@ void main() {
     binding.reportData ??= <String, dynamic>{};
     _recordViewport(
       tester,
+      binding,
+      rendererId: rendererId,
+      fixtureId: fixtureId,
+    );
+    await _recordLaunchAttribution(
       binding,
       rendererId: rendererId,
       fixtureId: fixtureId,
@@ -125,6 +131,11 @@ Future<void> _runStreamingBenchmark({
   binding.reportData ??= <String, dynamic>{};
   _recordViewport(
     tester,
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+  );
+  await _recordLaunchAttribution(
     binding,
     rendererId: renderer.id,
     fixtureId: fixture.id,
@@ -214,6 +225,11 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   binding.reportData ??= <String, dynamic>{};
   _recordViewport(
     tester,
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+  );
+  await _recordLaunchAttribution(
     binding,
     rendererId: renderer.id,
     fixtureId: fixture.id,
@@ -310,6 +326,16 @@ void _recordViewport(
         'physicalHeight': physicalSize.height,
         'devicePixelRatio': devicePixelRatio,
       };
+}
+
+Future<void> _recordLaunchAttribution(
+  IntegrationTestWidgetsFlutterBinding binding, {
+  required String rendererId,
+  required String fixtureId,
+}) async {
+  final payload = await BenchmarkLaunchAttributionPayload.capture();
+  binding.reportData!['${rendererId}_${fixtureId}_launch_attribution'] = payload
+      .toJson();
 }
 
 Future<_UpdateFrameTimingAttribution> _captureUpdateFrameTimingAttribution({

@@ -330,6 +330,34 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
       );
     }
 
+    final launchAttribution =
+        cell['launchAttribution'] as Map<String, Object?>?;
+    final launchStatus = launchAttribution?['status'] as String?;
+    if (launchStatus != 'available') {
+      reportOnlyFindings.add(
+        ProfileBaselineCheckIssue(
+          code: launchStatus == 'partial'
+              ? 'launch_attribution_partial'
+              : 'launch_attribution_unavailable',
+          message:
+              'Launch attribution remains report-only and is not fully '
+              'available for this renderer/fixture cell.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'launchAttribution':
+                launchAttribution ??
+                <String, Object?>{
+                  'status': 'unavailable',
+                  'unavailableReasons': <String>[
+                    'missing_summary_launch_attribution',
+                  ],
+                },
+          },
+        ),
+      );
+    }
+
     if (effectiveViewport == null) {
       continue;
     }

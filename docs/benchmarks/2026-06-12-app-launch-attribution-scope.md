@@ -4,13 +4,13 @@
 
 - Date: 2026-06-12
 - Scope: profile baseline app/process launch attribution
-- Posture: blocked for timing summary implementation; current evidence remains
-  report-only and in-process
+- Posture: macOS local-runner markers implemented; evidence remains report-only
+  and must not be generalized across platforms
 
 ## Verdict
 
-The current Flutter drive/profile runner cannot honestly capture app or process
-cold-start duration.
+The current Flutter drive/profile runner still cannot honestly claim generic
+app or process cold-start duration.
 
 Current profile artifacts can summarize:
 
@@ -18,10 +18,13 @@ Current profile artifacts can summarize:
   integration-test process
 - `warmRebuild`: second render of the same fixture in the same process
 - `warmScroll`: scroll interaction after fixture render
+- `launchAttribution`: explicit native macOS local-runner markers when the
+  example host provides them
 
-They do not measure process start, native app launch, Flutter engine startup,
-plugin registration, first Dart isolate entry, or time to first Flutter frame
-from a native launch origin.
+The new launch payload is deliberately narrower than a cross-platform cold-start
+metric. It records app-delegate and Flutter-window milestones from the macOS
+example host only, and the summary/check layer marks missing or unsupported
+launch attribution explicitly.
 
 ## Current Artifact Audit
 
@@ -37,7 +40,17 @@ started:
 - warm scroll wraps `tester.fling()` and `pumpAndSettle()`
 
 The persisted `examples/tagflow/build/integration_response_data.json` payload
-therefore contains Flutter frame summaries for test-controlled phases only.
+still contains Flutter frame summaries for test-controlled phases only.
+
+It now also writes a dedicated `launch_attribution` payload per renderer/fixture
+cell:
+
+- macOS: local-runner-only native uptime markers beginning at `AppDelegate`
+  init and continuing through Flutter view-controller readiness and the first
+  integration-test launch-marker request handled on the native side
+- other targets or missing bridges: explicit `status: unavailable` with a
+  reason such as `platform_not_supported` or
+  `missing_launch_attribution_payload`
 
 `ProfileBaselineRunner` also records `startedAt` and `finishedAt` around the
 child process command:
@@ -51,22 +64,24 @@ build/install/launch work, test execution, artifact writing, and local file
 copying. It is useful for diagnosing harness failures, but it is not a
 defensible app-launch metric.
 
-The macOS example host currently has stock Flutter app/window setup and no
-native timestamp bridge. There is no committed native marker for application
-entry, window creation, engine attachment, first Flutter frame, or first test
-callback.
+The summary model now preserves that boundary explicitly:
 
-## Blocker
+- `framePhaseSummaries.coldInitialRender`, `warmRebuild`, and `warmScroll`
+  remain unchanged and are not reinterpreted as launch time
+- `launchAttribution.status` is `available`, `partial`, or `unavailable`
+- `benchmark:profile:check` emits report-only findings when launch attribution
+  is missing or partial
 
-Adding a parser/model summary today would require naming one of these existing
-values as launch time:
+## Remaining Limits
 
-- profile runner wall-clock process duration
-- `flutter drive` log text
-- `coldInitialRender`
+This slice still does not justify cross-platform or public cold-start claims.
 
-None of those values isolates app/process cold start. Reporting any of them as
-`appLaunch`, `coldStart`, or equivalent would overstate the evidence.
+It does not measure:
+
+- process exec before `AppDelegate` initialization
+- first Flutter frame from a native launch origin
+- iOS or Android launch timing
+- any thresholded regression gate
 
 ## Required Runner Change
 
@@ -84,12 +99,9 @@ Minimum viable design:
      ready.
 2. Bridge those markers into the Dart/integration-test report payload with a
    stable schema such as `launchAttribution`.
-3. Record Dart-side markers for integration-test start and the first
-   post-launch Flutter frame observed by the test harness.
-4. Summarize only named intervals with clear provenance, for example
-   `nativeEntryToFlutterViewReady`, `nativeEntryToFirstFlutterFrame`, and
-   `testStartToFirstFixtureRender`.
-5. Keep all values report-only until physical-device and stable-runner evidence
+3. Summarize only named intervals with clear provenance, for example
+   `appDelegateInitToFlutterViewControllerReady`.
+4. Keep all values report-only until physical-device and stable-runner evidence
    is reviewed.
 
 The summary parser should accept the launch payload only when its provenance is
@@ -101,8 +113,7 @@ For the first implementation slice:
 
 - macOS one-cell smoke:
   `TAGFLOW_PROFILE_PAIR=tagflow:ai_answer_rich`
-- summary JSON contains `launchAttribution` only for artifacts with native
-  launch markers
+- summary JSON contains explicit `launchAttribution` status for every cell
 - existing `framePhaseSummaries.coldInitialRender`, `warmRebuild`, and
   `warmScroll` remain unchanged
 - no timing thresholds, ranking copy, or public performance claims are added

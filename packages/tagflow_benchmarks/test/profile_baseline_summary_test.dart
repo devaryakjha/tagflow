@@ -72,6 +72,18 @@ void main() {
             'new_gen_gc_count': 2,
             'old_gen_gc_count': 0,
           },
+          'tagflow_ai_answer_rich_launch_attribution': <String, Object?>{
+            'schemaVersion': 1,
+            'status': 'available',
+            'host': 'macos',
+            'scope': 'local_runner_only',
+            'provenance': 'macos_app_delegate_uptime_markers_v1',
+            'intervals': <String, Object?>{
+              'appDelegateInitToDidFinishLaunchingMicros': 2500,
+              'appDelegateInitToFlutterViewControllerReadyMicros': 12000,
+              'appDelegateInitToIntegrationTestRequestMicros': 43000,
+            },
+          },
         }),
       );
 
@@ -117,6 +129,18 @@ void main() {
           'frame_count': 22,
           'new_gen_gc_count': 2,
           'old_gen_gc_count': 1,
+        },
+        'tagflow_ai_answer_rich_launch_attribution': <String, Object?>{
+          'schemaVersion': 1,
+          'status': 'available',
+          'host': 'macos',
+          'scope': 'local_runner_only',
+          'provenance': 'macos_app_delegate_uptime_markers_v1',
+          'intervals': <String, Object?>{
+            'appDelegateInitToDidFinishLaunchingMicros': 3000,
+            'appDelegateInitToFlutterViewControllerReadyMicros': 13500,
+            'appDelegateInitToIntegrationTestRequestMicros': 47000,
+          },
         },
       }),
     );
@@ -203,6 +227,28 @@ void main() {
     expect(cell.framePhaseSummaries['warmRebuild']!.observedRepeats, 2);
     expect(cell.framePhaseSummaries['warmRebuild']!.worstRasterMillis.max, 7.5);
     expect(cell.toJson(), contains('framePhaseSummaries'));
+    expect(cell.launchAttribution.status, 'available');
+    expect(cell.launchAttribution.observedRepeats, 2);
+    expect(cell.launchAttribution.missingRepeats, 0);
+    expect(cell.launchAttribution.provenances, [
+      'macos_app_delegate_uptime_markers_v1',
+    ]);
+    expect(
+      cell.launchAttribution.intervalMicros.keys,
+      containsAll(<String>[
+        'appDelegateInitToDidFinishLaunchingMicros',
+        'appDelegateInitToFlutterViewControllerReadyMicros',
+        'appDelegateInitToIntegrationTestRequestMicros',
+      ]),
+    );
+    expect(
+      cell
+          .launchAttribution
+          .intervalMicros['appDelegateInitToIntegrationTestRequestMicros']!
+          .max,
+      47000,
+    );
+    expect(cell.toJson(), contains('launchAttribution'));
     expect(cell.updateSummary, isNull);
     expect(cell.outlierRepeats, hasLength(1));
     expect(cell.outlierRepeats.single.repeat, 2);
@@ -294,6 +340,13 @@ void main() {
       summary.cellSummaries.single.toJson().containsKey('updateSummary'),
       isFalse,
     );
+    expect(
+      summary.cellSummaries.single.launchAttribution.status,
+      'unavailable',
+    );
+    expect(summary.cellSummaries.single.launchAttribution.unavailableReasons, [
+      'missing_launch_attribution_payload',
+    ]);
   });
 
   test('summarizes legacy update latencies without phase fields', () {
