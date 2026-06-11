@@ -1,0 +1,65 @@
+<article class="answer">
+  <h1>Shipping a Safe Rich Content Runtime</h1>
+  <p>
+    Tagflow should render product-shaped content as native Flutter widgets
+    while keeping the input constrained, reviewable, and easy to theme.
+  </p>
+  <blockquote>
+    <p>
+      The immediate target is not arbitrary webpage fidelity. The target is
+      controlled AI, CMS, and server-authored content that should feel native.
+    </p>
+    <footer>Runtime benchmark brief</footer>
+  </blockquote>
+  <h2>Migration plan</h2>
+  <ol>
+    <li>Freeze the alpha public surface before broad runtime changes.</li>
+    <li>Introduce a native document model with safe defaults.</li>
+    <li>Adapt HTML into that model instead of shaping the runtime around tags.</li>
+  </ol>
+  <h2>Practical constraints</h2>
+  <ul>
+    <li>Keep fixtures deterministic and local-only.</li>
+    <li>Prefer semantic components over browser-like layout tricks.</li>
+    <li>Measure parsing, conversion, and frame behavior separately.</li>
+  </ul>
+  <h2>Reference snippet</h2>
+  <pre><code>final widget = Tagflow(
+  html: '&lt;article&gt;&lt;h1&gt;Runtime&lt;/h1&gt;&lt;/article&gt;',
+  options: const TagflowOptions(),
+);</code></pre>
+  <p>
+    A compact comparison table helps benchmark mixed content without reaching
+    for remote assets or arbitrary script execution.
+  </p>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Path</th>
+        <th>Strength</th>
+        <th>Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HTML adapter</td>
+        <td>Fast migration path</td>
+        <td>Can keep legacy assumptions alive</td>
+      </tr>
+      <tr>
+        <td>Native document model</td>
+        <td>Clear rendering contract</td>
+        <td>Requires curated public exports</td>
+      </tr>
+      <tr>
+        <td>Bench harness</td>
+        <td>Reproducible evidence</td>
+        <td>Noisy if fixtures drift</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Citations</h2>
+  <p>
+    Sources: internal runtime audit, benchmark spec, and parser behavior tests.
+  </p>
+</article>

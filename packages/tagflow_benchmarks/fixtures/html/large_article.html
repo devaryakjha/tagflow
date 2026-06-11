@@ -1,0 +1,144 @@
+<article>
+  <h1>Native Runtime Field Guide</h1>
+  <p>
+    This fixture approximates a long-form release note, product brief, and
+    implementation memo merged into one deterministic document.
+  </p>
+
+  <section>
+    <h2>1. Why this exists</h2>
+    <p>
+      Rich content in product surfaces often arrives from a CMS, AI response,
+      or server-authored workflow. The renderer needs to stay predictable when
+      the content tree becomes deep, styled, and repetitive.
+    </p>
+    <p>
+      The benchmark harness should measure parser cost on realistic content
+      rather than isolated tags that never appear in production.
+    </p>
+    <ul>
+      <li>Repeat common prose structures.</li>
+      <li>Mix lists, code, and quotes.</li>
+      <li>Stay local-only and fully deterministic.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. Product shape</h2>
+    <p>
+      Product-shaped rich content usually combines instructional copy, a few
+      semantic headings, a short metrics table, and user-facing notes.
+    </p>
+    <blockquote>
+      <p>
+        Benchmarks should answer whether the runtime feels acceptable on the
+        fixtures that matter, not whether it can mimic a whole browser.
+      </p>
+    </blockquote>
+    <p>
+      That means repeated sections are useful, because they create a document
+      tree large enough to expose parser regressions without adding external
+      variability.
+    </p>
+  </section>
+
+  <section>
+    <h2>3. Implementation notes</h2>
+    <p>
+      Parser work should remain separate from conversion and frame timing so
+      each layer can move independently.
+    </p>
+    <pre><code>const suite = TagflowParserBenchmarkSuite(
+  warmupIterations: 5,
+  sampleCount: 10,
+);</code></pre>
+    <p>
+      Capturing medians, p95 values, and coefficient of variation makes the
+      output more actionable than a single fastest run.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Repeated operational checklist</h2>
+    <ol>
+      <li>Verify fixture validity before comparing renderers.</li>
+      <li>Warm up the parser before taking timed samples.</li>
+      <li>Store JSON output when a reviewable artifact is needed.</li>
+      <li>Keep generated benchmark output out of version control.</li>
+    </ol>
+    <p>
+      The same checklist appears in several sections on purpose so the document
+      remains long enough to exercise traversal and node reparenting paths.
+    </p>
+  </section>
+
+  <section>
+    <h2>5. Repeated operational checklist</h2>
+    <ol>
+      <li>Verify fixture validity before comparing renderers.</li>
+      <li>Warm up the parser before taking timed samples.</li>
+      <li>Store JSON output when a reviewable artifact is needed.</li>
+      <li>Keep generated benchmark output out of version control.</li>
+    </ol>
+    <p>
+      Repetition also keeps the fixture deterministic while making the content
+      more representative than synthetic lorem ipsum.
+    </p>
+  </section>
+
+  <section>
+    <h2>6. Repeated operational checklist</h2>
+    <ol>
+      <li>Verify fixture validity before comparing renderers.</li>
+      <li>Warm up the parser before taking timed samples.</li>
+      <li>Store JSON output when a reviewable artifact is needed.</li>
+      <li>Keep generated benchmark output out of version control.</li>
+    </ol>
+    <p>
+      The parser should still handle the repeated structures cleanly and
+      preserve section boundaries as distinct nodes.
+    </p>
+  </section>
+
+  <section>
+    <h2>7. Compact summary table</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Primary metric</th>
+          <th>Alpha gate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Parser</td>
+          <td>median us/op</td>
+          <td>Results must emit for every fixture</td>
+        </tr>
+        <tr>
+          <td>Converter</td>
+          <td>build cost</td>
+          <td>No exceptions on standard fixtures</td>
+        </tr>
+        <tr>
+          <td>Frames</td>
+          <td>FrameTiming p90</td>
+          <td>Reference-device review only</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>8. Closing notes</h2>
+    <p>
+      The final section exists to keep the article comfortably larger than the
+      smaller benchmark fixtures while preserving coherent product language.
+    </p>
+    <p>
+      This should be large enough to catch obvious parser regressions and still
+      remain readable during benchmark review.
+    </p>
+  </section>
+</article>

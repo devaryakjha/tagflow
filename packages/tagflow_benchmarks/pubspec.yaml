@@ -1,0 +1,22 @@
+name: tagflow_benchmarks
+publish_to: none
+description: Internal benchmark fixtures and harnesses for Tagflow.
+
+environment:
+  sdk: ">=3.9.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  crypto: ^3.0.6
+  flutter:
+    sdk: flutter
+  path: ^1.9.1
+  tagflow: ^0.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
