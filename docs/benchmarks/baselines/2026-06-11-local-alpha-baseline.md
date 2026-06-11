@@ -161,7 +161,18 @@ Adapter caveats:
   fails because the benchmark package imports Flutter-facing Tagflow code and a
   plain Dart VM has no `dart:ui`. Use the Melos/Flutter test-hosted benchmark
   commands above until the runner is split or hosted differently.
-- The profile `flutter drive` run currently emits Flutter's
-  `integration_test plugin was not detected` warning even though the driver
-  returns success and writes `integration_response_data.json`; that should be
-  investigated before treating profile data as a release gate.
+- The profile harness intentionally runs `flutter drive` on macOS instead of
+  `flutter test integration_test/...` because it needs the
+  `integration_test_driver.dart` response payload written to
+  `examples/tagflow/build/integration_response_data.json`.
+- On current Flutter desktop tooling, `flutter test integration_test/...`
+  disables native result reporting automatically, but `flutter drive` does not.
+  The benchmark script now passes
+  `--dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false` so
+  `IntegrationTestWidgetsFlutterBinding` skips the macOS-native
+  `allTestsFinished` plugin channel that is not registered in this app's
+  generated macOS plugin list.
+- This removes the warning without changing how `integrationDriver()`
+  collects benchmark data. The JSON timing artifact still comes from the VM
+  service `requestData` path, so these numbers remain acceptable as local
+  smoke evidence. They are still not sufficient as release-gate evidence.
