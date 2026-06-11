@@ -161,6 +161,8 @@ Architecture open decisions:
   placeholders.
 - Whether `TagflowOptions` is renamed to `TagflowViewOptions` during alpha.
 - How much class-based styling the HTML adapter should preserve in alpha.
+- Post-alpha native block or JSON adapter shape is tracked separately in
+  `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
 
