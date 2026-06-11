@@ -174,6 +174,11 @@ final document = adapter.adapt(nativePayload);
 Tagflow.document(document);
 ```
 
+`schemaVersion` is intentionally strict in alpha. Documents and patch envelopes
+must use `schemaVersion: 1`; other values fail during
+`TagflowNativeBlockCodec` decode until a reviewed compatibility policy exists.
+Do not emit future schema versions speculatively.
+
 Patch envelopes use `TagflowNativeBlockPatchEnvelope`: decode the producer
 envelope, adapt the ordered native operations, then apply runtime document
 patches.

@@ -282,7 +282,7 @@ Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
   Done in "Compatibility Support Windows".
 - Native block `schemaVersion == 1` policy is documented in release-facing
-  adapter docs.
+  adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
   documented.
 - `tagflow_table` beta posture is decided and documented. Partly done in

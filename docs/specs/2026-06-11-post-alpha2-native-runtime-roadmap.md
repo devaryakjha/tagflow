@@ -219,11 +219,10 @@ Transport does not promise:
 
 Schema-version rule:
 
-- alpha.3 should document that `schemaVersion == 1` is the only producer shape
-  currently reviewed;
-- accepting any positive version may remain implementation behavior in alpha,
-  but release docs should not imply future-version compatibility;
-- beta.0 should decide whether unsupported schema versions fail strictly,
+- `schemaVersion == 1` is the only producer shape currently reviewed;
+- documents and patch envelopes with any other version fail during
+  `TagflowNativeBlockCodec` decode;
+- beta.0 should decide whether future schema versions keep failing strictly,
   degrade through adapter policy, or route through versioned codecs.
 
 ## 7. Patch and Update Semantics
