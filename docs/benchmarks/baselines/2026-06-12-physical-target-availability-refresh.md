@@ -3,8 +3,8 @@
 ## Status
 
 - Date: 2026-06-12 Asia/Kolkata
-- Coordinator commit: `26166fe2ae45a43e16658098ff231f2f6e3dd875`
-- Worker checkout: detached `ff3188bcf1d8a7a19a755f4d8b23cce6a0bda80b`,
+- Coordinator commit: `b545d98665b064a56bd20225c3d7fccc47afbba7`
+- Worker checkout: detached `b545d98665b064a56bd20225c3d7fccc47afbba7`,
   contained by `codex/tagflow-native-runtime-master`
 - Posture: read-only target availability audit; no profile probe, threshold,
   or performance claim
@@ -14,7 +14,8 @@
 Refresh the physical target evidence after the previous USB probe note. This
 audit did not run a Tagflow profile baseline. It only rechecked whether the
 current machine exposes a credible physical iOS or Android target for the
-required one-repeat qualification probe.
+required one-repeat qualification probe after the coordinator observed an
+apparent USB iPhone candidate in `flutter devices -v`.
 
 ## Commands
 
@@ -61,8 +62,12 @@ Flutter reported two wirelessly connected iOS devices:
 - `Arya's Iphone 17 (wireless)` `00008150-00110C960186401C`
 - `Aryakumar Jha's iPad (wireless)` `00008120-0006395208E14032`
 
-CoreDevice still reported `Arya's Iphone 17` as available and paired, but the
-verbose record showed the session was not a reliable local profiling target:
+During the same `flutter devices -v` scan, the underlying Apple `xcdevice`
+record briefly surfaced `Arya's Iphone 17` with `interface: usb` and
+`available: true`. That did not translate into a credible profiling target:
+Flutter still categorized the phone as wireless-only in its final device
+summary, and CoreDevice verbose state still showed a local-network session
+instead of a ready USB profile path:
 
 - `pairingState: paired`
 - `transportType: localNetwork`
@@ -87,9 +92,12 @@ No Android target was attached.
 
 No credible one-repeat physical Tagflow profile probe is available right now.
 
-- iOS is not credible because Flutter sees the phone only in the wireless
-  bucket, CoreDevice reports a local-network session with disconnected tunnel
-  and unavailable DDI services, and `xctrace` lists the same phone offline.
+- iOS is not credible because Flutter still surfaces the phone only in the
+  wireless bucket, the matching CoreDevice session still resolves to
+  `transportType: localNetwork` with a disconnected tunnel and unavailable DDI
+  services, and `xctrace` still lists the same phone offline. The transient
+  `xcdevice` `interface: usb` metadata is not enough by itself to qualify
+  profile mode.
 - Android is not credible because no physical Android device is attached.
 - No profile command was run from this audit because the target state did not
   meet the minimum availability bar.
