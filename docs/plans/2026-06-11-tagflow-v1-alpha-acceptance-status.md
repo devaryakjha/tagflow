@@ -7,7 +7,7 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `59559b2 docs(validation): record kite alpha publish blocker`
+  `42dae38 docs(release): record alpha publish success`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `74a9c9c bench(profile): record viewport metadata`,
   `c137a7b bench(profile): support custom baseline output dirs`,
@@ -81,10 +81,11 @@ The benchmark harness is real but still alpha-grade:
    pub.dev now contains `1.0.0-alpha.1` for both packages, although each
    package's default latest version still points at the prior stable `0.0.x`
    line because these are prereleases.
-3. Kite alpha-dependency branch preparation is unblocked for a clean hosted
-   dependency trial. That branch should update only the two package constraints,
-   the two IPO legacy imports, and the regenerated lockfile, with no diagnostics
-   proof scaffolding or local path overrides.
+3. Kite alpha-dependency branch preparation is complete on isolated branch
+   `codex/kite-tagflow-alpha-runtime` at `d9682aec`. The branch updates only
+   the two hosted package constraints, the two IPO legacy imports, and the
+   regenerated lockfile, with no diagnostics proof scaffolding or local path
+   overrides.
 
 ## Release Prep Status
 
@@ -116,6 +117,12 @@ The benchmark harness is real but still alpha-grade:
   `27336081061` (`Publish tagflow_table`) both completed successfully.
   The pub.dev package APIs include `1.0.0-alpha.1` in both package version
   lists.
+- Kite alpha dependency trial branch `codex/kite-tagflow-alpha-runtime` was
+  prepared in isolated worktree `/Users/arya/.codex/worktrees/f4d8/kite` at
+  `d9682aec chore(deps): trial tagflow alpha runtime`. Focused validation
+  passed with Kite's repo-local Flutter SDK: `flutter pub get`, then
+  `flutter analyze` for `lib/screens/ipos/ipo_instrument_sheet.dart` and
+  `lib/component/tagflow_details_converter.dart`.
 
 ## Post-Alpha Stabilization Progress
 
@@ -190,6 +197,14 @@ The benchmark harness is real but still alpha-grade:
   Kite alpha migration can now land as a separate dependency branch with only
   the hosted alpha constraint update, the two `legacy.dart` IPO converter
   imports, regenerated lockfile, and fresh focused app validation.
+- The clean Kite alpha dependency branch now exists as
+  `codex/kite-tagflow-alpha-runtime` at `d9682aec`. Its committed scope is
+  exactly `pubspec.yaml`, `pubspec.lock`,
+  `lib/screens/ipos/ipo_instrument_sheet.dart`, and
+  `lib/component/tagflow_details_converter.dart`. The lockfile resolves hosted
+  `tagflow` and `tagflow_table` to `1.0.0-alpha.1`; no
+  `pubspec_overrides.yaml`, absolute path source, diagnostics preview, local
+  fixture route, or broad dependency churn was committed.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -264,7 +279,7 @@ The benchmark harness is real but still alpha-grade:
   the desktop window or identify the physical display by itself.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
-  on the real app surface, and a deliberate Kite alpha-dependency migration
-  branch if Kite is the first production consumer.
+  on the real app surface, and review of the clean Kite alpha-dependency branch
+  if Kite is the first production consumer.
   The first iOS simulator proof and debug timeline have been captured but
   should not be treated as a full production rollout or benchmark.

@@ -1,6 +1,7 @@
 # Kite Internal Validation Surface Audit
 
-**Status:** audited with isolated Kite proof and real IPO sheet evidence
+**Status:** audited with isolated Kite proof, real IPO sheet evidence, and
+clean hosted-alpha dependency branch
 **Date:** 2026-06-11
 **Primary app candidate:** `/Users/arya/projects/kite`
 **Primary surface:** IPO details sheet
@@ -155,16 +156,18 @@ This is the right post-proof state for the app checkout. The Tagflow evidence
 remains in this repository, and no diagnostics fixture, absolute local path
 override, or lockfile churn needs to live in Kite.
 
-The next clean Kite integration should be a separate alpha-dependency branch,
+The clean Kite alpha integration now exists as a separate dependency branch,
 not a continuation of the proof patch:
 
-1. update Kite's hosted dependency constraints to the Tagflow alpha line
-2. switch only the two IPO converter import sites to
-   `package:tagflow/legacy.dart`
-3. regenerate `pubspec.lock` without `pubspec_overrides.yaml`
-4. run focused analyze for the IPO files and any changed dependency files
-5. capture dark-mode and profile-target evidence before considering the
-   migration production-ready
+1. branch: `codex/kite-tagflow-alpha-runtime`
+2. commit: `d9682aec chore(deps): trial tagflow alpha runtime`
+3. changed files: `pubspec.yaml`, `pubspec.lock`,
+   `lib/screens/ipos/ipo_instrument_sheet.dart`, and
+   `lib/component/tagflow_details_converter.dart`
+4. validation: repo-local `flutter pub get` passed, and focused analyzer passed
+   for the two IPO Tagflow integration files
+5. remaining: capture dark-mode and profile-target evidence before considering
+   the migration production-ready
 
 ## Validation Commands
 
@@ -313,10 +316,9 @@ Verified behavior:
 1. Keep the proof-only Kite scaffolding removed now that visual and debug
    attribution evidence exists in Tagflow docs, unless Kite deliberately wants
    to productize a developer-only diagnostics screen.
-2. If Kite moves to the Tagflow alpha dependency line, land only a clean
-   dependency update plus the two `package:tagflow/legacy.dart` import switches;
-   do not commit the absolute-path `pubspec_overrides.yaml`, current lockfile
-   churn, diagnostics preview, or local IPO fixture as-is.
+2. Continue validation from `codex/kite-tagflow-alpha-runtime`; do not re-add
+   the absolute-path `pubspec_overrides.yaml`, current lockfile churn,
+   diagnostics preview, or local IPO fixture as-is.
 3. Capture dark-mode screenshots of:
    - excerpt section
    - long-form content section
@@ -357,7 +359,8 @@ needs to be repeated after a future local proof:
 - The shared `/Users/arya/fvm/cache.git/bin` path is currently unsuitable for
   Kite validation on this machine because it resolves to a pre-release Flutter
   toolchain.
-- Kite is currently clean and still on hosted `0.0.x` Tagflow packages. The
-  next risk is not proof cleanup; it is making the alpha dependency migration
-  deliberately, with compatibility imports and lockfile changes reviewed as one
-  app-side integration branch.
+- The main Kite checkout is clean and still on hosted `0.0.x` Tagflow packages.
+  The alpha dependency migration is isolated on
+  `codex/kite-tagflow-alpha-runtime`; the next risk is validating that branch
+  against the real IPO surface in dark mode and on a profile-capable target
+  without reintroducing proof scaffolding.
