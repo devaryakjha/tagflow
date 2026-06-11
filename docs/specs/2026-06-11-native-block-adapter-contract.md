@@ -25,11 +25,22 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   presentation variant, while non-semantic attributes remain metadata-backed.
 - Adapter validation now rejects blank or duplicate block IDs before runtime
   document creation and applies `TagflowContentPolicy` to link and image URLs.
+- Native block patch adaptation now lands a narrow update slice through
+  `TagflowNativeBlockPatch` plus
+  `TagflowNativeBlockAdapter.adaptPatch(...)` /
+  `adaptPatches(...)`, covering replace, append-children, insert-before, and
+  remove operations without widening the runtime mutation model.
+- Replacement updates validate block-ID stability before runtime patch
+  creation, and append/insert payloads reject duplicate block IDs within the
+  update payload before runtime patch application.
 - Non-semantic table attributes are not promoted into new typed runtime fields
   in this slice; they remain available in adapter metadata for diagnostics and
   future renderer work.
 - Follow-up slices remain for serializer helpers and any future dedicated
   runtime callout renderer contract.
+- Patch envelopes carrying document IDs, schema versions, or producer revision
+  coordination remain follow-up work; this landed slice is operation-shaped
+  only so it can map directly to `TagflowDocumentPatch`.
 
 ## 1. Problem Statement
 
@@ -376,6 +387,27 @@ Rules:
   enforcement
 - a future controller, if added later, should remain a thin convenience wrapper
   over immutable document updates
+
+Landed first slice:
+
+- `TagflowNativeBlockPatch.replaceNode(...)` adapts one native block into an
+  existing `TagflowDocumentPatch.replaceNode(...)`.
+- `TagflowNativeBlockPatch.appendChildren(...)` adapts ordered native children
+  into `TagflowDocumentPatch.appendChildren(...)`.
+- `TagflowNativeBlockPatch.insertBefore(...)` adapts ordered native nodes into
+  `TagflowDocumentPatch.insertBefore(...)`.
+- `TagflowNativeBlockPatch.removeNode(...)` maps directly to
+  `TagflowDocumentPatch.removeNode(...)`.
+- Policy and normalization reuse `TagflowNativeBlockAdapter` so callout, table,
+  link, and image behavior stays aligned with full-document adaptation.
+
+Explicitly deferred:
+
+- patch envelopes that include `documentId`, `schemaVersion`, `revision`, or
+  `baseRevision`
+- cross-patch batch conflict validation against an already-evolving runtime
+  document
+- controller or cache APIs layered above immutable document patches
 
 ## 9. Migration from HTML
 

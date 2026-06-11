@@ -1,4 +1,5 @@
 import 'package:tagflow/src/adapters/native_block.dart';
+import 'package:tagflow/src/adapters/native_block_patch.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 
 const _nativeBlockAdapterName = 'native_block_v1';
@@ -36,6 +37,35 @@ final class TagflowNativeBlockAdapter {
       metadata: _documentMetadata(document),
       source: source,
     );
+  }
+
+  /// Converts [patch] into the canonical runtime patch model.
+  TagflowDocumentPatch adaptPatch(TagflowNativeBlockPatch patch) {
+    _requireNonBlankId(patch.targetNodeId, label: 'target node');
+
+    return switch (patch.kind) {
+      TagflowNativeBlockPatchKind.replaceNode => _adaptReplacePatch(patch),
+      TagflowNativeBlockPatchKind.appendChildren =>
+        TagflowDocumentPatch.appendChildren(
+          parentNodeId: patch.targetNodeId,
+          children: _adaptPatchBlocks(patch.blocks),
+        ),
+      TagflowNativeBlockPatchKind.insertBefore =>
+        TagflowDocumentPatch.insertBefore(
+          siblingNodeId: patch.targetNodeId,
+          nodes: _adaptPatchBlocks(patch.blocks),
+        ),
+      TagflowNativeBlockPatchKind.removeNode => TagflowDocumentPatch.removeNode(
+        nodeId: patch.targetNodeId,
+      ),
+    };
+  }
+
+  /// Converts [patches] into runtime patch operations in order.
+  List<TagflowDocumentPatch> adaptPatches(
+    Iterable<TagflowNativeBlockPatch> patches,
+  ) {
+    return List.unmodifiable([for (final patch in patches) adaptPatch(patch)]);
   }
 
   TagflowDocumentNode? _adaptBlock(
@@ -247,22 +277,64 @@ final class TagflowNativeBlockAdapter {
       );
     }
 
-    final seen = <String>{};
+    _validateBlockTreeIds(document.blocks);
+  }
 
-    void visit(TagflowNativeBlock block) {
-      _requireNonBlankId(block.id, label: 'block');
-      if (!seen.add(block.id)) {
-        throw StateError('Duplicate TagflowNativeBlock id: ${block.id}.');
-      }
-
-      for (final child in block.children) {
-        visit(child);
-      }
+  TagflowDocumentPatch _adaptReplacePatch(TagflowNativeBlockPatch patch) {
+    final block = patch.block;
+    if (block == null) {
+      throw StateError('Replace-node patch is missing a native block payload.');
+    }
+    if (block.id != patch.targetNodeId) {
+      throw ArgumentError.value(
+        block.id,
+        'block.id',
+        'Replacement block id must match nodeId ${patch.targetNodeId}.',
+      );
     }
 
-    for (final block in document.blocks) {
-      visit(block);
+    final replacement = _adaptBlock(
+      block,
+      documentSource: _defaultDocumentSource(),
+    );
+
+    if (replacement == null) {
+      return TagflowDocumentPatch.removeNode(nodeId: patch.targetNodeId);
     }
+
+    return TagflowDocumentPatch.replaceNode(
+      nodeId: patch.targetNodeId,
+      node: replacement,
+    );
+  }
+
+  List<TagflowDocumentNode> _adaptPatchBlocks(List<TagflowNativeBlock> blocks) {
+    _validateBlockTreeIds(blocks);
+    final source = _defaultDocumentSource();
+
+    return List.unmodifiable([
+      for (final block in blocks)
+        if (_adaptBlock(block, documentSource: source) case final node?) node,
+    ]);
+  }
+}
+
+void _validateBlockTreeIds(Iterable<TagflowNativeBlock> blocks) {
+  final seen = <String>{};
+
+  void visit(TagflowNativeBlock block) {
+    _requireNonBlankId(block.id, label: 'block');
+    if (!seen.add(block.id)) {
+      throw StateError('Duplicate TagflowNativeBlock id: ${block.id}.');
+    }
+
+    for (final child in block.children) {
+      visit(child);
+    }
+  }
+
+  for (final block in blocks) {
+    visit(block);
   }
 }
 

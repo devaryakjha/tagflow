@@ -39,6 +39,10 @@ void main() {
       ],
     );
     const nativeAdapter = api.TagflowNativeBlockAdapter();
+    final nativePatch = api.TagflowNativeBlockPatch.appendChildren(
+      parentNodeId: 'paragraph',
+      children: [api.TagflowNativeBlock.paragraph(id: 'native-child')],
+    );
     const nodeIdStrategy = api.TagflowHtmlNodeIdStrategy.attribute(
       attribute: 'data-node-id',
       fallbackToPath: false,
@@ -72,6 +76,16 @@ void main() {
     expect(
       nativeDocument.blocks.single.children.single.kind,
       api.TagflowNativeBlockKind.table,
+    );
+    expect(
+      document
+          .applyPatch(nativeAdapter.adaptPatch(nativePatch))
+          .children
+          .single
+          .children
+          .last
+          .id,
+      'native-child',
     );
     expect(nodeIdStrategy.attribute, 'data-node-id');
     expect(nodeIdStrategy.fallbackToPath, isFalse);
