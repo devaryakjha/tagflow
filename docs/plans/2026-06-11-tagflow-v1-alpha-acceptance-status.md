@@ -140,6 +140,65 @@ The benchmark harness is real but still alpha-grade:
   `flutter analyze` for `lib/screens/ipos/ipo_instrument_sheet.dart` and
   `lib/component/tagflow_details_converter.dart`.
 
+## `1.0.0-alpha.2` Native Transport Prep
+
+Status: release-prep delta is docs/changelog only in this worker. Package
+versions are deliberately left at `1.0.0-alpha.1` so the coordinator can run
+the repo's versioning lane once the final release commit set is selected.
+
+Public API surface to call out in `1.0.0-alpha.2`:
+
+- `TagflowNativeBlockCodec`
+- `TagflowNativeBlockPatchEnvelope`
+- native JSON document decode/adapt/render path:
+  `decodeDocument(...)` -> `TagflowNativeBlockAdapter.adapt(...)` ->
+  `Tagflow.document(...)`
+- patch envelope decode/adapt/apply path:
+  `decodePatchEnvelope(...)` ->
+  `TagflowNativeBlockAdapter.adaptPatches(...)` ->
+  `TagflowDocument.applyPatches(...)`
+- report-only native transport benchmark lane:
+  `dart run melos run benchmark:native-transport`
+
+Release scope boundaries:
+
+- Alpha only; APIs can still change before stable `1.0.0`.
+- Native JSON transport is data-only and for trusted/app-controlled producers.
+- Benchmark evidence is report-only local smoke evidence.
+- Do not claim arbitrary CMS sync, JavaScript execution, arbitrary webpage
+  rendering, Flutter widget serialization, or public performance wins.
+- `tagflow_table` has no required alpha.2 package change for the native JSON
+  transport slice unless the coordinator chooses to release packages together.
+
+Coordinator publish gap before alpha.2:
+
+1. Run the versioning lane from the coordinator-selected final commit:
+
+   ```bash
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+   dart run melos run version:alpha
+   ```
+
+2. Review the generated version/changelog dependency edits. For a core-only
+   alpha.2 release, confirm whether `tagflow_table` should remain unchanged or
+   be released in lockstep.
+3. Run the branch gate:
+
+   ```bash
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+   dart run melos run validate
+   ```
+
+4. Run publish validation without publishing:
+
+   ```bash
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+   dart run melos run publish:dry-run
+   ```
+
+5. Publish only after the version/changelog diff, validation gate, and dry-run
+   output are reviewed by the coordinator.
+
 ## Post-Alpha Stabilization Progress
 
 - `tagflow_table` now exposes `tagflowTableComponents(...)`, a first-party

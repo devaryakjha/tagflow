@@ -19,6 +19,11 @@ and the package is still internally driven. Stable `1.0.0` should wait until a
 real internal Flutter app has integrated the new model and benchmark results are
 published.
 
+Next prerelease target: `1.0.0-alpha.2` should expose the newly landed native
+JSON transport API for internal Flutter apps without broadening the runtime
+scope. The release should remain alpha, data-only, and trusted/app-controlled.
+It should not claim a CMS sync protocol or public performance result.
+
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
@@ -156,8 +161,10 @@ Accepted master-thread direction:
   plus the document runtime.
 - `Tagflow({required html, ...})` may stay as a deprecated compatibility alias
   in alpha.
-- Alpha ships HTML as the only first-party adapter; Markdown and JSON/native
-  serialization are explicitly post-alpha.
+- Alpha shipped HTML as the first first-party adapter. The later native block
+  transport slice adds trusted data-only JSON document and patch-envelope
+  decoding for app-controlled producers, without introducing arbitrary widget
+  serialization or a CMS sync protocol.
 - A `TagflowContentPolicy` with safe defaults is required in alpha.
 - A semantic `TagflowComponentRegistry` is required in alpha and must support
   app-owned renderer overrides.
@@ -214,6 +221,10 @@ Completed docs/release changes for the alpha line:
 - `docs/migration/2026-06-11-tagflow-v1-alpha-migration.md` documents the
   `0.0.x` to alpha migration.
 - Melos has a `version:alpha` lane and non-interactive publish dry-run lane.
+- The pending `1.0.0-alpha.2` notes document `TagflowNativeBlockCodec`,
+  `TagflowNativeBlockPatchEnvelope`, the native JSON document
+  decode/adapt/render path, the patch envelope decode/adapt/apply path, and
+  the report-only `benchmark:native-transport` lane.
 
 Claims to avoid in alpha:
 
@@ -447,8 +458,10 @@ Master review gate:
   benchmark pair and bounded repeat-3/repeat-5 attribution evidence have
   landed. Native block patch adaptation now maps replace, append-children,
   insert-before, and remove operations into the same immutable runtime patch
-  model for app/CMS/AI producers with stable block IDs. Document caching,
-  citations, optional actions, serializer helpers, patch envelopes, and any
+  model for app/CMS/AI producers with stable block IDs. Native JSON patch
+  envelopes now decode through `TagflowNativeBlockPatchEnvelope` and adapt
+  through `TagflowNativeBlockAdapter.adaptPatches(...)`. Document caching,
+  citations, optional actions, broader serializer helpers, CMS sync, and any
   dedicated callout renderer remain later work unless internal app integration
   proves they are required before beta.
 

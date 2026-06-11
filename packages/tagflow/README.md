@@ -174,8 +174,9 @@ final document = adapter.adapt(nativePayload);
 Tagflow.document(document);
 ```
 
-Patch envelopes follow the same path: decode the producer envelope, adapt the
-ordered native operations, then apply runtime document patches.
+Patch envelopes use `TagflowNativeBlockPatchEnvelope`: decode the producer
+envelope, adapt the ordered native operations, then apply runtime document
+patches.
 
 ```dart
 final envelope = codec.decodePatchEnvelope({
@@ -274,6 +275,8 @@ dependencies:
 ## Supported Features
 
 - Native semantic document rendering
+- Trusted native JSON document decode, adapt, and render flow
+- Trusted native JSON patch envelope decode, adapt, and apply flow
 - HTML adapter support for headings, paragraphs, emphasis, links, code,
   blockquotes, lists, images, and tables
 - Content policy filtering for unsafe tags, URL schemes, and unsupported input
@@ -311,6 +314,9 @@ For the v1 alpha migration direction, see
 The example app also includes a `Native JSON Transport` screen that decodes
 native block JSON, renders it with `Tagflow.document(...)`, and applies a patch
 envelope through `TagflowNativeBlockAdapter.adaptPatches(...)`.
+The native transport benchmark lane is available through
+`dart run melos run benchmark:native-transport`; current results are
+report-only local evidence, not public performance claims.
 
 ## Contributing
 

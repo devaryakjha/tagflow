@@ -128,8 +128,9 @@ final document = adapter.adapt(nativePayload);
 Tagflow.document(document);
 ```
 
-Patch envelopes decode into ordered native operations. Apps should adapt those
-operations and then use the runtime document patch API:
+Patch envelopes decode into `TagflowNativeBlockPatchEnvelope` values containing
+ordered native operations. Apps should adapt those operations and then use the
+runtime document patch API:
 
 ```dart
 final envelope = codec.decodePatchEnvelope(patchJson);
@@ -140,7 +141,9 @@ final updatedDocument = document.applyPatches(
 
 The native JSON transport is intentionally data-only. It does not execute
 JavaScript, render arbitrary webpages, serialize Flutter widgets, or define a
-complete CMS sync protocol.
+complete CMS sync protocol. Benchmark evidence for this path is available from
+the report-only `benchmark:native-transport` lane; it should not be used as a
+public performance claim.
 
 ## HTML Adapter and Content Policy
 
@@ -225,6 +228,8 @@ The alpha line does not promise:
 - JavaScript execution or DOM mutation APIs
 - rich text editing APIs
 - streaming HTML parsing or viewport virtualization
+- a CMS sync protocol for native JSON patches
+- public performance claims from report-only native transport smoke evidence
 - a separate published `tagflow_html` package
 - permanent source compatibility for parser/converter internals
 - selector-based custom converters as the long-term plugin model

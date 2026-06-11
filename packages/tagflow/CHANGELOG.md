@@ -1,3 +1,28 @@
+## 1.0.0-alpha.2 - pending
+
+- Adds `TagflowNativeBlockCodec` for decoding and encoding trusted, data-only
+  native JSON document payloads without routing app-controlled content through
+  HTML.
+- Adds `TagflowNativeBlockPatchEnvelope` for ordered native patch payloads,
+  covering decode/adapt/apply flows for replace, append-children,
+  insert-before, and remove operations.
+- Documents the native JSON document path:
+  `TagflowNativeBlockCodec.decodeDocument(...)` ->
+  `TagflowNativeBlockAdapter.adapt(...)` -> `Tagflow.document(...)`.
+- Documents the patch envelope path:
+  `TagflowNativeBlockCodec.decodePatchEnvelope(...)` ->
+  `TagflowNativeBlockAdapter.adaptPatches(...)` ->
+  `TagflowDocument.applyPatches(...)`.
+- Adds the example app `Native JSON Transport` screen for trusted
+  app-controlled JSON documents and patch envelopes.
+- Adds the report-only native transport benchmark lane,
+  `benchmark:native-transport`, for measuring JSON decode, document
+  adaptation, patch envelope decode, patch adaptation, and runtime patch
+  application overhead.
+- This prerelease does not introduce a CMS sync protocol, JavaScript execution,
+  arbitrary webpage rendering, Flutter widget serialization, or public
+  performance claims. Benchmark evidence remains local and report-only.
+
 ## 1.0.0-alpha.1
 
 - Introduces the native rich content runtime direction for Tagflow.
