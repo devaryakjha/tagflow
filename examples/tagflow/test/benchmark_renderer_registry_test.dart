@@ -11,6 +11,7 @@ void main() {
         containsAll(<String>[
           defaultBenchmarkRendererId,
           'tagflow_semantic',
+          semanticPatchBenchmarkRendererId,
           'flutter_html',
           'flutter_widget_from_html',
           'flutter_markdown_plus',
@@ -25,6 +26,10 @@ void main() {
       expect(
         benchmarkRendererById('tagflow_semantic').label,
         'Tagflow (semantic)',
+      );
+      expect(
+        benchmarkRendererById(semanticPatchBenchmarkRendererId).label,
+        'Tagflow (semantic patch)',
       );
       expect(benchmarkRendererById('flutter_html').label, 'Flutter HTML');
       expect(
@@ -51,6 +56,7 @@ void main() {
     expect(htmlRenderers.map((renderer) => renderer.id), [
       'tagflow',
       'tagflow_semantic',
+      semanticPatchBenchmarkRendererId,
       'flutter_html',
       'flutter_widget_from_html',
     ]);
@@ -59,6 +65,43 @@ void main() {
         (renderer) => renderer.supports(BenchmarkSourceType.html),
       ),
       isTrue,
+    );
+  });
+
+  test('returns ordinary HTML renderers for ordinary HTML fixtures', () {
+    final fixture = profileBenchmarkFixtureById('ai_answer_rich');
+    final htmlRenderers = benchmarkRenderersForFixture(fixture);
+
+    expect(htmlRenderers.map((renderer) => renderer.id), [
+      'tagflow',
+      'tagflow_semantic',
+      'flutter_html',
+      'flutter_widget_from_html',
+    ]);
+  });
+
+  test('returns only the patch renderer for the semantic patch fixture', () {
+    final fixture = profileBenchmarkFixtureById(
+      semanticPatchBenchmarkFixtureId,
+    );
+    final renderers = benchmarkRenderersForFixture(fixture);
+
+    expect(renderers.map((renderer) => renderer.id), [
+      semanticPatchBenchmarkRendererId,
+    ]);
+    expect(
+      benchmarkRendererSupportsFixture(
+        benchmarkRendererById(semanticPatchBenchmarkRendererId),
+        fixture,
+      ),
+      isTrue,
+    );
+    expect(
+      benchmarkRendererSupportsFixture(
+        benchmarkRendererById(defaultBenchmarkRendererId),
+        fixture,
+      ),
+      isFalse,
     );
   });
 

@@ -6,10 +6,17 @@ const List<String> profileBenchmarkFixtureIds = [
   'large_article',
   'table_stress',
   'streaming_ai_chunks',
+  semanticPatchBenchmarkFixtureId,
 ];
 
 /// Default fixture used by the manual benchmark route and integration test.
 const String defaultProfileBenchmarkFixtureId = 'ai_answer_rich';
+
+/// Fixture id for semantic document patch streaming.
+const String semanticPatchBenchmarkFixtureId = 'streaming_ai_patches';
+
+/// Renderer id for semantic document patch streaming.
+const String semanticPatchBenchmarkRendererId = 'tagflow_semantic_patch';
 
 /// Resolves a profile benchmark fixture by id.
 ProfileBenchmarkFixture profileBenchmarkFixtureById(String id) {
@@ -46,6 +53,16 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
     ),
     scenario: BenchmarkScenario.streamingChunks,
   ),
+  semanticPatchBenchmarkFixtureId: const ProfileBenchmarkFixture(
+    id: semanticPatchBenchmarkFixtureId,
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.html,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/html/ai_answer_rich.html',
+    ),
+    scenario: BenchmarkScenario.semanticPatchStreaming,
+    rendererIds: {semanticPatchBenchmarkRendererId},
+  ),
   for (final id in ['table_dense', 'large_article', 'table_stress'])
     id: ProfileBenchmarkFixture(
       id: id,
@@ -63,6 +80,9 @@ enum BenchmarkScenario {
 
   /// Re-render progressively larger chunks of one source document.
   streamingChunks,
+
+  /// Apply semantic document patches to stream already-adapted content.
+  semanticPatchStreaming,
 }
 
 /// Supported benchmark source formats.
@@ -93,6 +113,7 @@ final class ProfileBenchmarkFixture {
     required this.id,
     required this.source,
     this.scenario = BenchmarkScenario.staticDocument,
+    this.rendererIds = const {},
   });
 
   /// Stable fixture id shared with `tagflow_benchmarks`.
@@ -103,4 +124,12 @@ final class ProfileBenchmarkFixture {
 
   /// Interaction pattern used by automated profile benchmarks.
   final BenchmarkScenario scenario;
+
+  /// Optional explicit renderer ids accepted by this fixture.
+  final Set<String> rendererIds;
+
+  /// Whether this fixture accepts [rendererId].
+  bool supportsRendererId(String rendererId) {
+    return rendererIds.isEmpty || rendererIds.contains(rendererId);
+  }
 }

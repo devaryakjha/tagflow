@@ -22,6 +22,21 @@ void main() {
       expect(fixture.scenario, BenchmarkScenario.streamingChunks);
     });
 
+    test('resolves semantic patch fixture as a restricted HTML scenario', () {
+      final fixture = profileBenchmarkFixtureById(
+        semanticPatchBenchmarkFixtureId,
+      );
+
+      expect(fixture.source.type, BenchmarkSourceType.html);
+      expect(fixture.source.assetPath, endsWith('ai_answer_rich.html'));
+      expect(fixture.scenario, BenchmarkScenario.semanticPatchStreaming);
+      expect(
+        fixture.supportsRendererId(semanticPatchBenchmarkRendererId),
+        true,
+      );
+      expect(fixture.supportsRendererId('tagflow'), false);
+    });
+
     test('throws for an unknown fixture id', () {
       expect(
         () => profileBenchmarkFixtureById('missing_fixture'),

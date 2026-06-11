@@ -31,10 +31,11 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
 
   void _selectFixture(String value) {
     final fixture = profileBenchmarkFixtureById(value);
+    final compatibleRenderers = benchmarkRenderersForFixture(fixture);
     final nextRendererId =
-        benchmarkRendererById(rendererId).supports(fixture.source.type)
+        compatibleRenderers.any((renderer) => renderer.id == rendererId)
         ? rendererId
-        : benchmarkRenderersForSourceType(fixture.source.type).first.id;
+        : compatibleRenderers.first.id;
     setState(() {
       fixtureId = value;
       rendererId = nextRendererId;
@@ -90,9 +91,7 @@ final class _RendererPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final compatibleRenderers = benchmarkRenderersForSourceType(
-      fixture.source.type,
-    );
+    final compatibleRenderers = benchmarkRenderersForFixture(fixture);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

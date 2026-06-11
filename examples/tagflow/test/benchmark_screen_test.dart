@@ -69,6 +69,22 @@ void main() {
     expect(segmentedButtons[1].selected, {defaultBenchmarkRendererId});
   });
 
+  testWidgets('switching to patch fixture selects the patch renderer', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
+    await _pumpBenchmarkScreen(tester);
+
+    final patchFixtureFinder = find.text(semanticPatchBenchmarkFixtureId);
+    await tester.ensureVisible(patchFixtureFinder);
+    await tester.tap(patchFixtureFinder);
+    await _pumpBenchmarkScreen(tester);
+
+    final segmentedButtons = _segmentedButtons(tester);
+    expect(segmentedButtons.first.selected, {semanticPatchBenchmarkFixtureId});
+    expect(segmentedButtons[1].selected, {semanticPatchBenchmarkRendererId});
+  });
+
   testWidgets('can switch benchmark renderers', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
     await _pumpBenchmarkScreen(tester);

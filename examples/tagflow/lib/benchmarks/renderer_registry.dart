@@ -19,6 +19,7 @@ final class BenchmarkSourceDocument {
     required this.type,
     required this.data,
     required this.assetPath,
+    this.runtimeDocument,
   });
 
   /// Input format delivered to the renderer.
@@ -29,6 +30,9 @@ final class BenchmarkSourceDocument {
 
   /// Flutter asset path used to load the document.
   final String assetPath;
+
+  /// Optional already-adapted Tagflow runtime document.
+  final TagflowDocument? runtimeDocument;
 }
 
 /// Renderer available in the first profile benchmark scaffold.
@@ -84,6 +88,7 @@ const String flutterWidgetFromHtmlCoreNote =
 const List<String> benchmarkRendererIds = [
   defaultBenchmarkRendererId,
   'tagflow_semantic',
+  semanticPatchBenchmarkRendererId,
   'flutter_html',
   'flutter_widget_from_html',
   'flutter_markdown_plus',
@@ -94,6 +99,7 @@ const List<String> benchmarkRendererIds = [
 final List<BenchmarkRenderer> benchmarkRendererList = [
   tagflowBenchmarkRenderer,
   tagflowSemanticBenchmarkRenderer,
+  tagflowSemanticPatchBenchmarkRenderer,
   flutterHtmlBenchmarkRenderer,
   flutterWidgetFromHtmlBenchmarkRenderer,
   flutterMarkdownPlusBenchmarkRenderer,
@@ -121,6 +127,33 @@ List<BenchmarkRenderer> benchmarkRenderersForSourceType(
 ) =>
     benchmarkRendererList.where((renderer) => renderer.supports(type)).toList();
 
+const Set<String> _fixtureScopedRendererIds = {
+  semanticPatchBenchmarkRendererId,
+};
+
+/// Returns renderers compatible with the selected fixture.
+List<BenchmarkRenderer> benchmarkRenderersForFixture(
+  ProfileBenchmarkFixture fixture,
+) => benchmarkRenderersForSourceType(fixture.source.type)
+    .where((renderer) => benchmarkRendererSupportsFixture(renderer, fixture))
+    .toList();
+
+/// Whether [renderer] is compatible with [fixture].
+bool benchmarkRendererSupportsFixture(
+  BenchmarkRenderer renderer,
+  ProfileBenchmarkFixture fixture,
+) {
+  if (!renderer.supports(fixture.source.type)) {
+    return false;
+  }
+
+  if (fixture.rendererIds.isNotEmpty) {
+    return fixture.supportsRendererId(renderer.id);
+  }
+
+  return !_fixtureScopedRendererIds.contains(renderer.id);
+}
+
 /// Native Tagflow renderer for HTML fixture input.
 const BenchmarkRenderer tagflowBenchmarkRenderer = BenchmarkRenderer(
   id: defaultBenchmarkRendererId,
@@ -141,6 +174,20 @@ const BenchmarkRenderer tagflowSemanticBenchmarkRenderer = BenchmarkRenderer(
     'with the first-party semantic table registry extension.',
   ],
 );
+
+/// Native Tagflow renderer for the semantic document patch stream lane.
+const BenchmarkRenderer tagflowSemanticPatchBenchmarkRenderer =
+    BenchmarkRenderer(
+      id: semanticPatchBenchmarkRendererId,
+      label: 'Tagflow (semantic patch)',
+      builder: _buildTagflowSemanticPatchRenderer,
+      supportedSourceTypes: {BenchmarkSourceType.html},
+      notes: [
+        'Uses a pre-adapted TagflowDocument when supplied by the patch stream',
+        'benchmark, then renders with the first-party semantic table registry',
+        'extension.',
+      ],
+    );
 
 /// `flutter_html` adapter used for native HTML benchmark comparison.
 const BenchmarkRenderer flutterHtmlBenchmarkRenderer = BenchmarkRenderer(
@@ -209,6 +256,20 @@ Widget _buildTagflowSemanticRenderer(
   BenchmarkSourceDocument document,
 ) {
   final runtimeDocument = const TagflowHtmlAdapter().parse(document.data);
+  return Tagflow.document(
+    runtimeDocument,
+    registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
+    options: TagflowOptions(linkTapCallback: (_, _) {}),
+  );
+}
+
+Widget _buildTagflowSemanticPatchRenderer(
+  BuildContext context,
+  BenchmarkSourceDocument document,
+) {
+  final runtimeDocument =
+      document.runtimeDocument ??
+      const TagflowHtmlAdapter().parse(document.data);
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),

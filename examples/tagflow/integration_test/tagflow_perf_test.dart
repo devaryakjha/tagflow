@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/benchmark_host.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
+import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
-
-const _streamingChunkFractions = [0.25, 0.5, 0.75, 1.0];
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +26,20 @@ void main() {
     final fixture = profileBenchmarkFixtureById(fixtureId);
     final renderer = benchmarkRendererById(rendererId);
 
+    _verifyRendererFixturePair(renderer: renderer, fixture: fixture);
+
     if (fixture.scenario == BenchmarkScenario.streamingChunks) {
       await _runStreamingBenchmark(
+        tester: tester,
+        binding: binding,
+        fixture: fixture,
+        renderer: renderer,
+      );
+      return;
+    }
+
+    if (fixture.scenario == BenchmarkScenario.semanticPatchStreaming) {
+      await _runSemanticPatchStreamingBenchmark(
         tester: tester,
         binding: binding,
         fixture: fixture,
@@ -68,19 +80,23 @@ void main() {
   });
 }
 
+void _verifyRendererFixturePair({
+  required BenchmarkRenderer renderer,
+  required ProfileBenchmarkFixture fixture,
+}) {
+  if (!benchmarkRendererSupportsFixture(renderer, fixture)) {
+    throw StateError(
+      'Renderer "${renderer.id}" is not enabled for fixture "${fixture.id}".',
+    );
+  }
+}
+
 Future<void> _runStreamingBenchmark({
   required WidgetTester tester,
   required IntegrationTestWidgetsFlutterBinding binding,
   required ProfileBenchmarkFixture fixture,
   required BenchmarkRenderer renderer,
 }) async {
-  if (!renderer.supports(fixture.source.type)) {
-    throw StateError(
-      'Renderer "${renderer.id}" does not support ${fixture.source.type.name} '
-      'fixtures.',
-    );
-  }
-
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
   final updateLatencies = <Map<String, Object?>>[];
 
@@ -93,7 +109,7 @@ Future<void> _runStreamingBenchmark({
   );
 
   await binding.watchPerformance(() async {
-    for (final indexedFraction in _streamingChunkFractions.indexed) {
+    for (final indexedFraction in streamingChunkFractions.indexed) {
       final fraction = indexedFraction.$2;
       final chunk = _chunkDocument(fullDocument, fraction);
       final stopwatch = Stopwatch()..start();
@@ -117,6 +133,69 @@ Future<void> _runStreamingBenchmark({
         'chunk': indexedFraction.$1 + 1,
         'fraction': fraction,
         'inputLength': chunk.length,
+        'elapsedMicros': stopwatch.elapsedMicroseconds,
+      });
+    }
+  }, reportKey: '${renderer.id}_${fixture.id}_updates');
+
+  expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+  binding.reportData!['${renderer.id}_${fixture.id}_update_latencies'] =
+      updateLatencies;
+
+  await binding.watchPerformance(() async {
+    await tester.fling(
+      find.byKey(BenchmarkHost.scrollKey),
+      const Offset(0, -1200),
+      10000,
+    );
+    await tester.pumpAndSettle();
+  }, reportKey: '${renderer.id}_${fixture.id}_scroll');
+}
+
+Future<void> _runSemanticPatchStreamingBenchmark({
+  required WidgetTester tester,
+  required IntegrationTestWidgetsFlutterBinding binding,
+  required ProfileBenchmarkFixture fixture,
+  required BenchmarkRenderer renderer,
+}) async {
+  final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
+  final stream = SemanticPatchStream.fromHtml(fullDocument);
+  final updateLatencies = <Map<String, Object?>>[];
+
+  binding.reportData ??= <String, dynamic>{};
+  _recordViewport(
+    tester,
+    binding,
+    rendererId: renderer.id,
+    fixtureId: fixture.id,
+  );
+
+  var currentDocument = stream.initialDocument;
+  await binding.watchPerformance(() async {
+    for (final step in stream.steps) {
+      final stopwatch = Stopwatch()..start();
+      currentDocument = currentDocument.applyPatch(step.patch);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _BenchmarkDocumentFrame(
+            document: BenchmarkSourceDocument(
+              type: fixture.source.type,
+              data: fullDocument,
+              assetPath: fixture.source.assetPath,
+              runtimeDocument: currentDocument,
+            ),
+            renderer: renderer,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      stopwatch.stop();
+
+      updateLatencies.add(<String, Object?>{
+        'chunk': step.chunk,
+        'fraction': step.fraction,
+        'inputLength': step.inputLength,
         'elapsedMicros': stopwatch.elapsedMicroseconds,
       });
     }
