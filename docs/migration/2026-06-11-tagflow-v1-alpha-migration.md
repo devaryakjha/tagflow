@@ -36,13 +36,20 @@ For alpha docs and new code, prefer the explicit HTML constructor:
 Tagflow.html(
   html: htmlContent,
   theme: theme,
-  options: options,
+  viewOptions: viewOptions,
+  renderBoundary: TagflowRenderBoundary.comment(end: 'end-of-mobile'),
 );
 ```
 
 `Tagflow.html(...)` is the compatibility path for apps that still receive HTML.
 It parses through `TagflowHtmlAdapter` and renders the resulting
 `TagflowDocument`.
+
+`TagflowViewOptions` is the new runtime-view API for links, selection, image
+loading, image errors, cache behavior, and error widgets. `TagflowOptions`
+remains available as an alpha compatibility wrapper for existing code, and it
+still carries legacy HTML-only `renderBoundary` configuration during the
+transition.
 
 ## Native Document Usage
 

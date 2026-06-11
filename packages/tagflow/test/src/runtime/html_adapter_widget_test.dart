@@ -36,6 +36,23 @@ void main() {
       expect(find.text('Legacy bridge'), findsNothing);
     });
 
+    testWidgets('document entrypoint accepts TagflowViewOptions.defaults', (
+      tester,
+    ) async {
+      final document = _documentWithParagraph('Default view options');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            viewOptions: TagflowViewOptions.defaults,
+          ),
+        ),
+      );
+
+      expect(find.text('Default view options'), findsOneWidget);
+    });
+
     testWidgets('document entrypoint uses registry overrides', (tester) async {
       final document = _documentWithParagraph('Built-in runtime');
       final registry = TagflowComponentRegistry(
@@ -63,7 +80,7 @@ void main() {
         MaterialApp(
           home: Tagflow.document(
             document,
-            options: TagflowOptions.defaults.copyWith(
+            viewOptions: TagflowViewOptions.defaults.copyWith(
               selectable: const TagflowSelectableOptions(enabled: true),
             ),
           ),
@@ -72,6 +89,55 @@ void main() {
 
       expect(find.byType(SelectionArea), findsOneWidget);
       expect(find.text('Selectable runtime'), findsOneWidget);
+    });
+
+    testWidgets('html render boundary stays on the html entrypoint', (
+      tester,
+    ) async {
+      const html = '''
+<p>Visible</p>
+<!--end-of-mobile-->
+<p>Hidden</p>
+''';
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Tagflow.html(
+            html: html,
+            viewOptions: TagflowViewOptions.defaults,
+            renderBoundary: TagflowRenderBoundary.comment(end: 'end-of-mobile'),
+          ),
+        ),
+      );
+
+      expect(find.text('Visible'), findsOneWidget);
+      expect(find.text('Hidden'), findsNothing);
+    });
+
+    testWidgets('legacy TagflowOptions render boundary still works', (
+      tester,
+    ) async {
+      const html = '''
+<p>Visible</p>
+<!--end-of-mobile-->
+<p>Hidden</p>
+''';
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Tagflow(
+            html: html,
+            options: TagflowOptions(
+              renderBoundary: TagflowRenderBoundary.comment(
+                end: 'end-of-mobile',
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Visible'), findsOneWidget);
+      expect(find.text('Hidden'), findsNothing);
     });
 
     test('adapts HTML into a source-tagged runtime document', () {

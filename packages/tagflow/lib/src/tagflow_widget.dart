@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/src/adapters/html_adapter.dart';
+import 'package:tagflow/src/converter/converter.dart';
+import 'package:tagflow/src/core/models/models.dart';
+import 'package:tagflow/src/render/render.dart';
+import 'package:tagflow/src/runtime/runtime.dart';
+import 'package:tagflow/src/style/theme.dart';
+import 'package:tagflow/src/tagflow_options.dart';
 
-/// Error widget builder for handling parsing/conversion errors
-typedef ErrorWidgetBuilder =
-    Widget Function(BuildContext context, Object? error);
+/// Legacy widget-level error builder typedef.
+typedef ErrorWidgetBuilder = TagflowErrorWidgetBuilder;
 
 /// Default error widget builder
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
@@ -28,9 +33,18 @@ class Tagflow extends StatefulWidget {
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
-    this.options = TagflowOptions.defaults,
+    TagflowViewOptions? viewOptions,
+    TagflowOptions? options,
+    TagflowRenderBoundary? renderBoundary,
     super.key,
-  }) : document = null,
+  }) : assert(
+         viewOptions == null || options == null,
+         'Pass either viewOptions or options, not both.',
+       ),
+       _viewOptions = viewOptions,
+       _legacyOptions = options,
+       _renderBoundary = renderBoundary,
+       document = null,
        adapter = null,
        registry = null;
 
@@ -42,9 +56,18 @@ class Tagflow extends StatefulWidget {
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
-    this.options = TagflowOptions.defaults,
+    TagflowViewOptions? viewOptions,
+    TagflowOptions? options,
+    TagflowRenderBoundary? renderBoundary,
     super.key,
-  }) : document = null,
+  }) : assert(
+         viewOptions == null || options == null,
+         'Pass either viewOptions or options, not both.',
+       ),
+       _viewOptions = viewOptions,
+       _legacyOptions = options,
+       _renderBoundary = renderBoundary,
+       document = null,
        registry = null;
 
   /// Creates a new [Tagflow] widget from a native runtime document.
@@ -55,9 +78,17 @@ class Tagflow extends StatefulWidget {
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
-    this.options = TagflowOptions.defaults,
+    TagflowViewOptions? viewOptions,
+    TagflowOptions? options,
     super.key,
-  }) : html = null,
+  }) : assert(
+         viewOptions == null || options == null,
+         'Pass either viewOptions or options, not both.',
+       ),
+       _viewOptions = viewOptions,
+       _legacyOptions = options,
+       _renderBoundary = null,
+       html = null,
        adapter = null;
 
   /// The HTML content to render.
@@ -84,8 +115,27 @@ class Tagflow extends StatefulWidget {
   /// Loading widget shown while parsing
   final WidgetBuilder loadingBuilder;
 
-  /// Options for configuring the Tagflow widget
-  final TagflowOptions options;
+  final TagflowViewOptions? _viewOptions;
+  final TagflowOptions? _legacyOptions;
+  final TagflowRenderBoundary? _renderBoundary;
+
+  /// Runtime view options for configuring the Tagflow widget.
+  TagflowViewOptions get viewOptions =>
+      _viewOptions ??
+      _legacyOptions?.toViewOptions() ??
+      TagflowViewOptions.defaults;
+
+  /// HTML-only render boundary used by HTML entry points.
+  TagflowRenderBoundary? get renderBoundary =>
+      _renderBoundary ?? _legacyOptions?.renderBoundary;
+
+  /// Legacy compatibility access to the old options shape.
+  TagflowOptions get options =>
+      _legacyOptions ??
+      TagflowOptions.fromViewOptions(
+        viewOptions,
+        renderBoundary: _renderBoundary,
+      );
 
   @override
   State<Tagflow> createState() => _TagflowState();
@@ -111,7 +161,8 @@ class _TagflowState extends State<Tagflow> {
     if (oldWidget.html != widget.html ||
         oldWidget.document != widget.document ||
         oldWidget.adapter != widget.adapter ||
-        oldWidget.options.renderBoundary != widget.options.renderBoundary) {
+        oldWidget.viewOptions != widget.viewOptions ||
+        oldWidget.renderBoundary != widget.renderBoundary) {
       _loadDocument();
     }
 
@@ -131,7 +182,8 @@ class _TagflowState extends State<Tagflow> {
           widget.document ??
           (widget.adapter ?? const TagflowHtmlAdapter()).parse(
             widget.html ?? '',
-            options: widget.options,
+            viewOptions: widget.viewOptions,
+            renderBoundary: widget.renderBoundary,
           );
       _element = widget.document == null
           ? TagflowHtmlDocumentBridge.toLegacyNode(_document!)
@@ -139,7 +191,7 @@ class _TagflowState extends State<Tagflow> {
       _error = null;
     } catch (e, stack) {
       _error = e;
-      if (widget.options.debug) {
+      if (widget.viewOptions.debug) {
         debugPrint('Error loading Tagflow document: $e\n$stack');
       }
     }
@@ -148,7 +200,10 @@ class _TagflowState extends State<Tagflow> {
 
   Widget _buildContent(BuildContext context) {
     if (_error != null) {
-      return widget.errorBuilder(context, _error);
+      return (widget.viewOptions.errorBuilder ?? widget.errorBuilder)(
+        context,
+        _error,
+      );
     }
 
     Widget? content;
@@ -169,15 +224,15 @@ class _TagflowState extends State<Tagflow> {
       return widget.loadingBuilder(context);
     }
 
-    return widget.options.selectable.enabled
+    return widget.viewOptions.selectable.enabled
         ? SelectionArea(child: content)
         : content;
   }
 
   @override
   Widget build(BuildContext context) {
-    return TagflowScope(
-      options: widget.options,
+    return TagflowScope.view(
+      viewOptions: widget.viewOptions,
       child: widget.theme != null
           ? TagflowThemeProvider.merge(
               context,
@@ -203,7 +258,18 @@ class _TagflowState extends State<Tagflow> {
         ),
       )
       ..add(IterableProperty<ElementConverter>('converters', widget.converters))
-      ..add(DiagnosticsProperty<TagflowOptions>('options', widget.options))
+      ..add(
+        DiagnosticsProperty<TagflowViewOptions>(
+          'viewOptions',
+          widget.viewOptions,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty<TagflowRenderBoundary>(
+          'renderBoundary',
+          widget.renderBoundary,
+        ),
+      )
       ..add(DiagnosticsProperty<TagflowNode>('element', _element))
       ..add(DiagnosticsProperty<Object>('error', _error));
   }

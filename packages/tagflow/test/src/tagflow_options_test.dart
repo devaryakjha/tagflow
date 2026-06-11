@@ -44,8 +44,79 @@ void main() {
     );
   });
 
-  group('TagflowOptions', () {
-    testWidgets('provides options through context', (tester) async {
+  group('TagflowViewOptions', () {
+    testWidgets('provides view options through context', (tester) async {
+      late TagflowViewOptions capturedOptions;
+
+      await tester.pumpWidget(
+        TagflowScope.view(
+          viewOptions: const TagflowViewOptions(debug: true),
+          child: Builder(
+            builder: (context) {
+              capturedOptions = TagflowViewOptions.of(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(capturedOptions.debug, true);
+    });
+
+    test('copyWith works correctly', () {
+      const options = TagflowViewOptions(
+        maxImageWidth: 100,
+        maxImageHeight: 100,
+      );
+
+      final copied = options.copyWith(
+        debug: true,
+        maxImageWidth: 200,
+        maxImageHeight: 200,
+      );
+
+      expect(copied.debug, true);
+      expect(copied.maxImageWidth, 200);
+      expect(copied.enableImageCache, true);
+    });
+
+    testWidgets('updates when view options change', (tester) async {
+      var buildCount = 0;
+
+      await tester.pumpWidget(
+        TagflowScope.view(
+          viewOptions: TagflowViewOptions.defaults,
+          child: Builder(
+            builder: (context) {
+              buildCount++;
+              TagflowViewOptions.of(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(buildCount, 1);
+
+      await tester.pumpWidget(
+        TagflowScope.view(
+          viewOptions: const TagflowViewOptions(debug: true),
+          child: Builder(
+            builder: (context) {
+              buildCount++;
+              TagflowViewOptions.of(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(buildCount, 2);
+    });
+  });
+
+  group('TagflowOptions compatibility', () {
+    testWidgets('provides legacy options through context', (tester) async {
       late TagflowOptions capturedOptions;
 
       await tester.pumpWidget(
@@ -63,7 +134,7 @@ void main() {
       expect(capturedOptions.debug, true);
     });
 
-    test('copyWith works correctly', () {
+    test('preserves render boundaries and converts to view options', () {
       const options = TagflowOptions(maxImageWidth: 100, maxImageHeight: 100);
       const boundary = TagflowRenderBoundary.comment(end: 'end-of-mobile');
 
@@ -73,45 +144,14 @@ void main() {
         maxImageHeight: 200,
         renderBoundary: boundary,
       );
+      final viewOptions = copied.toViewOptions();
+      final roundTripped = TagflowOptions.fromViewOptions(viewOptions);
 
       expect(copied.debug, true);
       expect(copied.maxImageWidth, 200);
       expect(copied.enableImageCache, true);
       expect(copied.renderBoundary, boundary);
-    });
-
-    testWidgets('updates when options change', (tester) async {
-      var buildCount = 0;
-
-      await tester.pumpWidget(
-        TagflowScope(
-          options: TagflowOptions.defaults,
-          child: Builder(
-            builder: (context) {
-              buildCount++;
-              TagflowOptions.of(context);
-              return const SizedBox();
-            },
-          ),
-        ),
-      );
-
-      expect(buildCount, 1);
-
-      await tester.pumpWidget(
-        TagflowScope(
-          options: const TagflowOptions(debug: true),
-          child: Builder(
-            builder: (context) {
-              buildCount++;
-              TagflowOptions.of(context);
-              return const SizedBox();
-            },
-          ),
-        ),
-      );
-
-      expect(buildCount, 2);
+      expect(roundTripped.renderBoundary, isNull);
     });
   });
 }

@@ -42,11 +42,15 @@ final class TagflowHtmlAdapter {
     String? id,
     Uri? uri,
     TagflowMetadata? metadata,
-    TagflowOptions options = TagflowOptions.defaults,
+    TagflowViewOptions viewOptions = TagflowViewOptions.defaults,
+    TagflowOptions? options,
+    TagflowRenderBoundary? renderBoundary,
   }) {
+    final resolvedViewOptions = options?.toViewOptions() ?? viewOptions;
     final parser = TagflowParser(
-      debug: debug ?? options.debug,
-      renderBoundary: renderBoundary ?? options.renderBoundary,
+      debug: debug ?? resolvedViewOptions.debug,
+      renderBoundary:
+          this.renderBoundary ?? renderBoundary ?? options?.renderBoundary,
     );
     final root = parser.parse(html);
     final source = TagflowSourceInfo(

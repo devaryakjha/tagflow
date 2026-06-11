@@ -44,7 +44,7 @@ Flutter widgets and keeps HTML support through the first-party
 class MyHtmlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Tagflow(
+    return Tagflow.html(
       html: '<div>Hello, Flutter!</div>',
     );
   }

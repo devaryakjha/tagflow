@@ -4,11 +4,15 @@ import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/src/core/models/img_element.dart';
 
 /// Callback for handling link taps
 typedef TagflowLinkTapCallback =
     void Function(String url, LinkedHashMap<String, String>? attributes);
+
+/// Error widget builder for handling parsing and rendering failures.
+typedef TagflowErrorWidgetBuilder =
+    Widget Function(BuildContext context, Object? error);
 
 /// Behavior for selecting images
 enum TagflowImageSelectionBehavior {
@@ -102,9 +106,9 @@ final class TagflowRenderBoundary extends Equatable {
 /// [debug] Enable debug mode
 ///
 /// [linkTapCallback] Callback for handling link taps
-final class TagflowOptions extends Equatable {
-  /// Creates a new [TagflowOptions] instance.
-  const TagflowOptions({
+final class TagflowViewOptions extends Equatable {
+  /// Creates a new [TagflowViewOptions] instance.
+  const TagflowViewOptions({
     this.debug = false,
     this.linkTapCallback,
     this.selectable = const TagflowSelectableOptions(),
@@ -113,7 +117,7 @@ final class TagflowOptions extends Equatable {
     this.maxImageWidth,
     this.maxImageHeight,
     this.enableImageCache = true,
-    this.renderBoundary,
+    this.errorBuilder,
   });
 
   /// Enable debug mode
@@ -140,8 +144,148 @@ final class TagflowOptions extends Equatable {
   /// Whether to cache images
   final bool enableImageCache;
 
+  /// Custom widget builder for unrecoverable parsing or rendering errors.
+  final TagflowErrorWidgetBuilder? errorBuilder;
+
+  /// Create a copy with some properties replaced
+  TagflowViewOptions copyWith({
+    bool? debug,
+    TagflowLinkTapCallback? linkTapCallback,
+    TagflowSelectableOptions? selectable,
+    ImageLoadingBuilder? imageLoadingBuilder,
+    ImageErrorWidgetBuilder? imageErrorBuilder,
+    double? maxImageWidth,
+    double? maxImageHeight,
+    bool? enableImageCache,
+    TagflowErrorWidgetBuilder? errorBuilder,
+  }) {
+    return TagflowViewOptions(
+      debug: debug ?? this.debug,
+      linkTapCallback: linkTapCallback ?? this.linkTapCallback,
+      selectable: selectable ?? this.selectable,
+      imageLoadingBuilder: imageLoadingBuilder ?? this.imageLoadingBuilder,
+      imageErrorBuilder: imageErrorBuilder ?? this.imageErrorBuilder,
+      maxImageWidth: maxImageWidth ?? this.maxImageWidth,
+      maxImageHeight: maxImageHeight ?? this.maxImageHeight,
+      enableImageCache: enableImageCache ?? this.enableImageCache,
+      errorBuilder: errorBuilder ?? this.errorBuilder,
+    );
+  }
+
+  /// Default options
+  static const defaults = TagflowViewOptions();
+
+  /// Get options from context
+  static TagflowViewOptions of(BuildContext context) {
+    final options = maybeOf(context);
+    assert(options != null, 'No TagflowScope found in context');
+    return options!;
+  }
+
+  /// Get options from context if available
+  static TagflowViewOptions? maybeOf(BuildContext context) {
+    return TagflowScope.maybeOf(context)?.viewOptions;
+  }
+
+  @override
+  // coverage:ignore-line
+  List<Object?> get props => [
+    debug,
+    linkTapCallback,
+    selectable,
+    imageLoadingBuilder,
+    imageErrorBuilder,
+    maxImageWidth,
+    maxImageHeight,
+    enableImageCache,
+    errorBuilder,
+  ];
+}
+
+/// Legacy alpha compatibility wrapper for runtime view options.
+///
+/// Prefer [TagflowViewOptions] for new code. [TagflowRenderBoundary] remains on
+/// this compatibility type so existing HTML-first usage continues to work while
+/// the alpha API moves HTML-only parsing behavior onto `Tagflow.html(...)` and
+/// the HTML adapter.
+final class TagflowOptions extends Equatable {
+  /// Creates a new [TagflowOptions] instance.
+  const TagflowOptions({
+    this.debug = false,
+    this.linkTapCallback,
+    this.selectable = const TagflowSelectableOptions(),
+    this.imageLoadingBuilder,
+    this.imageErrorBuilder,
+    this.maxImageWidth,
+    this.maxImageHeight,
+    this.enableImageCache = true,
+    this.errorBuilder,
+    this.renderBoundary,
+  });
+
+  /// Creates legacy options from the new runtime view options.
+  factory TagflowOptions.fromViewOptions(
+    TagflowViewOptions options, {
+    TagflowRenderBoundary? renderBoundary,
+  }) {
+    return TagflowOptions(
+      debug: options.debug,
+      linkTapCallback: options.linkTapCallback,
+      selectable: options.selectable,
+      imageLoadingBuilder: options.imageLoadingBuilder,
+      imageErrorBuilder: options.imageErrorBuilder,
+      maxImageWidth: options.maxImageWidth,
+      maxImageHeight: options.maxImageHeight,
+      enableImageCache: options.enableImageCache,
+      errorBuilder: options.errorBuilder,
+      renderBoundary: renderBoundary,
+    );
+  }
+
+  /// Enable debug mode
+  final bool debug;
+
+  /// Callback for handling link taps
+  final TagflowLinkTapCallback? linkTapCallback;
+
+  /// Options for configuring the selectable behavior
+  final TagflowSelectableOptions selectable;
+
+  /// Custom image loading widget builder
+  final ImageLoadingBuilder? imageLoadingBuilder;
+
+  /// Custom image error widget builder
+  final ImageErrorWidgetBuilder? imageErrorBuilder;
+
+  /// Maximum width for images
+  final double? maxImageWidth;
+
+  /// Maximum height for images
+  final double? maxImageHeight;
+
+  /// Whether to cache images
+  final bool enableImageCache;
+
+  /// Custom widget builder for unrecoverable parsing or rendering errors.
+  final TagflowErrorWidgetBuilder? errorBuilder;
+
   /// Optional boundary that stops rendering part-way through the HTML tree.
   final TagflowRenderBoundary? renderBoundary;
+
+  /// Converts these compatibility options into the runtime view options.
+  TagflowViewOptions toViewOptions() {
+    return TagflowViewOptions(
+      debug: debug,
+      linkTapCallback: linkTapCallback,
+      selectable: selectable,
+      imageLoadingBuilder: imageLoadingBuilder,
+      imageErrorBuilder: imageErrorBuilder,
+      maxImageWidth: maxImageWidth,
+      maxImageHeight: maxImageHeight,
+      enableImageCache: enableImageCache,
+      errorBuilder: errorBuilder,
+    );
+  }
 
   /// Create a copy with some properties replaced
   TagflowOptions copyWith({
@@ -153,6 +297,7 @@ final class TagflowOptions extends Equatable {
     double? maxImageWidth,
     double? maxImageHeight,
     bool? enableImageCache,
+    TagflowErrorWidgetBuilder? errorBuilder,
     TagflowRenderBoundary? renderBoundary,
   }) {
     return TagflowOptions(
@@ -164,6 +309,7 @@ final class TagflowOptions extends Equatable {
       maxImageWidth: maxImageWidth ?? this.maxImageWidth,
       maxImageHeight: maxImageHeight ?? this.maxImageHeight,
       enableImageCache: enableImageCache ?? this.enableImageCache,
+      errorBuilder: errorBuilder ?? this.errorBuilder,
       renderBoundary: renderBoundary ?? this.renderBoundary,
     );
   }
@@ -194,17 +340,39 @@ final class TagflowOptions extends Equatable {
     maxImageWidth,
     maxImageHeight,
     enableImageCache,
+    errorBuilder,
     renderBoundary,
   ];
 }
 
 /// Scope for providing options to descendants
 class TagflowScope extends InheritedWidget {
-  /// Creates a new [TagflowScope].
-  const TagflowScope({required this.options, required super.child, super.key});
+  /// Creates a new legacy compatibility [TagflowScope].
+  const TagflowScope({
+    required TagflowOptions options,
+    required super.child,
+    super.key,
+  }) : _legacyOptions = options,
+       _viewOptions = null;
 
-  /// The options to provide
-  final TagflowOptions options;
+  /// Creates a [TagflowScope] with runtime view options.
+  const TagflowScope.view({
+    required TagflowViewOptions viewOptions,
+    required super.child,
+    super.key,
+  }) : _viewOptions = viewOptions,
+       _legacyOptions = null;
+
+  final TagflowOptions? _legacyOptions;
+  final TagflowViewOptions? _viewOptions;
+
+  /// The runtime view options to provide.
+  TagflowViewOptions get viewOptions =>
+      _viewOptions ?? _legacyOptions!.toViewOptions();
+
+  /// The legacy compatibility options exposed through [TagflowOptions.of].
+  TagflowOptions get options =>
+      _legacyOptions ?? TagflowOptions.fromViewOptions(viewOptions);
 
   /// Get scope from context
   static TagflowScope? maybeOf(BuildContext context) {
@@ -220,6 +388,6 @@ class TagflowScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(TagflowScope oldWidget) {
-    return options != oldWidget.options;
+    return viewOptions != oldWidget.viewOptions;
   }
 }
