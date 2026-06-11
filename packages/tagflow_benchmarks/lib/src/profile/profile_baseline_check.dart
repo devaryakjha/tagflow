@@ -170,6 +170,7 @@ final class ProfileBaselineCheckResult {
     required this.policy,
     required this.passed,
     required this.issues,
+    required this.reportOnlyFindings,
   });
 
   /// Checked `profile-baseline-summary.json` path.
@@ -187,6 +188,9 @@ final class ProfileBaselineCheckResult {
   /// Issues found while checking the summary.
   final List<ProfileBaselineCheckIssue> issues;
 
+  /// Reviewer-visible findings that do not affect pass/fail.
+  final List<ProfileBaselineCheckIssue> reportOnlyFindings;
+
   /// Converts this result to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'summaryPath': summaryPath,
@@ -194,6 +198,9 @@ final class ProfileBaselineCheckResult {
     if (policy != null) 'policy': policy!.toJson(),
     'passed': passed,
     'issues': issues.map((issue) => issue.toJson()).toList(),
+    'reportOnlyFindings': reportOnlyFindings
+        .map((finding) => finding.toJson())
+        .toList(),
   };
 }
 
@@ -250,6 +257,7 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
       .cast<Map<String, Object?>>();
 
   final issues = <ProfileBaselineCheckIssue>[];
+  final reportOnlyFindings = <ProfileBaselineCheckIssue>[];
 
   if (failedRuns.isNotEmpty) {
     issues.add(
@@ -304,6 +312,24 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
       );
     }
 
+    final outlierRepeats =
+        ((cell['outlierRepeats'] as List<Object?>?) ?? const [])
+            .cast<Map<String, Object?>>();
+    for (final outlier in outlierRepeats) {
+      reportOnlyFindings.add(
+        ProfileBaselineCheckIssue(
+          code: 'outlier_repeat_present',
+          message:
+              'A renderer/fixture cell recorded a report-only outlier repeat.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            ...outlier,
+          },
+        ),
+      );
+    }
+
     if (effectiveViewport == null) {
       continue;
     }
@@ -353,6 +379,9 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
     policy: policy,
     passed: issues.isEmpty,
     issues: List<ProfileBaselineCheckIssue>.unmodifiable(issues),
+    reportOnlyFindings: List<ProfileBaselineCheckIssue>.unmodifiable(
+      reportOnlyFindings,
+    ),
   );
 }
 

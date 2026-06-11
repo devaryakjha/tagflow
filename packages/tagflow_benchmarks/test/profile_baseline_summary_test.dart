@@ -136,6 +136,7 @@ void main() {
     expect(cell.worstRasterMillis.max, 18.5);
     expect(cell.missedRasterBudgetCount.total, 1);
     expect(cell.oldGenGcCount.max, 1);
+    expect(cell.updateSummary, isNull);
     expect(cell.outlierRepeats, hasLength(1));
     expect(cell.outlierRepeats.single.repeat, 2);
     expect(
@@ -222,5 +223,211 @@ void main() {
     expect(summary.cellSummaries.single.viewports, hasLength(1));
     expect(summary.cellSummaries.single.viewports.single.logicalWidth, 800.0);
     expect(summary.cellSummaries.single.viewports.single.devicePixelRatio, 2.0);
+    expect(
+      summary.cellSummaries.single.toJson().containsKey('updateSummary'),
+      isFalse,
+    );
+  });
+
+  test('summarizes update latencies and update-phase frame metrics', () {
+    const scrollKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_scroll';
+    const updatesKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_'
+        'updates';
+    const updateLatenciesKey =
+        'tagflow_semantic_patch_streaming_ai_authored_insertion_patches_'
+        'update_latencies';
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_summary_updates_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final runDirectory = Directory(
+      p.join(
+        workspaceRoot.path,
+        'build',
+        'benchmarks',
+        'profile',
+        '2026-06-11-authored-insertion-pair-repeat5',
+      ),
+    )..createSync(recursive: true);
+
+    File(
+        p.join(
+          runDirectory.path,
+          'tagflow_semantic_patch',
+          'streaming_ai_authored_insertion_patches',
+          'repeat-01.json',
+        ),
+      )
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        jsonEncode(<String, Object?>{
+          scrollKey: <String, Object?>{
+            'average_frame_build_time_millis': 0.2,
+            '90th_percentile_frame_build_time_millis': 0.3,
+            'worst_frame_build_time_millis': 0.5,
+            'average_frame_rasterizer_time_millis': 0.8,
+            '90th_percentile_frame_rasterizer_time_millis': 1.2,
+            'worst_frame_rasterizer_time_millis': 3.8,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 24,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          updatesKey: <String, Object?>{
+            'average_frame_build_time_millis': 1.1,
+            '90th_percentile_frame_build_time_millis': 1.6,
+            'worst_frame_build_time_millis': 3.2,
+            'average_frame_rasterizer_time_millis': 2.2,
+            '90th_percentile_frame_rasterizer_time_millis': 3.4,
+            'worst_frame_rasterizer_time_millis': 5.6,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 3,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          updateLatenciesKey: <Object?>[
+            <String, Object?>{
+              'chunk': 1,
+              'fraction': 0.33,
+              'inputLength': 2000,
+              'elapsedMicros': 110118,
+            },
+            <String, Object?>{
+              'chunk': 2,
+              'fraction': 0.66,
+              'inputLength': 4000,
+              'elapsedMicros': 116790,
+            },
+          ],
+        }),
+      );
+
+    File(
+      p.join(
+        runDirectory.path,
+        'tagflow_semantic_patch',
+        'streaming_ai_authored_insertion_patches',
+        'repeat-02.json',
+      ),
+    ).writeAsStringSync(
+      jsonEncode(<String, Object?>{
+        scrollKey: <String, Object?>{
+          'average_frame_build_time_millis': 0.2,
+          '90th_percentile_frame_build_time_millis': 0.3,
+          'worst_frame_build_time_millis': 0.5,
+          'average_frame_rasterizer_time_millis': 0.8,
+          '90th_percentile_frame_rasterizer_time_millis': 1.2,
+          'worst_frame_rasterizer_time_millis': 3.8,
+          'missed_frame_build_budget_count': 0,
+          'missed_frame_rasterizer_budget_count': 0,
+          'frame_count': 24,
+          'new_gen_gc_count': 0,
+          'old_gen_gc_count': 0,
+        },
+        updatesKey: <String, Object?>{
+          'average_frame_build_time_millis': 5.4,
+          '90th_percentile_frame_build_time_millis': 8.9,
+          'worst_frame_build_time_millis': 18.8,
+          'average_frame_rasterizer_time_millis': 7.6,
+          '90th_percentile_frame_rasterizer_time_millis': 14.2,
+          'worst_frame_rasterizer_time_millis': 21.132,
+          'missed_frame_build_budget_count': 0,
+          'missed_frame_rasterizer_budget_count': 1,
+          'frame_count': 3,
+          'new_gen_gc_count': 0,
+          'old_gen_gc_count': 0,
+        },
+        updateLatenciesKey: <Object?>[
+          <String, Object?>{
+            'chunk': 1,
+            'fraction': 0.33,
+            'inputLength': 2000,
+            'elapsedMicros': 249327401,
+          },
+          <String, Object?>{
+            'chunk': 2,
+            'fraction': 0.66,
+            'inputLength': 4000,
+            'elapsedMicros': 114001,
+          },
+        ],
+      }),
+    );
+
+    final manifestFile =
+        File(p.join(runDirectory.path, 'profile-baseline-manifest.json'))
+          ..writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'runId': '2026-06-11-authored-insertion-pair-repeat5',
+              'runs': [
+                <String, Object?>{
+                  'renderer': 'tagflow_semantic_patch',
+                  'fixture': 'streaming_ai_authored_insertion_patches',
+                  'repeat': 1,
+                  'status': 'passed',
+                  'artifactPath':
+                      'build/benchmarks/profile/'
+                      '2026-06-11-authored-insertion-pair-repeat5/'
+                      'tagflow_semantic_patch/'
+                      'streaming_ai_authored_insertion_patches/'
+                      'repeat-01.json',
+                },
+                <String, Object?>{
+                  'renderer': 'tagflow_semantic_patch',
+                  'fixture': 'streaming_ai_authored_insertion_patches',
+                  'repeat': 2,
+                  'status': 'passed',
+                  'artifactPath':
+                      'build/benchmarks/profile/'
+                      '2026-06-11-authored-insertion-pair-repeat5/'
+                      'tagflow_semantic_patch/'
+                      'streaming_ai_authored_insertion_patches/'
+                      'repeat-02.json',
+                },
+              ],
+            }),
+          );
+
+    final summary = summarizeProfileBaselineManifest(
+      manifestFile: manifestFile,
+      clock: () => DateTime.utc(2026, 6, 11, 9),
+    );
+
+    final cell = summary.cellSummaries.single;
+    expect(cell.updateSummary, isNotNull);
+    final updateSummary = cell.updateSummary!;
+    expect(updateSummary.observedRepeats, 2);
+    expect(updateSummary.observedUpdateCount, 4);
+    expect(updateSummary.maxElapsedMicros, 249327401);
+    expect(updateSummary.maxElapsedMillis, closeTo(249327.401, 0.0001));
+    expect(updateSummary.maxElapsedRepeat, 2);
+    expect(updateSummary.maxElapsedChunk, 1);
+    expect(updateSummary.maxElapsedFraction, 0.33);
+    expect(updateSummary.maxElapsedInputLength, 2000);
+    expect(updateSummary.worstBuildMillis, isNotNull);
+    expect(updateSummary.worstBuildMillis!.max, 18.8);
+    expect(updateSummary.worstRasterMillis, isNotNull);
+    expect(updateSummary.worstRasterMillis!.max, 21.132);
+    expect(updateSummary.missedBuildBudgetCount, isNotNull);
+    expect(updateSummary.missedBuildBudgetCount!.total, 0);
+    expect(updateSummary.missedRasterBudgetCount, isNotNull);
+    expect(updateSummary.missedRasterBudgetCount!.total, 1);
+
+    expect(cell.outlierRepeats, hasLength(1));
+    expect(cell.outlierRepeats.single.repeat, 2);
+    expect(
+      cell.outlierRepeats.single.reasons,
+      containsAll(<String>[
+        'update_latency_spike',
+        'update_missed_raster_budget',
+        'update_worst_build_over_budget',
+        'update_worst_raster_over_budget',
+      ]),
+    );
   });
 }

@@ -27,6 +27,7 @@ void main() {
 
     expect(result.passed, isTrue);
     expect(result.issues, isEmpty);
+    expect(result.reportOnlyFindings, isEmpty);
     expect(result.toJson(), containsPair('passed', true));
   });
 
@@ -55,6 +56,7 @@ void main() {
 
     expect(result.passed, isTrue);
     expect(result.issues, isEmpty);
+    expect(result.reportOnlyFindings, isEmpty);
   });
 
   test(
@@ -236,6 +238,64 @@ void main() {
     expect(result.issues, isEmpty);
   });
 
+  test('surfaces outlier repeats as report-only findings', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 2,
+      successfulRuns: 2,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow_semantic_patch',
+          fixture: 'streaming_ai_authored_insertion_patches',
+          repeats: 2,
+          outlierRepeats: <Map<String, Object?>>[
+            <String, Object?>{
+              'repeat': 2,
+              'artifactPath':
+                  'build/benchmarks/profile/run/'
+                  'tagflow_semantic_patch/repeat-02.json',
+              'reasons': <String>[
+                'update_latency_spike',
+                'update_missed_raster_budget',
+              ],
+              'frameCount': 24,
+              'worstBuildMillis': 0.5,
+              'worstRasterMillis': 3.8,
+              'missedBuildBudgetCount': 0,
+              'missedRasterBudgetCount': 0,
+              'oldGenGcCount': 0,
+              'updateMaxElapsedMicros': 249327401,
+              'updateWorstBuildMillis': 18.8,
+              'updateWorstRasterMillis': 21.132,
+              'updateMissedBuildBudgetCount': 0,
+              'updateMissedRasterBudgetCount': 1,
+            },
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(summaryFile: summaryFile);
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+    expect(result.reportOnlyFindings, hasLength(1));
+    expect(result.reportOnlyFindings.single.code, 'outlier_repeat_present');
+    expect(
+      result.reportOnlyFindings.single.details,
+      containsPair('renderer', 'tagflow_semantic_patch'),
+    );
+    expect(result.reportOnlyFindings.single.details, containsPair('repeat', 2));
+    expect(
+      result.reportOnlyFindings.single.details,
+      containsPair('reasons', <String>[
+        'update_latency_spike',
+        'update_missed_raster_budget',
+      ]),
+    );
+    expect(result.toJson(), contains('reportOnlyFindings'));
+  });
+
   test('loads a report-only check policy from JSON', () {
     final policyFile = _writePolicy();
     addTearDown(() => policyFile.parent.deleteSync(recursive: true));
@@ -330,11 +390,13 @@ Map<String, Object?> _cellSummary({
   required String fixture,
   required int repeats,
   List<Map<String, Object?>> viewports = const <Map<String, Object?>>[],
+  List<Map<String, Object?>> outlierRepeats = const <Map<String, Object?>>[],
 }) => <String, Object?>{
   'renderer': renderer,
   'fixture': fixture,
   'observedRepeats': repeats,
   'viewports': viewports,
+  'outlierRepeats': outlierRepeats,
 };
 
 Map<String, Object?> _viewport({

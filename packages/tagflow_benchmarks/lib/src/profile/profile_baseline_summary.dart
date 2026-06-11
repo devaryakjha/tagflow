@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 const double _frameBudgetMillis = 16.667;
+const int _updateLatencySpikeThresholdMicros = 500000;
+const int _updateLatencySpikeMultiplier = 5;
 
 /// Summary for a collected profile baseline matrix.
 final class ProfileBaselineSummary {
@@ -126,6 +128,7 @@ final class ProfileBaselineCellSummary {
     required this.newGenGcCount,
     required this.oldGenGcCount,
     required this.viewports,
+    required this.updateSummary,
     required this.outlierRepeats,
   });
 
@@ -174,6 +177,9 @@ final class ProfileBaselineCellSummary {
   /// Unique viewport configurations observed across repeats.
   final List<ProfileBaselineViewport> viewports;
 
+  /// Optional update-path summary for dynamic benchmarks.
+  final ProfileBaselineCellUpdateSummary? updateSummary;
+
   /// Repeats that merit reviewer attention.
   final List<ProfileBaselineOutlier> outlierRepeats;
 
@@ -194,9 +200,92 @@ final class ProfileBaselineCellSummary {
     'newGenGcCount': newGenGcCount.toJson(),
     'oldGenGcCount': oldGenGcCount.toJson(),
     'viewports': viewports.map((viewport) => viewport.toJson()).toList(),
+    if (updateSummary != null) 'updateSummary': updateSummary!.toJson(),
     'outlierRepeats': outlierRepeats
         .map((outlier) => outlier.toJson())
         .toList(),
+  };
+}
+
+/// Summary for optional update-path payloads across repeated runs.
+final class ProfileBaselineCellUpdateSummary {
+  /// Creates an update-path summary.
+  const ProfileBaselineCellUpdateSummary({
+    required this.observedRepeats,
+    required this.observedUpdateCount,
+    required this.maxElapsedMicros,
+    required this.maxElapsedMillis,
+    required this.maxElapsedRepeat,
+    required this.maxElapsedChunk,
+    required this.maxElapsedFraction,
+    required this.maxElapsedInputLength,
+    required this.maxElapsedArtifactPath,
+    required this.worstBuildMillis,
+    required this.worstRasterMillis,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+  });
+
+  /// Number of repeats that emitted update payloads.
+  final int observedRepeats;
+
+  /// Total update latency samples seen across all repeats.
+  final int observedUpdateCount;
+
+  /// Maximum observed update latency in microseconds.
+  final int? maxElapsedMicros;
+
+  /// Maximum observed update latency in milliseconds.
+  final double? maxElapsedMillis;
+
+  /// Repeat containing the maximum update latency.
+  final int? maxElapsedRepeat;
+
+  /// Chunk index containing the maximum update latency.
+  final int? maxElapsedChunk;
+
+  /// Fraction marker containing the maximum update latency.
+  final double? maxElapsedFraction;
+
+  /// Input length captured at the maximum update latency.
+  final int? maxElapsedInputLength;
+
+  /// Artifact path for the repeat with the maximum update latency.
+  final String? maxElapsedArtifactPath;
+
+  /// Worst update build-time distribution across repeats.
+  final ProfileBaselineNumberSummary? worstBuildMillis;
+
+  /// Worst update raster-time distribution across repeats.
+  final ProfileBaselineNumberSummary? worstRasterMillis;
+
+  /// Missed update build-budget counts across repeats.
+  final ProfileBaselineCountSummary? missedBuildBudgetCount;
+
+  /// Missed update raster-budget counts across repeats.
+  final ProfileBaselineCountSummary? missedRasterBudgetCount;
+
+  /// Converts this update summary to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'observedRepeats': observedRepeats,
+    'observedUpdateCount': observedUpdateCount,
+    if (maxElapsedMicros != null) 'maxElapsedMicros': maxElapsedMicros,
+    if (maxElapsedMillis != null) 'maxElapsedMillis': maxElapsedMillis,
+    if (maxElapsedRepeat != null) 'maxElapsedRepeat': maxElapsedRepeat,
+    if (maxElapsedChunk != null) 'maxElapsedChunk': maxElapsedChunk,
+    if (maxElapsedFraction != null) 'maxElapsedFraction': maxElapsedFraction,
+    if (maxElapsedInputLength != null)
+      'maxElapsedInputLength': maxElapsedInputLength,
+    if (maxElapsedArtifactPath != null)
+      'maxElapsedArtifactPath': maxElapsedArtifactPath,
+    if (worstBuildMillis != null)
+      'worstBuildMillis': worstBuildMillis!.toJson(),
+    if (worstRasterMillis != null)
+      'worstRasterMillis': worstRasterMillis!.toJson(),
+    if (missedBuildBudgetCount != null)
+      'missedBuildBudgetCount': missedBuildBudgetCount!.toJson(),
+    if (missedRasterBudgetCount != null)
+      'missedRasterBudgetCount': missedRasterBudgetCount!.toJson(),
   };
 }
 
@@ -311,6 +400,14 @@ final class ProfileBaselineOutlier {
     required this.missedBuildBudgetCount,
     required this.missedRasterBudgetCount,
     required this.oldGenGcCount,
+    required this.updateMaxElapsedMicros,
+    required this.updateMaxElapsedChunk,
+    required this.updateMaxElapsedFraction,
+    required this.updateMaxElapsedInputLength,
+    required this.updateWorstBuildMillis,
+    required this.updateWorstRasterMillis,
+    required this.updateMissedBuildBudgetCount,
+    required this.updateMissedRasterBudgetCount,
   });
 
   /// One-based repeat index.
@@ -340,6 +437,30 @@ final class ProfileBaselineOutlier {
   /// Old-gen GC count.
   final int oldGenGcCount;
 
+  /// Maximum update latency in microseconds, when present.
+  final int? updateMaxElapsedMicros;
+
+  /// Chunk index for the maximum update latency, when present.
+  final int? updateMaxElapsedChunk;
+
+  /// Fraction marker for the maximum update latency, when present.
+  final double? updateMaxElapsedFraction;
+
+  /// Input length for the maximum update latency, when present.
+  final int? updateMaxElapsedInputLength;
+
+  /// Worst update build duration in milliseconds, when present.
+  final double? updateWorstBuildMillis;
+
+  /// Worst update raster duration in milliseconds, when present.
+  final double? updateWorstRasterMillis;
+
+  /// Missed update build-budget count, when present.
+  final int? updateMissedBuildBudgetCount;
+
+  /// Missed update raster-budget count, when present.
+  final int? updateMissedRasterBudgetCount;
+
   /// Converts this outlier to JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'repeat': repeat,
@@ -351,6 +472,22 @@ final class ProfileBaselineOutlier {
     'missedBuildBudgetCount': missedBuildBudgetCount,
     'missedRasterBudgetCount': missedRasterBudgetCount,
     'oldGenGcCount': oldGenGcCount,
+    if (updateMaxElapsedMicros != null)
+      'updateMaxElapsedMicros': updateMaxElapsedMicros,
+    if (updateMaxElapsedChunk != null)
+      'updateMaxElapsedChunk': updateMaxElapsedChunk,
+    if (updateMaxElapsedFraction != null)
+      'updateMaxElapsedFraction': updateMaxElapsedFraction,
+    if (updateMaxElapsedInputLength != null)
+      'updateMaxElapsedInputLength': updateMaxElapsedInputLength,
+    if (updateWorstBuildMillis != null)
+      'updateWorstBuildMillis': updateWorstBuildMillis,
+    if (updateWorstRasterMillis != null)
+      'updateWorstRasterMillis': updateWorstRasterMillis,
+    if (updateMissedBuildBudgetCount != null)
+      'updateMissedBuildBudgetCount': updateMissedBuildBudgetCount,
+    if (updateMissedRasterBudgetCount != null)
+      'updateMissedRasterBudgetCount': updateMissedRasterBudgetCount,
   };
 }
 
@@ -400,6 +537,8 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       run: run,
       metrics: artifact.metrics,
       viewport: artifact.viewport,
+      updateMetrics: artifact.updateMetrics,
+      updateLatencies: artifact.updateLatencies,
     );
     final key = '${run.renderer}::${run.fixture}';
     grouped.putIfAbsent(key, () => <_ProfileBaselineRunRecord>[]).add(record);
@@ -454,10 +593,8 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
                     .map((record) => record.viewport)
                     .whereType<ProfileBaselineViewport>(),
               ),
-              outlierRepeats: records
-                  .map(_detectOutlier)
-                  .whereType<ProfileBaselineOutlier>()
-                  .toList(growable: false),
+              updateSummary: _buildUpdateSummary(records),
+              outlierRepeats: _detectOutliers(records),
             );
           })
           .toList(growable: false)
@@ -504,11 +641,15 @@ final class _ProfileBaselineRunRecord {
     required this.run,
     required this.metrics,
     required this.viewport,
+    required this.updateMetrics,
+    required this.updateLatencies,
   });
 
   final _ManifestRun run;
   final _ProfileMetrics metrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileUpdateMetrics? updateMetrics;
+  final List<_ProfileUpdateLatencySample> updateLatencies;
 }
 
 final class _ManifestRun {
@@ -585,11 +726,46 @@ final class _ProfileMetrics {
   final int oldGenGcCount;
 }
 
+final class _ProfileUpdateMetrics {
+  const _ProfileUpdateMetrics({
+    required this.worstBuildMillis,
+    required this.worstRasterMillis,
+    required this.missedBuildBudgetCount,
+    required this.missedRasterBudgetCount,
+  });
+
+  final double worstBuildMillis;
+  final double worstRasterMillis;
+  final int missedBuildBudgetCount;
+  final int missedRasterBudgetCount;
+}
+
+final class _ProfileUpdateLatencySample {
+  const _ProfileUpdateLatencySample({
+    required this.chunk,
+    required this.fraction,
+    required this.inputLength,
+    required this.elapsedMicros,
+  });
+
+  final int chunk;
+  final double fraction;
+  final int inputLength;
+  final int elapsedMicros;
+}
+
 final class _ProfileArtifact {
-  const _ProfileArtifact({required this.metrics, required this.viewport});
+  const _ProfileArtifact({
+    required this.metrics,
+    required this.viewport,
+    required this.updateMetrics,
+    required this.updateLatencies,
+  });
 
   final _ProfileMetrics metrics;
   final ProfileBaselineViewport? viewport;
+  final _ProfileUpdateMetrics? updateMetrics;
+  final List<_ProfileUpdateLatencySample> updateLatencies;
 }
 
 _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
@@ -605,34 +781,72 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
 
   final viewportKey = '${run.renderer}_${run.fixture}_viewport';
   final viewportPayload = root[viewportKey];
+  final updateMetricsKey = '${run.renderer}_${run.fixture}_updates';
+  final updateMetricsPayload = root[updateMetricsKey];
+  final updateLatenciesKey = '${run.renderer}_${run.fixture}_update_latencies';
+  final updateLatenciesPayload = root[updateLatenciesKey];
 
   return _ProfileArtifact(
-    metrics: _ProfileMetrics(
-      frameCount: payload['frame_count']! as int,
-      averageBuildMillis: (payload['average_frame_build_time_millis']! as num)
-          .toDouble(),
-      p90BuildMillis:
-          (payload['90th_percentile_frame_build_time_millis']! as num)
-              .toDouble(),
-      worstBuildMillis: (payload['worst_frame_build_time_millis']! as num)
-          .toDouble(),
-      averageRasterMillis:
-          (payload['average_frame_rasterizer_time_millis']! as num).toDouble(),
-      p90RasterMillis:
-          (payload['90th_percentile_frame_rasterizer_time_millis']! as num)
-              .toDouble(),
-      worstRasterMillis: (payload['worst_frame_rasterizer_time_millis']! as num)
-          .toDouble(),
-      missedBuildBudgetCount:
-          payload['missed_frame_build_budget_count']! as int,
-      missedRasterBudgetCount:
-          payload['missed_frame_rasterizer_budget_count']! as int,
-      newGenGcCount: payload['new_gen_gc_count']! as int,
-      oldGenGcCount: payload['old_gen_gc_count']! as int,
-    ),
+    metrics: _readProfileMetrics(payload),
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)
         : null,
+    updateMetrics: updateMetricsPayload is Map<String, Object?>
+        ? _readUpdateMetrics(updateMetricsPayload)
+        : null,
+    updateLatencies: updateLatenciesPayload is List<Object?>
+        ? _readUpdateLatencies(updateLatenciesPayload)
+        : const <_ProfileUpdateLatencySample>[],
+  );
+}
+
+_ProfileMetrics _readProfileMetrics(Map<String, Object?> payload) {
+  return _ProfileMetrics(
+    frameCount: payload['frame_count']! as int,
+    averageBuildMillis: (payload['average_frame_build_time_millis']! as num)
+        .toDouble(),
+    p90BuildMillis: (payload['90th_percentile_frame_build_time_millis']! as num)
+        .toDouble(),
+    worstBuildMillis: (payload['worst_frame_build_time_millis']! as num)
+        .toDouble(),
+    averageRasterMillis:
+        (payload['average_frame_rasterizer_time_millis']! as num).toDouble(),
+    p90RasterMillis:
+        (payload['90th_percentile_frame_rasterizer_time_millis']! as num)
+            .toDouble(),
+    worstRasterMillis: (payload['worst_frame_rasterizer_time_millis']! as num)
+        .toDouble(),
+    missedBuildBudgetCount: payload['missed_frame_build_budget_count']! as int,
+    missedRasterBudgetCount:
+        payload['missed_frame_rasterizer_budget_count']! as int,
+    newGenGcCount: payload['new_gen_gc_count']! as int,
+    oldGenGcCount: payload['old_gen_gc_count']! as int,
+  );
+}
+
+_ProfileUpdateMetrics _readUpdateMetrics(Map<String, Object?> payload) {
+  return _ProfileUpdateMetrics(
+    worstBuildMillis: (payload['worst_frame_build_time_millis']! as num)
+        .toDouble(),
+    worstRasterMillis: (payload['worst_frame_rasterizer_time_millis']! as num)
+        .toDouble(),
+    missedBuildBudgetCount: payload['missed_frame_build_budget_count']! as int,
+    missedRasterBudgetCount:
+        payload['missed_frame_rasterizer_budget_count']! as int,
+  );
+}
+
+List<_ProfileUpdateLatencySample> _readUpdateLatencies(List<Object?> payload) {
+  return List<_ProfileUpdateLatencySample>.unmodifiable(
+    payload.map((entry) {
+      final json = entry! as Map<String, Object?>;
+      return _ProfileUpdateLatencySample(
+        chunk: json['chunk']! as int,
+        fraction: (json['fraction']! as num).toDouble(),
+        inputLength: json['inputLength']! as int,
+        elapsedMicros: json['elapsedMicros']! as int,
+      );
+    }),
   );
 }
 
@@ -665,9 +879,111 @@ List<ProfileBaselineViewport> _uniqueViewports(
   return List<ProfileBaselineViewport>.unmodifiable(unique.values);
 }
 
-ProfileBaselineOutlier? _detectOutlier(_ProfileBaselineRunRecord record) {
+ProfileBaselineCellUpdateSummary? _buildUpdateSummary(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final updateRecords = records
+      .where(
+        (record) =>
+            record.updateMetrics != null || record.updateLatencies.isNotEmpty,
+      )
+      .toList(growable: false);
+  if (updateRecords.isEmpty) {
+    return null;
+  }
+
+  final latencyEntries = <_ObservedUpdateLatency>[];
+  final updateMetrics = <_ProfileUpdateMetrics>[];
+  for (final record in updateRecords) {
+    final metrics = record.updateMetrics;
+    if (metrics != null) {
+      updateMetrics.add(metrics);
+    }
+    for (final sample in record.updateLatencies) {
+      latencyEntries.add(
+        _ObservedUpdateLatency(
+          repeat: record.run.repeat,
+          artifactPath: record.run.artifactPath!,
+          sample: sample,
+        ),
+      );
+    }
+  }
+
+  _ObservedUpdateLatency? maxLatency;
+  for (final entry in latencyEntries) {
+    if (maxLatency == null ||
+        entry.sample.elapsedMicros > maxLatency.sample.elapsedMicros) {
+      maxLatency = entry;
+    }
+  }
+
+  return ProfileBaselineCellUpdateSummary(
+    observedRepeats: updateRecords.length,
+    observedUpdateCount: latencyEntries.length,
+    maxElapsedMicros: maxLatency?.sample.elapsedMicros,
+    maxElapsedMillis: maxLatency == null
+        ? null
+        : maxLatency.sample.elapsedMicros / 1000.0,
+    maxElapsedRepeat: maxLatency?.repeat,
+    maxElapsedChunk: maxLatency?.sample.chunk,
+    maxElapsedFraction: maxLatency?.sample.fraction,
+    maxElapsedInputLength: maxLatency?.sample.inputLength,
+    maxElapsedArtifactPath: maxLatency?.artifactPath,
+    worstBuildMillis: updateMetrics.isEmpty
+        ? null
+        : _summarizeDoubles(
+            updateMetrics.map((metrics) => metrics.worstBuildMillis),
+          ),
+    worstRasterMillis: updateMetrics.isEmpty
+        ? null
+        : _summarizeDoubles(
+            updateMetrics.map((metrics) => metrics.worstRasterMillis),
+          ),
+    missedBuildBudgetCount: updateMetrics.isEmpty
+        ? null
+        : _summarizeCounts(
+            updateMetrics.map((metrics) => metrics.missedBuildBudgetCount),
+          ),
+    missedRasterBudgetCount: updateMetrics.isEmpty
+        ? null
+        : _summarizeCounts(
+            updateMetrics.map((metrics) => metrics.missedRasterBudgetCount),
+          ),
+  );
+}
+
+List<ProfileBaselineOutlier> _detectOutliers(
+  List<_ProfileBaselineRunRecord> records,
+) {
+  final perRepeatMaxUpdateLatencies = records
+      .map(_maxUpdateLatencyMicros)
+      .whereType<int>()
+      .toList(growable: false);
+  final medianUpdateLatencyMicros = perRepeatMaxUpdateLatencies.isEmpty
+      ? null
+      : _medianInt(perRepeatMaxUpdateLatencies);
+
+  return List<ProfileBaselineOutlier>.unmodifiable(
+    records
+        .map(
+          (record) => _detectOutlier(
+            record,
+            medianUpdateLatencyMicros: medianUpdateLatencyMicros,
+          ),
+        )
+        .whereType<ProfileBaselineOutlier>(),
+  );
+}
+
+ProfileBaselineOutlier? _detectOutlier(
+  _ProfileBaselineRunRecord record, {
+  required int? medianUpdateLatencyMicros,
+}) {
   final reasons = <String>[];
   final metrics = record.metrics;
+  final updateMetrics = record.updateMetrics;
+  final maxUpdateLatency = _maxObservedUpdateLatency(record);
 
   if (metrics.missedBuildBudgetCount > 0) {
     reasons.add('missed_build_budget');
@@ -684,6 +1000,26 @@ ProfileBaselineOutlier? _detectOutlier(_ProfileBaselineRunRecord record) {
   if (metrics.worstRasterMillis > _frameBudgetMillis) {
     reasons.add('worst_raster_over_budget');
   }
+  if (_isUpdateLatencySpike(
+    maxLatency: maxUpdateLatency?.sample.elapsedMicros,
+    medianLatency: medianUpdateLatencyMicros,
+  )) {
+    reasons.add('update_latency_spike');
+  }
+  if (updateMetrics != null && updateMetrics.missedBuildBudgetCount > 0) {
+    reasons.add('update_missed_build_budget');
+  }
+  if (updateMetrics != null && updateMetrics.missedRasterBudgetCount > 0) {
+    reasons.add('update_missed_raster_budget');
+  }
+  if (updateMetrics != null &&
+      updateMetrics.worstBuildMillis > _frameBudgetMillis) {
+    reasons.add('update_worst_build_over_budget');
+  }
+  if (updateMetrics != null &&
+      updateMetrics.worstRasterMillis > _frameBudgetMillis) {
+    reasons.add('update_worst_raster_over_budget');
+  }
 
   if (reasons.isEmpty) {
     return null;
@@ -699,7 +1035,68 @@ ProfileBaselineOutlier? _detectOutlier(_ProfileBaselineRunRecord record) {
     missedBuildBudgetCount: metrics.missedBuildBudgetCount,
     missedRasterBudgetCount: metrics.missedRasterBudgetCount,
     oldGenGcCount: metrics.oldGenGcCount,
+    updateMaxElapsedMicros: maxUpdateLatency?.sample.elapsedMicros,
+    updateMaxElapsedChunk: maxUpdateLatency?.sample.chunk,
+    updateMaxElapsedFraction: maxUpdateLatency?.sample.fraction,
+    updateMaxElapsedInputLength: maxUpdateLatency?.sample.inputLength,
+    updateWorstBuildMillis: updateMetrics?.worstBuildMillis,
+    updateWorstRasterMillis: updateMetrics?.worstRasterMillis,
+    updateMissedBuildBudgetCount: updateMetrics?.missedBuildBudgetCount,
+    updateMissedRasterBudgetCount: updateMetrics?.missedRasterBudgetCount,
   );
+}
+
+final class _ObservedUpdateLatency {
+  const _ObservedUpdateLatency({
+    required this.repeat,
+    required this.artifactPath,
+    required this.sample,
+  });
+
+  final int repeat;
+  final String artifactPath;
+  final _ProfileUpdateLatencySample sample;
+}
+
+_ObservedUpdateLatency? _maxObservedUpdateLatency(
+  _ProfileBaselineRunRecord record,
+) {
+  _ObservedUpdateLatency? maxLatency;
+  for (final sample in record.updateLatencies) {
+    final observed = _ObservedUpdateLatency(
+      repeat: record.run.repeat,
+      artifactPath: record.run.artifactPath!,
+      sample: sample,
+    );
+    if (maxLatency == null ||
+        observed.sample.elapsedMicros > maxLatency.sample.elapsedMicros) {
+      maxLatency = observed;
+    }
+  }
+  return maxLatency;
+}
+
+int? _maxUpdateLatencyMicros(_ProfileBaselineRunRecord record) {
+  final latency = _maxObservedUpdateLatency(record);
+  return latency?.sample.elapsedMicros;
+}
+
+bool _isUpdateLatencySpike({
+  required int? maxLatency,
+  required int? medianLatency,
+}) {
+  if (maxLatency == null || maxLatency < _updateLatencySpikeThresholdMicros) {
+    return false;
+  }
+  if (medianLatency == null || medianLatency <= 0) {
+    return true;
+  }
+  return maxLatency >= medianLatency * _updateLatencySpikeMultiplier;
+}
+
+int _medianInt(List<int> values) {
+  final sorted = values.toList(growable: false)..sort();
+  return sorted[(sorted.length - 1) ~/ 2];
 }
 
 ProfileBaselineNumberSummary _summarizeDoubles(Iterable<double> values) {
