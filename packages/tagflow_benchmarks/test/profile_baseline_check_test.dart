@@ -30,6 +30,33 @@ void main() {
     expect(result.toJson(), containsPair('passed', true));
   });
 
+  test('keeps viewport metadata report-only by default', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 1024,
+              logicalHeight: 768,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(summaryFile: summaryFile);
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+  });
+
   test(
     'fails when failed runs are present or successful run count mismatches',
     () {
@@ -103,6 +130,111 @@ void main() {
     expect(result.passed, isFalse);
     expect(result.issues.single.code, 'no_cell_summaries');
   });
+
+  test('fails when expected viewport metadata is missing', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(renderer: 'tagflow', fixture: 'table_stress', repeats: 1),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      expectedViewport: const ProfileBaselineExpectedViewport(
+        logicalWidth: 800,
+        logicalHeight: 600,
+        devicePixelRatio: 2,
+      ),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues, hasLength(1));
+    expect(result.issues.single.code, 'missing_viewport_metadata');
+    expect(
+      result.issues.single.details,
+      containsPair('fixture', 'table_stress'),
+    );
+  });
+
+  test('fails when observed viewport metadata does not match expectation', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'table_stress',
+          repeats: 1,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 1024,
+              logicalHeight: 768,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      expectedViewport: const ProfileBaselineExpectedViewport(
+        logicalWidth: 800,
+        logicalHeight: 600,
+        devicePixelRatio: 2,
+      ),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues, hasLength(1));
+    expect(result.issues.single.code, 'unexpected_viewport');
+    expect(
+      result.issues.single.details,
+      containsPair('expectedViewport', <String, Object?>{
+        'logicalWidth': 800.0,
+        'logicalHeight': 600.0,
+        'devicePixelRatio': 2.0,
+      }),
+    );
+  });
+
+  test('passes when observed viewport metadata matches expectation', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'table_stress',
+          repeats: 1,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      expectedViewport: const ProfileBaselineExpectedViewport(
+        logicalWidth: 800,
+        logicalHeight: 600,
+        devicePixelRatio: 2,
+      ),
+    );
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+  });
 }
 
 File _writeSummary({
@@ -139,8 +271,22 @@ Map<String, Object?> _cellSummary({
   required String renderer,
   required String fixture,
   required int repeats,
+  List<Map<String, Object?>> viewports = const <Map<String, Object?>>[],
 }) => <String, Object?>{
   'renderer': renderer,
   'fixture': fixture,
   'observedRepeats': repeats,
+  'viewports': viewports,
+};
+
+Map<String, Object?> _viewport({
+  required num logicalWidth,
+  required num logicalHeight,
+  required num devicePixelRatio,
+}) => <String, Object?>{
+  'logicalWidth': logicalWidth.toDouble(),
+  'logicalHeight': logicalHeight.toDouble(),
+  'physicalWidth': logicalWidth.toDouble() * devicePixelRatio.toDouble(),
+  'physicalHeight': logicalHeight.toDouble() * devicePixelRatio.toDouble(),
+  'devicePixelRatio': devicePixelRatio.toDouble(),
 };

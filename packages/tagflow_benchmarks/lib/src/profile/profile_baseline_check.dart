@@ -1,6 +1,38 @@
 import 'dart:convert';
 import 'dart:io';
 
+/// Expected viewport metadata for a stable benchmark environment.
+final class ProfileBaselineExpectedViewport {
+  /// Creates an expected viewport guard.
+  const ProfileBaselineExpectedViewport({
+    required this.logicalWidth,
+    required this.logicalHeight,
+    required this.devicePixelRatio,
+  });
+
+  /// Expected logical Flutter view width.
+  final double logicalWidth;
+
+  /// Expected logical Flutter view height.
+  final double logicalHeight;
+
+  /// Expected Flutter view device-pixel ratio.
+  final double devicePixelRatio;
+
+  /// Converts this viewport guard to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'logicalWidth': logicalWidth,
+    'logicalHeight': logicalHeight,
+    'devicePixelRatio': devicePixelRatio,
+  };
+
+  bool matches(Map<String, Object?> viewport) {
+    return _readDouble(viewport, 'logicalWidth') == logicalWidth &&
+        _readDouble(viewport, 'logicalHeight') == logicalHeight &&
+        _readDouble(viewport, 'devicePixelRatio') == devicePixelRatio;
+  }
+}
+
 /// Machine-checkable result for a profile baseline summary.
 final class ProfileBaselineCheckResult {
   /// Creates a profile baseline check result.
@@ -62,6 +94,7 @@ final class ProfileBaselineCheckIssue {
 ProfileBaselineCheckResult checkProfileBaselineSummary({
   required File summaryFile,
   int minRepeats = 1,
+  ProfileBaselineExpectedViewport? expectedViewport,
 }) {
   if (minRepeats < 1) {
     throw ArgumentError.value(minRepeats, 'minRepeats', 'Must be at least 1.');
@@ -116,19 +149,59 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
 
   for (final cell in cellSummaries) {
     final observedRepeats = cell['observedRepeats']! as int;
-    if (observedRepeats >= minRepeats) {
+    if (observedRepeats < minRepeats) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'insufficient_repeats',
+          message: 'A renderer/fixture cell has too few successful repeats.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'observedRepeats': observedRepeats,
+            'minRepeats': minRepeats,
+          },
+        ),
+      );
+    }
+
+    if (expectedViewport == null) {
+      continue;
+    }
+
+    final viewports = ((cell['viewports'] as List<Object?>?) ?? const [])
+        .cast<Map<String, Object?>>();
+    if (viewports.isEmpty) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'missing_viewport_metadata',
+          message:
+              'A renderer/fixture cell is missing viewport metadata required '
+              'by the configured environment guard.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'expectedViewport': expectedViewport.toJson(),
+          },
+        ),
+      );
+      continue;
+    }
+
+    if (viewports.every(expectedViewport.matches)) {
       continue;
     }
 
     issues.add(
       ProfileBaselineCheckIssue(
-        code: 'insufficient_repeats',
-        message: 'A renderer/fixture cell has too few successful repeats.',
+        code: 'unexpected_viewport',
+        message:
+            'A renderer/fixture cell observed viewport metadata that does not '
+            'match the configured environment guard.',
         details: <String, Object?>{
           'renderer': cell['renderer'],
           'fixture': cell['fixture'],
-          'observedRepeats': observedRepeats,
-          'minRepeats': minRepeats,
+          'expectedViewport': expectedViewport.toJson(),
+          'observedViewports': viewports,
         },
       ),
     );
@@ -140,4 +213,13 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
     passed: issues.isEmpty,
     issues: List<ProfileBaselineCheckIssue>.unmodifiable(issues),
   );
+}
+
+double _readDouble(Map<String, Object?> map, String key) {
+  final value = map[key];
+  if (value case final num number) {
+    return number.toDouble();
+  }
+
+  throw FormatException('Expected numeric "$key" in viewport metadata.');
 }

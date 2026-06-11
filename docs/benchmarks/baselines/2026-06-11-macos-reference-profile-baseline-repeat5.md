@@ -166,7 +166,18 @@ Reasons:
 
 ## Follow-Up
 
-1. Pin benchmark window size and display placement.
+1. Pin benchmark window size and display placement, then require the recorded
+   viewport with:
+
+   ```bash
+   PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+   TAGFLOW_PROFILE_RUN_ID=<future-stable-run-id> \
+   TAGFLOW_PROFILE_MIN_REPEATS=5 \
+   TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE=800x600 \
+   TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO=2 \
+   dart run melos run benchmark:profile:check
+   ```
+
 2. Repeat the matrix on the chosen stable reference machine after Flutter and
    macOS versions are intentionally selected.
 3. Collect supported-target profile evidence in Kite or another internal app

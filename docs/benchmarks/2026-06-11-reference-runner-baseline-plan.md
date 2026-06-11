@@ -175,6 +175,34 @@ renderer/fixture cell, and the requested successful repeat count per cell. It
 does not enforce frame-time thresholds until a named reference machine has a
 reviewed baseline and regression policy.
 
+When a stable reference machine is intentionally pinned, the same check command
+can also enforce the expected logical viewport size and device-pixel ratio:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<run-id> \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile \
+TAGFLOW_PROFILE_MIN_REPEATS=5 \
+TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE=800x600 \
+TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO=2 \
+dart run melos run benchmark:profile:check
+```
+
+Equivalent direct CLI usage:
+
+```bash
+cd packages/tagflow_benchmarks
+dart run bin/check_profile_baseline.dart \
+  --run-id=<run-id> \
+  --min-repeats=5 \
+  --expected-logical-size=800x600 \
+  --expected-device-pixel-ratio=2
+```
+
+This viewport guard remains opt-in. If the expected logical size or
+device-pixel ratio is not configured, viewport metadata stays report-only so
+existing alpha artifacts are not retroactively failed.
+
 The underlying package CLIs remain available for direct use:
 
 ```bash
@@ -211,6 +239,9 @@ reference environment:
   `successfulRuns == totalRuns`
 - `check_profile_baseline.dart --min-repeats=5` passes for the selected
   reference-runner matrix
+- `check_profile_baseline.dart --min-repeats=5 --expected-logical-size=... \
+  --expected-device-pixel-ratio=...` passes for the selected stable reference
+  machine
 - standard fixtures keep build p90 and raster p90 under the reviewed baseline
   regression threshold
 - `table_stress` remains visible and scrollable without crash
