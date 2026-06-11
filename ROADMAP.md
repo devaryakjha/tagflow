@@ -90,6 +90,7 @@
 ## Performance Optimization
 
 - [x] Alpha parser and widget render benchmark harness
+- [x] Example-app profile benchmark scaffold for Tagflow frame timings
 - [ ] Widget recycling for long content
 - [ ] Lazy parsing for large documents
 - [ ] Memory optimization for large DOMs
@@ -138,7 +139,7 @@
 - [x] Melos workspace setup
 - [ ] Example App
   - [ ] Interactive demo
-  - [ ] Performance profiling page
+  - [x] Performance profiling page scaffold
   - [ ] Theme playground
   - [ ] Plugin showcase
 - [ ] Dev Tools

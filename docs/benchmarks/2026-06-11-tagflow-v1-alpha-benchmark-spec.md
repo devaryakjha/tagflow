@@ -67,13 +67,13 @@ Extend `examples/tagflow` rather than creating another app.
 
 Proposed files:
 
-- `examples/tagflow/lib/screens/benchmark_screen.dart`
-- `examples/tagflow/lib/benchmarks/benchmark_host.dart`
-- `examples/tagflow/lib/benchmarks/renderer_registry.dart`
-- `examples/tagflow/lib/benchmarks/fixtures.dart`
-- `examples/tagflow/integration_test/tagflow_perf_test.dart`
+- `examples/tagflow/lib/screens/benchmark_screen.dart` (landed)
+- `examples/tagflow/lib/benchmarks/benchmark_host.dart` (landed)
+- `examples/tagflow/lib/benchmarks/renderer_registry.dart` (landed)
+- `examples/tagflow/lib/benchmarks/fixtures.dart` (landed)
+- `examples/tagflow/integration_test/tagflow_perf_test.dart` (landed)
 - `examples/tagflow/integration_test/tagflow_competitor_perf_test.dart`
-- `examples/tagflow/test_driver/perf_driver.dart`
+- `examples/tagflow/test_driver/perf_driver.dart` (landed)
 
 Responsibilities:
 
@@ -213,7 +213,7 @@ These should become Melos scripts after the first harness lands:
 ```bash
 dart run melos run benchmark:micro
 dart run melos run benchmark:widget
-dart run melos run benchmark:profile -- --device=macos
+dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```
 
@@ -306,8 +306,8 @@ Do not commit every raw run. Commit only approved baseline files and benchmark m
 1. Add `docs/benchmarks/baselines/.gitkeep` and create the new internal `packages/tagflow_benchmarks` package.
 2. Add the shared fixture corpus with paired HTML and Markdown sources plus fixture validity tests.
 3. Implement parser microbench and converter microbench runners for Tagflow only.
-4. Add a benchmark route to the existing example app and wire `integration_test` plus `perf_driver`.
-5. Implement profile-mode Tagflow frame tests for `ai_answer_rich`, `table_dense`, and `large_article`.
+4. Add a benchmark route to the existing example app and wire `integration_test` plus `perf_driver`. (landed for Tagflow-only)
+5. Implement profile-mode Tagflow frame tests for `ai_answer_rich`, `table_dense`, and `large_article`. (`ai_answer_rich` landed first)
 6. Add `flutter_html` and `flutter_widget_from_html` adapters for HTML-native comparison.
 7. Add `flutter_markdown_plus` and `markdown_widget` adapters for markdown-only comparison.
 8. Add `webview_flutter` only after the native baselines exist, and keep it report-only.

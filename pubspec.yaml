@@ -121,6 +121,16 @@ melos:
         "flutter test test/run_render_benchmarks_test.dart"
       description: Run Tagflow widget render benchmarks
 
+    benchmark:profile:
+      run: >
+        cd examples/tagflow &&
+        flutter drive
+        --driver=test_driver/perf_driver.dart
+        --target=integration_test/tagflow_perf_test.dart
+        -d macos
+        --profile
+      description: Run Tagflow profile-mode frame benchmark on macOS
+
     combine-coverage:
       run: |
         mkdir -p coverage &&

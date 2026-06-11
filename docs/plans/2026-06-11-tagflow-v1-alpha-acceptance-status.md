@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `93b3d18 docs(alpha): record delegated audit state`
+- Snapshot commit: `b33b2d6 feat(tagflow_table): add semantic table registry`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -93,6 +93,10 @@ The benchmark harness is real but still alpha-grade:
   semantic registry fragment for rendering native `TagflowDocument` table nodes
   through the package's custom `TagflowTable` render object. The legacy HTML
   converter bridge remains available during alpha.
+- The example app now has a Tagflow-only benchmark route plus
+  `integration_test`/`flutter drive --profile` scaffold. `dart run melos run
+  benchmark:profile` passed locally on macOS and wrote ignored frame timing
+  output to `examples/tagflow/build/integration_response_data.json`.
 
 ## Known Non-Completion Points
 
@@ -102,3 +106,7 @@ The benchmark harness is real but still alpha-grade:
   uses the semantic runtime.
 - The first-party table extension has a semantic registry fragment, but the
   legacy HTML converter bridge has not been fully removed or replaced.
+- Profile benchmarking is real but not production-grade yet: competitor
+  adapters, additional fixtures, nightly/reference-runner baselines, and the
+  current Flutter `integration_test plugin was not detected` warning remain
+  follow-up work before using frame timings as a release gate.

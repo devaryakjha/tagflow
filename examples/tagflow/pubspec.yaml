@@ -15,12 +15,17 @@ dependencies:
   go_router: ^14.6.2
   google_fonts: ^6.2.1
   tagflow: ^1.0.0-alpha.1
+  tagflow_benchmarks: any
   tagflow_table: ^1.0.0-alpha.1
   url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
+  assets:
+    - ../../packages/tagflow_benchmarks/fixtures/html/

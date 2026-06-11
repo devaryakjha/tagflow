@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow_example/screens/article_example.dart';
+import 'package:tagflow_example/screens/benchmark_screen.dart';
 import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/table_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
-import 'package:tagflow_example/widgets/example_page.dart';
 
 /// A class that represents an example
 final class Example {
@@ -28,8 +28,8 @@ final class Example {
   /// The icon to display for the example
   final IconData icon;
 
-  /// A builder that returns an [ExamplePage]
-  final ExamplePage Function(BuildContext context) builder;
+  /// A builder that returns the example screen.
+  final Widget Function(BuildContext context) builder;
 }
 
 /// A list of all examples
@@ -88,5 +88,12 @@ final allExamples = <Example>[
     path: '/code',
     builder: (context) => CodeExample(),
     icon: Icons.code,
+  ),
+  Example(
+    title: 'Benchmarks',
+    description: 'Profile-mode fixtures for native rich content rendering',
+    path: '/benchmarks',
+    builder: (context) => const BenchmarkScreen(),
+    icon: Icons.speed,
   ),
 ];

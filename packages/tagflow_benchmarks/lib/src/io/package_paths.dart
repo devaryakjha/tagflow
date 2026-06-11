@@ -21,6 +21,14 @@ Directory resolveBenchmarkPackageRoot() {
     if (_isBenchmarkPackageRoot(probe)) {
       return probe;
     }
+
+    final workspacePackage = Directory(
+      p.join(probe.path, 'packages', 'tagflow_benchmarks'),
+    );
+    if (_isBenchmarkPackageRoot(workspacePackage)) {
+      return workspacePackage;
+    }
+
     final parent = probe.parent;
     if (parent.path == probe.path) {
       break;
