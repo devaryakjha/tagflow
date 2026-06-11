@@ -12,6 +12,7 @@ final class TagflowDocumentPatch {
     required TagflowDocumentNode node,
   }) : _kind = _TagflowDocumentPatchKind.replaceNode,
        _targetNodeId = nodeId,
+       _targetArgumentName = 'nodeId',
        _node = node,
        _children = const [];
 
@@ -21,18 +22,31 @@ final class TagflowDocumentPatch {
     required List<TagflowDocumentNode> children,
   }) : _kind = _TagflowDocumentPatchKind.appendChildren,
        _targetNodeId = parentNodeId,
+       _targetArgumentName = 'parentNodeId',
        _node = null,
        _children = List.unmodifiable(children);
+
+  /// Creates a patch that inserts [nodes] before the existing sibling node.
+  TagflowDocumentPatch.insertBefore({
+    required String siblingNodeId,
+    required List<TagflowDocumentNode> nodes,
+  }) : _kind = _TagflowDocumentPatchKind.insertBefore,
+       _targetNodeId = siblingNodeId,
+       _targetArgumentName = 'siblingNodeId',
+       _node = null,
+       _children = List.unmodifiable(nodes);
 
   /// Creates a patch that removes the existing node with [nodeId].
   const TagflowDocumentPatch.removeNode({required String nodeId})
     : _kind = _TagflowDocumentPatchKind.removeNode,
       _targetNodeId = nodeId,
+      _targetArgumentName = 'nodeId',
       _node = null,
       _children = const [];
 
   final _TagflowDocumentPatchKind _kind;
   final String _targetNodeId;
+  final String _targetArgumentName;
   final TagflowDocumentNode? _node;
   final List<TagflowDocumentNode> _children;
 }
@@ -49,7 +63,7 @@ extension TagflowDocumentUpdates on TagflowDocument {
     if (!containsNodeIdInChildren(children, patch._targetNodeId)) {
       throw ArgumentError.value(
         patch._targetNodeId,
-        'nodeId',
+        patch._targetArgumentName,
         'No TagflowDocumentNode exists with this id.',
       );
     }
@@ -61,6 +75,11 @@ extension TagflowDocumentUpdates on TagflowDocument {
         _validatedReplacement(patch),
       ),
       _TagflowDocumentPatchKind.appendChildren => _appendChildren(
+        children,
+        patch._targetNodeId,
+        patch._children,
+      ),
+      _TagflowDocumentPatchKind.insertBefore => _insertBefore(
         children,
         patch._targetNodeId,
         patch._children,
@@ -86,7 +105,12 @@ extension TagflowDocumentUpdates on TagflowDocument {
   }
 }
 
-enum _TagflowDocumentPatchKind { replaceNode, appendChildren, removeNode }
+enum _TagflowDocumentPatchKind {
+  replaceNode,
+  appendChildren,
+  insertBefore,
+  removeNode,
+}
 
 TagflowDocumentNode _validatedReplacement(TagflowDocumentPatch patch) {
   final node = patch._node;
@@ -193,6 +217,54 @@ TagflowDocumentNode _appendChildrenInDescendants(
     node.children,
     parentNodeId,
     children,
+  );
+  if (identical(updatedChildren, node.children)) {
+    return node;
+  }
+  return _copyNodeWithChildren(node, updatedChildren);
+}
+
+List<TagflowDocumentNode> _insertBefore(
+  List<TagflowDocumentNode> nodes,
+  String siblingNodeId,
+  List<TagflowDocumentNode> insertedNodes,
+) {
+  var changed = false;
+  final updated = <TagflowDocumentNode>[];
+
+  for (final node in nodes) {
+    if (node.id == siblingNodeId) {
+      updated
+        ..addAll(insertedNodes)
+        ..add(node);
+      changed = true;
+    } else {
+      final updatedNode = _insertBeforeInDescendants(
+        node,
+        siblingNodeId,
+        insertedNodes,
+      );
+      updated.add(updatedNode);
+      changed = changed || !identical(updatedNode, node);
+    }
+  }
+
+  return changed ? List.unmodifiable(updated) : nodes;
+}
+
+TagflowDocumentNode _insertBeforeInDescendants(
+  TagflowDocumentNode node,
+  String siblingNodeId,
+  List<TagflowDocumentNode> insertedNodes,
+) {
+  if (node.children.isEmpty) {
+    return node;
+  }
+
+  final updatedChildren = _insertBefore(
+    node.children,
+    siblingNodeId,
+    insertedNodes,
   );
   if (identical(updatedChildren, node.children)) {
     return node;

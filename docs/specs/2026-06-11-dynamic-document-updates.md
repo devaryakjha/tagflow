@@ -86,7 +86,8 @@ First slice requirement:
 ### Diffability
 
 The document and node classes are immutable and deeply comparable, which is a
-good base. The landed patch API now covers append, replace, remove, and
+good base. The landed patch API now covers append, ordered insert, replace,
+remove, and
 duplicate-ID checks during patch application. The landed query/validation
 helpers now add `TagflowDocument.nodeById(...)`,
 `TagflowDocument.containsNodeId(...)`, and
@@ -172,6 +173,11 @@ final class TagflowDocumentPatch {
     required List<TagflowDocumentNode> children,
   });
 
+  const TagflowDocumentPatch.insertBefore({
+    required String siblingNodeId,
+    required List<TagflowDocumentNode> nodes,
+  });
+
   const TagflowDocumentPatch.removeNode({required String nodeId});
 }
 
@@ -206,6 +212,8 @@ Contract:
 - Append operations are allowed for any node with `children`, including table
   rows and table cells, but table-specific validity remains the renderer's
   responsibility in this slice.
+- Ordered insert operations target an existing sibling ID and insert new nodes
+  immediately before that sibling, including at the document root.
 
 No controller should be added in this slice. If later needed, it should be a
 thin notifier around `TagflowDocument.applyPatch(...)`:
@@ -231,13 +239,13 @@ instead of coupling Tagflow to one imperative update model.
   `KeyedSubtree` with `ValueKey<String>(node.id)`.
 - Focused widget coverage proves component state follows semantic node IDs
   across reorder updates.
-- `TagflowDocumentPatch` supports immutable replace, append-children, and
-  remove operations.
+- `TagflowDocumentPatch` supports immutable replace, append-children,
+  insert-before, and remove operations.
 - `TagflowDocumentUpdates.applyPatch(...)` and `applyPatches(...)` landed as
   extension methods through the runtime public barrel.
-- Runtime patch coverage proves append, replace, remove, missing-target
-  failure, duplicate-ID failure, replacement-ID validation, and untouched
-  branch identity preservation.
+- Runtime patch coverage proves append, insert-before, replace, remove,
+  missing-target failure, duplicate-ID failure, replacement-ID validation, and
+  untouched branch identity preservation.
 
 ### Landed benchmark slice
 
@@ -273,6 +281,10 @@ instead of coupling Tagflow to one imperative update model.
   `data-tagflow-id` values while inserting new blocks before old siblings, then
   compare that report-only full-reparse lane against equivalent semantic patch
   updates on the same reference runner.
+- The runtime patch API now supports ordered sibling insertion directly, so the
+  authored-insertion patch lane no longer needs parent replacement as a
+  semantic workaround. A later benchmark worker should switch the authored
+  insertion patch stream from `replaceNode(...)` to `insertBefore(...)`.
 - Keep the current repeat-5 caveat explicit while designing that slice: the
   patch lane is measurable, but the existing paired baseline showed old-gen GC
   on every repeat and one missed raster-budget frame, so the next run is for
@@ -324,8 +336,8 @@ Acceptance for the keyed-node slice:
 
 Acceptance for the patch API slice:
 
-- Unit tests prove append, replace, remove, missing-target failure, and
-  duplicate-ID failure.
+- Unit tests prove append, insert-before, replace, remove, missing-target
+  failure, and duplicate-ID failure.
 - Replacement node IDs must match the target ID.
 - Untouched branches preserve object identity where practical.
 
@@ -356,6 +368,8 @@ New guidance:
 
 - Dynamic apps should create stable, domain-derived node IDs such as
   `answer.block.summary`, `message.42.paragraph.3`, or CMS block IDs.
+- App-authored document updates can now insert nodes before existing siblings
+  without replacing the whole parent subtree.
 - `TagflowNodeIds.fromPath(...)` is suitable for static generated trees and
   adapter fallback, not for long-lived dynamic app state that receives
   insertions before existing siblings.

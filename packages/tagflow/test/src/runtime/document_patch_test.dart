@@ -99,17 +99,91 @@ void main() {
         children: [TagflowDocumentNode.container(id: 'section')],
       );
       final child = TagflowDocumentNode.paragraph(id: 'section.child');
+      final intro = TagflowDocumentNode.paragraph(id: 'section.intro');
 
       final updated = document.applyPatches([
         TagflowDocumentPatch.appendChildren(
           parentNodeId: 'section',
           children: [child],
         ),
-        const TagflowDocumentPatch.removeNode(nodeId: 'section.child'),
+        TagflowDocumentPatch.insertBefore(
+          siblingNodeId: 'section.child',
+          nodes: [intro],
+        ),
       ]);
 
-      expect(updated.children.single.children, isEmpty);
+      expect(updated.children.single.children, [intro, child]);
     });
+
+    test('inserts nodes before a root-level sibling immutably', () {
+      final first = TagflowDocumentNode.paragraph(id: 'first');
+      final sibling = TagflowDocumentNode.paragraph(id: 'sibling');
+      final tail = TagflowDocumentNode.paragraph(id: 'tail');
+      final inserted = TagflowDocumentNode.paragraph(id: 'inserted');
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [first, sibling, tail],
+      );
+
+      final updated = document.applyPatch(
+        TagflowDocumentPatch.insertBefore(
+          siblingNodeId: 'sibling',
+          nodes: [inserted],
+        ),
+      );
+
+      expect(updated.children, [first, inserted, sibling, tail]);
+      expect(updated.children.first, same(first));
+      expect(updated.children[2], same(sibling));
+      expect(updated.children.last, same(tail));
+      expect(document.children, [first, sibling, tail]);
+    });
+
+    test(
+      'inserts nodes before a nested sibling and reuses untouched branches',
+      () {
+        final leading = TagflowDocumentNode.paragraph(id: 'leading');
+        final nestedSibling = TagflowDocumentNode.paragraph(id: 'target');
+        final trailing = TagflowDocumentNode.paragraph(id: 'trailing');
+        final section = TagflowDocumentNode.container(
+          id: 'section',
+          children: [leading, nestedSibling, trailing],
+        );
+        final untouchedBranch = TagflowDocumentNode.container(
+          id: 'aside',
+          children: [TagflowDocumentNode.paragraph(id: 'aside.copy')],
+        );
+        final inserted = TagflowDocumentNode.paragraph(id: 'inserted');
+        final document = TagflowDocument(
+          id: 'doc',
+          children: [section, untouchedBranch],
+        );
+
+        final updated = document.applyPatch(
+          TagflowDocumentPatch.insertBefore(
+            siblingNodeId: 'target',
+            nodes: [inserted],
+          ),
+        );
+
+        final updatedSection = updated.children.first;
+        expect(updatedSection.children, [
+          leading,
+          inserted,
+          nestedSibling,
+          trailing,
+        ]);
+        expect(updatedSection.children.first, same(leading));
+        expect(updatedSection.children[2], same(nestedSibling));
+        expect(updatedSection.children.last, same(trailing));
+        expect(updated.children.last, same(untouchedBranch));
+        expect(document.children.first.children, [
+          leading,
+          nestedSibling,
+          trailing,
+        ]);
+      },
+    );
 
     test('fails when the target node is missing', () {
       final document = TagflowDocument(
@@ -120,6 +194,23 @@ void main() {
       expect(
         () => document.applyPatch(
           const TagflowDocumentPatch.removeNode(nodeId: 'missing'),
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('fails when insert-before sibling is missing', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'known')],
+      );
+
+      expect(
+        () => document.applyPatch(
+          TagflowDocumentPatch.insertBefore(
+            siblingNodeId: 'missing',
+            nodes: [TagflowDocumentNode.paragraph(id: 'inserted')],
+          ),
         ),
         throwsArgumentError,
       );
@@ -145,6 +236,26 @@ void main() {
       );
     });
 
+    test('fails when insert-before introduces duplicate node ids', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.paragraph(id: 'existing'),
+          TagflowDocumentNode.paragraph(id: 'sibling'),
+        ],
+      );
+
+      expect(
+        () => document.applyPatch(
+          TagflowDocumentPatch.insertBefore(
+            siblingNodeId: 'sibling',
+            nodes: [TagflowDocumentNode.paragraph(id: 'existing')],
+          ),
+        ),
+        throwsStateError,
+      );
+    });
+
     test('fails when the existing document has duplicate node ids', () {
       final document = TagflowDocument(
         id: 'doc',
@@ -156,7 +267,10 @@ void main() {
 
       expect(
         () => document.applyPatch(
-          const TagflowDocumentPatch.removeNode(nodeId: 'duplicate'),
+          TagflowDocumentPatch.insertBefore(
+            siblingNodeId: 'duplicate',
+            nodes: [TagflowDocumentNode.paragraph(id: 'inserted')],
+          ),
         ),
         throwsStateError,
       );
