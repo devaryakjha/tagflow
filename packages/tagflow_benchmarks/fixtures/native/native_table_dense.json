@@ -1,0 +1,387 @@
+{
+  "id": "native-table-dense",
+  "schemaVersion": 1,
+  "revision": "rev-1",
+  "metadata": {
+    "surface": "benchmark_table",
+    "locale": "en-IN"
+  },
+  "source": {
+    "kind": "json",
+    "adapter": "native_block_v1",
+    "uri": "cms://benchmarks/native-table-dense"
+  },
+  "blocks": [
+    {
+      "id": "title",
+      "kind": "heading",
+      "attributes": {
+        "level": 2
+      },
+      "children": [
+        {
+          "id": "title.text",
+          "kind": "text",
+          "text": "Native dense table"
+        }
+      ]
+    },
+    {
+      "id": "intro",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "intro.text",
+          "kind": "text",
+          "text": "A trusted native block fixture with a wider table, inline cell content, and mixed numeric text."
+        }
+      ]
+    },
+    {
+      "id": "metrics.table",
+      "kind": "table",
+      "children": [
+        {
+          "id": "metrics.header",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "metrics.header.metric",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "metrics.header.metric.text",
+                  "kind": "text",
+                  "text": "Metric"
+                }
+              ]
+            },
+            {
+              "id": "metrics.header.baseline",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "metrics.header.baseline.text",
+                  "kind": "text",
+                  "text": "Baseline"
+                }
+              ]
+            },
+            {
+              "id": "metrics.header.current",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "metrics.header.current.text",
+                  "kind": "text",
+                  "text": "Current"
+                }
+              ]
+            },
+            {
+              "id": "metrics.header.delta",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "metrics.header.delta.text",
+                  "kind": "text",
+                  "text": "Delta"
+                }
+              ]
+            },
+            {
+              "id": "metrics.header.notes",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "metrics.header.notes.text",
+                  "kind": "text",
+                  "text": "Notes"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "metrics.row.decode",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "metrics.row.decode.metric",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.decode.metric.text",
+                  "kind": "text",
+                  "text": "Decode"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.decode.baseline",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.decode.baseline.text",
+                  "kind": "text",
+                  "text": "1.00"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.decode.current",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.decode.current.text",
+                  "kind": "text",
+                  "text": "0.94"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.decode.delta",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.decode.delta.text",
+                  "kind": "text",
+                  "text": "-6%"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.decode.notes",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.decode.notes.text",
+                  "kind": "text",
+                  "text": "JSON to native block model"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "metrics.row.adapt",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "metrics.row.adapt.metric",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.adapt.metric.text",
+                  "kind": "text",
+                  "text": "Adapt"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.adapt.baseline",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.adapt.baseline.text",
+                  "kind": "text",
+                  "text": "1.00"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.adapt.current",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.adapt.current.text",
+                  "kind": "text",
+                  "text": "0.98"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.adapt.delta",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.adapt.delta.text",
+                  "kind": "text",
+                  "text": "-2%"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.adapt.notes",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.adapt.notes.text",
+                  "kind": "text",
+                  "text": "Native blocks to TagflowDocument"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "metrics.row.render",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "metrics.row.render.metric",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.render.metric.text",
+                  "kind": "text",
+                  "text": "Render"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.render.baseline",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.render.baseline.text",
+                  "kind": "text",
+                  "text": "1.00"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.render.current",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.render.current.text",
+                  "kind": "text",
+                  "text": "1.03"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.render.delta",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.render.delta.text",
+                  "kind": "text",
+                  "text": "+3%"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.render.notes",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.render.notes.text",
+                  "kind": "text",
+                  "text": "Semantic table widgets"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "metrics.row.scroll",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "metrics.row.scroll.metric",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.scroll.metric.text",
+                  "kind": "text",
+                  "text": "Scroll"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.scroll.baseline",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.scroll.baseline.text",
+                  "kind": "text",
+                  "text": "1.00"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.scroll.current",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.scroll.current.text",
+                  "kind": "text",
+                  "text": "1.01"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.scroll.delta",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.scroll.delta.text",
+                  "kind": "text",
+                  "text": "+1%"
+                }
+              ]
+            },
+            {
+              "id": "metrics.row.scroll.notes",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "metrics.row.scroll.notes.text",
+                  "kind": "text",
+                  "text": "Warm scroll attribution"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "kind": "callout",
+      "attributes": {
+        "tone": "info"
+      },
+      "children": [
+        {
+          "id": "summary.body",
+          "kind": "paragraph",
+          "children": [
+            {
+              "id": "summary.body.text",
+              "kind": "text",
+              "text": "This fixture is report-only and intentionally has no competitor HTML equivalent."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

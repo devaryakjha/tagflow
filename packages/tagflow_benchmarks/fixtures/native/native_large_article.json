@@ -1,0 +1,259 @@
+{
+  "id": "native-large-article",
+  "schemaVersion": 1,
+  "revision": "rev-1",
+  "metadata": {
+    "surface": "article_detail",
+    "locale": "en-IN"
+  },
+  "source": {
+    "kind": "json",
+    "adapter": "native_block_v1",
+    "uri": "cms://articles/native-large-article"
+  },
+  "blocks": [
+    {
+      "id": "title",
+      "kind": "heading",
+      "attributes": {
+        "level": 1
+      },
+      "children": [
+        {
+          "id": "title.text",
+          "kind": "text",
+          "text": "Native article benchmark"
+        }
+      ]
+    },
+    {
+      "id": "dek",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "dek.a",
+          "kind": "text",
+          "text": "A long-form native block document used to profile Flutter widget rendering without invoking the HTML parser."
+        }
+      ]
+    },
+    {
+      "id": "toc",
+      "kind": "list",
+      "attributes": {
+        "ordered": true
+      },
+      "children": [
+        {
+          "id": "toc.1",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "toc.1.text",
+              "kind": "text",
+              "text": "Model shape"
+            }
+          ]
+        },
+        {
+          "id": "toc.2",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "toc.2.text",
+              "kind": "text",
+              "text": "Rendering phases"
+            }
+          ]
+        },
+        {
+          "id": "toc.3",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "toc.3.text",
+              "kind": "text",
+              "text": "Operational notes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section.model.heading",
+      "kind": "heading",
+      "attributes": {
+        "level": 2
+      },
+      "children": [
+        {
+          "id": "section.model.heading.text",
+          "kind": "text",
+          "text": "Model shape"
+        }
+      ]
+    },
+    {
+      "id": "section.model.p1",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "section.model.p1.a",
+          "kind": "text",
+          "text": "The document is authored as semantic blocks with stable ids, structured metadata, and inline child nodes. "
+        },
+        {
+          "id": "section.model.p1.code",
+          "kind": "inlineCode",
+          "text": "TagflowDocument"
+        },
+        {
+          "id": "section.model.p1.b",
+          "kind": "text",
+          "text": " remains the renderer-facing contract."
+        }
+      ]
+    },
+    {
+      "id": "section.model.p2",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "section.model.p2.text",
+          "kind": "text",
+          "text": "A CMS, LLM response service, or app-owned content pipeline can emit this shape directly when HTML is the wrong transport for mobile runtime content."
+        }
+      ]
+    },
+    {
+      "id": "section.render.heading",
+      "kind": "heading",
+      "attributes": {
+        "level": 2
+      },
+      "children": [
+        {
+          "id": "section.render.heading.text",
+          "kind": "text",
+          "text": "Rendering phases"
+        }
+      ]
+    },
+    {
+      "id": "section.render.p1",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "section.render.p1.text",
+          "kind": "text",
+          "text": "Profile summaries separate first fixture render, warmed rebuild, and warm scroll. The lane still excludes process launch attribution until native markers are added."
+        }
+      ]
+    },
+    {
+      "id": "section.render.callout",
+      "kind": "callout",
+      "attributes": {
+        "tone": "warning"
+      },
+      "children": [
+        {
+          "id": "section.render.callout.body",
+          "kind": "paragraph",
+          "children": [
+            {
+              "id": "section.render.callout.body.text",
+              "kind": "text",
+              "text": "Do not compare this fixture against HTML engines; it is a native runtime path, not an HTML feature-parity cell."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section.ops.heading",
+      "kind": "heading",
+      "attributes": {
+        "level": 2
+      },
+      "children": [
+        {
+          "id": "section.ops.heading.text",
+          "kind": "text",
+          "text": "Operational notes"
+        }
+      ]
+    },
+    {
+      "id": "section.ops.list",
+      "kind": "list",
+      "children": [
+        {
+          "id": "section.ops.list.1",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "section.ops.list.1.text",
+              "kind": "text",
+              "text": "Run native JSON fixtures with the tagflow_native_json renderer only."
+            }
+          ]
+        },
+        {
+          "id": "section.ops.list.2",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "section.ops.list.2.text",
+              "kind": "text",
+              "text": "Keep repeat counts and viewport metadata in the profile summary before promoting evidence."
+            }
+          ]
+        },
+        {
+          "id": "section.ops.list.3",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "section.ops.list.3.text",
+              "kind": "text",
+              "text": "Review GC, raster, and allocation notes separately from timing collection."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section.ops.quote",
+      "kind": "blockquote",
+      "children": [
+        {
+          "id": "section.ops.quote.body",
+          "kind": "paragraph",
+          "children": [
+            {
+              "id": "section.ops.quote.body.text",
+              "kind": "text",
+              "text": "The benchmark lane is useful because it measures the native content runtime that Flutter apps would actually embed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section.ops.hr",
+      "kind": "horizontalRule"
+    },
+    {
+      "id": "section.ops.tail",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "section.ops.tail.text",
+          "kind": "text",
+          "text": "This fixture gives the profile runner a longer native document with headings, paragraphs, lists, callouts, inline code, and blockquote content."
+        }
+      ]
+    }
+  ]
+}

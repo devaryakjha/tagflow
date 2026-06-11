@@ -39,13 +39,30 @@ void main() {
       expect(fixture.supportsRendererId('tagflow'), false);
     });
 
-    test('resolves native JSON fixture as a restricted document scenario', () {
-      final fixture = profileBenchmarkFixtureById(nativeJsonBenchmarkFixtureId);
+    test('resolves native JSON fixtures as restricted document scenarios', () {
+      for (final fixtureId in [
+        nativeJsonBenchmarkFixtureId,
+        nativeJsonTableBenchmarkFixtureId,
+        nativeJsonLargeArticleBenchmarkFixtureId,
+      ]) {
+        final fixture = profileBenchmarkFixtureById(fixtureId);
 
-      expect(fixture.source.type, BenchmarkSourceType.nativeJson);
-      expect(fixture.source.assetPath, endsWith('native_ai_answer.json'));
-      expect(fixture.supportsRendererId(nativeJsonBenchmarkRendererId), true);
-      expect(fixture.supportsRendererId(defaultBenchmarkRendererId), false);
+        expect(fixture.source.type, BenchmarkSourceType.nativeJson);
+        expect(fixture.source.assetPath, endsWith('$fixtureId.json'));
+        expect(fixture.supportsRendererId(nativeJsonBenchmarkRendererId), true);
+        expect(fixture.supportsRendererId(defaultBenchmarkRendererId), false);
+      }
+    });
+
+    test('includes native JSON fixtures in the profile fixture list', () {
+      expect(
+        profileBenchmarkFixtureIds,
+        containsAll(<String>[
+          nativeJsonBenchmarkFixtureId,
+          nativeJsonTableBenchmarkFixtureId,
+          nativeJsonLargeArticleBenchmarkFixtureId,
+        ]),
+      );
     });
 
     test('resolves authored insertion fixture as a semantic HTML scenario', () {

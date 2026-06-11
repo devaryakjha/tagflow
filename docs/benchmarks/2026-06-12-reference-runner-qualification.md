@@ -32,7 +32,7 @@ fixture review, memory/allocation review, and an explicit comparison policy.
 | Profile checker policy | `profile-reference-runner-policy.json` requires five repeats and `800x600 @ 2.0x` viewport metadata while keeping thresholds `report_only`. | Collection-quality gate. | Cannot enforce timing thresholds. |
 | Competitor adapters | `flutter_html` and `flutter_widget_from_html` lanes exist in the profile matrix. | Fairness input. | Needs explicit feature-support and configuration review before comparisons. |
 | Native transport microbench | `benchmark:native-transport` and `2026-06-11-native-transport-smoke.md` measure JSON decode/adapt/patch phases. | Report-only smoke. | Measures transport overhead, not rendered frame performance. |
-| Native JSON profile lane | `tagflow_native_json:native_ai_answer` renders native block JSON and emits cold/warm profile summaries. | Report-only smoke. | Not yet repeat-based or fixture-comparable to HTML. |
+| Native JSON profile lane | `tagflow_native_json` renders trusted native block JSON fixtures: `native_ai_answer`, `native_table_dense`, and `native_large_article`. | Report-only smoke. | Native-only evidence; not fixture-comparable to HTML renderers. |
 | Dynamic patch/update lanes | Semantic streaming and authored insertion pair baselines record update attribution. | Report-only diagnostic evidence. | GC/raster outliers must be explained before dynamic-content claims. |
 | Kite real-app probe | Kite evidence proves real app reachability and hosted alpha3 compatibility; debug profile probe is diagnostic. | Integration evidence. | Not a supported profile benchmark or public performance baseline. |
 
@@ -137,7 +137,7 @@ Native JSON profile lane:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-TAGFLOW_PROFILE_PAIR=tagflow_native_json:native_ai_answer \
+TAGFLOW_PROFILE_PAIR=tagflow_native_json:native_ai_answer,tagflow_native_json:native_table_dense,tagflow_native_json:native_large_article \
 TAGFLOW_PROFILE_REPEAT=5 \
 TAGFLOW_PROFILE_RUN_ID=<native-json-run-id> \
 TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-native-json \
@@ -256,8 +256,9 @@ Blocked until all qualification gates pass:
    mistaken for process cold-start evidence. Current runner artifacts do not
    expose a defensible launch metric; see
    [`2026-06-12-app-launch-attribution-scope.md`](2026-06-12-app-launch-attribution-scope.md).
-2. Expand `tagflow_native_json` from `native_ai_answer` smoke to a repeat-based
-   fixture matrix with larger server-authored document shapes.
+2. Promote the native JSON fixture matrix after one-repeat smoke evidence and
+   a reviewed repeat-5 run over `native_ai_answer`, `native_table_dense`, and
+   `native_large_article`.
 3. Add an Android physical-device qualification note with a real
    `flutter devices` target id, one-repeat probe result, and failure
    classification if it fails.

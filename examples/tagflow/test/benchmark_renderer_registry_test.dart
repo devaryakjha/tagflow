@@ -103,27 +103,33 @@ void main() {
     );
   });
 
-  test('returns only the native JSON renderer for native JSON fixture', () {
-    final fixture = profileBenchmarkFixtureById(nativeJsonBenchmarkFixtureId);
-    final renderers = benchmarkRenderersForFixture(fixture);
+  test('returns only the native JSON renderer for native JSON fixtures', () {
+    for (final fixtureId in [
+      nativeJsonBenchmarkFixtureId,
+      nativeJsonTableBenchmarkFixtureId,
+      nativeJsonLargeArticleBenchmarkFixtureId,
+    ]) {
+      final fixture = profileBenchmarkFixtureById(fixtureId);
+      final renderers = benchmarkRenderersForFixture(fixture);
 
-    expect(renderers.map((renderer) => renderer.id), [
-      nativeJsonBenchmarkRendererId,
-    ]);
-    expect(
-      benchmarkRendererSupportsFixture(
-        benchmarkRendererById(nativeJsonBenchmarkRendererId),
-        fixture,
-      ),
-      isTrue,
-    );
-    expect(
-      benchmarkRendererSupportsFixture(
-        benchmarkRendererById(defaultBenchmarkRendererId),
-        fixture,
-      ),
-      isFalse,
-    );
+      expect(renderers.map((renderer) => renderer.id), [
+        nativeJsonBenchmarkRendererId,
+      ]);
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById(nativeJsonBenchmarkRendererId),
+          fixture,
+        ),
+        isTrue,
+      );
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById(defaultBenchmarkRendererId),
+          fixture,
+        ),
+        isFalse,
+      );
+    }
   });
 
   test('returns only the patch renderer for the semantic patch fixture', () {

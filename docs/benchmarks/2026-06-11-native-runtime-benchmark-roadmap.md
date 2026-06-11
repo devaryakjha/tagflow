@@ -33,7 +33,7 @@ The public-claim qualification checklist and operating runbook now live in
 | Semantic streaming pair | [`baselines/2026-06-11-semantic-streaming-pair-repeat5.md`](baselines/2026-06-11-semantic-streaming-pair-repeat5.md) | Full-reparse semantic streaming and semantic patch streaming are measurable as an ordered pair. Patch lane GC and raster outliers remain diagnostic. | Report-only. |
 | Authored insertion patch pair | [`baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md`](baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md) | Authored-ID insertion and ordered patch paths complete five repeats with update-frame attribution. | Report-only. |
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
-| Native JSON profile lane | `tagflow_native_json:native_ai_answer` | The example-app profile harness can render a native block JSON fixture as `TagflowDocument` without the HTML parser. New static profile artifacts separate `coldInitialRender` from `warmScroll` in the summary. | Report-only smoke. |
+| Native JSON profile lane | `tagflow_native_json:native_ai_answer`, `tagflow_native_json:native_table_dense`, and `tagflow_native_json:native_large_article` | The example-app profile harness can render trusted native block JSON fixtures as `TagflowDocument` without the HTML parser. Static summaries include `coldInitialRender`, `warmRebuild`, and `warmScroll`. | Report-only smoke. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 
 ## Benchmark Tiers
@@ -332,22 +332,28 @@ Native JSON profile smoke:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-TAGFLOW_RENDERER=tagflow_native_json \
-TAGFLOW_FIXTURE=native_ai_answer \
-dart run melos run benchmark:profile
+TAGFLOW_PROFILE_PAIR=tagflow_native_json:native_ai_answer,tagflow_native_json:native_table_dense,tagflow_native_json:native_large_article \
+TAGFLOW_PROFILE_REPEAT=1 \
+TAGFLOW_PROFILE_RUN_ID=alpha3-native-json-smoke \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-alpha3-native-json \
+dart run melos run benchmark:profile:baselines
 ```
 
 Capture:
 
-- fixture id `native_ai_answer`
+- fixture ids `native_ai_answer`, `native_table_dense`, and
+  `native_large_article`
 - renderer id `tagflow_native_json`
 - viewport metadata
-- frame scroll summary emitted by the existing profile driver
+- `coldInitialRender`, `warmRebuild`, and `warmScroll` phase summaries emitted
+  by the profile summary
 
 Interpretation:
 
 - completion proves the example app can render native block JSON through
   `TagflowDocument`
+- this is a native-only fixture matrix, not a direct equivalent of the HTML
+  fixture matrix
 - this lane is separate from `benchmark:native-transport`, which still measures
   decode/adapt/patch overhead without Flutter rendering
 - no numeric pass/fail threshold or public comparison against HTML lanes
@@ -424,9 +430,8 @@ Blocked until a future threshold review:
    independently.
 2. Add a memory/allocation playbook with exact DevTools capture steps for
    `large_article`, `table_stress`, and dynamic patch lanes.
-3. Expand the native JSON profile lane from the initial `native_ai_answer`
-   smoke fixture to repeat-based baseline capture and larger server-authored
-   fixture shapes, while keeping transport microbench and render profile
+3. Promote the native JSON profile matrix from one-repeat smoke to repeat-based
+   baseline capture, while keeping transport microbench and render profile
    metrics separate.
 4. Add physical-device qualification docs for iOS and Android, including
    install prerequisites and failure-classification language.

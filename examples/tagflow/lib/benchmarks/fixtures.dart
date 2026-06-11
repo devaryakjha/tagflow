@@ -3,6 +3,8 @@ const List<String> profileBenchmarkFixtureIds = [
   'ai_answer_rich',
   'ai_answer_rich_md',
   nativeJsonBenchmarkFixtureId,
+  nativeJsonTableBenchmarkFixtureId,
+  nativeJsonLargeArticleBenchmarkFixtureId,
   'table_dense',
   'large_article',
   'table_stress',
@@ -17,6 +19,12 @@ const String defaultProfileBenchmarkFixtureId = 'ai_answer_rich';
 
 /// Fixture id for native block JSON rendered as a TagflowDocument.
 const String nativeJsonBenchmarkFixtureId = 'native_ai_answer';
+
+/// Fixture id for native dense table JSON rendered as a TagflowDocument.
+const String nativeJsonTableBenchmarkFixtureId = 'native_table_dense';
+
+/// Fixture id for native large article JSON rendered as a TagflowDocument.
+const String nativeJsonLargeArticleBenchmarkFixtureId = 'native_large_article';
 
 /// Fixture id for semantic document patch streaming.
 const String semanticPatchBenchmarkFixtureId = 'streaming_ai_patches';
@@ -107,6 +115,26 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
       type: BenchmarkSourceType.nativeJson,
       assetPath:
           'packages/tagflow_benchmarks/fixtures/native/native_ai_answer.json',
+    ),
+    rendererIds: {nativeJsonBenchmarkRendererId},
+  ),
+  nativeJsonTableBenchmarkFixtureId: const ProfileBenchmarkFixture(
+    id: nativeJsonTableBenchmarkFixtureId,
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.nativeJson,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/native/'
+          'native_table_dense.json',
+    ),
+    rendererIds: {nativeJsonBenchmarkRendererId},
+  ),
+  nativeJsonLargeArticleBenchmarkFixtureId: const ProfileBenchmarkFixture(
+    id: nativeJsonLargeArticleBenchmarkFixtureId,
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.nativeJson,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/native/'
+          'native_large_article.json',
     ),
     rendererIds: {nativeJsonBenchmarkRendererId},
   ),
