@@ -23,13 +23,15 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commit before this status refresh:
-  `42feeff docs(benchmarks): record ordered insertion patch baseline`
+  `cffc368 docs(benchmarks): record attributed repeat5 baseline`
 - Latest integrated implementation commits include `d0494f8 docs(benchmarks):
   record semantic streaming pair baseline`, `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
   manifests`, `c137a7b bench(profile): support custom baseline output dirs`,
   `74a9c9c bench(profile): record viewport metadata`, and `8ed0686 fix(table):
-  preserve HTML table captions`.
+  preserve HTML table captions`. Recent native-runtime stabilization commits
+  include `5d8b8ed feat(benchmarks): attribute update frames to chunks` and
+  `185e9bd feat(adapter): support native table and callout blocks`.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -65,9 +67,10 @@ published.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
-  benchmark claims, review of report-only update-path outliers from the landed
-  authored-ID ordered-insertion repeat-5 run, and profile-mode evidence on a
-  supported real-app target.
+  benchmark claims, review of supported real-app profile-mode evidence, and
+  promotion of any benchmark claim to a stable reference-runner policy. The
+  attribution-enabled authored-ID ordered-insertion repeat-5 rerun completed
+  with no report-only outliers and remains bounded report-only evidence.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -161,8 +164,9 @@ Architecture open decisions:
   placeholders.
 - Whether `TagflowOptions` is renamed to `TagflowViewOptions` during alpha.
 - How much class-based styling the HTML adapter should preserve in alpha.
-- The first alpha-facing native block adapter foundation has landed; semantic
-  table blocks, callout normalization, and serializer helpers remain tracked in
+- The native block adapter foundation has landed, including direct semantic
+  table block mapping and callout normalization. Serializer helpers and any
+  future dedicated runtime callout renderer contract remain tracked in
   `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
@@ -399,11 +403,13 @@ Master review gate:
 - The authored-ID insertion scenario has landed for controlled dynamic HTML.
   It compares identity-preserving full reparses against equivalent ordered
   document patch updates on the same semantic benchmark surface, and the
-  repeat-3 and repeat-5 ordered-insertion review notes are now recorded under
-  `docs/benchmarks/baselines/`.
+  repeat-3, repeat-5, and attribution-enabled repeat-5 ordered-insertion review
+  notes are now recorded under `docs/benchmarks/baselines/`.
   Keep the result report-only: it is bounded evidence, not a threshold update
-  or faster/slower claim. The repeat-5 run completed but still surfaced
-  report-only update-path outliers in both lanes.
+  or faster/slower claim. The first repeat-5 run surfaced report-only
+  update-path outliers in both lanes; the attribution-enabled rerun completed
+  without report-only findings and identified concrete `settle`-phase worst
+  attributed frames.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
@@ -421,12 +427,13 @@ Master review gate:
   cell-flow parity, normalized presentation hints, and horizontal cell
   alignment, but legacy HTML/CSS styling parity remains incomplete.
 - The first immutable document patch-update slice has landed for replace,
-  append, and remove operations. Patch-based streaming benchmark smoke evidence
-  has landed; HTML adapter authored-ID strategy has landed for controlled
-  dynamic HTML; the authored-ID ordered-insertion benchmark pair and bounded
-  repeat-3 review note have landed; document caching, citations, callouts, and
-  optional actions remain later work unless internal app integration proves
-  they are required before beta.
+  append, remove, and ordered insertion operations. Patch-based streaming
+  benchmark smoke evidence has landed; HTML adapter authored-ID strategy has
+  landed for controlled dynamic HTML; the authored-ID ordered-insertion
+  benchmark pair and bounded repeat-3/repeat-5 attribution evidence have
+  landed. Document caching, citations, optional actions, serializer helpers,
+  and any dedicated callout renderer remain later work unless internal app
+  integration proves they are required before beta.
 
 ### Wave 4: Migration and Internal App Trial
 
