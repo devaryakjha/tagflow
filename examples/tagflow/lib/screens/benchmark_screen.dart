@@ -27,13 +27,14 @@ final class BenchmarkScreen extends StatefulWidget {
 
 final class _BenchmarkScreenState extends State<BenchmarkScreen> {
   late String fixtureId = widget.fixtureId;
+  late String rendererId = widget.rendererId;
 
   @override
   Widget build(BuildContext context) {
-    final renderer = benchmarkRenderers[widget.rendererId];
+    final renderer = benchmarkRenderers[rendererId];
     if (renderer == null) {
       throw ArgumentError.value(
-        widget.rendererId,
+        rendererId,
         'rendererId',
         'Unknown benchmark renderer.',
       );
@@ -59,9 +60,42 @@ final class _BenchmarkScreenState extends State<BenchmarkScreen> {
             selectedFixtureId: fixtureId,
             onSelected: (value) => setState(() => fixtureId = value),
           ),
+          _RendererPicker(
+            selectedRendererId: rendererId,
+            onSelected: (value) => setState(() => rendererId = value),
+          ),
           const Divider(height: 1),
           Expanded(child: host),
         ],
+      ),
+    );
+  }
+}
+
+final class _RendererPicker extends StatelessWidget {
+  const _RendererPicker({
+    required this.selectedRendererId,
+    required this.onSelected,
+  });
+
+  final String selectedRendererId;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: SegmentedButton<String>(
+        segments: [
+          for (final renderer in benchmarkRenderers.values)
+            ButtonSegment<String>(
+              value: renderer.id,
+              label: Text(renderer.label),
+            ),
+        ],
+        selected: {selectedRendererId},
+        onSelectionChanged: (selection) => onSelected(selection.single),
       ),
     );
   }

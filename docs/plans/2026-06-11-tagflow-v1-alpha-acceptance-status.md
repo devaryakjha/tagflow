@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `b33b2d6 feat(tagflow_table): add semantic table registry`
+- Snapshot commit: `226ea22 feat(benchmarks): add profile benchmark scaffold`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -94,7 +94,9 @@ The benchmark harness is real but still alpha-grade:
   through the package's custom `TagflowTable` render object. The legacy HTML
   converter bridge remains available during alpha.
 - The example app now has a Tagflow-only benchmark route plus
-  `integration_test`/`flutter drive --profile` scaffold. `dart run melos run
+  `integration_test`/`flutter drive --profile` scaffold. The profile harness
+  accepts `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE` environment variables so
+  competitor adapters can plug into the same result path. `dart run melos run
   benchmark:profile` passed locally on macOS and wrote ignored frame timing
   output to `examples/tagflow/build/integration_response_data.json`.
 

@@ -22,6 +22,14 @@ dart run melos run benchmark:render
 dart run melos run benchmark:profile
 ```
 
+`benchmark:profile` now accepts renderer and fixture selection through shell
+environment variables:
+
+```bash
+TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=ai_answer_rich \
+  dart run melos run benchmark:profile
+```
+
 All four commands passed on this branch.
 
 Generated artifacts were written locally to:
@@ -95,7 +103,8 @@ Harness settings from `benchmark:profile`:
 - These are local smoke baselines, not release gates.
 - The render suite uses `flutter_test`, so it measures conversion plus widget
   build work in a test host. The profile suite now records app frame timings,
-  but only for the initial `ai_answer_rich` Tagflow fixture.
+  but recorded numbers currently cover only the initial `ai_answer_rich`
+  Tagflow renderer fixture.
 - The sample counts are deliberately low for CI friendliness. Larger local
   sample runs should be added before publishing performance claims.
 - Running `dart run bin/run_parser_benchmarks.dart ...` directly currently

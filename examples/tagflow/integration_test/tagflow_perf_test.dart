@@ -14,10 +14,19 @@ void main() {
       'TAGFLOW_FIXTURE',
       defaultValue: defaultProfileBenchmarkFixtureId,
     );
+    // ignore: prefer_const_declarations
+    final rendererId = const String.fromEnvironment(
+      'TAGFLOW_RENDERER',
+      defaultValue: 'tagflow',
+    );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: BenchmarkScreen(fixtureId: fixtureId, showFixturePicker: false),
+        home: BenchmarkScreen(
+          fixtureId: fixtureId,
+          rendererId: rendererId,
+          showFixturePicker: false,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -31,6 +40,6 @@ void main() {
         10000,
       );
       await tester.pumpAndSettle();
-    }, reportKey: 'tagflow_${fixtureId}_scroll');
+    }, reportKey: '${rendererId}_${fixtureId}_scroll');
   });
 }

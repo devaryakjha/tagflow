@@ -11,6 +11,8 @@ void main() {
 
     expect(find.text('Benchmarks'), findsOneWidget);
     expect(find.text(defaultProfileBenchmarkFixtureId), findsWidgets);
+    expect(find.text('Tagflow'), findsWidgets);
+    expect(find.text('Renderer: Tagflow'), findsOneWidget);
     expect(find.byKey(BenchmarkHost.scrollKey), findsOneWidget);
     expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
   });

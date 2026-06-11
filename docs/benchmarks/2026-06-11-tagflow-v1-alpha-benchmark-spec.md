@@ -135,10 +135,10 @@ Recommended fixtures:
 | Parser microbench | Tagflow only | `smoke_short_html`, `ai_answer_rich`, `table_dense`, `large_article`, `deep_nested_lists`, `table_stress` | median us/op, p95 us/op, coefficient of variation, nodes/sec | PR CI + local | `dart run melos exec --scope=tagflow_benchmarks -- dart run bin/run_parser_benchmarks.dart --output=build/benchmarks/parser.json` | Pass if every fixture emits JSON, warmup is used, and CV is <= 10%. After baseline exists, fail on > 15% median regression on the same environment label. |
 | Converter microbench | Tagflow only | parsed versions of all HTML fixtures | median us/op for `TagflowConverter.convert`, widget count, element count | PR CI + local | `flutter test packages/tagflow_benchmarks/test/widget_build_benchmark_test.dart --reporter expanded` | Pass if conversion succeeds for all fixtures with no exceptions and <= 15% regression after baseline. |
 | Full build benchmark | Tagflow only | `ai_answer_rich`, `table_dense`, `large_article` | first stable pump ms, total build/layout ms, rebuild ms after theme noop, rebuild ms after content change | PR CI + local | `flutter test packages/tagflow_benchmarks/test/widget_build_benchmark_test.dart --dart-define=TAGFLOW_BENCH_MODE=full-build` | Pass if results emit for every fixture and no fixture exceeds 2x its stored baseline. No absolute frame budget gate in hosted CI. |
-| Native frame + scroll benchmark | Tagflow, `flutter_html`, `flutter_widget_from_html` | `ai_answer_rich`, `large_article`, `table_dense` | `FrameTiming` build p50/p90/p99/worst, raster p50/p90/p99/worst, GC counts, dropped-frame count, scroll completion time | Local profile run, optional nightly CI on a stable runner | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_perf_test.dart -d macos --profile` | On the reference device, pass if standard fixtures show build p90 < 8 ms, raster p90 < 8 ms, worst frame < 16 ms, and dropped frames = 0. On hosted CI, record only. |
-| Table stress frame benchmark | Tagflow, `flutter_html`, `flutter_widget_from_html` | `table_stress` | same as above plus first-content-visible ms | Local profile run | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_competitor_perf_test.dart -d macos --profile --dart-define=TAGFLOW_FIXTURE=table_stress` | Pass if no overflow, exception, or OOM occurs and first content is visible within 1500 ms on the reference device. Treat this as release-significant. |
-| Markdown product-shape comparison | Tagflow, `flutter_markdown_plus`, `markdown_widget` | `ai_answer_rich.md` | first stable pump ms, build p90, raster p90, text selection behavior check | Local + optional report CI | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_competitor_perf_test.dart -d macos --profile --dart-define=TAGFLOW_FIXTURE=ai_answer_rich_md` | Pass if Tagflow stays within 1.5x of the fastest markdown renderer on median build time for this fixture. If slower, open an issue; do not block alpha automatically. |
-| Large document stability | Tagflow, `flutter_html`, `flutter_widget_from_html` | `large_article` | peak elapsed time to first content, scroll completion, exceptions, memory notes, GC churn | Local profile + manual DevTools | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_perf_test.dart -d macos --profile --dart-define=TAGFLOW_FIXTURE=large_article` | Pass if the document fully renders, remains scrollable end-to-end, and shows no crash or unbounded memory growth in manual validation. |
+| Native frame + scroll benchmark | Tagflow, `flutter_html`, `flutter_widget_from_html` | `ai_answer_rich`, `large_article`, `table_dense` | `FrameTiming` build p50/p90/p99/worst, raster p50/p90/p99/worst, GC counts, dropped-frame count, scroll completion time | Local profile run, optional nightly CI on a stable runner | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile` | On the reference device, pass if standard fixtures show build p90 < 8 ms, raster p90 < 8 ms, worst frame < 16 ms, and dropped frames = 0. On hosted CI, record only. |
+| Table stress frame benchmark | Tagflow, `flutter_html`, `flutter_widget_from_html` | `table_stress` | same as above plus first-content-visible ms | Local profile run | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=table_stress dart run melos run benchmark:profile` | Pass if no overflow, exception, or OOM occurs and first content is visible within 1500 ms on the reference device. Treat this as release-significant. |
+| Markdown product-shape comparison | Tagflow, `flutter_markdown_plus`, `markdown_widget` | `ai_answer_rich.md` | first stable pump ms, build p90, raster p90, text selection behavior check | Local + optional report CI | `TAGFLOW_RENDERER=markdown_widget TAGFLOW_FIXTURE=ai_answer_rich_md dart run melos run benchmark:profile` after markdown fixtures land | Pass if Tagflow stays within 1.5x of the fastest markdown renderer on median build time for this fixture. If slower, open an issue; do not block alpha automatically. |
+| Large document stability | Tagflow, `flutter_html`, `flutter_widget_from_html` | `large_article` | peak elapsed time to first content, scroll completion, exceptions, memory notes, GC churn | Local profile + manual DevTools | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile` | Pass if the document fully renders, remains scrollable end-to-end, and shows no crash or unbounded memory growth in manual validation. |
 | Streaming / incremental updates | Tagflow only for alpha | `streaming_ai_chunks` | update latency per chunk, scroll position preservation, rebuild duration, GC counts | Local only | `flutter drive --driver=examples/tagflow/test_driver/perf_driver.dart --target=examples/tagflow/integration_test/tagflow_perf_test.dart -d macos --profile --dart-define=TAGFLOW_FIXTURE=streaming_ai_chunks` | Non-gating in alpha. Pass if every chunk applies without exception and update latency is captured. |
 
 ## Competitor Comparison Policy
@@ -212,8 +212,9 @@ These should become Melos scripts after the first harness lands:
 
 ```bash
 dart run melos run benchmark:micro
-dart run melos run benchmark:widget
+dart run melos run benchmark:render
 dart run melos run benchmark:profile
+TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```
 
@@ -228,7 +229,9 @@ flutter drive \
   --driver=examples/tagflow/test_driver/perf_driver.dart \
   --target=examples/tagflow/integration_test/tagflow_perf_test.dart \
   -d macos \
-  --profile
+  --profile \
+  --dart-define=TAGFLOW_RENDERER=tagflow \
+  --dart-define=TAGFLOW_FIXTURE=ai_answer_rich
 ```
 
 If the local Flutter/Dart toolchain still depends on the FVM cache shim in this repo setup, prepend:

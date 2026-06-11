@@ -129,6 +129,8 @@ melos:
         --target=integration_test/tagflow_perf_test.dart
         -d macos
         --profile
+        --dart-define=TAGFLOW_RENDERER=${TAGFLOW_RENDERER:-tagflow}
+        --dart-define=TAGFLOW_FIXTURE=${TAGFLOW_FIXTURE:-ai_answer_rich}
       description: Run Tagflow profile-mode frame benchmark on macOS
 
     combine-coverage:
