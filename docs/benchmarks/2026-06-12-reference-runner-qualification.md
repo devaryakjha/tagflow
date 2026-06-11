@@ -253,7 +253,9 @@ Blocked until all qualification gates pass:
 
 1. Add app-launch phase attribution to the profile harness so static
    `coldInitialRender`, `warmRebuild`, and `warmScroll` phases are not
-   mistaken for process cold-start evidence.
+   mistaken for process cold-start evidence. Current runner artifacts do not
+   expose a defensible launch metric; see
+   [`2026-06-12-app-launch-attribution-scope.md`](2026-06-12-app-launch-attribution-scope.md).
 2. Expand `tagflow_native_json` from `native_ai_answer` smoke to a repeat-based
    fixture matrix with larger server-authored document shapes.
 3. Add an Android physical-device qualification note with a real
