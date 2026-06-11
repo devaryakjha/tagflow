@@ -12,10 +12,10 @@
 
 Tagflow now has enough benchmark plumbing to collect repeatable local evidence:
 fixture checks, parser/render microbenchmarks, profile-mode matrix collection,
-competitor adapters, native transport timings, native JSON profile smoke, and
-dynamic update attribution. That is still not enough for public performance
-copy. This document defines the exact gates that must be true before any
-external claim can cite benchmark numbers.
+competitor adapters, native transport timings, native JSON profile baselines,
+and dynamic update attribution. That is still not enough for public
+performance copy. This document defines the exact gates that must be true
+before any external claim can cite benchmark numbers.
 
 This is intentionally stricter than the alpha release gates. Alpha gates can
 use collection completeness. Public claims require qualified reference targets,
@@ -32,7 +32,7 @@ fixture review, memory/allocation review, and an explicit comparison policy.
 | Profile checker policy | `profile-reference-runner-policy.json` requires five repeats and `800x600 @ 2.0x` viewport metadata while keeping thresholds `report_only`. | Collection-quality gate. | Cannot enforce timing thresholds. |
 | Competitor adapters | `flutter_html` and `flutter_widget_from_html` lanes exist in the profile matrix. | Fairness input. | Needs explicit feature-support and configuration review before comparisons. |
 | Native transport microbench | `benchmark:native-transport` and `2026-06-11-native-transport-smoke.md` measure JSON decode/adapt/patch phases. | Report-only smoke. | Measures transport overhead, not rendered frame performance. |
-| Native JSON profile lane | `tagflow_native_json` renders trusted native block JSON fixtures: `native_ai_answer`, `native_table_dense`, and `native_large_article`. | Report-only smoke. | Native-only evidence; not fixture-comparable to HTML renderers. |
+| Native JSON profile lane | `2026-06-12-native-json-repeat5-local-baseline.md` records `15 / 15` cells for `tagflow_native_json` across `native_ai_answer`, `native_table_dense`, and `native_large_article`. | Local stabilization evidence. | Native-only evidence; not fixture-comparable to HTML renderers or claim-grade reference-target evidence. |
 | Dynamic patch/update lanes | Semantic streaming and authored insertion pair baselines record update attribution. | Report-only diagnostic evidence. | GC/raster outliers must be explained before dynamic-content claims. |
 | Kite real-app probe | Kite evidence proves real app reachability and hosted alpha3 compatibility; debug profile probe is diagnostic. | Integration evidence. | Not a supported profile benchmark or public performance baseline. |
 
@@ -161,7 +161,9 @@ dart run melos run benchmark:profile:baselines
 ```
 
 Run the same summarize/check sequence for each output directory. Keep both
-lanes report-only until GC, raster, and phase-attribution notes are reviewed.
+lanes report-only. Dynamic authored-insertion still needs explained GC/raster
+behavior before any update-path claim, and native JSON still lacks a promoted
+stable reference target plus any comparison policy against HTML lanes.
 
 ## Physical Target Qualification
 
@@ -255,9 +257,9 @@ Blocked until all qualification gates pass:
    mistaken for process cold-start evidence. Current runner artifacts do not
    expose a defensible launch metric; see
    [`2026-06-12-app-launch-attribution-scope.md`](2026-06-12-app-launch-attribution-scope.md).
-2. Promote the native JSON fixture matrix after one-repeat smoke evidence and
-   a reviewed repeat-5 run over `native_ai_answer`, `native_table_dense`, and
-   `native_large_article`.
+2. Re-run the native JSON fixture matrix on the eventual promoted stable
+   reference target after physical-target qualification and reference
+   environment decisions are complete.
 3. Add an Android physical-device qualification note with a real
    `flutter devices` target id, one-repeat probe result, and failure
    classification if it fails.
