@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `e7898f3 feat(runtime): add inline text semantics`
+- Snapshot commit: `b889b15 feat(tagflow): route html entrypoints through semantic runtime`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -14,11 +14,11 @@ Snapshot:
 
 | # | Criterion | Current Status | Evidence / Owner |
 | ---: | --- | --- | --- |
-| 1 | Public `TagflowDocument` model exists and is canonical renderer input. | Mostly done | `TagflowDocument` and `Tagflow.document(...)` exist; document path renders through `TagflowComponentRegistry`. |
-| 2 | Public `TagflowHtmlAdapter` exists and is canonical HTML entry point. | Mostly done | `TagflowHtmlAdapter` exists; docs now steer new HTML usage to `Tagflow.html(...)` and adapter parsing. |
+| 1 | Public `TagflowDocument` model exists and is canonical renderer input. | Done | `TagflowDocument` powers `Tagflow.document(...)`; `b889b15` routes built-in HTML entry points through the same document/runtime render path. |
+| 2 | Public `TagflowHtmlAdapter` exists and is canonical HTML entry point. | Done | `TagflowHtmlAdapter` exists; `Tagflow.html(...)` and legacy `Tagflow(html: ...)` parse through it before semantic rendering, with a deliberate legacy-converter compatibility path. |
 | 3 | `Tagflow.html(...)` renders through the new document runtime for the built-in supported feature set. | Done | HTML entry points now parse through `TagflowHtmlAdapter` into `TagflowDocument` and render built-ins through `TagflowComponentRegistry.builtIn`; focused widget tests cover semantic routing, inline semantics, render boundaries, and custom legacy converter compatibility. |
 | 4 | Built-in feature set covers headings, paragraphs, emphasis, links, lists, blockquotes, code, images, and tables. | Done | `26200be` adds semantic renderer coverage for the built-in feature set; `e7898f3` adds first-class `TagflowInlineSemantic` presentation for emphasis/strong and related inline semantics while preserving legacy fallback hints. |
-| 5 | Public `TagflowContentPolicy` exists with safe defaults and tests. | Mostly done | Content policy and unsafe-content tests exist from the adapter/policy slice. |
+| 5 | Public `TagflowContentPolicy` exists with safe defaults and tests. | Done | Content policy and unsafe-content tests exist from the adapter/policy slice, and HTML entry points now use the adapter path by default. |
 | 6 | Semantic `TagflowComponentRegistry` exists and can override a built-in renderer. | Done | Registry exists, is public, and `Tagflow.document(..., registry:)` tests prove override behavior. |
 | 7 | Render-boundary behavior still works for HTML input. | Done | `da6de66` adds `Tagflow.html(..., renderBoundary: ...)` coverage and proves legacy `TagflowOptions(renderBoundary: ...)` still works. |
 | 8 | Public API separates runtime view options from HTML-adapter options. | Done | `da6de66` adds `TagflowViewOptions`, keeps `TagflowOptions` as a compatibility wrapper, and removes `renderBoundary` from the runtime view-options surface. |
@@ -55,9 +55,9 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Re-run package-level validation and benchmarks after export/runtime routing
-   changes.
-2. Re-audit alpha readiness before any version bump.
+1. Re-audit alpha readiness before any version bump.
+2. Prepare the `1.0.0-alpha.1` version/release slice once the readiness audit
+   is accepted.
 
 ## Known Non-Completion Points
 
