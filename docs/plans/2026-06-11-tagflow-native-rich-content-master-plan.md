@@ -23,17 +23,19 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commit before this status refresh:
-  `ae5fd01 docs(benchmarks): record capped baseline gate status`
-- Latest integrated implementation commit: `2b2a809 bench(profile): add
-  baseline summary gate`; the latest runtime/table implementation commit remains
-  `8ed0686 fix(table): preserve HTML table captions`.
+  `a299244 docs(validation): record kite profile blocker`
+- Latest integrated implementation commits include `34ea827 feat(bench): add
+  opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
+  manifests`, `c137a7b bench(profile): support custom baseline output dirs`,
+  `74a9c9c bench(profile): record viewport metadata`, and `8ed0686 fix(table):
+  preserve HTML table captions`.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
-- Release posture: `tagflow` and `tagflow_table` are both set to
-  `1.0.0-alpha.1`; package descriptions, changelogs, READMEs, roadmap, and the
-  alpha migration guide have been updated for the native rich content runtime
-  line.
+- Release posture: `tagflow` and `tagflow_table` are both published as
+  `1.0.0-alpha.1` prereleases. Package descriptions, changelogs, READMEs,
+  roadmap, and the alpha migration guide have been updated for the native rich
+  content runtime line.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection
@@ -49,21 +51,23 @@ published.
   plugin warning has a narrow benchmark-script suppression while preserving
   JSON output, and the separate CocoaPods/SPM migration warning has been
   removed from the macOS example host.
-- Post-alpha stabilization in progress: remaining table styling parity beyond
-  normalized uniform table hints, stable reference-environment selection and
-  threshold policy for benchmark claims, dark-mode/internal app validation
-  passes, and profile-mode evidence on a supported real-app target.
-- Kite validation evidence is now captured from an iPhone 17 simulator using
-  the local alpha override. Diagnostics proves the native `TagflowDocument`
-  path and controlled HTML adapter policy inside Kite; the real
-  `IPOInstrumentSheet` proves the existing Tagflow-backed excerpt/content flow,
-  RHP JSON fetch path, mobile render boundary, financials, ordered lists,
-  links, and table rendering. A debug VM timeline attribution probe exists, but
-  it is not release-grade performance evidence because Flutter profile mode was
-  unavailable on the simulator and Xcode Animation Hitches was unsupported on
-  that runtime. The proof-only Kite scaffolding has been removed; the remaining
-  Kite action is a future clean alpha dependency/import branch plus dark-mode
-  and supported-target profile evidence.
+- Post-alpha stabilization in progress: markdown-only benchmark comparison,
+  remaining table styling parity beyond normalized uniform table hints, stable
+  reference-environment selection and threshold policy for benchmark claims,
+  and profile-mode evidence on a supported real-app target.
+- Kite validation evidence now covers both the proof-only local override path
+  and the clean hosted-alpha dependency path. The proof run demonstrated the
+  native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
+  The clean branch `codex/kite-tagflow-alpha-runtime` at `d9682aec` updates only
+  hosted `tagflow`/`tagflow_table` `1.0.0-alpha.1` constraints plus the two IPO
+  legacy imports; it reached the real `IPOInstrumentSheet` through the
+  authenticated Bids -> IPO route in Kite's in-app Dark theme, with screenshot
+  evidence under `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*`.
+  A debug VM timeline attribution probe exists, but it is not release-grade
+  performance evidence. A physical iPhone profile attempt is documented as a
+  supported-target blocker because the phone was wireless-only from Flutter's
+  perspective and stalled before install/launch; see
+  `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
 
 ## Current Constraints
 
@@ -77,9 +81,10 @@ published.
 - Current tests exist for parser, converter, style, table, options, and widgets.
 - CI and publish workflows exist under `.github/workflows/`.
 - Existing local change in `.vscode/settings.json` is treated as user-owned.
-- A worker validation pass in `/Users/arya/.codex/worktrees/72c9/tagflow`
-  passed `flutter pub get`, `dart run melos bootstrap`, and
-  `dart run melos run validate`.
+- Release-audit worker `019eb4f5-b537-7f40-bd1c-1fc301265129` reported
+  `DONE` after `git diff --check`, `dart run melos run validate`, and
+  `dart run melos run publish:dry-run` passed with no files changed in the
+  audit worktree.
 
 ## Current Architecture Audit
 
