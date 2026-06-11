@@ -185,17 +185,17 @@ final envelope = codec.decodePatchEnvelope({
   'revision': 'cms-rev-8',
   'operations': [
     {
-      'op': 'append-children',
-      'parentNodeId': 'announcement-42.list',
+      'op': 'insert-before',
+      'siblingNodeId': 'announcement-42.title',
       'blocks': [
         {
-          'id': 'announcement-42.list.new-item',
-          'kind': 'listItem',
+          'id': 'announcement-42.notice',
+          'kind': 'paragraph',
           'children': [
             {
-              'id': 'announcement-42.list.new-item.text',
+              'id': 'announcement-42.notice.text',
               'kind': 'text',
-              'text': 'New rollout step',
+              'text': 'This update came from trusted app JSON.',
             },
           ],
         },
