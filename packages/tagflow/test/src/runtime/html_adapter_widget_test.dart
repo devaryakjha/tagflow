@@ -10,12 +10,74 @@ void main() {
       const html = '<p>Hello <strong>runtime</strong></p>';
 
       await tester.pumpWidget(const MaterialApp(home: Tagflow(html: html)));
-      expect(find.textContaining('Hello runtime'), findsOneWidget);
+      expect(find.text('Hello '), findsOneWidget);
+      expect(find.text('runtime'), findsOneWidget);
 
       await tester.pumpWidget(
         const MaterialApp(home: Tagflow.html(html: html)),
       );
-      expect(find.textContaining('Hello runtime'), findsOneWidget);
+      expect(find.text('Hello '), findsOneWidget);
+      expect(find.text('runtime'), findsOneWidget);
+    });
+
+    testWidgets('html entrypoints render built-ins through semantic runtime', (
+      tester,
+    ) async {
+      const html = '<p>Semantic runtime</p>';
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Tagflow.html(html: html)),
+      );
+
+      expect(_textWidgetWithData('Semantic runtime'), findsOneWidget);
+      expect(_textWidgetWithSpan('Semantic runtime'), findsNothing);
+
+      await tester.pumpWidget(const MaterialApp(home: Tagflow(html: html)));
+
+      expect(_textWidgetWithData('Semantic runtime'), findsOneWidget);
+      expect(_textWidgetWithSpan('Semantic runtime'), findsNothing);
+    });
+
+    testWidgets('html entrypoint renders inline semantic presentation', (
+      tester,
+    ) async {
+      const html =
+          '<p><strong>Bold</strong> <em>Italic</em> <mark>Marked</mark></p>';
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Tagflow.html(html: html)),
+      );
+
+      expect(find.text('Bold'), findsOneWidget);
+      expect(find.text('Italic'), findsOneWidget);
+      expect(find.text('Marked'), findsOneWidget);
+      expect(_richTextStyle(tester, 'Bold')?.fontWeight, FontWeight.w700);
+      expect(_richTextStyle(tester, 'Italic')?.fontStyle, FontStyle.italic);
+      expect(
+        find.ancestor(
+          of: find.text('Marked'),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('custom legacy converters keep compatibility path', (
+      tester,
+    ) async {
+      const html = '<p>Built-in paragraph</p>';
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Tagflow.html(
+            html: html,
+            converters: [_LegacyParagraphConverter()],
+          ),
+        ),
+      );
+
+      expect(find.text('Legacy bridge'), findsOneWidget);
+      expect(find.text('Built-in paragraph'), findsNothing);
     });
 
     testWidgets('document entrypoint renders semantic paragraph content', (
@@ -338,6 +400,31 @@ List<TagflowDocumentNode> _findNodesWithHtmlTag(
       node,
     for (final child in node.children) ..._findNodesWithHtmlTag(child, htmlTag),
   ];
+}
+
+Finder _textWidgetWithData(String text) {
+  return find.byWidgetPredicate((widget) {
+    return widget is Text && widget.data == text;
+  });
+}
+
+Finder _textWidgetWithSpan(String text) {
+  return find.byWidgetPredicate((widget) {
+    return widget is Text && widget.textSpan?.toPlainText() == text;
+  });
+}
+
+TextStyle? _richTextStyle(WidgetTester tester, String text) {
+  final finder = find.byWidgetPredicate((widget) {
+    if (widget is! RichText) return false;
+    return widget.text.toPlainText() == text;
+  });
+
+  if (finder.evaluate().isEmpty) {
+    return null;
+  }
+
+  return tester.widget<RichText>(finder.first).text.style;
 }
 
 List<TagflowNode> _findLegacyTags(TagflowNode node, String tag) {

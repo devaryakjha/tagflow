@@ -16,7 +16,7 @@ Snapshot:
 | ---: | --- | --- | --- |
 | 1 | Public `TagflowDocument` model exists and is canonical renderer input. | Mostly done | `TagflowDocument` and `Tagflow.document(...)` exist; document path renders through `TagflowComponentRegistry`. |
 | 2 | Public `TagflowHtmlAdapter` exists and is canonical HTML entry point. | Mostly done | `TagflowHtmlAdapter` exists; docs now steer new HTML usage to `Tagflow.html(...)` and adapter parsing. |
-| 3 | `Tagflow.html(...)` renders through the new document runtime for the built-in supported feature set. | Incomplete | Compatibility path still preserves legacy HTML rendering for safety. Needs semantic runtime parity before switching built-ins fully. |
+| 3 | `Tagflow.html(...)` renders through the new document runtime for the built-in supported feature set. | Done | HTML entry points now parse through `TagflowHtmlAdapter` into `TagflowDocument` and render built-ins through `TagflowComponentRegistry.builtIn`; focused widget tests cover semantic routing, inline semantics, render boundaries, and custom legacy converter compatibility. |
 | 4 | Built-in feature set covers headings, paragraphs, emphasis, links, lists, blockquotes, code, images, and tables. | Done | `26200be` adds semantic renderer coverage for the built-in feature set; `e7898f3` adds first-class `TagflowInlineSemantic` presentation for emphasis/strong and related inline semantics while preserving legacy fallback hints. |
 | 5 | Public `TagflowContentPolicy` exists with safe defaults and tests. | Mostly done | Content policy and unsafe-content tests exist from the adapter/policy slice. |
 | 6 | Semantic `TagflowComponentRegistry` exists and can override a built-in renderer. | Done | Registry exists, is public, and `Tagflow.document(..., registry:)` tests prove override behavior. |
@@ -55,17 +55,16 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Switch `Tagflow.html(...)` from the compatibility legacy bridge to semantic
-   registry rendering for the built-in supported feature set.
-2. Re-run package-level validation and benchmarks after export/runtime routing
+1. Re-run package-level validation and benchmarks after export/runtime routing
    changes.
-3. Re-audit criterion 3 before any alpha version bump.
+2. Re-audit alpha readiness before any version bump.
 
 ## Known Non-Completion Points
 
-- `Tagflow.html(...)` still renders through the legacy bridge for compatibility
-  after parsing into `TagflowDocument`; semantic registry rendering is proven
-  for `Tagflow.document(...)`.
+- Custom legacy converters passed to HTML entry points still intentionally use
+  the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
+  with converter extensions keep their existing behavior while built-in HTML
+  uses the semantic runtime.
 - Root full validation has a known unrelated issue when the empty
   `examples/tagflow/test/` directory causes Melos to select the example package
   for coverage without test files.

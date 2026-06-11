@@ -158,17 +158,22 @@ class _TagflowState extends State<Tagflow> {
   void didUpdateWidget(Tagflow oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    final convertersChanged = !listEquals(
+      oldWidget.converters,
+      widget.converters,
+    );
+    if (convertersChanged) {
+      _converter = TagflowConverter(widget.converters);
+    }
+
     if (oldWidget.html != widget.html ||
         oldWidget.document != widget.document ||
         oldWidget.adapter != widget.adapter ||
         oldWidget.viewOptions != widget.viewOptions ||
-        oldWidget.renderBoundary != widget.renderBoundary) {
+        oldWidget.renderBoundary != widget.renderBoundary ||
+        (convertersChanged && widget.document == null)) {
       _loadDocument();
-    }
-
-    if (!listEquals(oldWidget.converters, widget.converters)) {
-      _converter = TagflowConverter(widget.converters);
-      if (_element != null) setState(() {});
+      return;
     }
 
     if (oldWidget.registry != widget.registry && widget.document != null) {
@@ -185,7 +190,7 @@ class _TagflowState extends State<Tagflow> {
             viewOptions: widget.viewOptions,
             renderBoundary: widget.renderBoundary,
           );
-      _element = widget.document == null
+      _element = _usesLegacyCompatibilityRenderer
           ? TagflowHtmlDocumentBridge.toLegacyNode(_document!)
           : null;
       _error = null;
@@ -206,11 +211,15 @@ class _TagflowState extends State<Tagflow> {
       );
     }
 
-    Widget? content;
-    if (widget.document != null) {
-      if (_document == null) {
-        return widget.loadingBuilder(context);
-      }
+    if (_document == null) {
+      return widget.loadingBuilder(context);
+    }
+
+    Widget content;
+    if (_usesLegacyCompatibilityRenderer) {
+      if (_element == null) return widget.loadingBuilder(context);
+      content = _converter.convert(_element!, context);
+    } else {
       content = (widget.registry ?? TagflowComponentRegistry.builtIn).render(
         context,
         TagflowDocumentNode.root(
@@ -218,16 +227,15 @@ class _TagflowState extends State<Tagflow> {
           children: _document!.children,
         ),
       );
-    } else if (_element != null) {
-      content = _converter.convert(_element!, context);
-    } else {
-      return widget.loadingBuilder(context);
     }
 
     return widget.viewOptions.selectable.enabled
         ? SelectionArea(child: content)
         : content;
   }
+
+  bool get _usesLegacyCompatibilityRenderer =>
+      widget.document == null && widget.converters.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
