@@ -661,9 +661,14 @@ Master review gate:
 ### Beta API Freeze Delta Review
 
 - Pending worktree: `local:12f4b669-48b4-4602-8451-cc52bf2e2264`
-- Status: queued from `codex/tagflow-native-runtime-master`.
-- Scope: audit current public exports against the beta freeze review and patch
-  docs/specs only where the delta is small and evidence-backed.
+- Thread ID: `019eb905-188b-78f3-9086-ab95002753c8`
+- Status: integrated as `697f5b2 docs(spec): refresh beta api freeze review`;
+  archived after handoff.
+- Result: beta review now distinguishes published alpha.3 from coordinator
+  `HEAD`, keeps hosted Kite evidence as widget-test evidence only, and names
+  two unresolved beta blockers: primary-barrel style APIs still expose
+  `legacy.dart` CSS value types, and low-level `tagflow_table` render-object
+  exports need an explicit keep-or-hide decision before freeze.
 - Constraints: no beta release language, tags, package-version changes, or
   performance claims.
 
