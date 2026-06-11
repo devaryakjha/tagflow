@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `7c41f5d docs(benchmarks): refresh alpha baseline version`
+- Snapshot commit: `4df25cd docs(alpha): track final audit refresh`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -57,9 +57,10 @@ The benchmark harness is real but still alpha-grade:
 
 ## Current Integration Queue
 
-1. Complete a final read-only alpha release audit against the current branch.
-2. If the audit finds no blockers, push only the package-specific release tags
-   after release review accepts the alpha package metadata.
+1. Release review can decide whether to push the package-specific alpha tags:
+   `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
+2. After tags are pushed, watch the package-specific GitHub Actions publish
+   workflows and verify both packages appear on pub.dev.
 
 ## Release Prep Status
 
@@ -80,6 +81,13 @@ The benchmark harness is real but still alpha-grade:
   `tagflow_benchmarks`.
 - The local alpha benchmark baseline now reports package version
   `1.0.0-alpha.1`.
+- Independent release-audit worker `019eb4f5-b537-7f40-bd1c-1fc301265129`
+  refreshed to `7c41f5d` and confirmed `git status --short --branch`,
+  `git diff --check`, and `dart run melos run validate` passed after the
+  coordinator fixed the earlier example-app validation blocker and benchmark
+  baseline mismatch. Its final publish dry-run status had not returned before
+  this tracker refresh, so the coordinator evidence above remains the source of
+  truth for publish dry-run readiness at `4df25cd`.
 
 ## Known Non-Completion Points
 
@@ -87,6 +95,6 @@ The benchmark harness is real but still alpha-grade:
   the compatibility legacy bridge after `TagflowHtmlAdapter` parsing, so apps
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
-- A refreshed independent final release audit is pending after the coordinator
-  resolved the earlier example-app validation blocker and benchmark-version
-  baseline mismatch.
+- The delegated final audit thread is still marked in progress while running
+  the publish dry-run; if it later reports a package validation mismatch, treat
+  that as a release-review blocker before pushing tags.
