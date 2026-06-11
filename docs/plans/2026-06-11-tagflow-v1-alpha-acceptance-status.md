@@ -12,7 +12,7 @@ Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest validated coordinator commit before this status refresh:
-  `42feeff docs(benchmarks): record ordered insertion patch baseline`
+  `54566c8 feat(benchmarks): add native json profile lane`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `74a9c9c bench(profile): record viewport metadata`,
   `c137a7b bench(profile): support custom baseline output dirs`,
@@ -164,8 +164,13 @@ Public API surface to call out in `1.0.0-alpha.2`:
   `decodePatchEnvelope(...)` ->
   `TagflowNativeBlockAdapter.adaptPatches(...)` ->
   `TagflowDocument.applyPatches(...)`
+- HTML-origin semantic registry override path:
+  `Tagflow.html(..., registry: ...)`
 - report-only native transport benchmark lane:
   `dart run melos run benchmark:native-transport`
+- report-only native JSON profile lane:
+  `TAGFLOW_RENDERER=tagflow_native_json` with
+  `TAGFLOW_FIXTURE=native_ai_answer`
 
 Release scope boundaries:
 
@@ -190,13 +195,18 @@ Release scope boundaries:
 Coordinator release-gate evidence for alpha.2:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed after the manual core-only version bump.
+  passed from current candidate commit `54566c8`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
   publish:dry-run` validated only `tagflow`, with registry version
   `1.0.0-alpha.1`, local version `1.0.0-alpha.2`, and `0` package warnings.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run
   benchmark:native-transport` passed after the version bump and reported
   package version `1.0.0-alpha.2`.
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH flutter drive --driver=...`
+  for `TAGFLOW_RENDERER=tagflow_native_json` and
+  `TAGFLOW_FIXTURE=native_ai_answer` passed on macOS profile mode. Flutter
+  reported `Failed to foreground app; open returned 1`, then connected through
+  the VM service and completed all tests.
 
 Coordinator publish gap before alpha.2:
 

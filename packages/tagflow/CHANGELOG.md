@@ -15,10 +15,17 @@
   `TagflowDocument.applyPatches(...)`.
 - Adds the example app `Native JSON Transport` screen for trusted
   app-controlled JSON documents and patch envelopes.
+- Adds `Tagflow.html(..., registry: ...)` so HTML-origin runtime documents can
+  use the same semantic registry override path as `Tagflow.document(...)` while
+  preserving the legacy custom converter bridge.
 - Adds the report-only native transport benchmark lane,
   `benchmark:native-transport`, for measuring JSON decode, document
   adaptation, patch envelope decode, patch adaptation, and runtime patch
   application overhead.
+- Adds a report-only native JSON profile lane,
+  `TAGFLOW_RENDERER=tagflow_native_json` with
+  `TAGFLOW_FIXTURE=native_ai_answer`, for rendering decoded native block JSON
+  through the example profile harness.
 - This prerelease does not introduce a CMS sync protocol, JavaScript execution,
   arbitrary webpage rendering, Flutter widget serialization, or public
   performance claims. Benchmark evidence remains local and report-only.
