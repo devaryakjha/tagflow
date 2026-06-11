@@ -22,8 +22,10 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated coordinator commit before this status refresh:
-  `cffc368 docs(benchmarks): record attributed repeat5 baseline`
+- Latest integrated coordinator commits before this status refresh include
+  `5887c17 feat(benchmarks): add native transport benchmark lane`,
+  `e5ee11f feat(example): add native dynamic content demo`, and
+  `5cd0ecf feat(adapter): add native block transport codec`.
 - Latest integrated implementation commits include `d0494f8 docs(benchmarks):
   record semantic streaming pair baseline`, `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
@@ -60,7 +62,11 @@ published.
   `TAGFLOW_PROFILE_MIN_REPEATS=5` completeness gate. The macOS integration-test
   plugin warning has a narrow benchmark-script suppression while preserving
   JSON output, and the separate CocoaPods/SPM migration warning has been
-  removed from the macOS example host. The HTML adapter now also supports
+  removed from the macOS example host. The native block JSON transport now has
+  a report-only microbenchmark lane, `benchmark:native-transport`, with smoke
+  evidence recorded in
+  `docs/benchmarks/baselines/2026-06-11-native-transport-smoke.md`. The HTML
+  adapter now also supports
   authored node ID strategies for controlled dynamic content through
   `TagflowHtmlNodeIdStrategy.attribute()`, which reads `data-tagflow-id` by
   default while preserving path IDs as the compatibility fallback.
@@ -84,6 +90,10 @@ published.
   supported-target blocker because the phone was wireless-only from Flutter's
   perspective and stalled before install/launch; see
   `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
+- The example app now includes a `Native JSON Transport` screen that decodes
+  trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
+  `Tagflow.document(...)`, and applies a four-operation patch envelope through
+  `TagflowNativeBlockAdapter.adaptPatches(...)`.
 
 ## Current Constraints
 
