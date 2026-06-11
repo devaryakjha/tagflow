@@ -74,11 +74,13 @@ The benchmark harness is real but still alpha-grade:
 1. Benchmark-gating worker is queued to make the next stable-readiness slice:
    opt-in viewport/environment guard or explicit threshold policy, without
    changing the existing alpha collection-completeness gate.
-2. Kite integration worker is queued to determine whether a clean alpha
-   dependency branch can be prepared without committing the prior proof-only
-   diagnostics scaffolding, local path overrides, or broad lockfile churn.
-3. Release review should wait for those worker results before deciding whether
-   to push the package-specific alpha tags:
+2. Kite alpha-dependency branch preparation is blocked on hosted alpha
+   availability. Live pub.dev state checked on 2026-06-11 still lists
+   `tagflow` at `0.0.8` and `tagflow_table` at `0.0.4+5`, so Kite should not
+   commit a hosted-alpha dependency update yet. The next clean Kite branch can
+   be prepared only after `1.0.0-alpha.1` is published for both packages.
+3. Release review should wait for the benchmark-gating worker result before
+   deciding whether to push the package-specific alpha tags:
    `tagflow-v1.0.0-alpha.1` and `tagflow_table-v1.0.0-alpha.1`.
 
 ## Release Prep Status
@@ -176,9 +178,10 @@ The benchmark harness is real but still alpha-grade:
 - The Kite proof patch has been cleaned out of `/Users/arya/projects/kite`.
   The app checkout is clean again on `feat/dashboard...origin/feat/dashboard`
   and remains on hosted `tagflow: 0.0.8` / `tagflow_table: 0.0.4+5`. A future
-  Kite alpha migration should land as a separate dependency branch with only
-  the hosted alpha constraint update, the two `legacy.dart` IPO converter
-  imports, regenerated lockfile, and fresh focused app validation.
+  Kite alpha migration should land after the hosted alpha packages are visible
+  on pub.dev, as a separate dependency branch with only the hosted alpha
+  constraint update, the two `legacy.dart` IPO converter imports, regenerated
+  lockfile, and fresh focused app validation.
 - `8ed0686` preserves HTML table captions across the adapter, built-in semantic
   renderer, first-party table extension, and legacy bridge. This closes a
   concrete table parity gap without removing the alpha compatibility bridge.
@@ -246,6 +249,7 @@ The benchmark harness is real but still alpha-grade:
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
   on the real app surface, and a deliberate Kite alpha-dependency migration
-  branch if Kite is the first production consumer.
+  branch after the hosted `1.0.0-alpha.1` packages are available if Kite is the
+  first production consumer.
   The first iOS simulator proof and debug timeline have been captured but
   should not be treated as a full production rollout or benchmark.
