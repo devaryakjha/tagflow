@@ -75,17 +75,73 @@ void main() {
           ['context', 'callout', 'summary', 'details'],
           ['lead', 'context', 'callout', 'summary', 'details'],
         ];
+        final expectedInsertedNodeCounts = [2, 1, 1, 1];
 
         for (final indexedStep in stream.steps.indexed) {
           final step = indexedStep.$2;
+          final previousChildren = currentDocument.children.single.children;
+          final previousChildrenById = {
+            for (final child in previousChildren) child.id: child,
+          };
+
+          expect(
+            step.appendedNodeCount,
+            expectedInsertedNodeCounts[indexedStep.$1],
+          );
           currentDocument = currentDocument.applyPatch(step.patch);
 
           expect(
             currentDocument.children.single.children.map((node) => node.id),
             orderedEquals(expectedChildIdsByStep[indexedStep.$1]),
           );
+          for (final entry in previousChildrenById.entries) {
+            expect(currentDocument.nodeById(entry.key), same(entry.value));
+          }
         }
+
+        expect(
+          _descendantText(
+            currentDocument.nodeById('lead') ?? (throw StateError('lead')),
+          ),
+          'Lead',
+        );
+        expect(
+          _descendantText(
+            currentDocument.nodeById('context') ??
+                (throw StateError('context')),
+          ),
+          'Context',
+        );
+        expect(
+          _descendantText(
+            currentDocument.nodeById('callout') ??
+                (throw StateError('callout')),
+          ),
+          'Callout',
+        );
+        expect(
+          _descendantText(
+            currentDocument.nodeById('summary') ??
+                (throw StateError('summary')),
+          ),
+          'Summary',
+        );
+        expect(
+          _descendantText(
+            currentDocument.nodeById('details') ??
+                (throw StateError('details')),
+          ),
+          'Details',
+        );
       },
     );
   });
+}
+
+String _descendantText(TagflowDocumentNode node) {
+  if (node.kind == TagflowNodeKind.text) {
+    return node.text ?? '';
+  }
+
+  return node.children.map(_descendantText).join(' ').trim();
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/benchmarks/fixtures.dart';
 import 'package:tagflow_example/benchmarks/renderer_registry.dart';
+import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 
 void main() {
   group('benchmarkRendererById', () {
@@ -131,6 +133,34 @@ void main() {
     },
   );
 
+  test(
+    'returns only the patch renderer for the authored insertion patch fixture',
+    () {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionSemanticPatchBenchmarkFixtureId,
+      );
+      final renderers = benchmarkRenderersForFixture(fixture);
+
+      expect(renderers.map((renderer) => renderer.id), [
+        semanticPatchBenchmarkRendererId,
+      ]);
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById(semanticPatchBenchmarkRendererId),
+          fixture,
+        ),
+        isTrue,
+      );
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById('tagflow_semantic'),
+          fixture,
+        ),
+        isFalse,
+      );
+    },
+  );
+
   test('returns markdown-only renderers for markdown fixtures', () {
     final markdownRenderers = benchmarkRenderersForSourceType(
       BenchmarkSourceType.markdown,
@@ -203,6 +233,47 @@ void main() {
                     type: fixture.source.type,
                     data: authoredInsertionStreamingHtmlSnapshots.last,
                     assetPath: fixture.source.assetPath,
+                  ),
+                ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.text('Lead'), findsOneWidget);
+      expect(find.text('Summary'), findsOneWidget);
+      expect(find.text('Details'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'builds the authored insertion patch fixture with the patch renderer',
+    (tester) async {
+      final fixture = profileBenchmarkFixtureById(
+        authoredInsertionSemanticPatchBenchmarkFixtureId,
+      );
+      final stream = SemanticPatchStream.fromFixture(
+        fixture,
+        authoredInsertionStreamingHtmlSnapshots.last,
+      );
+      final runtimeDocument = stream.steps.fold(
+        stream.initialDocument,
+        (document, step) => document.applyPatch(step.patch),
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) =>
+                benchmarkRendererById(semanticPatchBenchmarkRendererId).build(
+                  context,
+                  BenchmarkSourceDocument(
+                    type: fixture.source.type,
+                    data: authoredInsertionStreamingHtmlSnapshots.last,
+                    assetPath: fixture.source.assetPath,
+                    runtimeDocument: runtimeDocument,
                   ),
                 ),
           ),

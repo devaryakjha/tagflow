@@ -282,9 +282,8 @@ instead of coupling Tagflow to one imperative update model.
   compare that report-only full-reparse lane against equivalent semantic patch
   updates on the same reference runner.
 - The runtime patch API now supports ordered sibling insertion directly, so the
-  authored-insertion patch lane no longer needs parent replacement as a
-  semantic workaround. A later benchmark worker should switch the authored
-  insertion patch stream from `replaceNode(...)` to `insertBefore(...)`.
+  authored-insertion patch lane now uses `insertBefore(...)` for authored
+  sibling insertions instead of replacing the whole parent on every update.
 - Keep the current repeat-5 caveat explicit while designing that slice: the
   patch lane is measurable, but the existing paired baseline showed old-gen GC
   on every repeat and one missed raster-budget frame, so the next run is for

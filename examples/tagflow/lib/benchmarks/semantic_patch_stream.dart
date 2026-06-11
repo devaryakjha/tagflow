@@ -93,34 +93,33 @@ final class SemanticPatchStream {
       version: documents.first.version,
     );
 
-    var previousChildIds = const <String>{};
+    var previousChildren = const <TagflowDocumentNode>[];
     final steps = <SemanticPatchStreamStep>[];
     for (final indexedDocument in documents.indexed) {
       final snapshot = snapshots[indexedDocument.$1];
       final streamSource = _streamSourceFor(indexedDocument.$2);
-      final currentChildIds = {
-        for (final child in streamSource.children) child.id,
-      };
+      final currentChildren = _normalizedStreamChildren(streamSource.children);
+      final currentChildIds = {for (final child in currentChildren) child.id};
+      final previousChildIds = {for (final child in previousChildren) child.id};
       final insertedNodeCount = currentChildIds
           .difference(previousChildIds)
           .length;
-      previousChildIds = currentChildIds;
 
       steps.add(
         SemanticPatchStreamStep(
           chunk: snapshot.chunk,
           fraction: snapshot.fraction,
           inputLength: snapshot.inputLength,
-          patch: TagflowDocumentPatch.replaceNode(
-            nodeId: streamSource.parent.id,
-            node: _copyNodeWithChildren(
-              streamSource.parent,
-              streamSource.children,
-            ),
+          patch: _orderedAuthoredInsertionPatch(
+            parentNodeId: streamSource.parent.id,
+            previousChildren: previousChildren,
+            currentChildren: currentChildren,
           ),
           appendedNodeCount: insertedNodeCount,
         ),
       );
+
+      previousChildren = currentChildren;
     }
 
     return SemanticPatchStream._(
@@ -160,6 +159,78 @@ final class SemanticPatchStreamStep {
 
   /// Number of top-level semantic children appended by this step.
   final int appendedNodeCount;
+}
+
+TagflowDocumentPatch _orderedAuthoredInsertionPatch({
+  required String parentNodeId,
+  required List<TagflowDocumentNode> previousChildren,
+  required List<TagflowDocumentNode> currentChildren,
+}) {
+  if (previousChildren.isEmpty) {
+    return TagflowDocumentPatch.appendChildren(
+      parentNodeId: parentNodeId,
+      children: currentChildren,
+    );
+  }
+
+  final previousChildIds = {for (final child in previousChildren) child.id};
+  final firstExistingChildIndex = currentChildren.indexWhere(
+    (child) => previousChildIds.contains(child.id),
+  );
+  if (firstExistingChildIndex <= 0) {
+    throw StateError(
+      'Authored insertion benchmark snapshots must prepend new siblings '
+      'ahead of an existing authored sibling.',
+    );
+  }
+
+  final insertedChildren = currentChildren.sublist(0, firstExistingChildIndex);
+  final trailingExistingChildren = currentChildren.sublist(
+    firstExistingChildIndex,
+  );
+  final trailingExistingIds = [
+    for (final child in trailingExistingChildren) child.id,
+  ];
+  final previousOrderedIds = [for (final child in previousChildren) child.id];
+  if (!_hasSameOrderedIds(trailingExistingIds, previousOrderedIds)) {
+    throw StateError(
+      'Authored insertion benchmark snapshots must preserve existing sibling '
+      'order after inserting new authored blocks.',
+    );
+  }
+
+  return TagflowDocumentPatch.insertBefore(
+    siblingNodeId: trailingExistingChildren.first.id,
+    nodes: insertedChildren,
+  );
+}
+
+List<TagflowDocumentNode> _normalizedStreamChildren(
+  List<TagflowDocumentNode> children,
+) {
+  return List<TagflowDocumentNode>.unmodifiable([
+    for (final child in children) _normalizedStreamNode(child, child.id),
+  ]);
+}
+
+TagflowDocumentNode _normalizedStreamNode(
+  TagflowDocumentNode node,
+  String stableRootId, [
+  List<int> relativePath = const [],
+]) {
+  final normalizedChildren = [
+    for (final indexedChild in node.children.indexed)
+      _normalizedStreamNode(indexedChild.$2, stableRootId, [
+        ...relativePath,
+        indexedChild.$1,
+      ]),
+  ];
+  final normalizedId = switch (relativePath) {
+    [] => node.id,
+    _ => '$stableRootId.${relativePath.join('.')}',
+  };
+
+  return _copyNode(node, id: normalizedId, children: normalizedChildren);
 }
 
 final class _PatchStreamSource {
@@ -209,30 +280,52 @@ TagflowDocumentNode _copyNodeWithChildren(
   TagflowDocumentNode node,
   List<TagflowDocumentNode> children,
 ) {
+  return _copyNode(node, id: node.id, children: children);
+}
+
+bool _hasSameOrderedIds(List<String> left, List<String> right) {
+  if (left.length != right.length) {
+    return false;
+  }
+
+  for (var index = 0; index < left.length; index++) {
+    if (left[index] != right[index]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+TagflowDocumentNode _copyNode(
+  TagflowDocumentNode node, {
+  required String id,
+  required List<TagflowDocumentNode> children,
+}) {
   return switch (node.kind) {
     TagflowNodeKind.root => TagflowDocumentNode.root(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.container => TagflowDocumentNode.container(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.paragraph => TagflowDocumentNode.paragraph(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.heading => TagflowDocumentNode.heading(
-      id: node.id,
+      id: id,
       level: node.level ?? 1,
       children: children,
       presentation: node.presentation,
@@ -240,7 +333,7 @@ TagflowDocumentNode _copyNodeWithChildren(
       source: node.source,
     ),
     TagflowNodeKind.link => TagflowDocumentNode.link(
-      id: node.id,
+      id: id,
       url: node.url ?? Uri(),
       children: children,
       presentation: node.presentation,
@@ -248,7 +341,7 @@ TagflowDocumentNode _copyNodeWithChildren(
       source: node.source,
     ),
     TagflowNodeKind.list => TagflowDocumentNode.list(
-      id: node.id,
+      id: id,
       ordered: node.ordered ?? false,
       startIndex: node.startIndex,
       children: children,
@@ -257,35 +350,35 @@ TagflowDocumentNode _copyNodeWithChildren(
       source: node.source,
     ),
     TagflowNodeKind.listItem => TagflowDocumentNode.listItem(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.blockquote => TagflowDocumentNode.blockquote(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.table => TagflowDocumentNode.table(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.tableRow => TagflowDocumentNode.tableRow(
-      id: node.id,
+      id: id,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
     TagflowNodeKind.tableCell => TagflowDocumentNode.tableCell(
-      id: node.id,
+      id: id,
       children: children,
       rowSpan: node.rowSpan,
       colSpan: node.colSpan,
@@ -295,17 +388,50 @@ TagflowDocumentNode _copyNodeWithChildren(
       source: node.source,
     ),
     TagflowNodeKind.unsupported => TagflowDocumentNode.unsupported(
-      id: node.id,
+      id: id,
       unsupportedReason: node.unsupportedReason,
       children: children,
       presentation: node.presentation,
       metadata: node.metadata,
       source: node.source,
     ),
-    TagflowNodeKind.text ||
-    TagflowNodeKind.codeBlock ||
-    TagflowNodeKind.inlineCode ||
-    TagflowNodeKind.image ||
-    TagflowNodeKind.horizontalRule => node,
+    TagflowNodeKind.text => TagflowDocumentNode.text(
+      id: id,
+      text: node.text ?? '',
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.codeBlock => TagflowDocumentNode.codeBlock(
+      id: id,
+      text: node.text ?? '',
+      language: node.language,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.inlineCode => TagflowDocumentNode.inlineCode(
+      id: id,
+      text: node.text ?? '',
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.image => TagflowDocumentNode.image(
+      id: id,
+      url: node.url ?? Uri(),
+      alt: node.alt,
+      width: node.width,
+      height: node.height,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.horizontalRule => TagflowDocumentNode.horizontalRule(
+      id: id,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
   };
 }
