@@ -165,9 +165,10 @@ Architecture open decisions:
 - Whether `TagflowOptions` is renamed to `TagflowViewOptions` during alpha.
 - How much class-based styling the HTML adapter should preserve in alpha.
 - The native block adapter foundation has landed, including direct semantic
-  table block mapping and callout normalization. Serializer helpers and any
-  future dedicated runtime callout renderer contract remain tracked in
-  `docs/specs/2026-06-11-native-block-adapter-contract.md`.
+  table block mapping, callout normalization, and operation-shaped native block
+  patch adaptation into `TagflowDocumentPatch`. Serializer helpers, patch
+  envelopes, and any future dedicated runtime callout renderer contract remain
+  tracked in `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
 
@@ -431,9 +432,12 @@ Master review gate:
   benchmark smoke evidence has landed; HTML adapter authored-ID strategy has
   landed for controlled dynamic HTML; the authored-ID ordered-insertion
   benchmark pair and bounded repeat-3/repeat-5 attribution evidence have
-  landed. Document caching, citations, optional actions, serializer helpers,
-  and any dedicated callout renderer remain later work unless internal app
-  integration proves they are required before beta.
+  landed. Native block patch adaptation now maps replace, append-children,
+  insert-before, and remove operations into the same immutable runtime patch
+  model for app/CMS/AI producers with stable block IDs. Document caching,
+  citations, optional actions, serializer helpers, patch envelopes, and any
+  dedicated callout renderer remain later work unless internal app integration
+  proves they are required before beta.
 
 ### Wave 4: Migration and Internal App Trial
 
