@@ -84,6 +84,71 @@ void main() {
       );
     });
 
+    testWidgets(
+      'html entrypoint renders details as an interactive disclosure',
+      (tester) async {
+        const html = '''
+<details>
+  <summary>Read more</summary>
+  <p>Hidden body</p>
+</details>
+''';
+
+        await tester.pumpWidget(
+          const MaterialApp(home: Tagflow.html(html: html)),
+        );
+
+        expect(find.text('Read more'), findsOneWidget);
+        expect(find.text('Hidden body'), findsNothing);
+
+        await tester.tap(find.text('Read more'));
+        await tester.pump();
+
+        expect(find.text('Hidden body'), findsOneWidget);
+
+        await tester.tap(find.text('Read more'));
+        await tester.pump();
+
+        expect(find.text('Hidden body'), findsNothing);
+      },
+    );
+
+    testWidgets('html entrypoint respects open details by default', (
+      tester,
+    ) async {
+      const html = '''
+<details open>
+  <summary>Already open</summary>
+  <p>Visible body</p>
+</details>
+''';
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Tagflow.html(html: html)),
+      );
+
+      expect(find.text('Already open'), findsOneWidget);
+      expect(find.text('Visible body'), findsOneWidget);
+    });
+
+    testWidgets('details without summary uses a fallback disclosure title', (
+      tester,
+    ) async {
+      const html = '<details><p>Fallback body</p></details>';
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Tagflow.html(html: html)),
+      );
+
+      expect(find.text('Details'), findsOneWidget);
+      expect(find.text('Fallback body'), findsNothing);
+
+      await tester.tap(find.text('Details'));
+      await tester.pump();
+
+      expect(find.text('Fallback body'), findsOneWidget);
+    });
+
     testWidgets('custom legacy converters keep compatibility path', (
       tester,
     ) async {
@@ -426,6 +491,27 @@ void main() {
       }
     });
 
+    test('maps details and summary into supported runtime containers', () {
+      const html = '''
+<details open>
+  <summary>Offer details</summary>
+  <p>Issue size</p>
+</details>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final details = _singleNodeWithHtmlTag(document, 'details');
+      final summary = _singleNodeWithHtmlTag(document, 'summary');
+      final attributes = details.metadata['htmlAttributes']! as Map;
+
+      expect(details.kind, TagflowNodeKind.container);
+      expect(details.presentation.variant, 'details');
+      expect(details.kind, isNot(TagflowNodeKind.unsupported));
+      expect(summary.kind, TagflowNodeKind.container);
+      expect(summary.presentation.variant, 'summary');
+      expect(summary.kind, isNot(TagflowNodeKind.unsupported));
+      expect(attributes, contains('open'));
+    });
+
     test('normalizes HTML table presentation hints for semantic renderers', () {
       const rowBackground = Color(0xFFE8F1FF);
       const cellBackground = Color(0xFFFFF4CC);
@@ -483,6 +569,23 @@ void main() {
       expect(table.caption, isNotNull);
       expect(table.caption!.tag, 'caption');
       expect(_flattenLegacyText(table.caption!), 'Revenue summary');
+    });
+
+    test('bridges HTML disclosure tags back to legacy nodes', () {
+      const html = '''
+<details open>
+  <summary>Offer details</summary>
+  <p>Issue size</p>
+</details>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+
+      final legacyNode = TagflowHtmlDocumentBridge.toLegacyNode(document);
+      final details = _findLegacyTags(legacyNode, 'details').single;
+      final summary = _findLegacyTags(legacyNode, 'summary').single;
+
+      expect(details.attributes, containsPair('open', ''));
+      expect(_flattenLegacyText(summary), 'Offer details');
     });
 
     test('drops blocked elements with the default content policy', () {

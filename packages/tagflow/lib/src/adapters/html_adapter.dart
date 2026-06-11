@@ -359,7 +359,9 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     'mark' ||
     'small' ||
     'sub' ||
-    'sup' => TagflowDocumentNode.container(
+    'sup' ||
+    'details' ||
+    'summary' => TagflowDocumentNode.container(
       id: id,
       children: children,
       metadata: metadata,
@@ -620,6 +622,8 @@ String? _variantForHtmlTag(String tag) {
     'h1' || 'h2' || 'h3' || 'h4' || 'h5' || 'h6' => 'heading',
     'p' => 'paragraph',
     'pre' || 'code' => 'code',
+    'details' => 'details',
+    'summary' => 'summary',
     _ => null,
   };
 }

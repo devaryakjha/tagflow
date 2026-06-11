@@ -136,6 +136,10 @@ Widget _renderContainer(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  if (_htmlTag(node) == 'details') {
+    return _renderDisclosure(context, node);
+  }
+
   final isInline =
       node.presentation.inlineSemantics.isNotEmpty ||
       _isInlineFallbackTag(_htmlTag(node));
@@ -144,6 +148,32 @@ Widget _renderContainer(
       : _renderBlockChildren(context, node);
 
   return _applyInlinePresentation(node.presentation, child);
+}
+
+Widget _renderDisclosure(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  TagflowDocumentNode? summary;
+  final body = <TagflowDocumentNode>[];
+  for (final child in node.children) {
+    if (summary == null && _htmlTag(child) == 'summary') {
+      summary = child;
+      continue;
+    }
+    body.add(child);
+  }
+
+  return _TagflowDisclosure(
+    initiallyExpanded: _hasHtmlAttribute(node, 'open'),
+    title: summary == null
+        ? const Text('Details')
+        : DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            child: context.render(summary),
+          ),
+    body: [for (final child in body) context.render(child)],
+  );
 }
 
 Widget _renderBlockChildren(
@@ -568,6 +598,12 @@ LinkedHashMap<String, String>? _linkAttributes(TagflowDocumentNode node) {
   return attributes.isEmpty ? null : LinkedHashMap.of(attributes);
 }
 
+bool _hasHtmlAttribute(TagflowDocumentNode node, String attribute) {
+  final rawAttributes = node.metadata['htmlAttributes'];
+  if (rawAttributes is! Map) return false;
+  return rawAttributes.keys.any((key) => '$key'.toLowerCase() == attribute);
+}
+
 bool _isInlineFallbackTag(String? htmlTag) {
   return switch (htmlTag) {
     'a' ||
@@ -598,4 +634,76 @@ TextStyle? _fallbackTextStyle(String? htmlTag) {
     'sup' => const TextStyle(fontSize: 12),
     _ => null,
   };
+}
+
+final class _TagflowDisclosure extends StatefulWidget {
+  const _TagflowDisclosure({
+    required this.initiallyExpanded,
+    required this.title,
+    required this.body,
+  });
+
+  final bool initiallyExpanded;
+  final Widget title;
+  final List<Widget> body;
+
+  @override
+  State<_TagflowDisclosure> createState() => _TagflowDisclosureState();
+}
+
+final class _TagflowDisclosureState extends State<_TagflowDisclosure> {
+  late bool _expanded = widget.initiallyExpanded;
+
+  @override
+  void didUpdateWidget(_TagflowDisclosure oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            button: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() {
+                _expanded = !_expanded;
+              }),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(_expanded ? 'v' : '>'),
+                    ),
+                    Flexible(child: widget.title),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_expanded)
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widget.body,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
