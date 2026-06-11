@@ -97,7 +97,7 @@ duplicate-ID checks during patch application. The landed query/validation
 helpers now add `TagflowDocument.nodeById(...)`,
 `TagflowDocument.containsNodeId(...)`, and
 `TagflowDocument.validateUniqueNodeIds()` using the same runtime traversal and
-duplicate-ID rules as patch application. `TagflowDocument.checked(...)` is the
+duplicate-ID rules as patch application. `TagflowDocument.validated(...)` is the
 fail-fast construction path for app-authored, CMS-authored, or AI-authored
 native documents that need duplicate-ID validation before rendering or patch
 application. Remaining gaps for broader diff tooling:
@@ -212,7 +212,7 @@ Contract:
 - Query helpers return existing node instances and do not mutate the document.
 - Validation helpers remain explicit; `TagflowDocument(...)` construction does
   not eagerly reject duplicates in this slice. Use
-  `TagflowDocument.checked(...)` when a producer needs construction-time
+  `TagflowDocument.validated(...)` when a producer needs construction-time
   duplicate-ID validation.
 - Replacement can change node kind, but the replacement node's ID must match
   `nodeId` unless an explicit rename operation is added later.

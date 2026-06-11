@@ -29,7 +29,7 @@ final class TagflowDocument {
   /// compatibility with existing alpha callers that validate explicitly.
   ///
   /// Throws [StateError] when duplicate node IDs are found.
-  factory TagflowDocument.checked({
+  factory TagflowDocument.validated({
     required String id,
     required List<TagflowDocumentNode> children,
     TagflowMetadata? metadata,

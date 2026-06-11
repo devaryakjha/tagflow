@@ -111,7 +111,7 @@ missing IDs. Duplicate IDs fail during adaptation.
 ```dart
 import 'package:tagflow/tagflow.dart';
 
-final document = TagflowDocument(
+final document = TagflowDocument.validated(
   id: 'article-42',
   children: [
     TagflowDocumentNode.heading(
@@ -138,6 +138,11 @@ final document = TagflowDocument(
 
 Tagflow.document(document);
 ```
+
+Use `TagflowDocument.validated(...)` for app-authored, AI-produced, or CMS
+documents when you want duplicate node IDs to fail fast before rendering or
+patch application. Plain `TagflowDocument(...)` remains available for lower-
+level construction paths that want explicit validation control.
 
 ### Native JSON Transport
 

@@ -68,8 +68,8 @@ void main() {
 
     expect(document.children.single.kind, api.TagflowNodeKind.paragraph);
     expect(
-      api.TagflowDocument.checked(
-        id: 'checked-doc',
+      api.TagflowDocument.validated(
+        id: 'validated-doc',
         children: const [],
       ).children,
       isEmpty,

@@ -63,9 +63,9 @@ void main() {
       );
     });
 
-    test('checked factory validates duplicate node ids eagerly', () {
+    test('validated factory validates duplicate node ids eagerly', () {
       expect(
-        () => TagflowDocument.checked(
+        () => TagflowDocument.validated(
           id: 'doc',
           children: [
             TagflowDocumentNode.paragraph(id: 'duplicate'),

@@ -74,7 +74,7 @@ publish, tag, package-version bump, or source-code implementation by itself.
   policy, source metadata, or parse-time inspection should still parse with
   `TagflowHtmlAdapter` and render with `Tagflow.document(...)`.
 - Runtime patch application validates duplicate IDs during patch application,
-  and `TagflowDocument.checked(...)` gives app-authored/native producers an
+  and `TagflowDocument.validated(...)` gives app-authored/native producers an
   opt-in fail-fast construction path. Plain `TagflowDocument(...)` remains
   permissive for alpha compatibility and explicit validation flows.
 - Native block transport validates JSON-like values and known enum kinds at
