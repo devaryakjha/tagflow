@@ -6,6 +6,15 @@
 - Scope: benchmark methodology plus current alpha harness policy
 - Audience: Tagflow maintainers preparing v1 alpha performance validation
 
+## Current Gate Roadmap
+
+Use
+[`2026-06-11-native-runtime-benchmark-roadmap.md`](2026-06-11-native-runtime-benchmark-roadmap.md)
+for the current alpha.2/alpha.3 benchmark gates and public-claim policy. That
+roadmap supersedes any provisional numeric threshold examples in this early
+spec until a stable reference environment and reviewed regression policy are
+committed.
+
 ## Repo Facts This Plan Assumes
 
 - The workspace is a Melos monorepo declared in the root [pubspec.yaml](../../pubspec.yaml) with three members today: `packages/tagflow`, `packages/tagflow_table`, and `examples/tagflow`.
