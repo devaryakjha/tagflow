@@ -1,6 +1,6 @@
 # Kite Internal Validation Surface Audit
 
-**Status:** audited with isolated Kite proof
+**Status:** audited with isolated Kite proof and real IPO sheet evidence
 **Date:** 2026-06-11
 **Primary app candidate:** `/Users/arya/projects/kite`
 **Primary surface:** IPO details sheet
@@ -123,6 +123,11 @@ The following uncommitted Kite changes were made to prove the path:
   with a deterministic native-document fixture plus a controlled HTML probe
 - added a diagnostics tab in
   `/Users/arya/projects/kite/lib/screens/diagnostics.dart`
+- added local-only IPO/RHP fixture handlers in
+  `/Users/arya/projects/kite/lib/main_local.dart`
+- added a diagnostics-only `Open IPO sheet fixture` action that seeds Kite's
+  real `IPOInstrument` and `IPOInfoResponse` models and opens
+  `IPOInstrumentSheet`
 - switched Kite's legacy custom-converter imports from
   `package:tagflow/tagflow.dart` to `package:tagflow/legacy.dart` in:
   - `/Users/arya/projects/kite/lib/component/tagflow_details_converter.dart`
@@ -179,22 +184,80 @@ rg -n "tagflow|tagflow_table|source: path" /Users/arya/projects/kite/pubspec.loc
 Confirmed:
 
 - `tagflow` resolved from
-  `/Users/arya/.codex/worktrees/3476/tagflow/packages/tagflow`
+  `/Users/arya/projects/tagflow/packages/tagflow`
 - `tagflow_table` resolved from
-  `/Users/arya/.codex/worktrees/3476/tagflow/packages/tagflow_table`
+  `/Users/arya/projects/tagflow/packages/tagflow_table`
 
-## Integration Steps For The Real Trial
+### Coordinator iOS simulator validation
+
+The coordinator reran the proof against the main Tagflow checkout and captured
+real Kite UI evidence.
+
+Commands:
+
+```bash
+/Users/arya/projects/kite/.fvm/flutter_sdk/bin/flutter pub get
+/Users/arya/projects/kite/.fvm/flutter_sdk/bin/flutter analyze \
+  lib/main_local.dart \
+  lib/screens/diagnostics.dart \
+  lib/screens/tagflow_validation_preview.dart \
+  lib/screens/ipos/ipo_instrument_sheet.dart \
+  lib/component/tagflow_details_converter.dart
+/Users/arya/projects/kite/.fvm/flutter_sdk/bin/flutter run \
+  -d 3BA9E377-4B6F-49A7-83FA-F640060D6442 \
+  -t lib/main_local.dart
+```
+
+Results:
+
+- `flutter pub get`: passed with local path overrides to the coordinator
+  Tagflow checkout.
+- focused `flutter analyze`: passed.
+- iOS simulator run: launched on iPhone 17 simulator
+  `3BA9E377-4B6F-49A7-83FA-F640060D6442`.
+- macOS run was attempted separately and failed at Apple provisioning:
+  no Mac App Development profile for `com.zerodha.kite3`; this was not a
+  Tagflow compile failure.
+- local `main_local.dart` still returns unrelated 500s for holdings,
+  preferences, positions, bulletins, screener, and FCM; these do not block the
+  diagnostics or IPO sheet proof.
+
+Evidence:
+
+- `docs/validation/evidence/2026-06-11-kite-tagflow-diagnostics-initial.jpg`
+- `docs/validation/evidence/2026-06-11-kite-tagflow-diagnostics-link-tap.jpg`
+- `docs/validation/evidence/2026-06-11-kite-tagflow-diagnostics-html-probe.jpg`
+- `docs/validation/evidence/2026-06-11-kite-tagflow-diagnostics-button.jpg`
+- `docs/validation/evidence/2026-06-11-kite-ipo-sheet-excerpt.jpg`
+- `docs/validation/evidence/2026-06-11-kite-ipo-sheet-financials-content.jpg`
+- `docs/validation/evidence/2026-06-11-kite-ipo-sheet-table.jpg`
+
+Verified behavior:
+
+- native `TagflowDocument` rendering works inside Kite diagnostics with app
+  theme inheritance, strong inline content, links, nested lists, a semantic
+  table, code block, image placeholder, and unsupported-content placeholder.
+- HTML adapter policy blocks unsupported/unsafe content in the controlled probe
+  while preserving safe links and table rendering.
+- the real `IPOInstrumentSheet` renders Tagflow-backed excerpt content through
+  Kite's legacy `details`/`summary` converters.
+- the real `IPOInstrumentSheet` fetches local RHP JSON through `GetIPOInfo`,
+  renders financials, and applies the existing mobile render-boundary markers
+  before rendering long-form content, ordered lists, links, and a table.
+
+## Next Integration Steps
 
 1. Keep the debug-only diagnostics proof only as a local smoke screen.
-2. Validate the real IPO details sheet with the local path overrides still in
-   place.
-3. Capture light and dark screenshots of:
+2. Decide whether the Kite proof patch should be committed, reshaped into a
+   smaller developer-only diagnostic feature, or discarded after evidence
+   capture.
+3. Capture dark-mode screenshots of:
    - excerpt section
    - long-form content section
    - table rendering
    - link handling
-4. Confirm the render-boundary markers still isolate the intended mobile
-   section in `store.ipoInfo.content`.
+4. Capture profile evidence for the IPO sheet once the app can run on a stable
+   local route without unrelated stub failures.
 5. Confirm the custom `details` and `summary` converter behavior still matches
    product expectations while Kite remains on the alpha compatibility path.
 6. Only after the real IPO flow is acceptable should Bulletins be considered as
@@ -221,8 +284,11 @@ If the Kite trial should be removed cleanly:
 - The IPO flow depends on custom `details` and `summary` legacy converters, so
   this trial validates compatibility and native rendering, but not a full
   removal of legacy converter usage.
-- The diagnostics fixture is deterministic and useful for smoke testing, but it
-  is not a substitute for a live IPO payload capture.
+- The diagnostics and IPO fixtures are deterministic and useful for smoke
+  testing, but they are not substitutes for a live server payload capture.
 - The shared `/Users/arya/fvm/cache.git/bin` path is currently unsuitable for
   Kite validation on this machine because it resolves to a pre-release Flutter
   toolchain.
+- The local Kite proof currently depends on uncommitted app changes and should
+  either be cleaned into a deliberate developer feature or removed after the
+  Tagflow evidence is no longer needed.

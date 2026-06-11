@@ -22,8 +22,8 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated implementation commit:
-  `d7d6599 bench(profile): summarize capped reference baselines`
+- Latest integrated implementation/evidence commit: this commit,
+  `docs(validation): record kite ipo evidence`
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -45,11 +45,15 @@ published.
   the macOS example host.
 - Post-alpha stabilization in progress: broader competitor coverage, remaining
   table styling parity beyond normalized uniform table hints, repeated
-  reference-runner baselines, and real internal app validation.
-- Active stabilization work is now focused on running the Kite IPO details
-  validation surface with the local alpha override, capturing screenshots and
-  profile evidence, and deciding whether to keep the debug-only Kite proof
-  patch. The next fixture additions should be driven by real app content gaps.
+  reference-runner baselines, dark-mode/internal app validation passes, and
+  profile evidence on the real app surface.
+- Kite validation evidence is now captured from an iPhone 17 simulator using
+  the local alpha override. Diagnostics proves the native `TagflowDocument`
+  path and controlled HTML adapter policy inside Kite; the real
+  `IPOInstrumentSheet` proves the existing Tagflow-backed excerpt/content flow,
+  RHP JSON fetch path, mobile render boundary, financials, ordered lists,
+  links, and table rendering. The remaining Kite decision is whether to keep,
+  reshape, or discard the uncommitted developer-only proof patch.
 
 ## Current Constraints
 

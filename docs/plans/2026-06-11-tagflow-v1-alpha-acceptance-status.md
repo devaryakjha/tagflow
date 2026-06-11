@@ -6,7 +6,7 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Snapshot commit: `daf32d8 fix(benchmarks): suppress macos integration warning`
+- Snapshot commit: this commit, `docs(validation): record kite ipo evidence`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - Status date: 2026-06-11
 
@@ -148,6 +148,13 @@ The benchmark harness is real but still alpha-grade:
   deterministic internal-app validation screen that exercises app-authored
   `TagflowDocument` content, app-owned link handling, controlled HTML policy,
   image fallback, and table content.
+- `docs/plans/2026-06-11-kite-internal-validation-surface-audit.md` records the
+  first real app trial evidence from Kite. The coordinator validated local path
+  overrides against `/Users/arya/projects/tagflow`, launched Kite's
+  `main_local.dart` on an iPhone 17 simulator, captured the diagnostics
+  `TagflowDocument` proof, and captured the real `IPOInstrumentSheet` rendering
+  Tagflow-backed excerpt/content, local RHP JSON, mobile render-boundary
+  content, financials, links, ordered lists, and table content.
 
 ## Known Non-Completion Points
 
@@ -164,6 +171,8 @@ The benchmark harness is real but still alpha-grade:
   coverage beyond the current HTML-native lanes, a committed reviewed baseline
   from a named reference machine, and repeated reference-device runs remain
   follow-up work before using frame timings as a release gate.
-- Stable `1.0.0` still requires running the internal-app validation plan against
-  a real app surface; the Tagflow repo now has the recipe and deterministic
-  example fixture, but no external app has been modified in this thread.
+- Stable `1.0.0` still needs deeper internal-app validation before release:
+  dark-mode screenshots, profile evidence on the real app surface, and a
+  decision on whether Kite's uncommitted developer-only proof patch should be
+  kept, reshaped, or discarded. The first iOS simulator proof has been captured
+  but should not be treated as a full production rollout.
