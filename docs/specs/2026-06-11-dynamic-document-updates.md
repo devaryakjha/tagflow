@@ -223,7 +223,10 @@ Recommended internals:
 ### Later implementation slices
 
 - Add HTML adapter ID strategy options after patch semantics exist.
-- Add a semantic-document benchmark lane for `streaming_ai_chunks`.
+- Keep `tagflow_semantic` as the current semantic HTML benchmark lane for
+  `streaming_ai_chunks`.
+- Add a patch-based semantic document benchmark lane after
+  `TagflowDocumentPatch` exists.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
   cost dominates.
 - Consider a controller only after at least one real app needs imperative
@@ -232,14 +235,16 @@ Recommended internals:
 ## 7. Benchmark Acceptance
 
 The existing `streaming_ai_chunks` scenario measures four progressively larger
-HTML payloads and reports update latencies plus final scroll metrics. Today it
-uses the benchmark Tagflow renderer with legacy table converters, so it measures
-full HTML reparse plus the compatibility bridge.
+HTML payloads and reports update latencies plus final scroll metrics. Use
+`tagflow_semantic` as the primary renderer for dynamic-content investigation
+because it parses HTML into `TagflowDocument` and renders through semantic
+components plus the first-party semantic table extension. The `tagflow`
+renderer remains a compatibility lane that may use legacy converter bridges.
 
 Current validation command:
 
 ```bash
-TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=streaming_ai_chunks \
+TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks \
   dart run melos run benchmark:profile
 ```
 
@@ -256,9 +261,9 @@ Acceptance for the next patch API slice:
   duplicate-ID failure.
 - Widget tests prove state preservation across append and reorder with stable
   IDs.
-- Add a semantic-document streaming benchmark lane that adapts
+- Add a patch-based semantic document streaming benchmark lane that adapts
   `ai_answer_rich` once, applies document patches for each chunk, and records
-  the same update-latency payload shape as the HTML lane.
+  the same update-latency payload shape as the HTML semantic lane.
 - On the same reference runner, semantic patch updates should not be slower
   than the current full-reparse HTML lane for `streaming_ai_chunks`. Treat
   timing as report-only until reviewed baselines exist.
