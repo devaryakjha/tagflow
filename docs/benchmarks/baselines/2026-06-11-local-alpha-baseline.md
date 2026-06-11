@@ -39,11 +39,11 @@ Harness settings from `benchmark:micro`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 403 | 671 | 485.0 | 0.272 |
-| `ai_answer_rich` | 2059 | 68 | 2431 | 3170 | 2628.3 | 0.148 |
-| `table_dense` | 1741 | 226 | 2059 | 2572 | 2174.7 | 0.133 |
-| `large_article` | 4529 | 120 | 1688 | 2078 | 1745.0 | 0.144 |
-| `deep_nested_lists` | 1139 | 37 | 455 | 556 | 468.3 | 0.143 |
+| `smoke_short_html` | 356 | 19 | 456 | 526 | 450.3 | 0.143 |
+| `ai_answer_rich` | 2059 | 68 | 2141 | 3977 | 2713.3 | 0.330 |
+| `table_dense` | 1741 | 226 | 2226 | 2629 | 2267.3 | 0.123 |
+| `large_article` | 4529 | 120 | 1652 | 1765 | 1644.0 | 0.062 |
+| `deep_nested_lists` | 1139 | 37 | 417 | 584 | 467.3 | 0.177 |
 
 ## Render Benchmark
 
@@ -55,11 +55,11 @@ Harness settings from `benchmark:render`:
 
 | Fixture | Input bytes | Nodes | Median us | p95 us | Mean us | CoV |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `smoke_short_html` | 356 | 19 | 22046 | 22046 | 17240.0 | 0.279 |
-| `ai_answer_rich` | 2059 | 68 | 28601 | 28601 | 24899.5 | 0.149 |
-| `table_dense` | 1741 | 226 | 46398 | 46398 | 43491.0 | 0.067 |
-| `large_article` | 4529 | 120 | 25491 | 25491 | 24964.5 | 0.021 |
-| `deep_nested_lists` | 1139 | 37 | 17903 | 17903 | 17049.0 | 0.050 |
+| `smoke_short_html` | 356 | 19 | 22499 | 22499 | 15392.0 | 0.462 |
+| `ai_answer_rich` | 2059 | 68 | 28684 | 28684 | 25373.0 | 0.130 |
+| `table_dense` | 1741 | 226 | 45048 | 45048 | 43343.0 | 0.039 |
+| `large_article` | 4529 | 120 | 26680 | 26680 | 25990.0 | 0.027 |
+| `deep_nested_lists` | 1139 | 37 | 17510 | 17510 | 17099.5 | 0.024 |
 
 ## Limitations
 
