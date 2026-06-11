@@ -342,7 +342,10 @@ Do not commit every raw run. Commit only approved baseline files and benchmark m
 6. Add `flutter_html` and `flutter_widget_from_html` adapters for HTML-native comparison.
 7. Add `flutter_markdown_plus` and `markdown_widget` adapters for markdown-only comparison.
 8. Add `webview_flutter` only after the native baselines exist, and keep it report-only.
-9. Establish reviewed baselines on one reference machine and only then introduce regression thresholds.
+9. Establish reviewed baselines on one reference machine and only then
+   introduce regression thresholds. Policy is clarified in
+   `2026-06-11-reference-runner-baseline-plan.md`; current gates remain
+   collection-completeness and viewport-guard only.
 
 ## External References
 

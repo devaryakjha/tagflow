@@ -229,9 +229,7 @@ Report-only today:
 - new-gen and old-gen GC counts
 - scroll completion behavior
 
-Reference-runner gates can be introduced only after at least one reviewed
-baseline has been collected on a stable machine. Candidate gates for the same
-reference environment:
+Current machine-readable gate:
 
 - no test exceptions, overflows, OOMs, or missing JSON artifacts
 - every selected cell has `status: passed` in the manifest
@@ -242,6 +240,15 @@ reference environment:
 - `check_profile_baseline.dart --min-repeats=5 --expected-logical-size=... \
   --expected-device-pixel-ratio=...` passes for the selected stable reference
   machine
+
+These checks qualify collection quality only. They prove that a run is complete
+and comparable within the same configured viewport; they do not prove that one
+renderer is faster than another or that a future commit has regressed.
+
+Reference-runner performance gates can be introduced only after a stable
+environment is promoted. Candidate gates for the same promoted reference
+environment:
+
 - standard fixtures keep build p90 and raster p90 under the reviewed baseline
   regression threshold
 - `table_stress` remains visible and scrollable without crash
@@ -250,6 +257,40 @@ reference environment:
 Hosted CI frame timings remain report-only until the hosted runner proves stable
 enough for trend comparison. A single local Mac run must not be described as
 statistically significant.
+
+## Reference Promotion Policy
+
+Benchmark evidence has three levels:
+
+1. Smoke evidence: one-off local runs that prove the harness, fixture, and
+   renderer path work. These may be cited in internal planning only.
+2. Stabilization evidence: a complete repeat-5 matrix on a named local
+   environment, with a reviewed baseline note and a passing completeness check.
+   The current macOS repeat-5 baseline is in this category.
+3. Claim-grade evidence: a promoted reference environment with pinned toolchain,
+   pinned viewport/display conditions, a complete repeat-5 matrix, and an
+   explicit threshold review committed after the baseline.
+
+A reference environment can be promoted only when the reviewed note records:
+
+- stable Flutter channel and exact Flutter/Dart revisions
+- stable host OS release, not a prerelease seed
+- hardware model, CPU/GPU, memory, power source, and thermal state
+- display identity, display placement, logical viewport size, and device pixel
+  ratio
+- default matrix renderer ids, fixture ids, repeat count, run id, and commit SHA
+- a passing `benchmark:profile:check` command with `TAGFLOW_PROFILE_MIN_REPEATS`
+  and viewport guard variables
+- reviewer decision that names the thresholds to enforce for future runs
+
+Until those conditions are met, benchmark copy must use cautious language:
+
+- allowed: "the local alpha harness collected a complete repeat-5 macOS
+  stabilization matrix"
+- allowed: "this run found no missed frame-budget counts for Tagflow cells"
+- not allowed: "Tagflow is faster than package X"
+- not allowed: "Tagflow meets the stable performance budget"
+- not allowed: "these numbers are representative of production devices"
 
 ## Remaining Work Before Publishing Claims
 

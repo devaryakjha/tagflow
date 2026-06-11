@@ -56,8 +56,8 @@ published.
   JSON output, and the separate CocoaPods/SPM migration warning has been
   removed from the macOS example host.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
-  normalized uniform table hints, stable reference-environment selection and
-  threshold policy for benchmark claims, and profile-mode evidence on a
+  normalized uniform table hints, promotion of a stable reference environment
+  for claim-grade benchmark thresholds, and profile-mode evidence on a
   supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
@@ -461,6 +461,17 @@ Master review gate:
   `TAGFLOW_RENDERER=flutter_markdown_plus TAGFLOW_FIXTURE=ai_answer_rich_md`
   and `TAGFLOW_RENDERER=markdown_widget TAGFLOW_FIXTURE=ai_answer_rich_md`.
 
+### Reference Runner Policy
+
+- Status: collection-completeness and viewport-guard gates exist, while
+  performance thresholds remain intentionally inactive.
+- Decision: the current macOS repeat-5 matrix is stabilization evidence, not
+  claim-grade evidence. Claim-grade performance copy requires a promoted stable
+  reference environment, pinned viewport/display conditions, and an explicit
+  threshold review after a complete repeat-5 matrix.
+- Policy home:
+  `docs/benchmarks/2026-06-11-reference-runner-baseline-plan.md`.
+
 ## Alpha Decisions
 
 - The primary alpha APIs are constructor-based:
@@ -488,6 +499,7 @@ Master review gate:
   Done for parser/render/profile smoke; `flutter_html` and core-backed
   `flutter_widget_from_html` comparisons landed; the markdown-only
   `flutter_markdown_plus` and `markdown_widget` lane landed; `table_stress` is
-  in the deterministic corpus. Reference baselines are still in progress.
+  in the deterministic corpus. Reference-runner collection gates exist;
+  claim-grade performance thresholds still need a promoted stable environment.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.
