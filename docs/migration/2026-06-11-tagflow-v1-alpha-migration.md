@@ -82,6 +82,8 @@ as a long-term compatibility alias or receives a formal deprecation window.
 `package:tagflow/legacy.dart` remains available through all `1.0.0-beta.x`
 releases. It contains compatibility exports for legacy parser, converter,
 model, parser utility, reusable widget, and HTML-renderer customization APIs.
+Transitional bridge APIs such as `TagflowHtmlDocumentBridge` also live here
+rather than in the primary `package:tagflow/tagflow.dart` runtime barrel.
 
 New integrations should prefer `TagflowDocument`, `TagflowHtmlAdapter`,
 `TagflowNativeBlockAdapter`, and `TagflowComponentRegistry`. Legacy custom

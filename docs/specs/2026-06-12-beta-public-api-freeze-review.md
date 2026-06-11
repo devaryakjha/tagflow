@@ -146,7 +146,9 @@ integration because apps need deterministic or authored IDs.
 
 Rationale: this is explicitly transitional. It exists so legacy custom
 converters can still run, but the future extension model is semantic registry
-rendering, not conversion back into the legacy node tree.
+rendering, not conversion back into the legacy node tree. Keep it available
+from `package:tagflow/legacy.dart`, not the primary
+`package:tagflow/tagflow.dart` runtime barrel.
 
 ### Native Block Transport
 

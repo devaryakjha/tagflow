@@ -109,10 +109,23 @@ void main() {
   test('legacy.dart keeps compatibility APIs available', () {
     const parser = legacy.TagflowParser();
     const element = legacy.TagflowElement(tag: 'p');
+    final document = legacy.TagflowDocument(
+      id: 'doc',
+      children: [
+        legacy.TagflowDocumentNode.paragraph(
+          id: 'paragraph',
+          children: [
+            legacy.TagflowDocumentNode.text(id: 'text', text: 'Bridge'),
+          ],
+        ),
+      ],
+    );
+    final legacyNode = legacy.TagflowHtmlDocumentBridge.toLegacyNode(document);
 
     expect(parser, isA<legacy.TagflowParser>());
     expect(element, isA<legacy.TagflowNode>());
     expect(_LegacyParagraphConverter(), isA<legacy.ElementConverter>());
+    expect(legacyNode, isA<legacy.TagflowElement>());
   });
 }
 
