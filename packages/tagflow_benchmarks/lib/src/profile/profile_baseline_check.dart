@@ -330,6 +330,50 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
       );
     }
 
+    final memoryEvidenceFixture = _memoryEvidenceFixtureFor(cell);
+    if (memoryEvidenceFixture != null && _hasGcSummary(cell)) {
+      reportOnlyFindings.add(
+        ProfileBaselineCheckIssue(
+          code: 'memory_allocation_evidence_required',
+          message:
+              'This renderer/fixture cell is listed in the memory allocation '
+              'playbook. GC counts are review inputs only; DevTools Memory '
+              'exports or equivalent allocation evidence are still required '
+              'before memory wording can be promoted.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'evidenceLane': memoryEvidenceFixture,
+            'newGenGcCount': cell['newGenGcCount'],
+            'oldGenGcCount': cell['oldGenGcCount'],
+            'requiredEvidence': <String>[
+              'devtools_memory_export',
+              'allocation_profile_or_snapshot_diff',
+              'reviewed_baseline_note',
+            ],
+          },
+        ),
+      );
+    }
+
+    final oldGenGcCount = cell['oldGenGcCount'] as Map<String, Object?>?;
+    if (_countTotal(oldGenGcCount) > 0) {
+      reportOnlyFindings.add(
+        ProfileBaselineCheckIssue(
+          code: 'old_gen_gc_review_required',
+          message:
+              'The renderer/fixture cell recorded old-gen GC activity. Review '
+              'allocation evidence before using this lane for memory or '
+              'dynamic-content claims.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'oldGenGcCount': oldGenGcCount,
+          },
+        ),
+      );
+    }
+
     final launchAttribution =
         cell['launchAttribution'] as Map<String, Object?>?;
     final launchStatus = launchAttribution?['status'] as String?;
@@ -420,4 +464,34 @@ double _readDouble(Map<String, Object?> map, String key) {
   }
 
   throw FormatException('Expected numeric "$key" in viewport metadata.');
+}
+
+String? _memoryEvidenceFixtureFor(Map<String, Object?> cell) {
+  final renderer = cell['renderer'];
+  final fixture = cell['fixture'];
+  return switch ((renderer, fixture)) {
+    ('tagflow', 'large_article') => 'tagflow:large_article',
+    ('tagflow', 'table_stress') => 'tagflow:table_stress',
+    ('tagflow_semantic_patch', 'streaming_ai_authored_insertion_patches') =>
+      'tagflow_semantic_patch:streaming_ai_authored_insertion_patches',
+    ('tagflow_native_json', 'native_large_article') =>
+      'tagflow_native_json:native_large_article',
+    _ => null,
+  };
+}
+
+bool _hasGcSummary(Map<String, Object?> cell) {
+  return cell['newGenGcCount'] is Map<String, Object?> ||
+      cell['oldGenGcCount'] is Map<String, Object?>;
+}
+
+int _countTotal(Map<String, Object?>? summary) {
+  final total = summary?['total'];
+  if (total is int) {
+    return total;
+  }
+  if (total is num) {
+    return total.toInt();
+  }
+  return 0;
 }

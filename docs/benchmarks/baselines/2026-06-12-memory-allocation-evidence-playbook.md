@@ -25,6 +25,17 @@ That is enough to prove collection completeness and to review GC churn. It does
 not record heap snapshots, allocation profiles, retained-object diffs, or any
 DevTools Memory export.
 
+`benchmark:profile:check` surfaces two report-only memory-readiness findings
+from the summary JSON:
+
+- `memory_allocation_evidence_required` for lanes listed in this playbook
+  after GC summaries are present
+- `old_gen_gc_review_required` when a summarized cell records any old-gen GC
+
+These findings do not make the checker fail. They are reminders that summary
+GC counts are only review inputs; they do not replace DevTools Memory exports,
+allocation profiles, snapshot diffs, or a reviewed baseline note.
+
 ## Evidence Lanes
 
 Capture memory/allocation evidence for these lanes:

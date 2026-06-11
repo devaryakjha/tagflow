@@ -376,6 +376,89 @@ void main() {
     expect(result.toJson(), contains('reportOnlyFindings'));
   });
 
+  test('surfaces memory allocation lanes as report-only findings', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 5,
+      successfulRuns: 5,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'large_article',
+          repeats: 5,
+          newGenGcCount: _countSummary(max: 2, total: 6),
+          oldGenGcCount: _countSummary(max: 0, total: 0),
+        ),
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 5,
+          newGenGcCount: _countSummary(max: 1, total: 2),
+          oldGenGcCount: _countSummary(max: 0, total: 0),
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(summaryFile: summaryFile);
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+    expect(result.reportOnlyFindings, hasLength(1));
+    expect(
+      result.reportOnlyFindings.single.code,
+      'memory_allocation_evidence_required',
+    );
+    expect(
+      result.reportOnlyFindings.single.details,
+      containsPair('evidenceLane', 'tagflow:large_article'),
+    );
+    expect(
+      result.reportOnlyFindings.single.details['requiredEvidence'],
+      containsAll(<String>[
+        'devtools_memory_export',
+        'allocation_profile_or_snapshot_diff',
+        'reviewed_baseline_note',
+      ]),
+    );
+  });
+
+  test('surfaces old-gen GC activity as a report-only finding', () {
+    final summaryFile = _writeSummary(
+      totalRuns: 5,
+      successfulRuns: 5,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow_semantic_patch',
+          fixture: 'streaming_ai_authored_insertion_patches',
+          repeats: 5,
+          newGenGcCount: _countSummary(max: 3, total: 8),
+          oldGenGcCount: _countSummary(max: 1, total: 1),
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(summaryFile: summaryFile);
+
+    expect(result.passed, isTrue);
+    expect(result.issues, isEmpty);
+    expect(
+      result.reportOnlyFindings.map((finding) => finding.code),
+      containsAll(<String>[
+        'memory_allocation_evidence_required',
+        'old_gen_gc_review_required',
+      ]),
+    );
+    final oldGenFinding = result.reportOnlyFindings.singleWhere(
+      (finding) => finding.code == 'old_gen_gc_review_required',
+    );
+    expect(
+      oldGenFinding.details,
+      containsPair('fixture', 'streaming_ai_authored_insertion_patches'),
+    );
+    expect(oldGenFinding.details['oldGenGcCount'], containsPair('total', 1));
+  });
+
   test('loads a report-only check policy from JSON', () {
     final policyFile = _writePolicy();
     addTearDown(() => policyFile.parent.deleteSync(recursive: true));
@@ -472,10 +555,14 @@ Map<String, Object?> _cellSummary({
   List<Map<String, Object?>> viewports = const <Map<String, Object?>>[],
   List<Map<String, Object?>> outlierRepeats = const <Map<String, Object?>>[],
   Map<String, Object?>? launchAttribution,
+  Map<String, Object?>? newGenGcCount,
+  Map<String, Object?>? oldGenGcCount,
 }) => <String, Object?>{
   'renderer': renderer,
   'fixture': fixture,
   'observedRepeats': repeats,
+  if (newGenGcCount != null) 'newGenGcCount': newGenGcCount,
+  if (oldGenGcCount != null) 'oldGenGcCount': oldGenGcCount,
   'viewports': viewports,
   'launchAttribution':
       launchAttribution ??
@@ -497,6 +584,15 @@ Map<String, Object?> _cellSummary({
       },
   'outlierRepeats': outlierRepeats,
 };
+
+Map<String, Object?> _countSummary({required int max, required int total}) {
+  return <String, Object?>{
+    'min': 0,
+    'max': max,
+    'total': total,
+    'mean': total / 5,
+  };
+}
 
 Map<String, Object?> _viewport({
   required num logicalWidth,
