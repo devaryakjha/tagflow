@@ -2,8 +2,8 @@
 
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
-**Reviewed Baseline:** `1.0.0-alpha.2` candidate on
-`codex/tagflow-native-runtime-master`  
+**Reviewed Baseline:** published `tagflow` `1.0.0-alpha.3` plus
+`codex/tagflow-native-runtime-master` follow-up benchmark evidence
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -14,9 +14,9 @@ This review classifies the public API that is currently reachable through
 claim is made.
 
 The conclusion is conservative: Tagflow is not beta-ready yet. The runtime
-direction is correct, but beta should wait until hosted alpha app integration,
-unsupported-content behavior, legacy support windows, and table extension
-ownership are all proven and documented.
+direction is correct, but beta should wait until hosted alpha app integration
+covers the production and native-transport paths, unsupported-content behavior
+is fully frozen, and table extension release ownership is decided.
 
 This document does not authorize publishing, tagging, package-version changes,
 or beta release copy.
@@ -261,24 +261,29 @@ Rationale:
 
 Required before beta:
 
-- update `tagflow_table` dependency posture after `tagflow` alpha.2 is hosted;
 - decide whether `tagflow_table` should release in lockstep with `tagflow`
   betas or remain independently versioned with compatible constraints.
 
 The migration guide now documents `tagflow_table` as the canonical
 high-fidelity table registry extension through beta in "Compatibility Support
-Windows".
+Windows". Hosted alpha.3 Kite validation also proved that `tagflow_table`
+`1.0.0-alpha.1` can be resolved beside `tagflow` `1.0.0-alpha.3` for a
+downstream widget-test integration, but that does not decide beta release
+cadence.
 
 ## Beta.0 Readiness Checklist
 
 `1.0.0-beta.0` is not ready until all of these are complete:
 
 - Hosted alpha package is consumed by at least one real app through
-  `Tagflow.html(...)` or `TagflowHtmlAdapter`.
+  `Tagflow.html(...)` or `TagflowHtmlAdapter`. Done for Kite widget-test and
+  real-route validation; production profile evidence is still separate.
 - Hosted alpha package is consumed by at least one real app through native block
-  document and patch transport.
+  document and patch transport. Done for a Kite hosted-alpha widget-test
+  fixture; production integration remains pending.
 - `Tagflow.html(..., registry: ...)` is validated in a real app or explicitly
-  scoped as still alpha.
+  scoped as still alpha. Done for Kite widget-test validation with
+  `tagflow_table`; production rendering still uses the legacy converter bridge.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
@@ -289,15 +294,16 @@ Windows".
   documented for the alpha strict policy. Future unknown-block compatibility
   remains a beta vocabulary decision.
 - `tagflow_table` beta posture is decided and documented. Partly done in
-  "Compatibility Support Windows"; dependency posture and release cadence still
-  need hosted alpha evidence.
+  "Compatibility Support Windows"; hosted alpha dependency compatibility has
+  evidence, but release cadence still needs a beta decision.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
 - Release docs avoid beta/stable language until this checklist is green.
 
 ## Verdict
 
-Tagflow should continue toward `1.0.0-alpha.3`, not `1.0.0-beta.0`.
+Tagflow should continue hardening the alpha line after `1.0.0-alpha.3`, not
+move to `1.0.0-beta.0` yet.
 
 The beta shape is visible: canonical runtime documents, adapter-owned
 transports, content policy, and semantic component registries. The remaining
