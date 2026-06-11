@@ -30,6 +30,12 @@ New code should import `package:tagflow/tagflow.dart` and use
 `Tagflow.document(...)`, `Tagflow.html(...)`, `TagflowHtmlAdapter`, and
 `TagflowComponentRegistry`.
 
+Shared style primitives such as `Display`, `SizeValue`, `SizeUnit`,
+`FlexDirection`, `JustifyContent`, and `AlignItems` remain available from
+`package:tagflow/tagflow.dart`. They support the public styling APIs and are
+not legacy-only imports even though their main use remains HTML/CSS
+compatibility styling during the transition.
+
 ## HTML-First Usage
 
 Existing code may look like this:

@@ -110,6 +110,18 @@ void main() {
     expect(registry.hasComponent(api.TagflowNodeKind.paragraph), isTrue);
     expect(theme.defaultStyle, api.TagflowStyle.empty);
     expect(api.TagflowViewOptions.defaults, isA<api.TagflowViewOptions>());
+    expect(api.Display.block, api.Display.block);
+    expect(const api.SizeValue(12).value, 12);
+    expect(api.StyleParser.parseDisplay('flex'), api.Display.flex);
+    expect(
+      api.StyleParser.parseFlexDirection('row-reverse'),
+      api.FlexDirection.rowReverse,
+    );
+    expect(
+      api.StyleParser.parseJustifyContent('space-around'),
+      api.JustifyContent.spaceAround,
+    );
+    expect(api.StyleParser.parseAlignItems('stretch'), api.AlignItems.stretch);
     expect(api.StyleParser.parseSize('12px'), 12);
   });
 

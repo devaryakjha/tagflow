@@ -301,24 +301,31 @@ model.
 
 Rationale: these APIs are still useful for existing HTML rendering and theme
 migration, but the native runtime should not freeze its core around CSS parser
-semantics. The extension types currently depend on legacy CSS enum types, so
-their beta support story should be documented as compatibility styling rather
-than the primary component-registry contract.
+semantics. The shared style primitives now live on the primary style surface
+even though their main use remains compatibility styling rather than the
+primary component-registry contract.
 
 Recommendation: keep these exported through beta for migration stability, but
 avoid presenting CSS parsing as the future app-extension model.
 
-Current blocker:
+Resolved for value types:
 
-- `TagflowStyle`, `StyleParser`, and the exported style helper extensions still
-  expose `legacy.dart` value types such as `Display`, `SizeValue`,
-  `FlexDirection`, `JustifyContent`, and `AlignItems` in public signatures or
-  return types.
+- `Display`, `SizeValue`, `SizeUnit`, `FlexDirection`, `JustifyContent`, and
+  `AlignItems` are now intentionally exported from the primary style barrel as
+  shared style primitives instead of remaining only reachable through the
+  `legacy.dart` export chain.
 
-Beta cannot describe `package:tagflow/legacy.dart` as a neatly optional
-compatibility import while primary-barrel styling still depends on those
-legacy types. Before beta, either freeze that coupling explicitly or move the
-shared CSS value types out of the compatibility barrel.
+Remaining beta question:
+
+- `TagflowTheme` and `StyleParser` still model HTML/CSS compatibility behavior,
+  and `TagflowTheme.resolveStyle(...)` still operates on the legacy HTML node
+  tree rather than the native runtime document model.
+
+Beta can now describe `package:tagflow/legacy.dart` as optional for these
+style value types. The remaining compatibility decision is whether
+HTML-node-based theme resolution stays public through beta as compatibility
+styling, gets narrowed, or later moves behind a more explicit compatibility
+surface.
 
 ## `package:tagflow/legacy.dart` Support Window
 

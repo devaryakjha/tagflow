@@ -2,7 +2,11 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:tagflow/legacy.dart';
+import 'package:tagflow/src/core/models/node.dart';
+import 'package:tagflow/src/core/models/style.dart' show SizeValue;
+import 'package:tagflow/src/core/utils/extensions.dart';
+import 'package:tagflow/src/style/style.dart';
+import 'package:tagflow/src/style/style_parser.dart';
 
 /// A theme that provides default styles for all HTML elements in Tagflow.
 class TagflowTheme extends Equatable {
