@@ -128,8 +128,9 @@ Required outcomes:
 - document the already-landed `Tagflow.html(..., registry: ...)` path and make
   clear when apps should still prefer the manual parse-to-document path for
   authored IDs, strict policy, source metadata, or parse-time inspection;
-- add focused real-app validation for native block document and patch payloads
-  against hosted packages;
+- add focused real-app validation for `Tagflow.html(..., registry: ...)`,
+  `tagflow_table` registry extensions, and native block document/patch
+  payloads against hosted packages;
 - keep all benchmark evidence report-only unless a benchmark policy document
   explicitly promotes a claim.
 
@@ -451,7 +452,11 @@ Acceptance:
 - docs clearly distinguish alpha.1 history, alpha.2 baseline, and alpha.3
   target.
 
-### Slice 2: hosted alpha.2 real-app native transport validation
+### Slice 2: hosted alpha real-app native transport validation
+
+Status: completed for the hosted-alpha3 widget-test slice in Kite commit
+`a5468eee` (`test(ipo): validate hosted tagflow alpha3`). Production
+integration and profile-mode evidence remain separate follow-up work.
 
 Files:
 
@@ -460,7 +465,7 @@ Files:
 
 Work:
 
-- update Kite to hosted `tagflow: ^1.0.0-alpha.2` after publication;
+- update Kite to hosted `tagflow: ^1.0.0-alpha.3` after publication;
 - keep `tagflow_table: ^1.0.0-alpha.1`;
 - add a fixture that decodes a native document, adapts it, decodes a patch
   envelope, applies patches, and asserts resulting text;
@@ -472,7 +477,7 @@ Acceptance:
 - Kite validation uses hosted packages, not a local override;
 - no `pubspec_overrides.yaml` is committed;
 - fixture proves document and patch transport compile and run against hosted
-  alpha.2.
+  alpha packages.
 
 ### Slice 3: native unknown-kind and schema-version decision
 
@@ -507,6 +512,12 @@ Acceptance:
 
 ### Slice 4: HTML registry ergonomics validation
 
+Status: completed for focused package coverage and hosted Kite alpha3
+widget-test evidence. Kite commit `a5468eee` renders checked-in IPO HTML
+fixture content through `Tagflow.html(..., registry: ...)` with
+`tagflowTableComponents(...)`, while preserving production IPO rendering on the
+legacy converter bridge.
+
 Files:
 
 - focused widget or app validation that exercises HTML-origin registry
@@ -520,7 +531,7 @@ Work:
 - preserve legacy custom-converter behavior and registry precedence;
 - retain focused package widget tests for HTML built-in rendering with a
   registry override, including registry-only rebuild coverage;
-- keep hosted real-app evidence as a separate beta gate for this path.
+- keep production migration and profile evidence as separate beta/stable gates.
 
 Acceptance:
 
@@ -528,7 +539,7 @@ Acceptance:
 - legacy `converters:` compatibility keeps its current behavior;
 - focused package widget tests cover registry override and registry-update
   behavior for `Tagflow.html(...)`;
-- hosted real-app evidence is still tracked separately before beta;
+- hosted real-app evidence exists for the Kite IPO fixture on hosted alpha3;
 - no broad parser or converter refactor lands in the same slice.
 
 ### Slice 5: beta public API freeze review
@@ -559,13 +570,13 @@ Acceptance:
 1. `docs(spec): align alpha.2 runtime specs`
    - docs-only cleanup of stale alpha.1 wording and native block deferred
      sections.
-2. `test(kite): validate tagflow alpha2 native transport`
-   - hosted-package real-app fixture after alpha.2 is published.
+2. `test(kite): validate hosted tagflow alpha3`
+   - completed in Kite commit `a5468eee`; use it as hosted-package app
+     evidence, not as production profile evidence.
 3. `feat(adapter): define native transport version policy`
    - small code and test slice for unknown kind and schema-version behavior.
-4. `test(app): validate hosted html registry overrides`
-   - real-app hosted-package evidence for the shipped
-     `Tagflow.html(..., registry: ...)` path after focused package widget
-     coverage.
+4. `test(app): migrate one production content surface to the registry path`
+   - future work only after product approval; keep legacy production rendering
+     intact until a real route and profile target are available.
 5. `docs(api): prepare beta public surface review`
    - export and compatibility classification before any beta.0 version work.

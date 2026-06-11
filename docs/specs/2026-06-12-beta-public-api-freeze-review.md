@@ -141,15 +141,17 @@ render a `TagflowDocument` directly, and `Tagflow.html(...)` is an adapter-backe
 convenience entry point. `TagflowViewOptions` is the correct place for view
 behavior such as links, selection, images, cache behavior, and error rendering.
 
-`beta-stable candidate, pending app evidence`:
+`beta-stable candidate`:
 
 - `Tagflow.html(..., registry: ...)`
 
 Rationale: this is the right ergonomic bridge for HTML-origin content that
 needs semantic registry overrides. Focused package widget tests now cover the
 semantic override path, legacy-converter precedence, and registry-only
-rebuilds without reparsing. It should not be called beta-stable until at least
-one real app consumes a hosted alpha package through this path.
+rebuilds without reparsing. Kite hosted-alpha3 validation commit `a5468eee`
+now exercises real IPO HTML fixture content through
+`Tagflow.html(..., registry: ...)` with `tagflow_table` registry extensions and
+no legacy converters in the validation path.
 
 `compatibility surface`:
 
@@ -192,7 +194,7 @@ from `package:tagflow/legacy.dart`, not the primary
 
 ### Native Block Transport
 
-`beta-stable candidate, pending hosted app evidence`:
+`beta-stable candidate`:
 
 - `TagflowNativeBlock`
 - `TagflowNativeBlockKind`
@@ -205,7 +207,10 @@ from `package:tagflow/legacy.dart`, not the primary
 
 Rationale: native block JSON is the right first transport for AI/CMS/app
 generated rich content because it is data-only and adapts into the canonical
-runtime model.
+runtime model. Kite hosted-alpha3 validation commit `a5468eee` now decodes a
+native block document from real IPO fixture values, adapts it, decodes a patch
+envelope, adapts the patch operations, and applies them against hosted package
+APIs.
 
 `alpha-only review required`:
 
@@ -214,8 +219,8 @@ runtime model.
 - transport revision semantics
 - patch envelope revision semantics
 
-Rationale: strict `schemaVersion == 1` is now the right alpha contract. Before
-beta, Tagflow still needs real-app evidence using hosted alpha packages, and
+Rationale: strict `schemaVersion == 1` is now the right alpha contract. The
+hosted-package real-app evidence exists for document and patch transport, and
 the alpha transport keeps unknown future block kinds strict at codec decode
 time. That strict alpha policy is tested and documented. Beta must decide
 whether to keep the strict policy, introduce placeholders through an explicit
@@ -358,8 +363,9 @@ to republish the extension package.
   helpers; omitted nullable arguments continue to preserve current values.
 - `Tagflow.html(..., registry: ...)` has focused package widget coverage for
   semantic overrides, legacy-converter precedence, and registry-only rebuilds
-  without reparsing. Hosted real-app validation is still pending before beta,
-  and current production rendering still uses the legacy converter bridge.
+  without reparsing. Hosted real-app validation is done in Kite commit
+  `a5468eee`; current production rendering still uses the legacy converter
+  bridge, so production profile evidence remains separate.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.

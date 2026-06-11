@@ -40,7 +40,8 @@ Threshold promotion and reference-environment rules are centralized in
 | Memory repeat-5 local status | [`baselines/2026-06-12-memory-allocation-repeat5-local-status.md`](baselines/2026-06-12-memory-allocation-repeat5-local-status.md) | Required macOS repeat-5 profile baselines now exist for `tagflow:large_article`, `tagflow:table_stress`, and the authored-insertion control/patch pair, with bounded `--profile-memory` JSON captured for those lanes plus optional `tagflow_native_json:native_large_article`. | Report-only memory evidence; allocation claims still blocked by missing snapshots and diffs. |
 | Physical target probe | [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md), superseding the earlier [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) probe note | Current read-only discovery sees the iPhone 17 only in Flutter's wireless bucket while CoreDevice reports a paired local-network session with disconnected tunnel and unavailable DDI services; `xctrace` still lists the device offline. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
-| Kite profile blocker | [`baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md`](baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md) | A later Kite audit separated hosted-alpha widget evidence, legacy production rendering, converter-free disclosure tests, and true profile evidence. No credible production profile capture was possible because the checkout was stale relative to hosted alpha validation, production still used the legacy converter bridge, no deterministic production fixture opener existed, and physical target tooling was inconsistent. | Negative qualification evidence; real-app profile baseline still pending. |
+| Kite hosted-alpha app evidence | Kite commit `a5468eee` (`test(ipo): validate hosted tagflow alpha3`) | A focused Kite widget test consumes hosted `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`, renders checked-in IPO HTML fixture content through `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, and validates native block document/patch decode-adapt-apply. | App-integration evidence only; not profile evidence. |
+| Kite profile blocker | [`baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md`](baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md) | Kite now has hosted-alpha widget evidence, but no credible production profile capture is available because production IPO rendering still uses the legacy converter bridge, no deterministic production fixture opener exists, and physical target tooling is inconsistent. | Negative qualification evidence; real-app profile baseline still pending. |
 
 ## Benchmark Tiers
 
@@ -126,11 +127,12 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   local-network tunnel and `xctrace` listing the device offline. Simulator
   profile mode has known limitations and should not be promoted without a
   fresh tooling check.
-- Real-app profile: hosted-alpha widget evidence exists in Kite, but no
-  credible production IPO profile-mode capture exists yet. The latest Kite
-  profile audit found a stale dependency checkout, production rendering still
-  on the legacy converter bridge, no deterministic production fixture opener,
-  and inconsistent physical-device tooling.
+- Real-app profile: hosted-alpha widget evidence exists in Kite, including
+  hosted `Tagflow.html(..., registry: ...)`, `tagflow_table` registry
+  extension, and native block document/patch transport coverage. No credible
+  production IPO profile-mode capture exists yet because production rendering
+  still uses the legacy converter bridge, no deterministic production fixture
+  opener exists, and physical-device tooling is inconsistent.
 - Reference environment: the complete macOS repeat-5 run used Flutter master
   prerelease bits and prerelease macOS, so it is not claim-grade.
 - Cold versus warm: static profile artifacts now capture first fixture render,
