@@ -115,6 +115,12 @@ melos:
         "flutter test test/run_parser_benchmarks_test.dart"
       description: Run Tagflow parser microbenchmarks
 
+    benchmark:native-transport:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "flutter test test/run_native_transport_benchmarks_test.dart"
+      description: Run Tagflow native transport microbenchmarks
+
     benchmark:render:
       run: >
         dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --

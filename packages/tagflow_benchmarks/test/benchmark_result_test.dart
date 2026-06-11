@@ -75,4 +75,46 @@ void main() {
 
     expect(roundTrip, result);
   });
+
+  test('native transport benchmark results round-trip through JSON', () {
+    final result = NativeTransportBenchmarkSuiteResult(
+      suite: 'native_transport',
+      generatedAt: DateTime.utc(2026, 6, 11),
+      environment: const BenchmarkEnvironment(
+        packageVersion: '0.0.0-test',
+        dartVersion: '3.9.0',
+        flutterVersion: '3.35.0',
+        os: 'macos',
+      ),
+      warmupIterations: 1,
+      sampleCount: 3,
+      fixtureResults: const <NativeTransportBenchmarkFixtureResult>[
+        NativeTransportBenchmarkFixtureResult(
+          fixtureId: 'native_ai_answer_patch',
+          documentBytes: 2048,
+          patchBytes: 512,
+          nodeCount: 12,
+          patchOperationCount: 2,
+          phaseResults: <NativeTransportBenchmarkPhaseResult>[
+            NativeTransportBenchmarkPhaseResult(
+              phaseId: 'decodeDocument',
+              sampleMicros: <int>[40, 50, 60],
+              medianMicros: 50,
+              p95Micros: 60,
+              minMicros: 40,
+              maxMicros: 60,
+              meanMicros: 50,
+              coefficientOfVariation: 0.2,
+            ),
+          ],
+        ),
+      ],
+    );
+
+    final roundTrip = NativeTransportBenchmarkSuiteResult.fromJson(
+      jsonDecode(jsonEncode(result.toJson())) as Map<String, Object?>,
+    );
+
+    expect(roundTrip, result);
+  });
 }

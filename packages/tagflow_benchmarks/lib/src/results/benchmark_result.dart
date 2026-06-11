@@ -370,3 +370,218 @@ class RenderBenchmarkSuiteResult {
     Object.hashAll(fixtureResults),
   );
 }
+
+@immutable
+class NativeTransportBenchmarkPhaseResult {
+  const NativeTransportBenchmarkPhaseResult({
+    required this.phaseId,
+    required this.sampleMicros,
+    required this.medianMicros,
+    required this.p95Micros,
+    required this.minMicros,
+    required this.maxMicros,
+    required this.meanMicros,
+    required this.coefficientOfVariation,
+  });
+
+  factory NativeTransportBenchmarkPhaseResult.fromJson(
+    Map<String, Object?> json,
+  ) {
+    return NativeTransportBenchmarkPhaseResult(
+      phaseId: json['phaseId']! as String,
+      sampleMicros: (json['sampleMicros']! as List<Object?>)
+          .map((value) => value! as int)
+          .toList(growable: false),
+      medianMicros: json['medianMicros']! as int,
+      p95Micros: json['p95Micros']! as int,
+      minMicros: json['minMicros']! as int,
+      maxMicros: json['maxMicros']! as int,
+      meanMicros: (json['meanMicros']! as num).toDouble(),
+      coefficientOfVariation: (json['coefficientOfVariation']! as num)
+          .toDouble(),
+    );
+  }
+
+  final String phaseId;
+  final List<int> sampleMicros;
+  final int medianMicros;
+  final int p95Micros;
+  final int minMicros;
+  final int maxMicros;
+  final double meanMicros;
+  final double coefficientOfVariation;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'phaseId': phaseId,
+    'sampleMicros': sampleMicros,
+    'medianMicros': medianMicros,
+    'p95Micros': p95Micros,
+    'minMicros': minMicros,
+    'maxMicros': maxMicros,
+    'meanMicros': meanMicros,
+    'coefficientOfVariation': coefficientOfVariation,
+  };
+
+  @override
+  bool operator ==(Object other) {
+    return other is NativeTransportBenchmarkPhaseResult &&
+        other.phaseId == phaseId &&
+        listEquals(other.sampleMicros, sampleMicros) &&
+        other.medianMicros == medianMicros &&
+        other.p95Micros == p95Micros &&
+        other.minMicros == minMicros &&
+        other.maxMicros == maxMicros &&
+        other.meanMicros == meanMicros &&
+        other.coefficientOfVariation == coefficientOfVariation;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    phaseId,
+    Object.hashAll(sampleMicros),
+    medianMicros,
+    p95Micros,
+    minMicros,
+    maxMicros,
+    meanMicros,
+    coefficientOfVariation,
+  );
+}
+
+@immutable
+class NativeTransportBenchmarkFixtureResult {
+  const NativeTransportBenchmarkFixtureResult({
+    required this.fixtureId,
+    required this.documentBytes,
+    required this.patchBytes,
+    required this.nodeCount,
+    required this.patchOperationCount,
+    required this.phaseResults,
+  });
+
+  factory NativeTransportBenchmarkFixtureResult.fromJson(
+    Map<String, Object?> json,
+  ) {
+    return NativeTransportBenchmarkFixtureResult(
+      fixtureId: json['fixtureId']! as String,
+      documentBytes: json['documentBytes']! as int,
+      patchBytes: json['patchBytes']! as int,
+      nodeCount: json['nodeCount']! as int,
+      patchOperationCount: json['patchOperationCount']! as int,
+      phaseResults: (json['phaseResults']! as List<Object?>)
+          .map(
+            (value) => NativeTransportBenchmarkPhaseResult.fromJson(
+              value! as Map<String, Object?>,
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String fixtureId;
+  final int documentBytes;
+  final int patchBytes;
+  final int nodeCount;
+  final int patchOperationCount;
+  final List<NativeTransportBenchmarkPhaseResult> phaseResults;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'fixtureId': fixtureId,
+    'documentBytes': documentBytes,
+    'patchBytes': patchBytes,
+    'nodeCount': nodeCount,
+    'patchOperationCount': patchOperationCount,
+    'phaseResults': phaseResults.map((result) => result.toJson()).toList(),
+  };
+
+  @override
+  bool operator ==(Object other) {
+    return other is NativeTransportBenchmarkFixtureResult &&
+        other.fixtureId == fixtureId &&
+        other.documentBytes == documentBytes &&
+        other.patchBytes == patchBytes &&
+        other.nodeCount == nodeCount &&
+        other.patchOperationCount == patchOperationCount &&
+        listEquals(other.phaseResults, phaseResults);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    fixtureId,
+    documentBytes,
+    patchBytes,
+    nodeCount,
+    patchOperationCount,
+    Object.hashAll(phaseResults),
+  );
+}
+
+@immutable
+class NativeTransportBenchmarkSuiteResult {
+  const NativeTransportBenchmarkSuiteResult({
+    required this.suite,
+    required this.generatedAt,
+    required this.environment,
+    required this.warmupIterations,
+    required this.sampleCount,
+    required this.fixtureResults,
+  });
+
+  factory NativeTransportBenchmarkSuiteResult.fromJson(
+    Map<String, Object?> json,
+  ) {
+    return NativeTransportBenchmarkSuiteResult(
+      suite: json['suite']! as String,
+      generatedAt: DateTime.parse(json['generatedAt']! as String),
+      environment: BenchmarkEnvironment.fromJson(
+        json['environment']! as Map<String, Object?>,
+      ),
+      warmupIterations: json['warmupIterations']! as int,
+      sampleCount: json['sampleCount']! as int,
+      fixtureResults: (json['fixtureResults']! as List<Object?>)
+          .map(
+            (value) => NativeTransportBenchmarkFixtureResult.fromJson(
+              value! as Map<String, Object?>,
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+
+  final String suite;
+  final DateTime generatedAt;
+  final BenchmarkEnvironment environment;
+  final int warmupIterations;
+  final int sampleCount;
+  final List<NativeTransportBenchmarkFixtureResult> fixtureResults;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'suite': suite,
+    'generatedAt': generatedAt.toUtc().toIso8601String(),
+    'environment': environment.toJson(),
+    'warmupIterations': warmupIterations,
+    'sampleCount': sampleCount,
+    'fixtureResults': fixtureResults.map((result) => result.toJson()).toList(),
+  };
+
+  @override
+  bool operator ==(Object other) {
+    return other is NativeTransportBenchmarkSuiteResult &&
+        other.suite == suite &&
+        other.generatedAt == generatedAt &&
+        other.environment == environment &&
+        other.warmupIterations == warmupIterations &&
+        other.sampleCount == sampleCount &&
+        listEquals(other.fixtureResults, fixtureResults);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    suite,
+    generatedAt,
+    environment,
+    warmupIterations,
+    sampleCount,
+    Object.hashAll(fixtureResults),
+  );
+}
