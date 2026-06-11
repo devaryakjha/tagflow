@@ -103,12 +103,32 @@ variables:
 
 - `--renderer=tagflow,flutter_html` or `TAGFLOW_RENDERER=tagflow`
 - `--fixture=ai_answer_rich,table_dense` or `TAGFLOW_FIXTURE=ai_answer_rich`
+- `--pair=tagflow_semantic:streaming_ai_chunks,tagflow_semantic_patch:streaming_ai_patches`
+  or `TAGFLOW_PROFILE_PAIR=tagflow_semantic:streaming_ai_chunks,...`
 - `--repeat=5` or `TAGFLOW_PROFILE_REPEAT=5`
 - `--device=macos` or `TAGFLOW_PROFILE_DEVICE=macos`
 - `--output-dir=build/benchmarks/profile-candidate` or
   `TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-candidate`
 - `--continue-on-failure=true` or
   `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true`
+
+When `--pair` or `TAGFLOW_PROFILE_PAIR` is set, the runner executes exactly that
+ordered renderer/fixture cell list instead of expanding a renderer by fixture
+cross-product. Use paired mode for fixture-scoped lanes where the compatibility
+guard should remain strict.
+
+Semantic streaming report-only comparison:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_PAIR=tagflow_semantic:streaming_ai_chunks,tagflow_semantic_patch:streaming_ai_patches \
+TAGFLOW_PROFILE_REPEAT=1 \
+dart run melos run benchmark:profile:baselines
+```
+
+This compares the full-reparse semantic HTML stream with the semantic document
+patch stream as two explicit cells. It is report-only: summarize and review the
+manifest/artifacts, but do not treat either timing result as a pass/fail gate.
 
 ## Artifact Naming
 

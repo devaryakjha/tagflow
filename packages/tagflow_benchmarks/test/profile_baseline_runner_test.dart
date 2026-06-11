@@ -95,6 +95,8 @@ void main() {
         jsonDecode(File(manifestPath).readAsStringSync())
             as Map<String, Object?>;
     expect(json['runId'], '2026-06-11T12-00-00Z');
+    expect(json['selectionMode'], 'matrix');
+    expect(json.containsKey('pairs'), isFalse);
     expect(json['runs'], isA<List<Object?>>());
     expect(
       (json['runs']! as List<Object?>).first,
@@ -123,6 +125,105 @@ void main() {
       ).existsSync(),
       isTrue,
     );
+  });
+
+  test('runs explicit profile pairs in order without cross-product', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_pairs_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    final commands = <Map<String, Object?>>[];
+    var commandCount = 0;
+
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow_semantic', 'tagflow_semantic_patch'],
+      fixtures: const ['streaming_ai_chunks', 'streaming_ai_patches'],
+      pairs: const [
+        ProfileBaselineCell(
+          renderer: 'tagflow_semantic',
+          fixture: 'streaming_ai_chunks',
+        ),
+        ProfileBaselineCell(
+          renderer: 'tagflow_semantic_patch',
+          fixture: 'streaming_ai_patches',
+        ),
+      ],
+      repeatCount: 1,
+      runId: '2026-06-11T12-15-00Z',
+      processRunner: (executable, arguments, options) async {
+        commandCount += 1;
+        commands.add(<String, Object?>{
+          'executable': executable,
+          'arguments': arguments,
+          'environment': options.environment,
+        });
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': commandCount,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(400 + commandCount, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(commands, hasLength(2));
+    expect(manifest.runs, hasLength(2));
+    expect(
+      commands.map((command) {
+        final environment = command['environment']! as Map<String, String>;
+        return '${environment['TAGFLOW_RENDERER']}:'
+            '${environment['TAGFLOW_FIXTURE']}';
+      }),
+      <String>[
+        'tagflow_semantic:streaming_ai_chunks',
+        'tagflow_semantic_patch:streaming_ai_patches',
+      ],
+    );
+    expect(manifest.runs.first.renderer, 'tagflow_semantic');
+    expect(manifest.runs.first.fixture, 'streaming_ai_chunks');
+    expect(manifest.runs.last.renderer, 'tagflow_semantic_patch');
+    expect(manifest.runs.last.fixture, 'streaming_ai_patches');
+
+    final manifestPath = p.join(
+      workspaceRoot.path,
+      'build',
+      'benchmarks',
+      'profile',
+      '2026-06-11T12-15-00Z',
+      'profile-baseline-manifest.json',
+    );
+    final json =
+        jsonDecode(File(manifestPath).readAsStringSync())
+            as Map<String, Object?>;
+    expect(json['selectionMode'], 'pairs');
+    expect(json['pairs'], <Object?>[
+      <String, Object?>{
+        'renderer': 'tagflow_semantic',
+        'fixture': 'streaming_ai_chunks',
+      },
+      <String, Object?>{
+        'renderer': 'tagflow_semantic_patch',
+        'fixture': 'streaming_ai_patches',
+      },
+    ]);
   });
 
   test('can continue through failed profile runs and write logs', () async {

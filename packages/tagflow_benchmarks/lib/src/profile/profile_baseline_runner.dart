@@ -18,6 +18,24 @@ const List<String> defaultProfileBaselineFixtures = [
   'table_stress',
 ];
 
+/// One explicit profile benchmark renderer/fixture cell.
+final class ProfileBaselineCell {
+  /// Creates one explicit profile baseline cell.
+  const ProfileBaselineCell({required this.renderer, required this.fixture});
+
+  /// Renderer id used for this cell.
+  final String renderer;
+
+  /// Fixture id used for this cell.
+  final String fixture;
+
+  /// Converts this cell to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'renderer': renderer,
+    'fixture': fixture,
+  };
+}
+
 /// Options passed to a profile benchmark process invocation.
 final class ProfileProcessOptions {
   /// Creates process invocation options.
@@ -60,6 +78,8 @@ final class ProfileBaselineManifest {
     required this.repeatCount,
     required this.renderers,
     required this.fixtures,
+    required this.selectionMode,
+    required this.pairs,
     required this.command,
     required this.outputDirectory,
     required this.sourceResponsePath,
@@ -88,6 +108,12 @@ final class ProfileBaselineManifest {
   /// Fixture ids included in this run.
   final List<String> fixtures;
 
+  /// Matrix selection mode: `matrix` or `pairs`.
+  final String selectionMode;
+
+  /// Explicit pair selection, when [selectionMode] is `pairs`.
+  final List<ProfileBaselineCell>? pairs;
+
   /// Existing Melos command reused by each matrix cell.
   final List<String> command;
 
@@ -112,6 +138,8 @@ final class ProfileBaselineManifest {
     'repeatCount': repeatCount,
     'renderers': renderers,
     'fixtures': fixtures,
+    'selectionMode': selectionMode,
+    if (pairs != null) 'pairs': pairs!.map((pair) => pair.toJson()).toList(),
     'command': command,
     'outputDirectory': outputDirectory,
     'sourceResponsePath': sourceResponsePath,
@@ -229,6 +257,7 @@ final class ProfileBaselineRunner {
     required this.runId,
     this.device = 'macos',
     this.failFast = true,
+    this.pairs,
     ProfileProcessRunner? processRunner,
     ProfileEnvironmentProcessRunner? environmentProcessRunner,
     DateTime Function()? clock,
@@ -248,6 +277,28 @@ final class ProfileBaselineRunner {
     }
     if (fixtures.isEmpty) {
       throw ArgumentError.value(fixtures, 'fixtures', 'Cannot be empty.');
+    }
+    final pairs = this.pairs;
+    if (pairs != null) {
+      if (pairs.isEmpty) {
+        throw ArgumentError.value(pairs, 'pairs', 'Cannot be empty.');
+      }
+      for (final pair in pairs) {
+        if (pair.renderer.trim().isEmpty) {
+          throw ArgumentError.value(
+            pair.renderer,
+            'renderer',
+            'Cannot be empty.',
+          );
+        }
+        if (pair.fixture.trim().isEmpty) {
+          throw ArgumentError.value(
+            pair.fixture,
+            'fixture',
+            'Cannot be empty.',
+          );
+        }
+      }
     }
   }
 
@@ -275,6 +326,9 @@ final class ProfileBaselineRunner {
   /// Whether to stop on the first failed profile process or missing artifact.
   final bool failFast;
 
+  /// Explicit renderer/fixture cells to run instead of the renderer matrix.
+  final List<ProfileBaselineCell>? pairs;
+
   final ProfileProcessRunner _processRunner;
   final ProfileEnvironmentProcessRunner _environmentProcessRunner;
   final DateTime Function() _clock;
@@ -293,110 +347,111 @@ final class ProfileBaselineRunner {
     final sourceResponse = _sourceResponseFile;
     final runs = <ProfileBaselineRun>[];
 
-    for (final renderer in renderers) {
-      for (final fixture in fixtures) {
-        for (var repeat = 1; repeat <= repeatCount; repeat += 1) {
-          if (sourceResponse.existsSync()) {
-            sourceResponse.deleteSync();
-          }
+    for (final cell in _selectedCells) {
+      final renderer = cell.renderer;
+      final fixture = cell.fixture;
+      for (var repeat = 1; repeat <= repeatCount; repeat += 1) {
+        if (sourceResponse.existsSync()) {
+          sourceResponse.deleteSync();
+        }
 
-          final startedAt = _clock().toUtc();
-          final result = await _processRunner(
-            'dart',
-            _command,
-            ProfileProcessOptions(
-              workingDirectory: workspaceRoot.path,
-              environment: <String, String>{
-                'TAGFLOW_RENDERER': renderer,
-                'TAGFLOW_FIXTURE': fixture,
-                'TAGFLOW_PROFILE_DEVICE': device,
-              },
-            ),
-          );
-          final finishedAt = _clock().toUtc();
-          final cellDirectory = Directory(
-            p.join(runDirectory.path, renderer, fixture),
-          )..createSync(recursive: true);
-          final repeatId = 'repeat-${repeat.toString().padLeft(2, '0')}';
-          final logFile = File(p.join(cellDirectory.path, '$repeatId.log'));
-          _writeRunLog(
-            logFile: logFile,
-            renderer: renderer,
-            fixture: fixture,
-            repeat: repeat,
-            result: result,
-            startedAt: startedAt,
-            finishedAt: finishedAt,
-          );
-          final logPath = p.relative(logFile.path, from: workspaceRoot.path);
+        final startedAt = _clock().toUtc();
+        final result = await _processRunner(
+          'dart',
+          _command,
+          ProfileProcessOptions(
+            workingDirectory: workspaceRoot.path,
+            environment: <String, String>{
+              'TAGFLOW_RENDERER': renderer,
+              'TAGFLOW_FIXTURE': fixture,
+              'TAGFLOW_PROFILE_DEVICE': device,
+            },
+          ),
+        );
+        final finishedAt = _clock().toUtc();
+        final cellDirectory = Directory(
+          p.join(runDirectory.path, renderer, fixture),
+        )..createSync(recursive: true);
+        final repeatId = 'repeat-${repeat.toString().padLeft(2, '0')}';
+        final logFile = File(p.join(cellDirectory.path, '$repeatId.log'));
+        _writeRunLog(
+          logFile: logFile,
+          renderer: renderer,
+          fixture: fixture,
+          repeat: repeat,
+          result: result,
+          startedAt: startedAt,
+          finishedAt: finishedAt,
+        );
+        final logPath = p.relative(logFile.path, from: workspaceRoot.path);
 
-          if (result.exitCode != 0) {
-            runs.add(
-              ProfileBaselineRun(
-                renderer: renderer,
-                fixture: fixture,
-                repeat: repeat,
-                status: 'failed',
-                exitCode: result.exitCode,
-                artifactPath: null,
-                logPath: logPath,
-                startedAt: startedAt,
-                finishedAt: finishedAt,
-              ),
-            );
-            if (!failFast) {
-              continue;
-            }
-            throw ProcessException(
-              'dart',
-              _command,
-              '${result.stderr}\n${result.stdout}'.trim(),
-              result.exitCode,
-            );
-          }
-          if (!sourceResponse.existsSync()) {
-            runs.add(
-              ProfileBaselineRun(
-                renderer: renderer,
-                fixture: fixture,
-                repeat: repeat,
-                status: 'missingArtifact',
-                exitCode: result.exitCode,
-                artifactPath: null,
-                logPath: logPath,
-                startedAt: startedAt,
-                finishedAt: finishedAt,
-              ),
-            );
-            if (!failFast) {
-              continue;
-            }
-            throw StateError(
-              'Profile benchmark completed but did not write '
-              '${sourceResponse.path}.',
-            );
-          }
-
-          final artifact = File(p.join(cellDirectory.path, '$repeatId.json'));
-          sourceResponse.copySync(artifact.path);
-
+        if (result.exitCode != 0) {
           runs.add(
             ProfileBaselineRun(
               renderer: renderer,
               fixture: fixture,
               repeat: repeat,
-              status: 'passed',
+              status: 'failed',
               exitCode: result.exitCode,
-              artifactPath: p.relative(artifact.path, from: workspaceRoot.path),
+              artifactPath: null,
               logPath: logPath,
               startedAt: startedAt,
               finishedAt: finishedAt,
             ),
           );
+          if (!failFast) {
+            continue;
+          }
+          throw ProcessException(
+            'dart',
+            _command,
+            '${result.stderr}\n${result.stdout}'.trim(),
+            result.exitCode,
+          );
         }
+        if (!sourceResponse.existsSync()) {
+          runs.add(
+            ProfileBaselineRun(
+              renderer: renderer,
+              fixture: fixture,
+              repeat: repeat,
+              status: 'missingArtifact',
+              exitCode: result.exitCode,
+              artifactPath: null,
+              logPath: logPath,
+              startedAt: startedAt,
+              finishedAt: finishedAt,
+            ),
+          );
+          if (!failFast) {
+            continue;
+          }
+          throw StateError(
+            'Profile benchmark completed but did not write '
+            '${sourceResponse.path}.',
+          );
+        }
+
+        final artifact = File(p.join(cellDirectory.path, '$repeatId.json'));
+        sourceResponse.copySync(artifact.path);
+
+        runs.add(
+          ProfileBaselineRun(
+            renderer: renderer,
+            fixture: fixture,
+            repeat: repeat,
+            status: 'passed',
+            exitCode: result.exitCode,
+            artifactPath: p.relative(artifact.path, from: workspaceRoot.path),
+            logPath: logPath,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+          ),
+        );
       }
     }
 
+    final selectedPairs = pairs;
     final manifest = ProfileBaselineManifest(
       runId: runId,
       generatedAt: _clock().toUtc(),
@@ -405,6 +460,10 @@ final class ProfileBaselineRunner {
       repeatCount: repeatCount,
       renderers: List<String>.unmodifiable(renderers),
       fixtures: List<String>.unmodifiable(fixtures),
+      selectionMode: selectedPairs == null ? 'matrix' : 'pairs',
+      pairs: selectedPairs == null
+          ? null
+          : List<ProfileBaselineCell>.unmodifiable(selectedPairs),
       command: _command,
       outputDirectory: p.relative(runDirectory.path, from: workspaceRoot.path),
       sourceResponsePath: p.relative(
@@ -433,6 +492,20 @@ final class ProfileBaselineRunner {
       'integration_response_data.json',
     ),
   );
+
+  Iterable<ProfileBaselineCell> get _selectedCells sync* {
+    final pairs = this.pairs;
+    if (pairs != null) {
+      yield* pairs;
+      return;
+    }
+
+    for (final renderer in renderers) {
+      for (final fixture in fixtures) {
+        yield ProfileBaselineCell(renderer: renderer, fixture: fixture);
+      }
+    }
+  }
 }
 
 void _writeRunLog({
