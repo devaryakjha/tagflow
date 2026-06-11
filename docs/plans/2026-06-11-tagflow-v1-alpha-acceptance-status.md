@@ -6,8 +6,8 @@ rich content runtime line.
 Snapshot:
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest validated coordinator commit: `ed6f04f docs(validation): record kite
-  proof cleanup`
+- Latest validated coordinator commit before this status refresh:
+  `ae5fd01 docs(benchmarks): record capped baseline gate status`
 - Latest validated implementation commits: `8ed0686 fix(table): preserve HTML
   table captions`, `2b2a809 bench(profile): add baseline summary gate`
 - Spec source: `docs/specs/2026-06-11-native-rich-content-runtime.md`
@@ -31,7 +31,10 @@ Snapshot:
 ## Benchmark Status
 
 Current reviewed profile baseline evidence is recorded in
-`docs/benchmarks/baselines/2026-06-11-macos-reference-profile-baseline-capped.md`.
+`docs/benchmarks/baselines/2026-06-11-macos-reference-profile-baseline-repeat5.md`.
+The earlier capped subset remains in
+`docs/benchmarks/baselines/2026-06-11-macos-reference-profile-baseline-capped.md`
+as historical evidence for why the repeat-5 gate was added.
 The first real-app attribution probe is recorded in
 `docs/benchmarks/baselines/2026-06-11-kite-ipo-debug-profile-probe.md`.
 
@@ -197,6 +200,14 @@ The benchmark harness is real but still alpha-grade:
   `benchmark:profile:check`, driven by `TAGFLOW_PROFILE_RUN_ID` and
   `TAGFLOW_PROFILE_MIN_REPEATS`, so reference-runner collection, summary, and
   completeness gating can be run from the workspace command surface.
+- The macOS default profile matrix now has one complete repeat-5 reviewed run:
+  `2026-06-11T08-14-32-397331Z` at commit `ae5fd01`, covering
+  `tagflow`, `flutter_html`, and `flutter_widget_from_html` across
+  `ai_answer_rich`, `table_dense`, `large_article`, and `table_stress`.
+  All `60 / 60` profile runs passed, and
+  `TAGFLOW_PROFILE_MIN_REPEATS=5 dart run melos run benchmark:profile:check`
+  passed with no issues. This is alpha-grade internal stabilization evidence,
+  not external benchmark copy.
 
 ## Known Non-Completion Points
 
@@ -210,10 +221,11 @@ The benchmark harness is real but still alpha-grade:
   are now mostly richer table-border fidelity beyond the normalized
   uniform/attribute-driven path, broader HTML table presentation coverage, and
   full package-wide proof that the legacy table bridge can be removed.
-- Profile benchmarking is real but not production-grade yet: broader competitor
-  coverage beyond the current HTML-native lanes, a committed reviewed baseline
-  from a named reference machine, and repeated reference-device runs remain
-  follow-up work before using frame timings as a release gate.
+- Profile benchmarking is real but not production-grade yet: the macOS desktop
+  default matrix now has a complete repeat-5 reviewed run, but stable
+  performance claims still need an intentionally selected stable reference
+  machine, pinned display/window conditions, broader target qualification, and
+  threshold policy before using frame timings as a release gate.
 - Stable `1.0.0` still needs deeper internal-app validation before release:
   dark-mode screenshots, physical-device or supported-target profile evidence
   on the real app surface, and a deliberate Kite alpha-dependency migration

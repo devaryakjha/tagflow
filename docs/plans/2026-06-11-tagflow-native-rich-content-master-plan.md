@@ -22,8 +22,8 @@ published.
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated coordinator commit: `ed6f04f docs(validation): record kite
-  proof cleanup`
+- Latest integrated coordinator commit before this status refresh:
+  `ae5fd01 docs(benchmarks): record capped baseline gate status`
 - Latest integrated implementation commit: `2b2a809 bench(profile): add
   baseline summary gate`; the latest runtime/table implementation commit remains
   `8ed0686 fix(table): preserve HTML table captions`.
@@ -42,15 +42,17 @@ published.
   can now execute a selected renderer/fixture matrix and preserve copied
   profile JSON artifacts under ignored workspace-root build output. A
   profile-baseline summarizer, completeness gate, Melos summary/check aliases,
-  and capped macOS reference note now turn raw profile JSON into reviewed
-  internal stabilization evidence. The macOS integration-test plugin warning
-  has a narrow benchmark-script suppression while preserving JSON output, and
-  the separate CocoaPods/SPM migration warning has been removed from the macOS
-  example host.
-- Post-alpha stabilization in progress: broader competitor coverage, remaining
-  table styling parity beyond normalized uniform table hints, repeated
-  reference-runner baselines, dark-mode/internal app validation passes, and
-  profile-mode evidence on a supported real-app target.
+  capped macOS reference note, and complete repeat-5 macOS matrix note now turn
+  raw profile JSON into reviewed internal stabilization evidence. The complete
+  run `2026-06-11T08-14-32-397331Z` passed all `60 / 60` profile cells and the
+  `TAGFLOW_PROFILE_MIN_REPEATS=5` completeness gate. The macOS integration-test
+  plugin warning has a narrow benchmark-script suppression while preserving
+  JSON output, and the separate CocoaPods/SPM migration warning has been
+  removed from the macOS example host.
+- Post-alpha stabilization in progress: remaining table styling parity beyond
+  normalized uniform table hints, stable reference-environment selection and
+  threshold policy for benchmark claims, dark-mode/internal app validation
+  passes, and profile-mode evidence on a supported real-app target.
 - Kite validation evidence is now captured from an iPhone 17 simulator using
   the local alpha override. Diagnostics proves the native `TagflowDocument`
   path and controlled HTML adapter policy inside Kite; the real
