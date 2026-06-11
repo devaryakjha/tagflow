@@ -35,3 +35,4 @@ flutter:
   assets:
     - ../../packages/tagflow_benchmarks/fixtures/html/
     - ../../packages/tagflow_benchmarks/fixtures/markdown/
+    - ../../packages/tagflow_benchmarks/fixtures/native/

@@ -157,6 +157,7 @@ Recommended fixtures:
 | Large document stability | Tagflow, `flutter_html`, `flutter_widget_from_html` | `large_article` | peak elapsed time to first content, scroll completion, exceptions, memory notes, GC churn | Local profile + manual DevTools | `TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile` | Pass if the document fully renders, remains scrollable end-to-end, and shows no crash or unbounded memory growth in manual validation. |
 | Streaming / incremental updates | `tagflow_semantic` primary, `tagflow` compatibility lane optional | `streaming_ai_chunks` | update latency per chunk, scroll position preservation, rebuild duration, GC counts | Local only | `TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks dart run melos run benchmark:profile` | Non-gating in alpha. Pass if every chunk applies without exception and update latency is captured. |
 | Native block transport microbench | Tagflow native block adapter only | `native_ai_answer_patch` | document JSON bytes, patch JSON bytes, runtime node count, patch operation count, median/p95/min/max/mean us for decode document, adapt document, decode patch envelope, adapt patches, apply runtime patches, and total transport | Local + report-only PR smoke | `dart run melos run benchmark:native-transport` | Report-only. No numeric threshold, baseline comparison, or release gate. This lane measures native JSON transport overhead only; HTML parser/render lanes remain separate reference evidence because HTML has no equivalent patch-envelope path in the current harness. |
+| Native JSON profile smoke | `tagflow_native_json` | `native_ai_answer` | profile scroll frame summary and viewport metadata from the example app after decoding native block JSON into `TagflowDocument` | Local report-only smoke | `TAGFLOW_RENDERER=tagflow_native_json TAGFLOW_FIXTURE=native_ai_answer dart run melos run benchmark:profile` | Report-only. Completion proves the native JSON render path is wired; it is not a numeric threshold, public claim, or direct comparison with HTML parser/render lanes. |
 
 ## Competitor Comparison Policy
 
@@ -247,6 +248,7 @@ dart run melos run benchmark:profile
 TAGFLOW_RENDERER=flutter_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
 TAGFLOW_RENDERER=flutter_widget_from_html TAGFLOW_FIXTURE=ai_answer_rich dart run melos run benchmark:profile
 TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks dart run melos run benchmark:profile
+TAGFLOW_RENDERER=tagflow_native_json TAGFLOW_FIXTURE=native_ai_answer dart run melos run benchmark:profile
 TAGFLOW_RENDERER=tagflow TAGFLOW_FIXTURE=large_article dart run melos run benchmark:profile
 dart run melos run benchmark:compare -- --renderer=all --fixture=ai_answer_rich
 ```

@@ -25,4 +25,19 @@ void main() {
     expect(find.text('Fixture: ai_answer_rich_md'), findsOneWidget);
     expect(find.textContaining('Input: markdown,'), findsOneWidget);
   });
+
+  testWidgets('loads the native JSON benchmark fixture asset', (tester) async {
+    await _pumpHost(
+      tester,
+      BenchmarkHost(
+        fixture: profileBenchmarkFixtureById(nativeJsonBenchmarkFixtureId),
+        renderer: benchmarkRendererById(nativeJsonBenchmarkRendererId),
+      ),
+    );
+
+    expect(find.byKey(BenchmarkHost.contentKey), findsOneWidget);
+    expect(find.text('Fixture: $nativeJsonBenchmarkFixtureId'), findsOneWidget);
+    expect(find.textContaining('Input: nativeJson,'), findsOneWidget);
+    expect(find.text('Native JSON answer'), findsOneWidget);
+  });
 }

@@ -14,6 +14,7 @@ void main() {
           defaultBenchmarkRendererId,
           'tagflow_semantic',
           semanticPatchBenchmarkRendererId,
+          nativeJsonBenchmarkRendererId,
           'flutter_html',
           'flutter_widget_from_html',
           'flutter_markdown_plus',
@@ -32,6 +33,10 @@ void main() {
       expect(
         benchmarkRendererById(semanticPatchBenchmarkRendererId).label,
         'Tagflow (semantic patch)',
+      );
+      expect(
+        benchmarkRendererById(nativeJsonBenchmarkRendererId).label,
+        'Tagflow (native JSON)',
       );
       expect(benchmarkRendererById('flutter_html').label, 'Flutter HTML');
       expect(
@@ -80,6 +85,45 @@ void main() {
       'flutter_html',
       'flutter_widget_from_html',
     ]);
+  });
+
+  test('returns only native JSON renderers for native JSON fixtures', () {
+    final nativeJsonRenderers = benchmarkRenderersForSourceType(
+      BenchmarkSourceType.nativeJson,
+    );
+
+    expect(nativeJsonRenderers.map((renderer) => renderer.id), [
+      nativeJsonBenchmarkRendererId,
+    ]);
+    expect(
+      nativeJsonRenderers.every(
+        (renderer) => renderer.supports(BenchmarkSourceType.nativeJson),
+      ),
+      isTrue,
+    );
+  });
+
+  test('returns only the native JSON renderer for native JSON fixture', () {
+    final fixture = profileBenchmarkFixtureById(nativeJsonBenchmarkFixtureId);
+    final renderers = benchmarkRenderersForFixture(fixture);
+
+    expect(renderers.map((renderer) => renderer.id), [
+      nativeJsonBenchmarkRendererId,
+    ]);
+    expect(
+      benchmarkRendererSupportsFixture(
+        benchmarkRendererById(nativeJsonBenchmarkRendererId),
+        fixture,
+      ),
+      isTrue,
+    );
+    expect(
+      benchmarkRendererSupportsFixture(
+        benchmarkRendererById(defaultBenchmarkRendererId),
+        fixture,
+      ),
+      isFalse,
+    );
   });
 
   test('returns only the patch renderer for the semantic patch fixture', () {
@@ -246,6 +290,59 @@ void main() {
       expect(find.text('Details'), findsOneWidget);
     },
   );
+
+  testWidgets('builds the native JSON fixture with the native renderer', (
+    tester,
+  ) async {
+    final fixture = profileBenchmarkFixtureById(nativeJsonBenchmarkFixtureId);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Builder(
+          builder: (context) =>
+              benchmarkRendererById(nativeJsonBenchmarkRendererId).build(
+                context,
+                const BenchmarkSourceDocument(
+                  type: BenchmarkSourceType.nativeJson,
+                  data: '''
+{
+  "id": "native-test",
+  "schemaVersion": 1,
+  "blocks": [
+    {
+      "id": "title",
+      "kind": "heading",
+      "attributes": {"level": 2},
+      "children": [
+        {"id": "title.text", "kind": "text", "text": "Native JSON render"}
+      ]
+    },
+    {
+      "id": "body",
+      "kind": "paragraph",
+      "children": [
+        {"id": "body.text", "kind": "text", "text": "Rendered from blocks."}
+      ]
+    }
+  ]
+}
+''',
+                  assetPath:
+                      'packages/tagflow_benchmarks/fixtures/native/'
+                      'native_ai_answer.json',
+                ),
+              ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(fixture.source.type, BenchmarkSourceType.nativeJson);
+    expect(find.text('Native JSON render'), findsOneWidget);
+    expect(find.text('Rendered from blocks.'), findsOneWidget);
+  });
 
   testWidgets(
     'builds the authored insertion patch fixture with the patch renderer',

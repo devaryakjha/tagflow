@@ -2,6 +2,7 @@
 const List<String> profileBenchmarkFixtureIds = [
   'ai_answer_rich',
   'ai_answer_rich_md',
+  nativeJsonBenchmarkFixtureId,
   'table_dense',
   'large_article',
   'table_stress',
@@ -13,6 +14,9 @@ const List<String> profileBenchmarkFixtureIds = [
 
 /// Default fixture used by the manual benchmark route and integration test.
 const String defaultProfileBenchmarkFixtureId = 'ai_answer_rich';
+
+/// Fixture id for native block JSON rendered as a TagflowDocument.
+const String nativeJsonBenchmarkFixtureId = 'native_ai_answer';
 
 /// Fixture id for semantic document patch streaming.
 const String semanticPatchBenchmarkFixtureId = 'streaming_ai_patches';
@@ -27,6 +31,9 @@ const String authoredInsertionSemanticPatchBenchmarkFixtureId =
 
 /// Renderer id for semantic document patch streaming.
 const String semanticPatchBenchmarkRendererId = 'tagflow_semantic_patch';
+
+/// Renderer id for native block JSON rendered as a TagflowDocument.
+const String nativeJsonBenchmarkRendererId = 'tagflow_native_json';
 
 /// Progressive HTML snapshots for authored-ID insertion streaming.
 const List<String> authoredInsertionStreamingHtmlSnapshots = [
@@ -93,6 +100,15 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
       assetPath:
           'packages/tagflow_benchmarks/fixtures/markdown/ai_answer_rich.md',
     ),
+  ),
+  nativeJsonBenchmarkFixtureId: const ProfileBenchmarkFixture(
+    id: nativeJsonBenchmarkFixtureId,
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.nativeJson,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/native/native_ai_answer.json',
+    ),
+    rendererIds: {nativeJsonBenchmarkRendererId},
   ),
   'streaming_ai_chunks': const ProfileBenchmarkFixture(
     id: 'streaming_ai_chunks',
@@ -165,6 +181,9 @@ enum BenchmarkSourceType {
 
   /// Markdown text rendered by markdown-native engines.
   markdown,
+
+  /// Native block JSON decoded into a TagflowDocument before rendering.
+  nativeJson,
 }
 
 /// Asset-backed source descriptor for a benchmark fixture.

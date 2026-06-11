@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
@@ -11,6 +13,10 @@ import 'package:tagflow_table/tagflow_table.dart';
 const _semanticBenchmarkHtmlAdapter = TagflowHtmlAdapter(
   nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
 );
+
+const _nativeBlockCodec = TagflowNativeBlockCodec();
+
+const _nativeBlockAdapter = TagflowNativeBlockAdapter();
 
 /// Builds a benchmark renderer for one fixture.
 typedef BenchmarkRendererBuilder =
@@ -93,6 +99,7 @@ const List<String> benchmarkRendererIds = [
   defaultBenchmarkRendererId,
   'tagflow_semantic',
   semanticPatchBenchmarkRendererId,
+  nativeJsonBenchmarkRendererId,
   'flutter_html',
   'flutter_widget_from_html',
   'flutter_markdown_plus',
@@ -104,6 +111,7 @@ final List<BenchmarkRenderer> benchmarkRendererList = [
   tagflowBenchmarkRenderer,
   tagflowSemanticBenchmarkRenderer,
   tagflowSemanticPatchBenchmarkRenderer,
+  tagflowNativeJsonBenchmarkRenderer,
   flutterHtmlBenchmarkRenderer,
   flutterWidgetFromHtmlBenchmarkRenderer,
   flutterMarkdownPlusBenchmarkRenderer,
@@ -133,6 +141,7 @@ List<BenchmarkRenderer> benchmarkRenderersForSourceType(
 
 const Set<String> _fixtureScopedRendererIds = {
   semanticPatchBenchmarkRendererId,
+  nativeJsonBenchmarkRendererId,
 };
 
 /// Returns renderers compatible with the selected fixture.
@@ -192,6 +201,18 @@ const BenchmarkRenderer tagflowSemanticPatchBenchmarkRenderer =
         'extension.',
       ],
     );
+
+/// Native Tagflow renderer for native block JSON fixture input.
+const BenchmarkRenderer tagflowNativeJsonBenchmarkRenderer = BenchmarkRenderer(
+  id: nativeJsonBenchmarkRendererId,
+  label: 'Tagflow (native JSON)',
+  builder: _buildTagflowNativeJsonRenderer,
+  supportedSourceTypes: {BenchmarkSourceType.nativeJson},
+  notes: [
+    'Decodes native block JSON into TagflowDocument before rendering.',
+    'Keeps profile rendering separate from native transport microbenchmarks.',
+  ],
+);
 
 /// `flutter_html` adapter used for native HTML benchmark comparison.
 const BenchmarkRenderer flutterHtmlBenchmarkRenderer = BenchmarkRenderer(
@@ -281,6 +302,22 @@ Widget _buildTagflowSemanticPatchRenderer(
   );
 }
 
+Widget _buildTagflowNativeJsonRenderer(
+  BuildContext context,
+  BenchmarkSourceDocument document,
+) {
+  final nativeDocument = _nativeBlockCodec.decodeDocument(
+    _decodeJsonObject(document.data),
+  );
+  final runtimeDocument = _nativeBlockAdapter.adapt(nativeDocument);
+
+  return Tagflow.document(
+    runtimeDocument,
+    registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
+    options: TagflowOptions(linkTapCallback: (_, _) {}),
+  );
+}
+
 Widget _buildFlutterHtmlRenderer(
   BuildContext context,
   BenchmarkSourceDocument document,
@@ -311,4 +348,31 @@ Widget _buildMarkdownWidgetRenderer(
   BenchmarkSourceDocument document,
 ) {
   return MarkdownBlock(data: document.data);
+}
+
+Map<String, Object?> _decodeJsonObject(String data) {
+  final decoded = jsonDecode(data);
+  final normalized = _normalizeJsonValue(decoded);
+  if (normalized is Map<String, Object?>) {
+    return normalized;
+  }
+  throw const FormatException('Native JSON fixture must be a JSON object.');
+}
+
+Object? _normalizeJsonValue(Object? value) {
+  if (value is Map) {
+    final result = <String, Object?>{};
+    for (final entry in value.entries) {
+      final key = entry.key;
+      if (key is! String) {
+        throw const FormatException('Native JSON object keys must be strings.');
+      }
+      result[key] = _normalizeJsonValue(entry.value);
+    }
+    return result;
+  }
+  if (value is List) {
+    return <Object?>[for (final item in value) _normalizeJsonValue(item)];
+  }
+  return value;
 }
