@@ -93,6 +93,9 @@ The benchmark harness is real but still alpha-grade:
   semantic registry fragment for rendering native `TagflowDocument` table nodes
   through the package's custom `TagflowTable` render object. The legacy HTML
   converter bridge remains available during alpha.
+- The `tagflow_table` semantic registry now preserves inline table-cell runs
+  instead of stacking all cell children vertically, closing a concrete native
+  runtime parity gap for mixed text/emphasis/link-like cell content.
 - The example app now has a Tagflow-only benchmark route plus
   `integration_test`/`flutter drive --profile` scaffold. The profile harness
   accepts `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE` environment variables so
@@ -107,7 +110,9 @@ The benchmark harness is real but still alpha-grade:
   with converter extensions keep their existing behavior while built-in HTML
   uses the semantic runtime.
 - The first-party table extension has a semantic registry fragment, but the
-  legacy HTML converter bridge has not been fully removed or replaced.
+  legacy HTML converter bridge has not been fully removed or replaced. Remaining
+  gaps are mostly HTML/CSS-derived table styling parity, including border,
+  padding/background, and spacing hints.
 - Profile benchmarking is real but not production-grade yet: competitor
   adapters, additional fixtures, nightly/reference-runner baselines, and the
   current Flutter `integration_test plugin was not detected` warning remain

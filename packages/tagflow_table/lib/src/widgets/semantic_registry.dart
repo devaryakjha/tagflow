@@ -149,13 +149,7 @@ final class _SemanticTableLayout {
 }
 
 Widget _renderCell(TagflowComponentContext context, TagflowDocumentNode cell) {
-  final content = cell.children.isEmpty
-      ? const SizedBox.shrink()
-      : Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: context.renderChildren(cell),
-        );
+  final content = _renderCellContent(context, cell);
   final padded = Padding(padding: const EdgeInsets.all(8), child: content);
   final decorated = DecoratedBox(
     decoration: BoxDecoration(
@@ -170,6 +164,96 @@ Widget _renderCell(TagflowComponentContext context, TagflowDocumentNode cell) {
     style: const TextStyle(fontWeight: FontWeight.w700),
     child: decorated,
   );
+}
+
+Widget _renderCellContent(
+  TagflowComponentContext context,
+  TagflowDocumentNode cell,
+) {
+  if (cell.children.isEmpty) {
+    return const SizedBox.shrink();
+  }
+
+  final blocks = <Widget>[];
+  final inlineRun = <TagflowDocumentNode>[];
+
+  void flushInlineRun() {
+    if (inlineRun.isEmpty) {
+      return;
+    }
+
+    blocks.add(
+      Wrap(children: [for (final node in inlineRun) context.render(node)]),
+    );
+    inlineRun.clear();
+  }
+
+  for (final child in cell.children) {
+    if (_isInlineCellNode(child)) {
+      inlineRun.add(child);
+      continue;
+    }
+
+    flushInlineRun();
+    blocks.add(context.render(child));
+  }
+
+  flushInlineRun();
+
+  if (blocks.length == 1) {
+    return blocks.single;
+  }
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: blocks,
+  );
+}
+
+bool _isInlineCellNode(TagflowDocumentNode node) {
+  return switch (node.kind) {
+    TagflowNodeKind.text ||
+    TagflowNodeKind.link ||
+    TagflowNodeKind.inlineCode => true,
+    TagflowNodeKind.container =>
+      node.presentation.inlineSemantics.isNotEmpty ||
+          _isInlineFallbackTag(_htmlTag(node)),
+    _ => false,
+  };
+}
+
+String? _htmlTag(TagflowDocumentNode node) {
+  final metadataTag = node.metadata['htmlTag'];
+  if (metadataTag is String && metadataTag.isNotEmpty) {
+    return metadataTag;
+  }
+
+  final hintTag = node.presentation.hints['htmlTag'];
+  if (hintTag is String && hintTag.isNotEmpty) {
+    return hintTag;
+  }
+
+  return null;
+}
+
+bool _isInlineFallbackTag(String? htmlTag) {
+  return switch (htmlTag) {
+    'a' ||
+    'b' ||
+    'strong' ||
+    'i' ||
+    'em' ||
+    'u' ||
+    'span' ||
+    'small' ||
+    'mark' ||
+    'del' ||
+    'ins' ||
+    'sub' ||
+    'sup' => true,
+    _ => false,
+  };
 }
 
 int _positiveSpan(int value) => value < 1 ? 1 : value;

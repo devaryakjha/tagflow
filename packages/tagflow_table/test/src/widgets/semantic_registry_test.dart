@@ -140,6 +140,53 @@ void main() {
       expect(_tableCellForText(tester, 'Middle right').column, 1);
       expect(_tableCellForText(tester, 'Bottom span').colSpan, 2);
     });
+
+    testWidgets('keeps inline cell content on one line', (tester) async {
+      final document = TagflowDocument(
+        id: 'doc-inline-cell',
+        children: [
+          TagflowDocumentNode.table(
+            id: 'table',
+            children: [
+              TagflowDocumentNode.tableRow(
+                id: 'row',
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'cell',
+                    children: [
+                      TagflowDocumentNode.text(id: 'one', text: 'One'),
+                      TagflowDocumentNode.container(
+                        id: 'strong',
+                        presentation: TagflowPresentation(
+                          inlineSemantics: const {TagflowInlineSemantic.strong},
+                          hints: const {'htmlTag': 'strong'},
+                        ),
+                        children: [
+                          TagflowDocumentNode.text(id: 'two', text: 'Two'),
+                        ],
+                      ),
+                      TagflowDocumentNode.text(id: 'three', text: 'Three'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      final oneY = tester.getTopLeft(find.text('One')).dy;
+      expect(tester.getTopLeft(find.text('Two')).dy, oneY);
+      expect(tester.getTopLeft(find.text('Three')).dy, oneY);
+      expect(_richTextStyle(tester, 'Two')?.fontWeight, FontWeight.w700);
+    });
   });
 }
 
