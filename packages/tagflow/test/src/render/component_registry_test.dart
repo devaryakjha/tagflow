@@ -44,6 +44,44 @@ void main() {
       expect(find.text('Built-in text'), findsNothing);
     });
 
+    testWidgets('preserves component state by semantic node id', (
+      tester,
+    ) async {
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.paragraph: (context, node) {
+            return _StatefulParagraphLabel(nodeId: node.id);
+          },
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            _paragraphDocument(['first', 'second']),
+            registry: registry,
+          ),
+        ),
+      );
+
+      expect(find.text('first/state:first'), findsOneWidget);
+      expect(find.text('second/state:second'), findsOneWidget);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            _paragraphDocument(['second', 'first']),
+            registry: registry,
+          ),
+        ),
+      );
+
+      expect(find.text('first/state:first'), findsOneWidget);
+      expect(find.text('second/state:second'), findsOneWidget);
+      expect(find.text('first/state:second'), findsNothing);
+      expect(find.text('second/state:first'), findsNothing);
+    });
+
     testWidgets('renders unsupported nodes with predictable fallback', (
       tester,
     ) async {
@@ -343,6 +381,39 @@ void main() {
       expect(_richTextStyle(tester, 'Name')?.fontWeight, FontWeight.w700);
     });
   });
+}
+
+TagflowDocument _paragraphDocument(List<String> ids) {
+  return TagflowDocument(
+    id: 'document',
+    children: [
+      for (final id in ids)
+        TagflowDocumentNode.paragraph(
+          id: id,
+          children: [TagflowDocumentNode.text(id: '$id.text', text: id)],
+        ),
+    ],
+  );
+}
+
+final class _StatefulParagraphLabel extends StatefulWidget {
+  const _StatefulParagraphLabel({required this.nodeId});
+
+  final String nodeId;
+
+  @override
+  State<_StatefulParagraphLabel> createState() =>
+      _StatefulParagraphLabelState();
+}
+
+final class _StatefulParagraphLabelState
+    extends State<_StatefulParagraphLabel> {
+  late final String stateNodeId = widget.nodeId;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('${widget.nodeId}/state:$stateNodeId');
+  }
 }
 
 TextStyle? _richTextStyle(WidgetTester tester, String text) {

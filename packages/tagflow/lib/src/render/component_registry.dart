@@ -103,9 +103,12 @@ final class TagflowComponentRegistry {
       );
     }
 
-    return builder(
-      TagflowComponentContext._(buildContext: context, registry: this),
-      node,
+    return KeyedSubtree(
+      key: ValueKey<String>(node.id),
+      child: builder(
+        TagflowComponentContext._(buildContext: context, registry: this),
+        node,
+      ),
     );
   }
 }
