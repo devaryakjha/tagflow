@@ -76,6 +76,35 @@ final document = adapter.parse(htmlContent);
 Tagflow.document(document);
 ```
 
+### Controlled Dynamic HTML
+
+Use authored IDs when your HTML comes from a controlled CMS, AI pipeline, or
+server formatter that can re-emit the same logical blocks across updates.
+Default path IDs are fine for static HTML, but inserting a new block near the
+top renumbers later siblings and makes existing widgets look new on a full
+reparse.
+
+```dart
+const adapter = TagflowHtmlAdapter(
+  nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+);
+
+final before = adapter.parse('''
+<p data-tagflow-id="summary">Summary</p>
+<p data-tagflow-id="details">Details</p>
+''');
+
+final after = adapter.parse('''
+<p data-tagflow-id="callout">New callout</p>
+<p data-tagflow-id="summary">Summary</p>
+<p data-tagflow-id="details">Details</p>
+''');
+```
+
+`summary` and `details` keep their authored IDs after the insertion. If every
+dynamic node must be annotated, set `fallbackToPath: false` to fail fast on
+missing IDs. Duplicate IDs fail during adaptation.
+
 ### Native Documents
 
 ```dart

@@ -58,10 +58,18 @@ Flutter identity while the broader update API remains deliberate.
 ### Stable node ids
 
 `TagflowDocumentNode.id` is public and required. App-authored documents can
-already provide durable IDs. The HTML adapter currently assigns IDs with
-`TagflowNodeIds.fromPath(path)`, so full reparses are deterministic only while
-earlier sibling structure is unchanged. Inserting a paragraph before an existing
-paragraph shifts path IDs and makes the same content look like different nodes.
+already provide durable IDs. The HTML adapter now supports two ID strategies:
+
+- `TagflowHtmlNodeIdStrategy.path()` remains the default compatibility mode and
+  assigns IDs with `TagflowNodeIds.fromPath(path)`.
+- `TagflowHtmlNodeIdStrategy.attribute()` reads authored IDs from
+  `data-tagflow-id` by default and can use a custom attribute name when needed.
+
+Full reparses with path IDs are deterministic only while earlier sibling
+structure is unchanged. Inserting a paragraph before an existing paragraph
+shifts path IDs and makes the same content look like different nodes. Authored
+IDs are the dynamic-content path for controlled HTML, CMS, or AI producers that
+can re-emit stable logical block identifiers across updates.
 
 First slice requirement:
 
@@ -69,17 +77,24 @@ First slice requirement:
 - Future document update APIs must require IDs to be unique within a document.
 - Path-generated HTML IDs are acceptable for compatibility, but they are not a
   stable identity strategy for arbitrary streaming insertions.
+- Attribute mode falls back to path IDs by default for unannotated nodes.
+- Attribute mode with `fallbackToPath: false` is the strict adapter path and
+  fails on unannotated text or element nodes.
+- Duplicate IDs fail during adaptation, including collisions between authored
+  IDs and fallback path IDs.
 
 ### Diffability
 
 The document and node classes are immutable and deeply comparable, which is a
-good base. Missing pieces:
+good base. The landed patch API now covers append, replace, remove, and
+duplicate-ID checks during patch application. Remaining gaps for broader diff
+tooling:
 
 - no public node lookup by ID
-- no copy/update helpers
+- no copy/update helpers outside patch application
 - no diff or patch result type
-- no duplicate-ID validation
-- no way to express append versus replace intent
+- no eager whole-document duplicate-ID validation for plain
+  `TagflowDocument(...)` construction
 
 The next API should add immutable update helpers before any controller.
 
@@ -221,13 +236,33 @@ instead of coupling Tagflow to one imperative update model.
   update-latency, and final scroll payloads. The result remains report-only
   until reviewed reference-runner baselines exist.
 
+### Landed HTML adapter identity slice
+
+- `TagflowHtmlAdapter` now supports authored-ID strategies through
+  `TagflowHtmlNodeIdStrategy`.
+- `TagflowHtmlNodeIdStrategy.path()` remains the default compatibility mode.
+- `TagflowHtmlNodeIdStrategy.attribute()` reads `data-tagflow-id` by default
+  and can be pointed at another attribute when integrating with controlled
+  producers.
+- Attribute mode fails on duplicate IDs during adaptation, including authored
+  IDs that collide with fallback path IDs.
+- Attribute mode with `fallbackToPath: false` is the strict mode for producers
+  that want parsing to fail instead of silently mixing authored and generated
+  IDs.
+
 ### Later implementation slices
 
-- Add HTML adapter ID strategy options after patch semantics exist.
 - Keep `tagflow_semantic` as the current semantic HTML benchmark lane for
   `streaming_ai_chunks`.
-- Compare the patch-based semantic document benchmark lane against full-reparse
-  `tagflow_semantic` once both run on the same reference runner.
+- Add an authored-ID insertion benchmark slice for controlled dynamic HTML.
+  The fixture should reparse HTML snapshots that preserve existing
+  `data-tagflow-id` values while inserting new blocks before old siblings, then
+  compare that report-only full-reparse lane against equivalent semantic patch
+  updates on the same reference runner.
+- Keep the current repeat-5 caveat explicit while designing that slice: the
+  patch lane is measurable, but the existing paired baseline showed old-gen GC
+  on every repeat and one missed raster-budget frame, so the next run is for
+  identity and GC diagnosis, not performance claims.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
   cost dominates.
 - Consider a controller only after at least one real app needs imperative
@@ -248,6 +283,23 @@ Current validation command:
 TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks \
   dart run melos run benchmark:profile
 ```
+
+Next measurement slice to implement:
+
+- Add a future fixture such as `streaming_ai_authored_insertions` for
+  controlled HTML that can emit stable `data-tagflow-id` values across updates.
+- Model insertions ahead of existing siblings so the fixture exercises the exact
+  churn case that path IDs cannot preserve.
+- Measure two report-only lanes on the same reference runner:
+  `tagflow_semantic` reparsing HTML with
+  `TagflowHtmlNodeIdStrategy.attribute()`, and
+  `tagflow_semantic_patch` applying equivalent semantic document updates.
+- Capture the same viewport, update, update-latency, and final scroll payloads
+  as the current semantic pair. Do not add timing thresholds or faster/slower
+  claims to this slice.
+- Keep the paired repeat-5 caveat attached to the review note: the current
+  patch lane is measurable but recorded old-gen GC on every repeat and one
+  raster miss.
 
 Acceptance for the keyed-node slice:
 
@@ -272,9 +324,10 @@ Acceptance for the patch benchmark slice:
   the same update-latency payload shape as the HTML semantic lane.
 - The lane uses `tagflow_semantic_patch` plus `streaming_ai_patches` so it can
   be measured independently from full-reparse `tagflow_semantic`.
-- On the same reference runner, semantic patch updates should not be slower
-  than the current full-reparse HTML lane for `streaming_ai_chunks`. Treat
-  timing as report-only until reviewed baselines exist.
+- Pair it with an authored-ID insertion slice once the fixture exists, and keep
+  both lanes report-only until reviewed baselines exist.
+- Compare timing and GC diagnostics in reviewed notes only. Do not add hard
+  thresholds or claim that patch updates are faster than reparsing.
 
 ## 8. Migration Compatibility
 
@@ -292,17 +345,25 @@ New guidance:
 - `TagflowNodeIds.fromPath(...)` is suitable for static generated trees and
   adapter fallback, not for long-lived dynamic app state that receives
   insertions before existing siblings.
-- Apps that only have raw HTML streams can keep using `Tagflow.html(...)` while
-  accepting full reparse behavior until an adapter cache or source-aware ID
-  strategy lands.
+- Controlled HTML, CMS, or AI producers that can annotate content should use
+  `TagflowHtmlNodeIdStrategy.attribute()` so reparses preserve authored logical
+  IDs even when new siblings are inserted before old ones.
+- `TagflowHtmlNodeIdStrategy.attribute()` uses `data-tagflow-id` by default.
+  Set `fallbackToPath: false` when missing annotations should fail fast instead
+  of mixing authored and generated IDs.
+- Apps that only have raw HTML streams can keep using `Tagflow.html(...)` with
+  default path IDs while accepting full reparse behavior and ID churn on
+  insertions.
 
 ## 9. Risks
 
 - Keying by `node.id` turns duplicate sibling IDs into visible Flutter key
-  conflicts. That is the right failure mode for a runtime identity contract, but
-  the next patch slice should add explicit validation with clearer errors.
-- Path IDs from the HTML adapter may still churn for inserted content. This spec
-  does not solve streaming HTML identity by itself.
+  conflicts. Adapter parsing and patch application now fail explicitly on
+  duplicates, but plain app-authored `TagflowDocument(...)` construction still
+  lacks eager whole-document validation.
+- Path IDs from the default HTML adapter strategy still churn for inserted
+  content. Controlled producers need authored IDs to preserve identity across
+  reparses.
 - Patch helpers could grow into an editor API if they accumulate cursor,
   selection, formatting, or undo behavior. Keep them structural and immutable.
 - App-owned link/action state may need a richer action model later, but adding
@@ -318,7 +379,7 @@ New guidance:
   IDs and reused IDs, or is the new document enough for the first release?
 - Should duplicate-ID validation happen eagerly in `TagflowDocument` creation,
   only in patch APIs, or both?
-- Should HTML adapter ID strategy support an attribute such as `data-tagflow-id`
-  before adapter caching?
 - Should benchmark fixtures add a native document fixture alongside HTML and
   Markdown sources?
+- Should the authored-ID insertion benchmark live as a distinct fixture or as a
+  parameterized variant of the current semantic streaming fixtures?

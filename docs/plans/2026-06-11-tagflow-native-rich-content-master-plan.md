@@ -23,8 +23,9 @@ published.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commit before this status refresh:
-  `e21e573 feat(benchmarks): add markdown renderer lane`
-- Latest integrated implementation commits include `34ea827 feat(bench): add
+  `7b36b39 feat(runtime): support HTML adapter node id strategies`
+- Latest integrated implementation commits include `d0494f8 docs(benchmarks):
+  record semantic streaming pair baseline`, `34ea827 feat(bench): add
   opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
   manifests`, `c137a7b bench(profile): support custom baseline output dirs`,
   `74a9c9c bench(profile): record viewport metadata`, and `8ed0686 fix(table):
@@ -57,12 +58,16 @@ published.
   `TAGFLOW_PROFILE_MIN_REPEATS=5` completeness gate. The macOS integration-test
   plugin warning has a narrow benchmark-script suppression while preserving
   JSON output, and the separate CocoaPods/SPM migration warning has been
-  removed from the macOS example host.
+  removed from the macOS example host. The HTML adapter now also supports
+  authored node ID strategies for controlled dynamic content through
+  `TagflowHtmlNodeIdStrategy.attribute()`, which reads `data-tagflow-id` by
+  default while preserving path IDs as the compatibility fallback.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
   normalized uniform table and horizontal-alignment hints, stable
   reference-environment selection, numeric regression threshold policy for
-  benchmark claims, reference-runner comparison of patch updates versus full
-  reparses, and profile-mode evidence on a supported real-app target.
+  benchmark claims, reference-runner comparison of patch updates versus
+  identity-preserving full reparses for authored-ID HTML insertions, and
+  profile-mode evidence on a supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -384,6 +389,15 @@ Master review gate:
   over the same four streaming fractions, and emits viewport, update,
   update-latency, and scroll payloads for apples-to-apples local comparison
   against the full-reparse `tagflow_semantic` lane.
+- The HTML adapter now supports `TagflowHtmlNodeIdStrategy.attribute()` for
+  controlled producers that can emit stable `data-tagflow-id` values, plus a
+  strict no-fallback mode that fails on unannotated nodes instead of silently
+  mixing authored and path IDs.
+- The next benchmark slice should add an authored-ID insertion scenario that
+  compares identity-preserving full reparses against equivalent document patch
+  updates on the same reference runner. Keep that slice report-only; the
+  current repeat-5 semantic pair showed the patch lane is measurable, but it
+  also recorded old-gen GC on every repeat and one raster miss.
 - Fair native competitor adapters for `flutter_html` plus
   `flutter_html_table`, and `flutter_widget_from_html` through
   `flutter_widget_from_html_core`, are committed with local smoke evidence.
@@ -402,9 +416,11 @@ Master review gate:
   alignment, but legacy HTML/CSS styling parity remains incomplete.
 - The first immutable document patch-update slice has landed for replace,
   append, and remove operations. Patch-based streaming benchmark smoke evidence
-  has landed; reference-runner comparison, document caching, citations,
-  callouts, and optional actions remain later work unless internal app
-  integration proves they are required before beta.
+  has landed; HTML adapter authored-ID strategy has landed for controlled
+  dynamic HTML; reference-runner comparison of authored-ID full reparses versus
+  document patches, document caching, citations, callouts, and optional actions
+  remain later work unless internal app integration proves they are required
+  before beta.
 
 ### Wave 4: Migration and Internal App Trial
 
