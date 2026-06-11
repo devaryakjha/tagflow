@@ -15,6 +15,12 @@ void main() {
       ],
     );
     const adapter = api.TagflowHtmlAdapter();
+    final nativeDocument = api.TagflowNativeBlockDocument(
+      id: 'native-doc',
+      schemaVersion: 1,
+      blocks: [api.TagflowNativeBlock.paragraph(id: 'native-paragraph')],
+    );
+    const nativeAdapter = api.TagflowNativeBlockAdapter();
     const nodeIdStrategy = api.TagflowHtmlNodeIdStrategy.attribute(
       attribute: 'data-node-id',
       fallbackToPath: false,
@@ -37,6 +43,14 @@ void main() {
     expect(document.containsNodeId('text'), isTrue);
     document.validateUniqueNodeIds();
     expect(adapter.policy, policy);
+    expect(
+      nativeAdapter.adapt(nativeDocument).children.single.id,
+      'native-paragraph',
+    );
+    expect(
+      nativeDocument.blocks.single.kind,
+      api.TagflowNativeBlockKind.paragraph,
+    );
     expect(nodeIdStrategy.attribute, 'data-node-id');
     expect(nodeIdStrategy.fallbackToPath, isFalse);
     expect(registry.hasComponent(api.TagflowNodeKind.paragraph), isTrue);

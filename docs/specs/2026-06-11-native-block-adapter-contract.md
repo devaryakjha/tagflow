@@ -6,6 +6,22 @@
 **Primary Audience:** Tagflow runtime, adapter, benchmark, and internal-app
 validation workers
 
+## Implementation Status
+
+The first compileable adapter foundation landed in `packages/tagflow` on
+2026-06-11 with these constraints:
+
+- `TagflowNativeBlockDocument`, `TagflowNativeBlock`, and
+  `TagflowNativeBlockAdapter` adapt typed block payloads into
+  `TagflowDocument`.
+- The first slice supports `paragraph`, `heading`, `text`, `link`, `list`,
+  `listItem`, `blockquote`, `codeBlock`, `inlineCode`, `image`, `container`,
+  and `horizontalRule`.
+- Adapter validation now rejects blank or duplicate block IDs before runtime
+  document creation and applies `TagflowContentPolicy` to link and image URLs.
+- Follow-up slices remain for semantic table blocks, callout normalization, and
+  serializer helpers.
+
 ## 1. Problem Statement
 
 Tagflow's alpha runtime now has the right center of gravity:
