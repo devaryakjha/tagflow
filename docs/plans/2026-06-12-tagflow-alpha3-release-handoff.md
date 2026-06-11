@@ -24,6 +24,9 @@ workers consume the line:
   phases
 - benchmark gate policy that treats alpha.2/alpha.3 as collection and
   stability gates, not public performance-claim gates
+- first-class semantic registry rendering for HTML `details` / `summary` as
+  native disclosure widgets, including `open` attribute handling, mixed inline
+  summary content, no-summary fallback, and legacy bridge round-trip coverage
 
 `tagflow_table` remains at `1.0.0-alpha.1`. The package stays a separate
 first-party extension during beta planning, and its stronger semantic table
@@ -32,7 +35,8 @@ renderer is still consumed through `tagflowTableComponents(...)`.
 ## Verified Gates
 
 Coordinator evidence from `/Users/arya/projects/tagflow` after integrating the
-alpha.3 metadata candidate:
+alpha.3 metadata candidate and the HTML disclosure runtime slice through
+`4d1aeca`:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
@@ -47,6 +51,11 @@ Results:
   `tagflow_table`, and `tagflow_benchmarks`.
 - `publish:dry-run`: validated only `tagflow`, with registry version
   `1.0.0-alpha.1`, local version `1.0.0-alpha.3`, and `0` package warnings.
+- Focused disclosure coverage also passed through the full validation gate:
+  `Tagflow.html(...)` and `Tagflow.document(...)` tests cover closed-by-default
+  details, `open` initial expansion, mixed inline summary content, no-summary
+  fallback, and `TagflowHtmlDocumentBridge` round-tripping `details open` /
+  `summary` tags.
 
 The Melos `version:alpha` lane was intentionally not used for this candidate:
 the coordinator branch has no upstream tracking branch, and earlier runs showed
@@ -123,8 +132,10 @@ custom converters:
 - render IPO content through
   `Tagflow.html(..., registry: TagflowComponentRegistry(extensions: [tagflowTableComponents(...)]))`;
 - preserve the production path until the experiment has screenshots or tests;
-- document that `details` / `summary` behavior still needs either legacy
-  converters or a first-class semantic replacement before production migration.
+- remove Kite's app-specific `details` / `summary` legacy converters from that
+  experiment so the built-in disclosure renderer is exercised directly;
+- compare the built-in disclosure behavior against Kite's current product
+  expectations before removing production legacy converters.
 
 Do not claim public performance wins from the current benchmark evidence. The
 alpha.3 benchmark posture is collection-gate only.

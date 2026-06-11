@@ -1,5 +1,10 @@
 ## 1.0.0-alpha.3 - 2026-06-12
 
+- Adds first-class semantic runtime support for HTML `<details>` and
+  `<summary>` through the built-in component registry. Disclosure nodes render
+  as native expandable Flutter widgets, preserve the HTML `open` attribute,
+  keep mixed inline summary content inline, and bridge back to legacy
+  `details` / `summary` tags.
 - Removes the unused `TagflowNativeBlockAdapter.strictUnsupportedKinds`
   constructor option. Unknown native JSON block kinds fail during
   `TagflowNativeBlockCodec` decode in the alpha transport; placeholder fallback

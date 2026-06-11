@@ -25,6 +25,7 @@ the first-party `TagflowHtmlAdapter`.
 
 - Render native `TagflowDocument` content with Flutter widgets
 - Parse HTML through the first-party `TagflowHtmlAdapter`
+- Render HTML `<details>` / `<summary>` as native expandable disclosure widgets
 - Apply explicit `TagflowContentPolicy` rules to adapter input
 - Override semantic node rendering through `TagflowComponentRegistry`
 - Configure runtime behavior with `TagflowViewOptions`
