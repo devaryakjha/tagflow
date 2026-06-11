@@ -249,6 +249,87 @@ void main() {
       expect(_paddingForText(tester, 'Cell backed'), cellPadding);
     });
 
+    testWidgets('applies semantic row and cell text alignment hints', (
+      tester,
+    ) async {
+      final document = TagflowDocument(
+        id: 'doc-cell-alignment',
+        children: [
+          TagflowDocumentNode.table(
+            id: 'table',
+            children: [
+              TagflowDocumentNode.tableRow(
+                id: 'row-wide',
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'wide-cell',
+                    children: [
+                      TagflowDocumentNode.text(
+                        id: 'wide-text',
+                        text: 'Wide reference content',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              TagflowDocumentNode.tableRow(
+                id: 'row-centered',
+                presentation: TagflowPresentation(
+                  hints: const {'textAlign': TextAlign.center},
+                ),
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'center-cell',
+                    children: [
+                      TagflowDocumentNode.text(id: 'center-text', text: 'Mid'),
+                    ],
+                  ),
+                ],
+              ),
+              TagflowDocumentNode.tableRow(
+                id: 'row-right',
+                presentation: TagflowPresentation(
+                  hints: const {'textAlign': TextAlign.center},
+                ),
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'right-cell',
+                    presentation: TagflowPresentation(
+                      hints: const {'textAlign': TextAlign.right},
+                    ),
+                    children: [
+                      TagflowDocumentNode.text(id: 'right-text', text: 'End'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      final wideLeft = tester
+          .getTopLeft(find.text('Wide reference content'))
+          .dx;
+      final wideRight = tester
+          .getTopRight(find.text('Wide reference content'))
+          .dx;
+      final centerLeft = tester.getTopLeft(find.text('Mid')).dx;
+      final centerRight = tester.getTopRight(find.text('Mid')).dx;
+      final rightRight = tester.getTopRight(find.text('End')).dx;
+
+      expect(centerLeft, greaterThan(wideLeft));
+      expect(centerRight, lessThan(wideRight));
+      expect(rightRight, closeTo(wideRight, 1));
+    });
+
     testWidgets('renders HTML table presentation hints through the registry', (
       tester,
     ) async {
@@ -280,6 +361,40 @@ void main() {
       expect(_decoratedBoxColorForText(tester, 'Cell backed'), cellBackground);
       expect(_paddingForText(tester, 'Row backed'), const EdgeInsets.all(6));
       expect(_paddingForText(tester, 'Cell backed'), const EdgeInsets.all(4));
+    });
+
+    testWidgets('renders HTML table alignment hints through the registry', (
+      tester,
+    ) async {
+      const html = '''
+<table>
+  <tr><td>Wide reference content</td></tr>
+  <tr align="center"><td>Mid</td></tr>
+  <tr align="center"><td align="right">End</td></tr>
+</table>
+''';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      final wideLeft = tester
+          .getTopLeft(find.text('Wide reference content'))
+          .dx;
+      final wideRight = tester
+          .getTopRight(find.text('Wide reference content'))
+          .dx;
+      final centerLeft = tester.getTopLeft(find.text('Mid')).dx;
+      final centerRight = tester.getTopRight(find.text('Mid')).dx;
+      final rightRight = tester.getTopRight(find.text('End')).dx;
+
+      expect(centerLeft, greaterThan(wideLeft));
+      expect(centerRight, lessThan(wideRight));
+      expect(rightRight, closeTo(wideRight, 1));
     });
 
     testWidgets('renders HTML table captions through the semantic registry', (

@@ -56,9 +56,9 @@ published.
   JSON output, and the separate CocoaPods/SPM migration warning has been
   removed from the macOS example host.
 - Post-alpha stabilization in progress: remaining table styling parity beyond
-  normalized uniform table hints, promotion of a stable reference environment
-  for claim-grade benchmark thresholds, and profile-mode evidence on a
-  supported real-app target.
+  normalized uniform table and horizontal-alignment hints, promotion of a stable
+  reference environment for claim-grade benchmark thresholds, and profile-mode
+  evidence on a supported real-app target.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -376,8 +376,9 @@ Master review gate:
 - Status: alpha runtime complete, post-alpha stabilization open.
 - Policy enforcement, semantic rendering, links, lists, code, blockquotes,
   images, and tables exist for the alpha supported set.
-- The first-party table package now has a semantic registry fragment and inline
-  cell-flow parity, but legacy HTML/CSS styling parity remains incomplete.
+- The first-party table package now has a semantic registry fragment, inline
+  cell-flow parity, normalized presentation hints, and horizontal cell
+  alignment, but legacy HTML/CSS styling parity remains incomplete.
 - Document caching, streaming/incremental rendering, citations, callouts, and
   optional actions remain later work unless internal app integration proves they
   are required before beta.

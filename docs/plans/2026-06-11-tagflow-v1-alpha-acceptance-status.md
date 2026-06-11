@@ -147,6 +147,10 @@ The benchmark harness is real but still alpha-grade:
   `padding` styles. The `tagflow_table` semantic registry consumes those hints
   to render native borders, spacing, and cell padding without re-parsing
   HTML-shaped table state.
+- The HTML adapter now normalizes row/cell horizontal alignment hints from
+  `align` attributes and `text-align` inline styles. The semantic table
+  registry consumes those hints with cell-level alignment taking precedence
+  over row-level alignment.
 - The example app now has a Tagflow-only benchmark route plus
   `integration_test`/`flutter drive --profile` scaffold. The profile harness
   accepts `TAGFLOW_RENDERER` and `TAGFLOW_FIXTURE` environment variables so

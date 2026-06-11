@@ -11,6 +11,7 @@ const _tableBorderColorHintKey = 'tableBorderColor';
 const _tableColumnSpacingHintKey = 'tableColumnSpacing';
 const _tableRowSpacingHintKey = 'tableRowSpacing';
 const _tableCellPaddingHintKey = 'tableCellPadding';
+const _textAlignHintKey = 'textAlign';
 
 /// Creates a semantic registry fragment backed by [TagflowTable].
 ///
@@ -183,12 +184,13 @@ Widget _renderCell(
   TagflowDocumentNode cell,
 ) {
   final content = _renderCellContent(context, cell);
+  final aligned = _alignCellContent(content, cell, row);
   final padded = Padding(
     padding:
         _edgeInsetsHint(cell, 'padding') ??
         _edgeInsetsHint(table, _tableCellPaddingHintKey) ??
         const EdgeInsets.all(8),
-    child: content,
+    child: aligned,
   );
   final decorated = DecoratedBox(
     decoration: BoxDecoration(
@@ -206,6 +208,25 @@ Widget _renderCell(
     style: const TextStyle(fontWeight: FontWeight.w700),
     child: decorated,
   );
+}
+
+Widget _alignCellContent(
+  Widget content,
+  TagflowDocumentNode cell,
+  TagflowDocumentNode row,
+) {
+  final textAlign = _textAlignHint(cell) ?? _textAlignHint(row);
+  final alignment = switch (textAlign) {
+    TextAlign.right || TextAlign.end => Alignment.centerRight,
+    TextAlign.center => Alignment.center,
+    _ => null,
+  };
+
+  if (alignment == null) {
+    return content;
+  }
+
+  return Align(alignment: alignment, child: content);
 }
 
 Widget _renderCellContent(
@@ -366,4 +387,9 @@ double? _doubleHint(TagflowDocumentNode node, String key) {
 EdgeInsetsGeometry? _edgeInsetsHint(TagflowDocumentNode node, String key) {
   final value = node.presentation.hints[key];
   return value is EdgeInsetsGeometry ? value : null;
+}
+
+TextAlign? _textAlignHint(TagflowDocumentNode node) {
+  final value = node.presentation.hints[_textAlignHintKey];
+  return value is TextAlign ? value : null;
 }

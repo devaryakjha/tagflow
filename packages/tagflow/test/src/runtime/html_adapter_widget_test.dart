@@ -269,9 +269,9 @@ void main() {
       const cellBackground = Color(0xFFFFF4CC);
       const html = '''
 <table border="2" cellpadding="6" cellspacing="4">
-  <tr style="background-color: #e8f1ff;">
+  <tr align="center" style="background-color: #e8f1ff;">
     <td>Row backed</td>
-    <td style="background-color: #fff4cc; padding: 4px;">Cell backed</td>
+    <td align="right" style="background-color: #fff4cc; padding: 4px;">Cell backed</td>
   </tr>
 </table>
 ''';
@@ -290,8 +290,18 @@ void main() {
         const EdgeInsets.all(6),
       );
       expect(row.presentation.hints['backgroundColor'], rowBackground);
+      expect(row.presentation.hints['textAlign'], TextAlign.center);
       expect(cell.presentation.hints['backgroundColor'], cellBackground);
       expect(cell.presentation.hints['padding'], const EdgeInsets.all(4));
+      expect(cell.presentation.hints['textAlign'], TextAlign.right);
+    });
+
+    test('ignores unsupported HTML table alignment hints', () {
+      const html = '<table><tr><td align="middle">Cell</td></tr></table>';
+      final document = const TagflowHtmlAdapter().parse(html);
+      final cell = document.children.single.children.single.children.single;
+
+      expect(cell.presentation.hints, isNot(contains('textAlign')));
     });
 
     test('bridges HTML table captions back to legacy table metadata', () {

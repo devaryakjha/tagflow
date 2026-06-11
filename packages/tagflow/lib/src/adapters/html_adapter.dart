@@ -20,6 +20,7 @@ const _tableBorderColorHintKey = 'tableBorderColor';
 const _tableColumnSpacingHintKey = 'tableColumnSpacing';
 const _tableRowSpacingHintKey = 'tableRowSpacing';
 const _tableCellPaddingHintKey = 'tableCellPadding';
+const _textAlignHintKey = 'textAlign';
 const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
 
 /// Converts HTML input into the native Tagflow runtime document model.
@@ -569,6 +570,11 @@ Map<String, Object?> _presentationHintsForLegacyNode(TagflowNode node) {
     if (backgroundColor != null) {
       hints['backgroundColor'] = backgroundColor;
     }
+
+    final textAlign = _textAlignHint(node, styles);
+    if (textAlign != null) {
+      hints[_textAlignHintKey] = textAlign;
+    }
   }
 
   if (node.tag == 'td' || node.tag == 'th') {
@@ -700,6 +706,19 @@ Color? _colorFromStyles(Map<String, String> styles, String key) {
 EdgeInsets? _edgeInsetsFromStyles(Map<String, String> styles, String key) {
   final value = styles[key];
   return value == null ? null : StyleParser.parseEdgeInsets(value);
+}
+
+TextAlign? _textAlignHint(TagflowNode node, Map<String, String> styles) {
+  final styleValue = styles['text-align'];
+  if (styleValue != null) {
+    final parsed = StyleParser.parseTextAlign(styleValue);
+    if (parsed != null) {
+      return parsed;
+    }
+  }
+
+  final align = node['align'];
+  return align == null ? null : StyleParser.parseTextAlign(align);
 }
 
 (double, double)? _borderSpacing(String value) {
