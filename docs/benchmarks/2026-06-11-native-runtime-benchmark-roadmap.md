@@ -71,10 +71,10 @@ Allowed alpha gate:
 - yes, for collection quality on the chosen reference environment
 - no public ranking or threshold claim
 
-### Tier 2: Release Gate
+### Tier 2: Release Candidate Gate
 
 Purpose: decide whether a prerelease can be cut without known benchmark
-regression risk.
+collection or stability blockers.
 
 Alpha.2 and alpha.3 release gates should be collection gates only:
 

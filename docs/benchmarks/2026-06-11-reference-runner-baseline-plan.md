@@ -14,6 +14,15 @@ reviewable runs from a named reference environment. Raw run artifacts stay under
 ignored `build/` output. Only reviewed methodology and curated baseline notes
 belong in `docs/benchmarks/baselines/`.
 
+## Gate Tier Map
+
+| Tier | Purpose | Required evidence | Allowed decision |
+| --- | --- | --- | --- |
+| Smoke | Prove a lane is wired and artifacts are produced. | One selected cell or fixture completes, writes the expected JSON artifact, and the note records report-only posture. | Harness health only. A smoke pass can unblock follow-up implementation, not a performance claim. |
+| Local reference | Prove collection quality on a named local environment. | Repeat count is met for every selected cell, `profile-baseline-summary.json` has no failed runs, viewport guard passes when configured, and the reviewed note records the toolchain, host, display, run id, commit, fixtures, and renderer ids. | Release-handoff confidence for that environment. Timing numbers remain local stabilization evidence. |
+| Release candidate gate | Decide whether a prerelease has known benchmark collection or stability blockers. | Fixture validity, parser/render/native-transport smoke, selected profile baseline summary/check, and explicit review of any exception, OOM, overflow, missing artifact, failed scroll, or outlier finding. | Block or proceed based on collection/stability failures only. No numeric frame or relative-speed threshold. |
+| Public claim qualification | Support external benchmark language. | Promoted stable reference environment, repeated matrix on physical devices or a stated desktop-only scope, cold/warm separation, fixture sizes and feature coverage, memory/allocation review, competitor fairness review, and a committed threshold/comparison policy. | Public copy may cite only the claim covered by the reviewed evidence and policy. |
+
 ## Reference Environment Fields
 
 Every reviewed reference baseline must record:
