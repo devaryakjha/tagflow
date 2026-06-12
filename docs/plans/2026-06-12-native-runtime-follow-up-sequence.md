@@ -5,9 +5,9 @@
 - Date: 2026-06-12
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Sequence baseline commit:
+- Sequence baseline evidence commit:
   `c0ea3b5 docs(release): refresh native runtime coordination`
-- Latest coordinator evidence/tooling refresh:
+- Latest anchored coordinator evidence before benchmark-gate hardening:
   `c0ea3b5 docs(release): refresh native runtime coordination`, after
   `cce669a docs(benchmarks): refresh simulator target audit` and
   `fbf2b92 docs(benchmarks): add native json observed policy`
@@ -18,7 +18,7 @@ This note is the current coordinator sequence. It does not authorize publishing,
 tagging, package-version changes, beta wording, benchmark claims, or broad
 runtime expansion.
 
-Current local gate evidence after the benchmark and route-gate refresh:
+Anchored gate evidence before the benchmark-gate hardening slice:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
   passed for `c0ea3b5`.
@@ -28,6 +28,8 @@ Current local gate evidence after the benchmark and route-gate refresh:
   release payload.
 - GitHub Actions `CI / Validate` passed on PR #72 for `c0ea3b5` in run
   `27429052630`.
+- Use PR #72 checks, not this historical anchor, for the current branch-head
+  validation state.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch

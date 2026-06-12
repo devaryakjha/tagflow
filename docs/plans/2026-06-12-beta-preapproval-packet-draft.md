@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Evidence baseline commit: `c0ea3b5`
+- Evidence baseline commit: `c0ea3b5` before benchmark-gate hardening
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -71,7 +71,7 @@ issues=[
 ]
 ```
 
-Latest coordinator validation evidence for the candidate commit:
+Latest anchored coordinator validation evidence before benchmark-gate hardening:
 
 ```text
 commit=c0ea3b5
@@ -115,7 +115,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-Current GitHub state checked for this packet at `c0ea3b5`:
+GitHub state checked for this packet at baseline `c0ea3b5`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable
