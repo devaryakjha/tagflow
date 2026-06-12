@@ -335,6 +335,11 @@ void main() {
       profileId: 'pr72-ready',
       evidenceRoot: workspaceRoot,
     );
+    final betaPreapprovalResult = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'beta-preapproval',
+      evidenceRoot: workspaceRoot,
+    );
     final betaResult = checkNativeRuntimeGateStatus(
       manifestFile: manifestFile,
       profileId: 'beta-candidate',
@@ -359,6 +364,16 @@ void main() {
     expect(readyResult.issues.map((issue) => issue.details['gateId']), <String>[
       'real-app-route',
     ]);
+
+    expect(betaPreapprovalResult.passed, isFalse);
+    expect(
+      betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
+      <String>['real-app-route', 'physical-observed-profile'],
+    );
+    expect(
+      betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
+      isNot(contains('release-approval')),
+    );
 
     expect(betaResult.passed, isFalse);
     expect(betaResult.issues.map((issue) => issue.details['gateId']), <String>[

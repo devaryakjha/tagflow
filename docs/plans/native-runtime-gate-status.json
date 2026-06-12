@@ -23,6 +23,18 @@
       ]
     },
     {
+      "id": "beta-preapproval",
+      "description": "All non-owner-approval beta gates required before assembling the release approval packet.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "real-app-route",
+        "physical-observed-profile",
+        "memory-allocation-review"
+      ]
+    },
+    {
       "id": "beta-candidate",
       "description": "Native runtime line can be considered for beta promotion.",
       "requiredGateIds": [

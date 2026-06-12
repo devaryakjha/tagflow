@@ -31,6 +31,11 @@ The beta-candidate gate still fails on:
 - `physical-observed-profile`;
 - `release-approval`.
 
+The `beta-preapproval` profile exists to check all non-owner-approval beta
+gates without requiring `release-approval` itself. It must pass, or every
+remaining non-approval failure must have an explicit owner waiver, before the
+approval packet can satisfy `release-approval`.
+
 The release approval gate must remain deferred until the evidence packet below
 is complete and explicitly accepted by the owner.
 
@@ -56,6 +61,9 @@ Before `release-approval` can become satisfied, all of these must be true:
 - release notes and README wording do not contain public faster/slower,
   lower-memory, leak-free, ranking, frame-budget, stable, or production-ready
   claims unsupported by the evidence gates;
+- `TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval dart run melos run
+  gate:native-runtime` passes, or every remaining non-approval failure has an
+  explicit owner waiver in the approval packet;
 - publish validation passes without warnings for every package in scope;
 - CI is green on the release candidate commit;
 - any tag/publish step is separately approved after the packet is reviewed.
@@ -67,7 +75,8 @@ permission. It should include:
 
 - candidate commit SHA and branch;
 - package versions and package scope;
-- current `gate:native-runtime` output for the intended release profile;
+- current `gate:native-runtime` output for `beta-preapproval` and the intended
+  release profile;
 - links to satisfied `real-app-route` and `physical-observed-profile` evidence,
   or explicit owner waiver text for each unsatisfied gate;
 - public API surface summary and freeze risks;
@@ -99,7 +108,10 @@ Leave `release-approval` deferred if any of these are true:
   owner waiver;
 - physical or qualified observed-host profile evidence remains open without an
   explicit owner waiver;
-- the selected release profile fails in `gate:native-runtime`;
+- `beta-preapproval` fails in `gate:native-runtime` without an explicit owner
+  waiver for every remaining non-approval failure;
+- the selected release profile fails in `gate:native-runtime` for any reason
+  other than the still-deferred `release-approval` gate before owner approval;
 - package scope is unclear;
 - public API freeze posture is unclear;
 - release notes or README copy makes unsupported performance or memory claims;
