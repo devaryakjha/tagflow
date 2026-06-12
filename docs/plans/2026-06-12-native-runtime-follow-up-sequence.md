@@ -7,7 +7,7 @@
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Baseline commit: `9491aa5 docs(benchmarks): document profile dpr qualification`
 - Latest coordinator evidence refresh:
-  `0203f66 docs(benchmarks): record ios simulator smoke`
+  `94008de docs(benchmarks): refresh physical target availability`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -15,19 +15,22 @@ This note is the current coordinator sequence. It does not authorize publishing,
 tagging, package-version changes, beta wording, benchmark claims, or broad
 runtime expansion.
 
-Current local gate evidence after the README, `tagflow_table` docs cleanup, and
-simulator smoke refresh:
+Current local gate evidence after the benchmark and route-gate refresh:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed on the coordinator branch at `b9a8906`.
+  passed on the coordinator branch at `94008de`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   exited 0 and reported no unpublished packages, so no publishable package
   payload changed after the docs-only cleanup.
-- GitHub Actions `CI / Validate` passed on PR #72 at head `0203f66`.
+- GitHub Actions `CI / Validate` passed on PR #72 at head `94008de`
+  in run `27415551884`.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch
   because Flutter rejects iOS Simulator profile/release builds.
+- The latest physical-target availability refresh found no connected physical
+  iOS target in Flutter, all physical iOS devices offline in `xctrace`, only a
+  disconnected local-network CoreDevice iPad, and no attached Android device.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 

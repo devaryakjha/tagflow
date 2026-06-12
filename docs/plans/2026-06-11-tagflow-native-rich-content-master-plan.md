@@ -37,6 +37,8 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
+  `94008de docs(benchmarks): refresh physical target availability`,
+  `10dfc69 docs(validation): reconcile kite route evidence state`,
   `0203f66 docs(benchmarks): record ios simulator smoke`,
   `006c393 docs(plans): link native runtime gate trackers`,
   `de2d9ec docs(benchmarks): record ios physical signing blocker`,
@@ -54,6 +56,9 @@ evidence, supported-target profile evidence, and final release-gate approval.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
+- Draft PR status: PR #72 remains draft at head `94008de`; local
+  `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate` passed,
+  and GitHub Actions `CI / Validate` passed in run `27415551884`.
 - Release posture: `tagflow` is published as `1.0.0-alpha.3` from tag
   `tagflow-v1.0.0-alpha.3`, and `tagflow_table` remains published at
   `1.0.0-alpha.1`. Package descriptions, changelogs, READMEs, roadmap, and the

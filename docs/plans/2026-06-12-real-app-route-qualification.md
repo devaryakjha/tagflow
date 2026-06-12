@@ -39,10 +39,15 @@ Latest coordinator audit found no route satisfying #73 as-is.
   Tagflow path overrides. That branch is still not pushed or reviewable through
   Kite's intended source-control path. Its intended GitLab review path is not
   reachable from this machine because `gitlab.zerodha.tech` DNS fails.
-- Varsity has real rich-content routes, but it is still on old
-  `tagflow ^0.0.7`, so it does not validate the current hosted native runtime.
+- Varsity has real rich-content routes and is the strongest non-Kite technical
+  fallback, especially `/blog/:id` -> `BlogScreen`, but it is still on hosted
+  `tagflow ^0.0.7`, uses the legacy `Tagflow(html: ...)` constructor, and its
+  intended remote is also `gitlab.zerodha.tech`. It does not validate the
+  current hosted native runtime or avoid the current GitLab review blocker.
 - Seisei provides package-adapter evidence, not a real downstream app route
   with an intended user path.
+- Pulse is a real app with news content, but the current local repo has no
+  Tagflow dependency or current native-runtime route.
 
 The Kite hosted-alpha widget/native-transport tests and local simulator smoke
 are useful supporting evidence. They prove the hosted packages can decode and
@@ -55,6 +60,13 @@ source-control trail.
 The local Kite production-file migration is recorded in
 `docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`. It is
 supporting code evidence only and does not close #73.
+
+The non-Kite candidate audit is recorded in
+`docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md`. It
+found no currently qualifying replacement route. If GitLab access returns,
+Varsity `/blog/:id` is the smallest non-Kite candidate to evaluate; if GitLab
+stays unavailable, the next route must be an approved GitHub-hosted or otherwise
+reviewable real Flutter app route.
 
 ## Qualification Contract
 
@@ -119,6 +131,16 @@ such as a help article, product update, AI answer detail, announcement, or
 controlled CMS body. It should include enough structure to exercise paragraphs,
 headings, inline emphasis, links, lists, and at least one extension-backed or
 unsupported block if the production surface uses those features.
+
+Current fallback read:
+
+- Varsity `/blog/:id` is the strongest non-Kite route candidate, but only after
+  a hosted-alpha Tagflow migration and GitLab-review unblock.
+- Seisei is source-control ready on GitHub, but it would need a real app/product
+  route before it can satisfy the gate; package adapters and examples are not
+  enough.
+- Pulse would need an approved new Tagflow-backed route because it does not
+  currently depend on Tagflow.
 
 ## Stop Rules
 
