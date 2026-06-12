@@ -5,7 +5,7 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Baseline commit: `b29edf8`
+- Baseline commit: `cce669a`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: planning and coordination only; no publish, tag, version bump,
   beta/stable wording, package-page claim, public benchmark claim, or PR
@@ -113,6 +113,12 @@ Acceptable pre-beta paths:
 The current observed-host repeat-5 run is local stabilization evidence only:
 it passed repeat completeness but reported `800x600 @ 1.0x`, while the current
 native JSON observed-host policy expects `800x600 @ 2.0x`.
+
+The latest target-audit refresh after force-quitting and relaunching Simulator
+still reports `canRunPhysicalProfileProbe=false` for
+`2026-06-12-current-machine-r3`: one iOS Simulator signal, two wireless iOS
+signals, no connected physical iOS target in Flutter, no xctrace-online
+physical iOS target, and no attached Android device.
 
 ## Allowed Next Actions
 

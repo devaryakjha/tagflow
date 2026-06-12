@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Evidence baseline commit: `e47c73f`
+- Evidence baseline commit: `cce669a`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -74,14 +74,14 @@ issues=[
 Latest coordinator validation evidence for the candidate commit:
 
 ```text
-commit=e47c73f
+commit=cce669a
 
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27427468409
+run=https://github.com/devaryakjha/tagflow/actions/runs/27428753616
 ```
 
 ## Evidence Already Satisfied
@@ -115,9 +115,12 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-Current GitHub state checked for this packet at `e47c73f`:
+Current GitHub state checked for this packet at `cce669a`:
 
 - issue #73 remains open;
+- issue #73 body now records the non-GitLab Kite packet as an acceptable
+  substitute review artifact only after explicit owner acceptance of the packet
+  and local debug fixture/auth constraints;
 - no issue or PR comment records the owner acceptance text below;
 - `real-app-route` therefore remains open in
   `docs/plans/native-runtime-gate-status.json`.
@@ -147,6 +150,8 @@ Decision request:
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 - latest simulator recovery note:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
+- latest target-audit refresh after Simulator relaunch:
+  `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Native JSON observed-host policy:
@@ -157,6 +162,13 @@ Current evidence summary:
 ```text
 physical target audit:
   canRunPhysicalProfileProbe=false
+  runId=2026-06-12-current-machine-r3
+  credibleProfileTargets=0
+  flutterIosSimulators=1
+  flutterWirelessIos=2
+  flutterConnectedPhysicalIos=0
+  xctraceOnlinePhysicalIos=0
+  adbAttachedAndroid=0
 
 observed-host repeat-5 native JSON run:
   successfulRuns=5/5

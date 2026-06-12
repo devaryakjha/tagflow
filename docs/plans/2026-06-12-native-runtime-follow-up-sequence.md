@@ -6,10 +6,10 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Sequence baseline commit:
-  `9491aa5 docs(benchmarks): document profile dpr qualification`
+  `cce669a docs(benchmarks): refresh simulator target audit`
 - Latest coordinator evidence/tooling refresh:
-  `20b7d77 feat(benchmarks): add profile target audit`, after
-  `f03255e docs(validation): audit non-kite route candidates`
+  `cce669a docs(benchmarks): refresh simulator target audit`, after
+  `fbf2b92 docs(benchmarks): add native json observed policy`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -20,26 +20,23 @@ runtime expansion.
 Current local gate evidence after the benchmark and route-gate refresh:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for the target-audit implementation head `20b7d77`; later docs-only
-  refresh commits should be checked through the live PR status.
+  passed for `cce669a`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for target-audit
-  implementation head `20b7d77` in run `27416659032`, job `81031075309`.
-  The current pushed-branch check status belongs to PR #72.
+- GitHub Actions `CI / Validate` passed on PR #72 for `cce669a` in run
+  `27428753616`.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch
   because Flutter rejects iOS Simulator profile/release builds.
-- The latest physical-target availability refresh found no connected physical
-  iOS target in Flutter, all physical iOS devices offline in `xctrace`, only a
-  disconnected local-network CoreDevice iPad, and no attached Android device.
-- The new `benchmark:profile:target-audit` preflight also returned
-  `canRunPhysicalProfileProbe=false` for run
-  `2026-06-12-current-machine-r1`, with raw JSON under ignored
-  `build/benchmarks/target-availability/`.
+- The latest target-audit refresh after force-quitting and relaunching
+  Simulator returned `canRunPhysicalProfileProbe=false` for run
+  `2026-06-12-current-machine-r3`: one iOS Simulator signal, two wireless iOS
+  signals, no connected physical iOS target in Flutter, no xctrace-online
+  physical iOS target, and no attached Android device. Raw JSON remains under
+  ignored `build/benchmarks/target-availability/`.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 
@@ -83,8 +80,9 @@ The remaining blocking evidence gap is now the real-app route gate:
   `main_local.dart` fixture and captures visible Tagflow-rendered IPO tables,
   with hosted `tagflow 1.0.0-alpha.3` and `tagflow_table 1.0.0-alpha.1`
   resolved from pub.dev. It is still not pushed/reviewable through Kite's
-  intended source-control path and uses local fixture/auth constraints, so it
-  does not close #73;
+  intended source-control path and uses local fixture/auth constraints. The
+  #73 body now records that the existing non-GitLab packet can substitute only
+  after explicit owner acceptance of that packet and those constraints;
 - the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
   while physical-device, observed-host, frame-budget, memory, beta/stable, and
   comparative performance evidence remain future benchmark work;
@@ -206,8 +204,8 @@ Acceptance after unblock:
 
 Type: benchmark/device/reference-target slice
 Status: PR #72 benchmark gate satisfied by synthetic report-only evidence;
-physical and observed-host qualification remain future work; latest physical
-target audit still found no credible device profile target
+physical and observed-host qualification remain future work; latest target
+audit after Simulator relaunch still found no credible physical profile target
 
 #74 is satisfied for PR #72 by the accepted synthetic viewport path. That
 evidence proves internal harness stability only. It does not qualify this Mac
@@ -219,22 +217,20 @@ The equivalent answer-detail repeat-5 synthetic run is useful local evidence
 for PR #72, but repeating the observed-host command on the current `1.0x`
 display is still not expected to satisfy the `2.0x` observed-host policy.
 
-The latest physical-target availability refresh is
-`docs/benchmarks/baselines/2026-06-12-physical-target-availability-refresh-1752.md`.
-It found no connected physical iOS target in Flutter, all physical iOS devices
-offline in `xctrace`, only a disconnected local-network CoreDevice iPad, and no
-attached Android device. No profile probe was run because the selected target
-state did not meet the minimum availability bar.
+The latest target-availability refresh is
+`docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`.
+It found no credible physical profile target after force-quitting and
+relaunching Simulator: one iOS Simulator signal, two wireless iOS signals, zero
+connected physical iOS devices in Flutter, zero xctrace-online physical iOS
+devices, seven xctrace-offline physical iOS devices, seven CoreDevice blocking
+ids, and zero ADB-attached Android devices.
 
 The repeatable target-audit preflight is now documented in
 `docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md`.
 Its current machine run
-`2026-06-12-current-machine-r1` wrote ignored raw JSON under
+`2026-06-12-current-machine-r3` wrote ignored raw JSON under
 `build/benchmarks/target-availability/` and returned
-`canRunPhysicalProfileProbe=false`: one wireless iOS device in Flutter, zero
-connected physical iOS devices in Flutter, zero online physical iOS devices in
-`xctrace`, seven offline physical iOS devices in `xctrace`, seven CoreDevice
-blocking ids, and zero ADB-attached Android devices.
+`canRunPhysicalProfileProbe=false`.
 
 Future physical/observed-host work is blocked until one of these is true:
 
