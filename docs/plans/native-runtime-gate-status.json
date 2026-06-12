@@ -116,6 +116,10 @@
         {
           "type": "localPath",
           "value": "docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/validation/evidence/2026-06-12-kite-non-gitlab-review-packet.md"
         }
       ]
     },
