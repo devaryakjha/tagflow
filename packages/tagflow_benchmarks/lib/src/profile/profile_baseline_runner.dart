@@ -88,6 +88,7 @@ final class ProfileBaselineManifest {
     required this.pairs,
     required this.command,
     required this.outputDirectory,
+    required this.memoryEvidenceManifestPath,
     required this.sourceResponsePath,
     required this.failFast,
     required this.runs,
@@ -135,6 +136,9 @@ final class ProfileBaselineManifest {
   /// Directory where the raw response artifacts and manifest were written.
   final String outputDirectory;
 
+  /// Machine-readable DevTools memory evidence checklist, when emitted.
+  final String? memoryEvidenceManifestPath;
+
   /// Existing integration-test response path copied after each run.
   final String sourceResponsePath;
 
@@ -160,6 +164,8 @@ final class ProfileBaselineManifest {
     if (pairs != null) 'pairs': pairs!.map((pair) => pair.toJson()).toList(),
     'command': command,
     'outputDirectory': outputDirectory,
+    if (memoryEvidenceManifestPath != null)
+      'memoryEvidenceManifestPath': memoryEvidenceManifestPath,
     'sourceResponsePath': sourceResponsePath,
     'failFast': failFast,
     'runs': runs.map((run) => run.toJson()).toList(),
@@ -575,6 +581,18 @@ final class ProfileBaselineRunner {
       }
     }
 
+    final memoryEvidenceManifestPath = profileHoldOpen
+        ? _writeMemoryEvidenceManifest(
+            workspaceRoot: workspaceRoot,
+            runDirectory: runDirectory,
+            runId: runId,
+            device: device,
+            profileMemory: profileMemory,
+            profileHoldOpenSeconds: profileHoldOpenSeconds,
+            runs: runs,
+            generatedAt: _clock().toUtc(),
+          )
+        : null;
     final selectedPairs = pairs;
     final manifest = ProfileBaselineManifest(
       runId: runId,
@@ -593,6 +611,7 @@ final class ProfileBaselineRunner {
           : List<ProfileBaselineCell>.unmodifiable(selectedPairs),
       command: _command,
       outputDirectory: p.relative(runDirectory.path, from: workspaceRoot.path),
+      memoryEvidenceManifestPath: memoryEvidenceManifestPath,
       sourceResponsePath: p.relative(
         sourceResponse.path,
         from: workspaceRoot.path,
@@ -633,6 +652,136 @@ final class ProfileBaselineRunner {
       }
     }
   }
+}
+
+String _writeMemoryEvidenceManifest({
+  required Directory workspaceRoot,
+  required Directory runDirectory,
+  required String runId,
+  required String device,
+  required bool profileMemory,
+  required int? profileHoldOpenSeconds,
+  required List<ProfileBaselineRun> runs,
+  required DateTime generatedAt,
+}) {
+  final devtoolsDirectory = Directory(p.join(runDirectory.path, 'devtools'))
+    ..createSync(recursive: true);
+  final manifestFile = File(
+    p.join(runDirectory.path, 'memory-evidence-manifest.json'),
+  );
+  final manifestPath = p.relative(manifestFile.path, from: workspaceRoot.path);
+  final devtoolsPath = p.relative(
+    devtoolsDirectory.path,
+    from: workspaceRoot.path,
+  );
+  final manualExportsRequired = <String>[
+    'heapSnapshot',
+    'allocationProfileOrClassDiff',
+    'retainedObjectReview',
+  ];
+  final runPlans = runs
+      .map(
+        (run) => _memoryEvidenceRunJson(run: run, devtoolsPath: devtoolsPath),
+      )
+      .toList();
+
+  manifestFile.writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+      'runId': runId,
+      'generatedAt': generatedAt.toUtc().toIso8601String(),
+      'status': 'manualExportsRequired',
+      'device': device,
+      'profileMemory': profileMemory,
+      'profileHoldOpen': true,
+      'profileHoldOpenSeconds': profileHoldOpenSeconds,
+      'devtoolsDirectory': devtoolsPath,
+      'interactiveDevToolsCommand': ['dart', 'devtools'],
+      'manualExportsRequired': manualExportsRequired,
+      'runs': runPlans,
+    })}\n',
+  );
+
+  return manifestPath;
+}
+
+Map<String, Object?> _memoryEvidenceRunJson({
+  required ProfileBaselineRun run,
+  required String devtoolsPath,
+}) {
+  final laneId = _memoryEvidenceLaneId(run);
+  final repeatId = 'repeat-${run.repeat.toString().padLeft(2, '0')}';
+  final headlessMemoryProfilePath = p.join(
+    devtoolsPath,
+    '$laneId-$repeatId-memory-profile.json',
+  );
+  final vmServiceUri = run.vmServiceUri;
+  return <String, Object?>{
+    'renderer': run.renderer,
+    'fixture': run.fixture,
+    'repeat': run.repeat,
+    'runStatus': run.status,
+    'vmServiceUri': vmServiceUri,
+    'memoryProfilePath': run.memoryProfilePath,
+    'memoryProfileStatus': run.memoryProfileStatus,
+    'logPath': run.logPath,
+    'status': vmServiceUri == null
+        ? 'vmServiceUriMissing'
+        : 'manualExportsRequired',
+    'headlessMemoryProfilePath': headlessMemoryProfilePath,
+    if (vmServiceUri != null)
+      'headlessMemoryProfileCommand': [
+        'dart',
+        'devtools',
+        '--record-memory-profile=$headlessMemoryProfilePath',
+        vmServiceUri,
+      ],
+    'checkpoints': _memoryEvidenceCheckpoints(run)
+        .map(
+          (checkpoint) => <String, Object?>{
+            'checkpoint': checkpoint,
+            'status': 'manualExportRequired',
+            'heapSnapshotPath': p.join(
+              devtoolsPath,
+              '$laneId-$repeatId-$checkpoint-heap-snapshot.json',
+            ),
+            'allocationDiffPath': p.join(
+              devtoolsPath,
+              '$laneId-$repeatId-$checkpoint-allocation-diff.json',
+            ),
+            'retainedObjectReviewPath': p.join(
+              devtoolsPath,
+              '$laneId-$repeatId-$checkpoint-retained-objects.md',
+            ),
+          },
+        )
+        .toList(),
+  };
+}
+
+String _memoryEvidenceLaneId(ProfileBaselineRun run) {
+  return '${run.renderer}-${run.fixture}';
+}
+
+List<String> _memoryEvidenceCheckpoints(ProfileBaselineRun run) {
+  if (run.renderer == 'tagflow_semantic_patch') {
+    return const [
+      'before_first_patch',
+      'after_first_patch',
+      'after_final_patch',
+      'after_scroll',
+    ];
+  }
+
+  if (run.fixture.startsWith('streaming_ai_')) {
+    return const [
+      'before_first_update',
+      'after_first_update',
+      'after_final_update',
+      'after_scroll',
+    ];
+  }
+
+  return const ['before_first_render', 'after_first_render', 'after_scroll'];
 }
 
 void _writeRunLog({

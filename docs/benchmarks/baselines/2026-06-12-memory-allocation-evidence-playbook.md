@@ -191,6 +191,15 @@ after the measured run and keeps each checkpoint alive for the requested number
 of seconds. This does not replace manual export from DevTools; it only keeps
 the VM service alive long enough to attach and export.
 
+Hold-open runs also write
+`<run-dir>/memory-evidence-manifest.json` and link it from
+`profile-baseline-manifest.json` as `memoryEvidenceManifestPath`. That file is
+a reviewer checklist: it records the VM service URI seen for each run, the
+expected DevTools export paths under `<run-dir>/devtools/`, the headless
+`dart devtools --record-memory-profile` command when a URI is available, and
+the checkpoint names that should be captured. It is not memory evidence by
+itself.
+
 ### One-repeat checkpoint capture flow
 
 Use repeat `1` for interactive capture so the runner stops at one reviewed
@@ -238,7 +247,8 @@ This is the most repeatable path when you want a machine-readable memory
 artifact.
 
 1. Start the profile baseline run.
-2. Copy the VM service URI printed by the benchmark session.
+2. Copy the VM service URI printed by the benchmark session, or use the
+   per-run command in `memory-evidence-manifest.json`.
 3. Record a memory profile file with DevTools:
 
 ```bash
@@ -269,7 +279,9 @@ from the benchmark terminal. Capture and export the following checkpoints:
 - after the final patch step for the patch lane
 - after the warm scroll for the native JSON lane, when collected
 
-Export files under the same ignored run directory, for example:
+Export files under the same ignored run directory. Hold-open runs generate the
+expected file names in `memory-evidence-manifest.json`; older runs can use this
+shape:
 
 - `build/benchmarks/profile-memory-evidence/<run-id>/devtools/<lane>-before.json`
 - `build/benchmarks/profile-memory-evidence/<run-id>/devtools/<lane>-after-first-render.json`

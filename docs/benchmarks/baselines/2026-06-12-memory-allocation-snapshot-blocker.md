@@ -48,6 +48,10 @@ profile path plus any VM service URI found in stdout/stderr. It also now has
 an opt-in checkpoint replay mode via `TAGFLOW_PROFILE_HOLD_OPEN=true` and
 `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=<n>`, which replays named checkpoints after
 measurement and keeps each checkpoint alive for bounded DevTools attachment.
+Hold-open runs write a machine-readable `memory-evidence-manifest.json` with
+checkpoint names, expected DevTools export paths, and headless
+`dart devtools --record-memory-profile` command templates when a VM service URI
+is available.
 
 That support preserves bounded memory sample artifacts for repeated runs. It
 does not export heap snapshots, class allocation diffs, or retained-object
@@ -113,12 +117,17 @@ that as a harness blocker rather than substituting another bounded memory
 sample.
 
 The benchmark terminal now prints named checkpoint lines while the replay hold
-is active. Use those messages to decide when to export each DevTools snapshot
-or allocation diff, and treat the manual exports as the remaining blocker.
+is active. Use those messages plus the generated `memory-evidence-manifest.json`
+to decide when and where to export each DevTools snapshot or allocation diff,
+and treat the manual exports as the remaining blocker.
 
 ## Validation
 
-This was a docs-only scoping pass. No Flutter profile command was run because
+The original scoping pass did not run another Flutter profile command because
 the already-committed bounded sample lanes cover the feasible non-interactive
 memory sample path, while the next missing evidence requires snapshot/diff
 export support.
+
+The follow-up tooling slice added a generated memory evidence manifest and was
+validated with the focused profile baseline runner test. It still does not
+export heap snapshots, allocation diffs, or retained-object analysis.

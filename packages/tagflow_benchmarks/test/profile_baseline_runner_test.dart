@@ -382,6 +382,143 @@ void main() {
     expect(logJson['profileHoldOpenSeconds'], 90);
   });
 
+  test(
+    'writes memory evidence checkpoint manifest for hold-open runs',
+    () async {
+      final workspaceRoot = Directory.systemTemp.createTempSync(
+        'tagflow_profile_runner_memory_evidence_manifest_test_',
+      );
+      addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+      final integrationOutput = File(
+        p.join(
+          workspaceRoot.path,
+          'examples',
+          'tagflow',
+          'build',
+          'integration_response_data.json',
+        ),
+      )..parent.createSync(recursive: true);
+
+      final runner = ProfileBaselineRunner(
+        workspaceRoot: workspaceRoot,
+        outputDirectory: Directory(
+          p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+        ),
+        renderers: const ['tagflow_semantic_patch'],
+        fixtures: const ['streaming_ai_authored_insertion_patches'],
+        repeatCount: 1,
+        runId: '2026-06-12T12-20-00Z',
+        profileMemory: true,
+        profileHoldOpen: true,
+        profileHoldOpenSeconds: 120,
+        processRunner: (executable, arguments, options) async {
+          integrationOutput.writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'run': 1,
+              'results': <String, Object?>{},
+            }),
+          );
+          File(options.environment['TAGFLOW_PROFILE_MEMORY_FILE']!)
+            ..parent.createSync(recursive: true)
+            ..writeAsStringSync('{"samples":[]}');
+          return ProcessResult(
+            801,
+            0,
+            'The Dart VM service is listening on '
+                'http://127.0.0.1:54321/xyz=/',
+            '',
+          );
+        },
+      );
+
+      await runner.run();
+
+      final manifestPath = p.join(
+        workspaceRoot.path,
+        'build',
+        'benchmarks',
+        'profile',
+        '2026-06-12T12-20-00Z',
+        'profile-baseline-manifest.json',
+      );
+      final manifestJson =
+          jsonDecode(File(manifestPath).readAsStringSync())
+              as Map<String, Object?>;
+      expect(
+        manifestJson['memoryEvidenceManifestPath'],
+        'build/benchmarks/profile/2026-06-12T12-20-00Z/'
+        'memory-evidence-manifest.json',
+      );
+
+      final evidenceManifest = File(
+        p.join(
+          workspaceRoot.path,
+          manifestJson['memoryEvidenceManifestPath']! as String,
+        ),
+      );
+      expect(evidenceManifest.existsSync(), isTrue);
+
+      final evidenceJson =
+          jsonDecode(evidenceManifest.readAsStringSync())
+              as Map<String, Object?>;
+      expect(evidenceJson['runId'], '2026-06-12T12-20-00Z');
+      expect(evidenceJson['status'], 'manualExportsRequired');
+      expect(evidenceJson['interactiveDevToolsCommand'], <Object?>[
+        'dart',
+        'devtools',
+      ]);
+
+      final runs = evidenceJson['runs']! as List<Object?>;
+      final run = runs.single! as Map<String, Object?>;
+      expect(run['renderer'], 'tagflow_semantic_patch');
+      expect(run['fixture'], 'streaming_ai_authored_insertion_patches');
+      expect(run['vmServiceUri'], 'http://127.0.0.1:54321/xyz=/');
+      final headlessMemoryProfilePath = p.join(
+        'build',
+        'benchmarks',
+        'profile',
+        '2026-06-12T12-20-00Z',
+        'devtools',
+        'tagflow_semantic_patch-'
+            'streaming_ai_authored_insertion_patches-'
+            'repeat-01-memory-profile.json',
+      );
+      final headlessMemoryProfileOption =
+          '--record-memory-profile=$headlessMemoryProfilePath';
+      expect(run['headlessMemoryProfileCommand'], <Object?>[
+        'dart',
+        'devtools',
+        headlessMemoryProfileOption,
+        'http://127.0.0.1:54321/xyz=/',
+      ]);
+
+      final checkpoints = run['checkpoints']! as List<Object?>;
+      expect(
+        checkpoints.map(
+          (checkpoint) =>
+              (checkpoint! as Map<String, Object?>)['checkpoint']! as String,
+        ),
+        <String>[
+          'before_first_patch',
+          'after_first_patch',
+          'after_final_patch',
+          'after_scroll',
+        ],
+      );
+      expect(
+        checkpoints.first,
+        containsPair(
+          'heapSnapshotPath',
+          'build/benchmarks/profile/2026-06-12T12-20-00Z/devtools/'
+              'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
+              'repeat-01-before_first_patch-heap-snapshot.json',
+        ),
+      );
+      expect(checkpoints.first, containsPair('status', 'manualExportRequired'));
+    },
+  );
+
   test('classifies missing requested profile memory separately', () async {
     final workspaceRoot = Directory.systemTemp.createTempSync(
       'tagflow_profile_runner_missing_memory_test_',
