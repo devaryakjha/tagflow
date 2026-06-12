@@ -132,6 +132,14 @@
         {
           "type": "localPath",
           "value": "docs/validation/evidence/2026-06-12-kite-non-gitlab-review-packet.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md"
+        },
+        {
+          "type": "note",
+          "value": "Kite non-GitLab packet can close real-app-route only after explicit owner acceptance"
         }
       ]
     },

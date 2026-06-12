@@ -7,7 +7,7 @@
 - Downstream repo: `/Users/arya/projects/kite`
 - Downstream branch: `codex/tagflow-ipo-native-route`
 - Packet artifact root:
-  `build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route`
+  `/Users/arya/projects/tagflow/build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route`
 - Posture: owner-review packet prepared; not #73 closure
 
 ## Purpose
@@ -25,7 +25,8 @@ only and #73 remains open.
 
 ## Included Artifacts
 
-The ignored packet directory contains:
+The ignored packet directory is stored under the Tagflow coordinator checkout,
+not under the Kite checkout. It contains:
 
 ```text
 artifact-list.txt
@@ -44,7 +45,8 @@ patches/0003-test-ipo-serve-local-IPO-fixture-route.patch
 sha256sums.txt
 ```
 
-The route-smoke screenshot remains in the earlier ignored artifact path:
+The route-smoke screenshot remains in the earlier ignored Tagflow artifact
+path:
 
 ```text
 build/benchmarks/kite-ipo-native-route/2026-06-12-afcons-tagflow-tables.jpg
@@ -52,14 +54,16 @@ build/benchmarks/kite-ipo-native-route/2026-06-12-afcons-tagflow-tables.jpg
 
 ## Packet Commands
 
-The packet was generated from the current Kite route branch with:
+The packet was generated from the current Kite route branch and written to the
+Tagflow coordinator artifact directory with:
 
 ```bash
+TAGFLOW_PACKET_DIR=/Users/arya/projects/tagflow/build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route
 git -C /Users/arya/projects/kite bundle create \
-  build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route/kite-tagflow-ipo-native-route.bundle \
+  "$TAGFLOW_PACKET_DIR/kite-tagflow-ipo-native-route.bundle" \
   feat/dashboard..HEAD
 git -C /Users/arya/projects/kite format-patch \
-  -o build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route/patches \
+  -o "$TAGFLOW_PACKET_DIR/patches" \
   feat/dashboard..HEAD
 git -C /Users/arya/projects/kite log --format=fuller -3
 git -C /Users/arya/projects/kite diff --stat feat/dashboard..HEAD
