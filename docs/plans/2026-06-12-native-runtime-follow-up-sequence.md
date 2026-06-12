@@ -60,9 +60,9 @@ The remaining blocking evidence gap is now the real-app route gate:
 
 - Kite production-route evidence still depends on Kite GitLab/DNS or an
   approved equivalent real Flutter app route. A local Kite supporting branch
-  exists at `codex/tagflow-ipo-native-route` with commit `355c79d6`, but it is
-  not pushed/reviewable through Kite's intended source-control path and
-  therefore does not close #73;
+  exists at `codex/tagflow-ipo-native-route` with commits `355c79d6` and
+  `e9a86803`, but it is not pushed/reviewable through Kite's intended
+  source-control path and therefore does not close #73;
 - the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
   while physical-device, observed-host, frame-budget, memory, beta/stable, and
   comparative performance evidence remain future benchmark work;
@@ -149,14 +149,15 @@ Acceptance:
 ### 4. Land Real-App Route Evidence When External Access Is Available
 
 Type: real-app evidence slice
-Status: local Kite production-file migration prepared; still blocked by
-source-control/review and real app-route evidence for Kite; replaceable by an
-approved equivalent real Flutter app route
+Status: local Kite production-file migration and production-sheet widget
+evidence prepared; still blocked by source-control/review and real app-route
+evidence for Kite; replaceable by an approved equivalent real Flutter app route
 
 The beta-readiness docs already identify Kite as the live-app evidence path.
 Widget-test evidence exists, and a local Kite branch now migrates the IPO
-production sheet file to `Tagflow.html(..., registry: ...)`, but push/merge and
-real app-route evidence are still not complete.
+production sheet file to `Tagflow.html(..., registry: ...)` with a
+production-sheet harness that pumps `IPOInstrumentSheet` using real IPO fixture
+content, but push/merge and real app-route evidence are still not complete.
 
 The current route qualification plan is
 `docs/plans/2026-06-12-real-app-route-qualification.md`.

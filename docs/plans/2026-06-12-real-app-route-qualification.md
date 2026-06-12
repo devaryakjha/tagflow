@@ -29,9 +29,10 @@ Latest coordinator audit found no route satisfying #73 as-is.
   `tagflow ^1.0.0-alpha.3` and `tagflow_table ^1.0.0-alpha.1`. A local
   supporting branch now migrates the production IPO sheet file off
   `package:tagflow/legacy.dart` and onto `Tagflow.html(..., registry: ...)`,
-  but that branch is not pushed or reviewable through Kite's intended
-  source-control path. Its intended GitLab review path is not reachable from
-  this machine because
+  with a supporting production-sheet widget test that pumps
+  `IPOInstrumentSheet` using real IPO fixture content. That branch is still not
+  pushed or reviewable through Kite's intended source-control path. Its
+  intended GitLab review path is not reachable from this machine because
   `gitlab.zerodha.tech` DNS fails.
 - Varsity has real rich-content routes, but it is still on old
   `tagflow ^0.0.7`, so it does not validate the current hosted native runtime.
@@ -39,8 +40,9 @@ Latest coordinator audit found no route satisfying #73 as-is.
   with an intended user path.
 
 The Kite hosted-alpha widget/native-transport tests are useful supporting
-evidence, but they are not route qualification. They prove the hosted packages
-can decode and render targeted fixtures in a harness; #73 requires an approved
+evidence, including the production-sheet widget harness. They prove the hosted
+packages can decode and render targeted fixtures and that the migrated sheet
+code can render seeded real IPO content in a harness; #73 requires an approved
 real app path.
 
 The local Kite production-file migration is recorded in
@@ -73,8 +75,8 @@ If Kite is approved, keep the integration slice focused on the IPO sheet.
 
 Implementation scope:
 
-- use the local Kite branch `codex/tagflow-ipo-native-route` and commit
-  `355c79d6` as the starting point;
+- use the local Kite branch `codex/tagflow-ipo-native-route` and commits
+  `355c79d6` plus `e9a86803` as the starting point;
 - push or recreate that focused change through Kite's normal source-control
   path;
 - keep the production IPO sheet off `package:tagflow/legacy.dart`;

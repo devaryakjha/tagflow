@@ -6,13 +6,15 @@
 - Related gate: #73 real-app route evidence
 - Downstream repo: `/Users/arya/projects/kite`
 - Downstream branch: `codex/tagflow-ipo-native-route`
-- Downstream commit: `355c79d6 feat(ipo): render IPO content through tagflow registry`
+- Downstream commits:
+  - `355c79d6 feat(ipo): render IPO content through tagflow registry`
+  - `e9a86803 test(ipo): cover tagflow sheet registry path`
 - Posture: local supporting code evidence only; not #73 closure
 
 ## Purpose
 
-Record the local Kite production-route migration prepared for the Tagflow
-native-runtime real-app gate.
+Record the local Kite production-route migration and supporting production
+sheet widget evidence prepared for the Tagflow native-runtime real-app gate.
 
 This evidence moves the strongest known downstream candidate closer to the #73
 contract: Kite's IPO sheet production rich-content route no longer depends on
@@ -26,7 +28,7 @@ constraints.
 
 ## Local Change
 
-Changed downstream file:
+Changed downstream production file:
 
 ```text
 /Users/arya/projects/kite/lib/screens/ipos/ipo_instrument_sheet.dart
@@ -51,10 +53,26 @@ Summary of the local Kite commit:
 The old Kite legacy converter component still exists elsewhere in the app, but
 the changed IPO production sheet route no longer imports or calls it.
 
+Added supporting downstream test coverage:
+
+```text
+/Users/arya/projects/kite/test/ipos/tagflow_hosted_alpha3_test.dart
+```
+
+The new test seeds `KiteStore` from the real `docs/ipo-info.md` payload, pumps
+the production `IPOInstrumentSheet` under `StoreKeeper`, cancels the
+`GetIPOInfo` network mutation to keep the harness deterministic, and verifies
+that the real IPO content and table extension render through the sheet's
+production `Tagflow.html(..., registry: tagflowRegistry())` path.
+
+This is stronger than the direct `Tagflow.html` fixture test because it
+exercises the migrated sheet code. It is still widget-harness evidence, not
+real app-route qualification.
+
 ## Verification
 
 Focused hosted-alpha widget/native transport validation passed after the local
-production-sheet migration:
+production-sheet migration and supporting sheet-path test:
 
 ```bash
 cd /Users/arya/projects/kite
@@ -65,7 +83,7 @@ PATH=/Users/arya/fvm/default/bin:$PATH \
 Result:
 
 ```text
-00:00 +2: All tests passed!
+00:00 +3: All tests passed!
 ```
 
 Focused analysis also passed:
@@ -90,8 +108,8 @@ and did not fail validation.
 
 ## Review
 
-A delegated read-only review checked the local diff against the #73 route
-migration scope and reported file-level PASS:
+A delegated read-only review checked the production migration diff against the
+#73 route migration scope and reported file-level PASS:
 
 - IPO sheet imports `package:tagflow/tagflow.dart`;
 - excerpt and main content both use `Tagflow.html(..., registry: ...)`;
@@ -102,6 +120,18 @@ migration scope and reported file-level PASS:
 
 The same review flagged medium overclaim risk if this were presented as closing
 #73. This note keeps it as supporting evidence only.
+
+A second delegated read-only review checked the supporting test diff and
+reported PASS with caveats:
+
+- the test pumps the real `IPOInstrumentSheet`;
+- the test seeds `KiteStore` with real IPO payload fields from `docs/ipo-info.md`;
+- the test lets `IPOInstrumentSheet.initState()` attempt `GetIPOInfo()` and
+  cancels that mutation through a `StoreKeeper` interceptor;
+- the test exercises both migrated production sheet render sites that call
+  `Tagflow.html(..., registry: tagflowRegistry())`;
+- the review explicitly warned not to claim network fetch, route navigation,
+  bottom-sheet behavior, profile performance, or #73 closure from this evidence.
 
 ## Remaining #73 Gaps
 
