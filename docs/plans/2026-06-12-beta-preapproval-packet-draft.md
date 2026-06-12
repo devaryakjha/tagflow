@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Recorded CI-validated PR anchor: `a1ecfdd`
+- Recorded CI-validated PR anchor: `01149ac`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -74,14 +74,14 @@ issues=[
 Recorded anchored coordinator validation evidence:
 
 ```text
-commit=a1ecfdd
+commit=01149ac
 
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27435288870
+run=https://github.com/devaryakjha/tagflow/actions/runs/27436534000
 ```
 
 ## Evidence Already Satisfied
@@ -118,7 +118,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at PR head `a1ecfdd`:
+GitHub state checked for this packet at PR head `01149ac`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable
