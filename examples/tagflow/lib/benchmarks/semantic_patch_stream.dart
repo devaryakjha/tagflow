@@ -356,6 +356,28 @@ TagflowDocumentNode _copyNode(
       metadata: node.metadata,
       source: node.source,
     ),
+    TagflowNodeKind.descriptionList => TagflowDocumentNode.descriptionList(
+      id: id,
+      children: children,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.descriptionTerm => TagflowDocumentNode.descriptionTerm(
+      id: id,
+      children: children,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.descriptionDetails =>
+      TagflowDocumentNode.descriptionDetails(
+        id: id,
+        children: children,
+        presentation: node.presentation,
+        metadata: node.metadata,
+        source: node.source,
+      ),
     TagflowNodeKind.blockquote => TagflowDocumentNode.blockquote(
       id: id,
       children: children,
