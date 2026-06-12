@@ -261,7 +261,7 @@ Rationale: HTML should remain an adapter into the runtime, not the runtime
 itself. The adapter and ID strategy are important for dynamic content and patch
 integration because apps need deterministic or authored IDs.
 
-`alpha-only review required`:
+`legacy compatibility surface through beta`:
 
 - `TagflowHtmlDocumentBridge`
 
@@ -270,7 +270,9 @@ converters can still run, but the future extension model is semantic registry
 rendering, not conversion back into the legacy node tree. The current
 coordinator barrel already hides it from `package:tagflow/tagflow.dart`. Keep
 it available from `package:tagflow/legacy.dart`, not the primary
-`package:tagflow/tagflow.dart` runtime barrel.
+`package:tagflow/tagflow.dart` runtime barrel. The migration guide documents
+the `legacy.dart` beta support window, and public API coverage proves the
+bridge remains reachable from that compatibility barrel.
 
 ### Native Block Transport
 
@@ -575,6 +577,9 @@ to republish the extension package.
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.
   Done in "Compatibility Support Windows".
+- `TagflowHtmlDocumentBridge` is classified as a legacy-only compatibility
+  surface through beta, not as a primary runtime API. Done: the primary barrel
+  hides it, `legacy.dart` exports it, and public API tests cover legacy reach.
 - Main-barrel style APIs either stop depending on `legacy.dart` value types or
   that coupling is explicitly frozen as part of beta compatibility policy. Done:
   shared style primitives are intentionally exported from the primary style

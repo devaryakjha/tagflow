@@ -158,8 +158,9 @@ extension TagflowHtmlNodeMetadata on TagflowDocumentNode {
 
 /// Transitional bridge from runtime documents into the legacy converter tree.
 //
-// TODO(devaryakjha): Replace this bridge with semantic component-registry
-// rendering once the renderer contract lands.
+// This is intentionally kept behind package:tagflow/legacy.dart so existing
+// custom converter integrations can migrate during the beta support window. New
+// extension work should target semantic component registries instead.
 abstract final class TagflowHtmlDocumentBridge {
   /// Converts [document] into the current converter-compatible node tree.
   static TagflowNode toLegacyNode(TagflowDocument document) {
