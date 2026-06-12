@@ -131,12 +131,15 @@ Widget _wrapNodeTapTarget(
 
   return MouseRegion(
     cursor: SystemMouseCursors.click,
-    child: GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        callback(TagflowNodeTapDetails(context: context, node: node));
-      },
-      child: child,
+    child: Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          callback(TagflowNodeTapDetails(context: context, node: node));
+        },
+        child: child,
+      ),
     ),
   );
 }

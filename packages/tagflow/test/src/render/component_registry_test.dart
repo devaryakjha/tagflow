@@ -367,6 +367,53 @@ void main() {
       expect(tappedNode?.kind, TagflowNodeKind.container);
     });
 
+    testWidgets('adds button semantics to opted-in document node taps', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final document = TagflowDocument(
+        id: 'doc-node-tap-semantics',
+        children: [
+          TagflowDocumentNode.container(
+            id: 'card',
+            children: [
+              TagflowDocumentNode.paragraph(
+                id: 'card.body',
+                children: [
+                  TagflowDocumentNode.text(id: 'card.text', text: 'Open card'),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.document(
+              document,
+              viewOptions: TagflowViewOptions(
+                nodeTapCallback: (_) {},
+                tapTargetKinds: const {TagflowNodeKind.container},
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Open card')),
+          matchesSemantics(
+            label: 'Open card',
+            hasTapAction: true,
+            isButton: true,
+          ),
+        );
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('applies node tap callbacks to opted-in HTML nodes', (
       tester,
     ) async {

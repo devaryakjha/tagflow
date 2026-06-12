@@ -21,6 +21,8 @@ The first node-tap slice landed on the coordinator branch in
   non-link node kinds, after built-in, extension, or app override dispatch.
 - `TagflowNodeKind.link` preserves the existing `linkTapCallback` path and
   does not fire both link and node callbacks in this first slice.
+- Opted-in non-link node tap targets expose button-like semantics while
+  preserving child labels and tap actions.
 - Focused tests cover default inert non-link nodes, opted-in
   `Tagflow.document(...)` nodes, opted-in `Tagflow.html(...)` nodes with
   authored IDs and metadata, link behavior preservation, legacy option
@@ -202,6 +204,7 @@ Do not check long press, gesture recognition, selection, or copy/paste.
 - Long press callback shape.
 - Whether a future callback should return a handled/ignored disposition.
 - Whether link taps and node taps should compose through a unified action model.
-- Accessibility review for role/label semantics on app-defined tap targets.
+- Broader accessibility review beyond the first button-like role/label
+  semantics on app-defined tap targets.
 - Example-app plugin showcase demonstrating node taps on app-authored native
   blocks.
