@@ -5,7 +5,7 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Recorded CI-validated PR anchor: `01149ac`
-- Latest live-state refresh:
+- Point-in-time live-state refresh:
   `docs/plans/2026-06-13-pr72-live-state-refresh.md`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
@@ -86,7 +86,7 @@ result=passed
 run=https://github.com/devaryakjha/tagflow/actions/runs/27436534000
 ```
 
-Latest point-in-time PR/tracker refresh:
+A point-in-time PR/tracker refresh:
 
 ```text
 commit=1f9813b

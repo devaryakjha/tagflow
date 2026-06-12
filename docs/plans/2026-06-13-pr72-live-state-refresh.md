@@ -38,9 +38,10 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
   normal source-control or approved equivalent real-app route evidence has
   replaced it.
 - Issue #75 is open. The `physical-observed-profile` gate remains open because
-  the latest target audit still has no credible physical profile target, the
-  observed-host evidence remains `800x600 @ 1.0x` local stabilization evidence,
-  and no beta-preapproval-only owner waiver has been recorded.
+  the target audit captured for this refresh has no credible physical profile
+  target, the observed-host evidence remains `800x600 @ 1.0x` local
+  stabilization evidence, and no beta-preapproval-only owner waiver has been
+  recorded.
 - `gate:native-runtime` passed for the `pr72-draft` profile.
 - `gate:native-runtime:beta-preapproval-known-open` exited 0 only because
   `real-app-route` and `physical-observed-profile` are the manifest-owned
