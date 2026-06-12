@@ -338,6 +338,49 @@ final class TagflowNativeBlockAdapter {
   }
 }
 
+/// Read-only document metadata exposed by the native block adapter.
+extension TagflowNativeBlockDocumentMetadata on TagflowDocument {
+  /// Adapter schema version captured from the adapted native document.
+  int? get nativeBlockSchemaVersion {
+    final value = metadata[_nativeBlockSchemaVersionKey];
+    return value is int ? value : null;
+  }
+
+  /// Producer revision token captured from the adapted native document.
+  String? get nativeBlockRevision {
+    final value = metadata[_nativeBlockRevisionKey];
+    return value is String ? value : null;
+  }
+}
+
+/// Read-only node metadata exposed by the native block adapter.
+extension TagflowNativeBlockNodeMetadata on TagflowDocumentNode {
+  /// Original native block kind before semantic normalization.
+  ///
+  /// For example, a `callout` native block adapts into a semantic
+  /// `TagflowNodeKind.container` while still exposing `callout` here.
+  String? get nativeBlockKind {
+    final value = metadata[_nativeBlockKindKey];
+    return value is String ? value : null;
+  }
+
+  /// Original native block attributes preserved as JSON-like metadata.
+  Map<String, Object?> get nativeBlockAttributes {
+    final value = metadata[_nativeBlockAttributesKey];
+    if (value is! Map) {
+      return const {};
+    }
+
+    return Map.unmodifiable(value.map((key, value) => MapEntry('$key', value)));
+  }
+
+  /// Adapter policy decision reason for preserved placeholder/fallback nodes.
+  String? get nativeBlockPolicyDecisionReason {
+    final value = metadata[_policyDecisionReasonKey];
+    return value is String ? value : null;
+  }
+}
+
 void _validateBlockTreeIds(Iterable<TagflowNativeBlock> blocks) {
   final seen = <String>{};
 

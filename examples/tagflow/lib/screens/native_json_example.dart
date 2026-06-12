@@ -225,13 +225,14 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
   }
 
   void _recordNodeTap(TagflowNodeTapDetails details) {
-    final attributes = _nativeBlockAttributes(details.node);
+    final attributes = details.node.nativeBlockAttributes;
     final actionId = attributes['actionId'];
     final label = attributes['label'];
+    final blockKind = details.node.nativeBlockKind ?? details.node.kind.name;
     final summary = [
       if (label is String && label.isNotEmpty) label,
       details.node.id,
-      details.node.kind.name,
+      blockKind,
       if (actionId is String && actionId.isNotEmpty) actionId,
     ].join(' | ');
 
@@ -263,7 +264,8 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
           const SizedBox(height: 8),
           Text(
             'Data-only JSON decoded with TagflowNativeBlockCodec and rendered '
-            'through Tagflow.document(...) with view-owned node taps.',
+            'through Tagflow.document(...) with view-owned taps and '
+            'adapter-exposed block metadata.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),
@@ -297,13 +299,4 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
       ),
     );
   }
-}
-
-Map<String, Object?> _nativeBlockAttributes(TagflowDocumentNode node) {
-  final attributes = node.metadata['blockAttributes'];
-  if (attributes is Map<String, Object?>) {
-    return attributes;
-  }
-
-  return const {};
 }

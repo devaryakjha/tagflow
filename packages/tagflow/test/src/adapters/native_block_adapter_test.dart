@@ -96,6 +96,8 @@ void main() {
       expect(adapted.metadata['surface'], 'detail');
       expect(adapted.metadata['revision'], 'rev-42');
       expect(adapted.metadata['schemaVersion'], 1);
+      expect(adapted.nativeBlockRevision, 'rev-42');
+      expect(adapted.nativeBlockSchemaVersion, 1);
       expect(adapted.children.map((node) => node.id), [
         'title',
         'intro',
@@ -336,6 +338,7 @@ void main() {
 
       expect(table.kind, TagflowNodeKind.table);
       expect(table.metadata['blockAttributes'], const {'caption': 'Pricing'});
+      expect(table.nativeBlockAttributes, const {'caption': 'Pricing'});
       expect(cell.kind, TagflowNodeKind.tableCell);
       expect(cell.header, isTrue);
       expect(cell.rowSpan, 3);
@@ -435,7 +438,13 @@ void main() {
       expect(callout.id, 'callout');
       expect(callout.presentation.variant, 'tip');
       expect(callout.metadata['blockKind'], 'callout');
+      expect(callout.nativeBlockKind, 'callout');
       expect(callout.metadata['blockAttributes'], const {
+        'tone': 'info',
+        'variant': 'tip',
+        'title': 'What changed',
+      });
+      expect(callout.nativeBlockAttributes, const {
         'tone': 'info',
         'variant': 'tip',
         'title': 'What changed',
@@ -480,10 +489,12 @@ void main() {
 
       expect(link.kind, TagflowNodeKind.container);
       expect(link.metadata['policyDecisionReason'], 'relativeUrlNotAllowed');
+      expect(link.nativeBlockPolicyDecisionReason, 'relativeUrlNotAllowed');
 
       final image = adapted.nodeById('remote-image');
       expect(image?.kind, TagflowNodeKind.unsupported);
       expect(image?.unsupportedReason, contains('rejected by policy'));
+      expect(image?.nativeBlockPolicyDecisionReason, 'remoteImagesDisabled');
     });
 
     test('drops policy-rejected native image blocks by default', () {

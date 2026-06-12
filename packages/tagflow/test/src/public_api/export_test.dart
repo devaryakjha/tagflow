@@ -107,6 +107,12 @@ void main() {
       nativeAdapter.adapt(nativeDocument).children.single.id,
       'native-callout',
     );
+    final adaptedNativeDocument = nativeAdapter.adapt(nativeDocument);
+    final adaptedNativeNode = adaptedNativeDocument.children.single;
+    final htmlDocument = const api.TagflowHtmlAdapter().parse(
+      '<section data-action-id="open-sheet">Hello</section>',
+    );
+    final htmlNode = htmlDocument.children.single;
     expect(
       nativeDocument.blocks.single.kind,
       api.TagflowNativeBlockKind.callout,
@@ -136,6 +142,11 @@ void main() {
     );
     expect(nodeIdStrategy.attribute, 'data-node-id');
     expect(nodeIdStrategy.fallbackToPath, isFalse);
+    expect(adaptedNativeDocument.nativeBlockSchemaVersion, 1);
+    expect(adaptedNativeNode.nativeBlockKind, 'callout');
+    expect(adaptedNativeNode.nativeBlockAttributes['variant'], 'tip');
+    expect(htmlNode.htmlTag, 'section');
+    expect(htmlNode.htmlAttributes['data-action-id'], 'open-sheet');
     expect(registry.hasComponent(api.TagflowNodeKind.paragraph), isTrue);
     expect(theme.defaultStyle, api.TagflowStyle.empty);
     expect(api.TagflowViewOptions.defaults, isA<api.TagflowViewOptions>());

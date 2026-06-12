@@ -120,6 +120,42 @@ final class TagflowHtmlAdapter {
   }
 }
 
+/// Read-only node metadata exposed by the HTML adapter.
+extension TagflowHtmlNodeMetadata on TagflowDocumentNode {
+  /// Original HTML tag name or the closest semantic fallback tag.
+  String? get htmlTag {
+    final metadataTag = metadata[_htmlTagKey];
+    final presentationTag = presentation.hints[_htmlTagKey];
+    if (metadataTag is String) return metadataTag;
+    if (presentationTag is String) return presentationTag;
+    return null;
+  }
+
+  /// Sanitized HTML attributes preserved from the adapted source node.
+  Map<String, String> get htmlAttributes {
+    final value = metadata[_htmlAttributesKey];
+    if (value is! Map) {
+      return const {};
+    }
+
+    return Map.unmodifiable(
+      value.map((key, value) => MapEntry('$key', '$value')),
+    );
+  }
+
+  /// Original blocked tag when policy preserved an unsupported placeholder.
+  String? get blockedHtmlTag {
+    final value = metadata[_blockedHtmlTagKey];
+    return value is String ? value : null;
+  }
+
+  /// Adapter policy decision reason for preserved placeholder/fallback nodes.
+  String? get htmlPolicyDecisionReason {
+    final value = metadata[_policyDecisionReasonKey];
+    return value is String ? value : null;
+  }
+}
+
 /// Transitional bridge from runtime documents into the legacy converter tree.
 //
 // TODO(devaryakjha): Replace this bridge with semantic component-registry

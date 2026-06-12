@@ -28,7 +28,8 @@ the first-party `TagflowHtmlAdapter`.
 - Render HTML `<details>` / `<summary>` as native expandable disclosure widgets
 - Apply explicit `TagflowContentPolicy` rules to adapter input
 - Override semantic node rendering through `TagflowComponentRegistry`
-- Configure runtime behavior with `TagflowViewOptions`
+- Configure runtime behavior with `TagflowViewOptions`, including view-owned
+  node taps
 - Keep parser and converter compatibility through `package:tagflow/legacy.dart`
 
 ---
@@ -143,6 +144,32 @@ Use `TagflowDocument.validated(...)` for app-authored, AI-produced, or CMS
 documents when you want duplicate node IDs to fail fast before rendering or
 patch application. Plain `TagflowDocument(...)` remains available for lower-
 level construction paths that want explicit validation control.
+
+### View-Owned Node Taps
+
+Node taps stay on the Flutter view side instead of becoming part of the
+document or native JSON payload:
+
+```dart
+Tagflow.document(
+  document,
+  viewOptions: TagflowViewOptions(
+    nodeTapCallback: (details) {
+      final node = details.node;
+      // Use node.id, node.kind, or node.metadata in app-owned behavior.
+    },
+    tapTargetKinds: const {
+      TagflowNodeKind.container,
+      TagflowNodeKind.listItem,
+    },
+  ),
+);
+```
+
+Use this for app-owned interactions such as callouts, cards, or list items.
+`TagflowNodeKind.link` keeps the existing `linkTapCallback` path, and
+HTML-adapted nodes can still surface authored IDs and metadata through
+`TagflowNodeTapDetails.node`.
 
 ### Native JSON Transport
 
@@ -306,8 +333,8 @@ dependencies:
 - HTML adapter support for headings, paragraphs, emphasis, links, code,
   blockquotes, lists, images, and tables
 - Content policy filtering for unsafe tags, URL schemes, and unsupported input
-- Runtime view options for links, selection, image behavior, caching, and
-  render errors
+- Runtime view options for links, view-owned node taps, selection, image
+  behavior, caching, and render errors
 - HTML comment render boundaries for adapter input
 - Legacy parser and converter compatibility for alpha migration
 

@@ -28,7 +28,7 @@ void main() {
     expect(
       find.text(
         'Selected block: Risk desk action | risk-update.callout | '
-        'container | open-risk-desk',
+        'callout | open-risk-desk',
       ),
       findsOneWidget,
     );

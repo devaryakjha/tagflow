@@ -73,11 +73,11 @@ Tagflow.html(
 It parses through `TagflowHtmlAdapter` and renders the resulting
 `TagflowDocument`.
 
-`TagflowViewOptions` is the new runtime-view API for links, selection, image
-loading, image errors, cache behavior, and error widgets. `TagflowOptions`
-remains available as an alpha compatibility wrapper for existing code, and it
-still carries legacy HTML-only `renderBoundary` configuration during the
-transition.
+`TagflowViewOptions` is the new runtime-view API for links, view-owned node
+taps, selection, image loading, image errors, cache behavior, and error
+widgets. `TagflowOptions` remains available as an alpha compatibility wrapper
+for existing code, and it still carries legacy HTML-only `renderBoundary`
+configuration during the transition.
 
 ## Compatibility Support Windows
 
@@ -212,6 +212,32 @@ compatibility.
 
 This is the canonical runtime entry point for alpha.
 
+### View-Owned Node Taps
+
+The interaction model stays on the Flutter view side instead of becoming part
+of `TagflowDocument`, HTML metadata, or native JSON payloads:
+
+```dart
+Tagflow.document(
+  document,
+  viewOptions: TagflowViewOptions(
+    nodeTapCallback: (details) {
+      final node = details.node;
+      // Route app-owned actions from node.id, node.kind, or node.metadata.
+    },
+    tapTargetKinds: const {
+      TagflowNodeKind.container,
+      TagflowNodeKind.listItem,
+    },
+  ),
+);
+```
+
+Use `tapTargetKinds` to opt specific semantic node kinds into tap handling.
+`TagflowNodeKind.link` keeps the existing `linkTapCallback` path in this first
+slice. HTML-origin nodes adapted through `Tagflow.html(...)` can still surface
+authored IDs and metadata through `TagflowNodeTapDetails.node`.
+
 ## Native JSON Transport
 
 Use the native block transport when content is already trusted structured data
@@ -274,6 +300,35 @@ final updatedDocument = document.applyPatches(
 );
 ```
 
+Revision matching and conflict handling still belong to app or backend code.
+Tagflow intentionally does not reject or queue patches based on
+`baseRevision`/`revision`; it only exposes those tokens and applies the
+ordered operations you choose to accept.
+
+Native tap routing remains view-owned in the same way. Apps should read stable
+adapter metadata from the tapped runtime node and then hand off to their own
+navigation or action layer:
+
+```dart
+Tagflow.document(
+  document,
+  viewOptions: TagflowViewOptions(
+    nodeTapCallback: (details) {
+      final actionId =
+          details.node.nativeBlockAttributes['actionId'] as String?;
+      if (actionId == null) return;
+
+      // Route through app-owned navigation or command handling.
+      openAction(actionId);
+    },
+    tapTargetKinds: const {
+      TagflowNodeKind.container,
+      TagflowNodeKind.listItem,
+    },
+  ),
+);
+```
+
 The native JSON transport is intentionally data-only. It does not execute
 JavaScript, render arbitrary webpages, serialize Flutter widgets, or define a
 complete CMS sync protocol. Benchmark evidence for this path is available from
@@ -304,6 +359,37 @@ Tagflow.document(document);
 The default policy rejects browser-dependent or executable elements such as
 `script`, `style`, `iframe`, forms, and unsafe URL schemes. Use explicit policy
 configuration when product requirements need stricter input rules.
+
+Controlled HTML can migrate onto the same callback path. Keep stable
+`data-tagflow-id` values, attach view-owned taps, and read sanitized authored
+attributes from the adapted runtime node:
+
+```dart
+Tagflow.html(
+  html: '''
+<section
+  data-tagflow-id="promo-card"
+  data-action-id="open-promo-sheet">
+  Promo content
+</section>
+''',
+  adapter: const TagflowHtmlAdapter(
+    nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(
+      fallbackToPath: false,
+    ),
+  ),
+  viewOptions: TagflowViewOptions(
+    nodeTapCallback: (details) {
+      final actionId = details.node.htmlAttributes['data-action-id'];
+      if (actionId == null) return;
+
+      // Route through app-owned navigation or command handling.
+      openAction(actionId);
+    },
+    tapTargetKinds: const {TagflowNodeKind.container},
+  ),
+);
+```
 
 ## Component Registry Overrides
 

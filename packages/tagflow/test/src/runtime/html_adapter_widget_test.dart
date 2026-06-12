@@ -671,15 +671,16 @@ void main() {
       final document = const TagflowHtmlAdapter().parse(html);
       final details = _singleNodeWithHtmlTag(document, 'details');
       final summary = _singleNodeWithHtmlTag(document, 'summary');
-      final attributes = details.metadata['htmlAttributes']! as Map;
 
       expect(details.kind, TagflowNodeKind.container);
+      expect(details.htmlTag, 'details');
+      expect(details.htmlAttributes, contains('open'));
       expect(details.presentation.variant, 'details');
       expect(details.kind, isNot(TagflowNodeKind.unsupported));
       expect(summary.kind, TagflowNodeKind.container);
+      expect(summary.htmlTag, 'summary');
       expect(summary.presentation.variant, 'summary');
       expect(summary.kind, isNot(TagflowNodeKind.unsupported));
-      expect(attributes, contains('open'));
     });
 
     test('maps description lists into first-class runtime nodes', () {
@@ -754,6 +755,26 @@ void main() {
       expect(table.caption!.tag, 'caption');
       expect(_flattenLegacyText(table.caption!), 'Revenue summary');
     });
+
+    test(
+      'exposes HTML policy diagnostics through adapter metadata helpers',
+      () {
+        const adapter = TagflowHtmlAdapter(
+          policy: TagflowContentPolicy(
+            allowedTags: {'p'},
+            unsupportedBehavior: TagflowUnsupportedBehavior.preservePlaceholder,
+          ),
+        );
+
+        final document = adapter.parse('<aside>Filtered</aside>');
+        final placeholder = document.children.single;
+
+        expect(placeholder.kind, TagflowNodeKind.unsupported);
+        expect(placeholder.htmlTag, 'div');
+        expect(placeholder.blockedHtmlTag, 'aside');
+        expect(placeholder.htmlPolicyDecisionReason, 'notInAllowlist');
+      },
+    );
 
     test('bridges HTML disclosure tags back to legacy nodes', () {
       const html = '''

@@ -86,6 +86,10 @@ Patch envelopes decode through the same codec, adapt with
 `TagflowNativeBlockAdapter.adaptPatches(...)`, and apply with
 `TagflowDocument.applyPatches(...)`.
 
+Runtime interactions stay view-owned: use
+`TagflowViewOptions.nodeTapCallback` plus `tapTargetKinds` for tappable
+semantic nodes, while links continue to use `linkTapCallback`.
+
 Parser, converter, selector, and legacy node APIs remain available during the
 alpha transition from `package:tagflow/legacy.dart`.
 
