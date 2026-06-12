@@ -110,10 +110,13 @@ for nullable runtime fields such as document `source`, node `text`, `url`,
 matching clear flag in the same call fails with `ArgumentError` so payload
 clearing is deliberate before beta. Remaining gaps for broader diff tooling:
 
-- no diff or patch result type
+- no public diff type
+- no public patch result metadata type
 
-Diff tooling can build on those helpers later, but no controller should be added
-until real app integration proves an imperative lifecycle API is needed.
+Diff tooling can build on those helpers later, but no controller or patch result
+metadata should be added until real app integration proves a concrete app-owned
+observation need that cannot be handled by the returned document, patch list,
+and existing query helpers.
 
 ### Cache boundaries
 
@@ -239,6 +242,27 @@ Contract:
 - Ordered insert operations target an existing sibling ID and insert new nodes
   immediately before that sibling, including at the document root.
 
+`TagflowDocumentPatchResult` is intentionally deferred for the beta-shape API.
+The current callers and examples treat patches as immutable document
+transforms: app state owns the patch envelope, applies the operation, and reads
+the returned `TagflowDocument` when it needs to render or query the result.
+Adding result metadata now would create another public contract before there is
+real-app evidence for which fields are necessary.
+
+Reopen result metadata only when a real app or benchmark needs one of these
+specific facts without re-traversing or retaining the authored patch envelope:
+
+- applied operation count for a mixed batch where partial application is also
+  explicitly designed;
+- changed, inserted, removed, or reused node IDs for app-owned animation,
+  selection, telemetry, or accessibility synchronization;
+- structured non-fatal warnings from a future adapter or policy layer.
+
+Do not use a patch result type for revision checks, merge conflicts, queueing,
+remote synchronization, routing, controller lifecycle, or CMS protocol
+semantics. Those remain app-owned unless a later SPEC proves a smaller generic
+contract.
+
 No controller should be added in this slice. If later needed, it should be a
 thin notifier around `TagflowDocument.applyPatch(...)`:
 
@@ -270,6 +294,11 @@ instead of coupling Tagflow to one imperative update model.
 - Runtime patch coverage proves append, insert-before, replace, remove,
   missing-target failure, duplicate-ID failure, replacement-ID validation, and
   untouched branch identity preservation.
+- Patch result metadata has been audited and deferred from the beta-shape API.
+  The returned document remains the generic runtime contract; apps that need
+  operation-level observation should retain their authored patch envelope or
+  query the updated document until real integration evidence proves a narrower
+  public result type.
 
 ### Landed benchmark slice
 
@@ -424,8 +453,8 @@ New guidance:
 
 - Should patch helpers stay extension-only through beta, or should they move to
   instance methods before stable?
-- Should patch application expose a `TagflowDocumentPatchResult` with changed
-  IDs and reused IDs, or is the new document enough for the first release?
+- What exact real-app evidence would justify reopening deferred
+  `TagflowDocumentPatchResult` metadata before stable?
 - Should duplicate-ID validation happen eagerly in `TagflowDocument` creation,
   only in patch APIs, or both?
 - Should benchmark fixtures add a native document fixture alongside HTML and
