@@ -5,7 +5,7 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Current reviewed PR head: `8b7e714`
+- Current reviewed PR head: `f044844`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: planning and coordination only; no publish, tag, version bump,
   beta/stable wording, package-page claim, public benchmark claim, or PR
@@ -29,6 +29,7 @@ pr72-draft:
 
 beta-preapproval:
   result=failed as expected
+  expectationPassed=true through gate:native-runtime:beta-preapproval-known-open
   blockers=[
     real-app-route,
     physical-observed-profile
@@ -69,7 +70,10 @@ documented beta-shape blocker in the public API freeze review, native runtime
 SPECs, or gate manifest.
 
 The native JSON example and current reference path should stay as-is unless
-new real-app evidence shows a contract gap.
+new real-app evidence shows a contract gap. The node-tap semantics follow-up
+now has a focused package slice: opted-in non-link tap targets expose
+button-like semantics while preserving child labels and the view-owned callback
+model.
 
 ## Open Decisions
 
@@ -133,6 +137,8 @@ no attached Android device.
 - If a credible target appears, run a bounded one-repeat native JSON probe
   before any repeat-5 collection.
 - Refresh docs when PR #72 head, CI, gate output, or owner decisions change.
+- Use `gate:native-runtime:beta-preapproval-known-open` for the current
+  expected-open beta-preapproval check while #73 and #75 remain open.
 - Keep raw benchmark artifacts under ignored `build/benchmarks/`.
 
 ## Non-Goals

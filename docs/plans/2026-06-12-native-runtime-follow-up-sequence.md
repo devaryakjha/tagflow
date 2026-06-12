@@ -6,10 +6,10 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Current reviewed PR head:
-  `8b7e714 test(benchmarks): record coredevice target signals`
+  `f044844 feat(runtime): add node tap semantics`
 - Latest anchored coordinator evidence:
-  `8b7e714 test(benchmarks): record coredevice target signals`, after
-  `85df994 docs(release): track physical profile gate`
+  `f044844 feat(runtime): add node tap semantics`, after
+  gate-tooling updates in `8897929` and `b4ff260`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -20,13 +20,13 @@ runtime expansion.
 Current anchored gate evidence:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for `8b7e714`.
+  passed for `f044844`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for `8b7e714` in run
-  `27430745763`.
+- GitHub Actions `CI / Validate` passed on PR #72 for `f044844` in run
+  `27432722965`.
 - Use PR #72 checks, not this historical anchor, for the current branch-head
   validation state.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
@@ -73,7 +73,8 @@ The native runtime direction is structurally in place:
 - `Tagflow.document(...)` and `Tagflow.html(...)` both route through the
   semantic runtime unless legacy custom converters are explicitly supplied.
 - Native block JSON document and patch transport are strict and data-only.
-- View-owned node taps and adapter metadata inspectors exist.
+- View-owned node taps, first button-like semantics for opted-in non-link tap
+  targets, and adapter metadata inspectors exist.
 - The first equivalent HTML/native fixture family has repeat-5 local evidence.
 
 The remaining blocking evidence gap is now the real-app route gate:
@@ -260,11 +261,26 @@ Acceptance after unblock:
 The current alpha.4 / pre-beta coordination cutline is
 `docs/plans/2026-06-12-alpha4-prebeta-coordination.md`.
 
-Slices 1 and 2 are complete. Slice 3 is currently a no-change reference-path
-confirmation because `examples/tagflow/lib/screens/native_json_example.dart`
-and `examples/tagflow/test/native_json_example_test.dart` already cover document
+Slices 1 and 2 are complete. Slice 3 is now a coverage-only reference-path
+confirmation: `examples/tagflow/lib/screens/native_json_example.dart`,
+`examples/tagflow/test/native_json_example_test.dart`, and
+`examples/tagflow/test/native_json_route_test.dart` cover document
 decode/render, patch envelope apply, revision updates, removal/reset behavior,
-and public metadata helper tap summaries.
+public metadata helper tap summaries, and home-route navigation into the native
+JSON screen. The node-tap follow-up now also has a focused package slice for
+button-like semantics on opted-in non-link tap targets.
+
+The current beta-preapproval health check is the manifest-owned known-open
+alias:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+  dart run melos run gate:native-runtime:beta-preapproval-known-open
+```
+
+It should pass only because `real-app-route` and
+`physical-observed-profile` are the expected open beta-preapproval gates. Do
+not reinterpret that expected-open pass as beta approval or gate closure.
 
 Do not start another repeat-5 profile rerun until the target qualification
 blocker changes, unless a future PR explicitly targets a different benchmark
