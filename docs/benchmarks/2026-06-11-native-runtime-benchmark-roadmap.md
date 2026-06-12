@@ -40,6 +40,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Memory repeat-5 local status | [`baselines/2026-06-12-memory-allocation-repeat5-local-status.md`](baselines/2026-06-12-memory-allocation-repeat5-local-status.md) | Required macOS repeat-5 profile baselines now exist for `tagflow:large_article`, `tagflow:table_stress`, and the authored-insertion control/patch pair, with bounded `--profile-memory` JSON captured for those lanes plus optional `tagflow_native_json:native_large_article`. | Report-only memory evidence; allocation claims still blocked by missing snapshots and diffs. |
 | Memory snapshot blocker | [`baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md) | The repeated profile runner can now request per-cell bounded `--profile-memory` files, record any VM service URI printed by Flutter, and optionally replay named hold-open checkpoints for DevTools attachment. Heap snapshots, class allocation diffs, and retained-object review still require manual export. | Allocation evidence still blocked. |
 | Checkpoint hold smoke | [`baselines/2026-06-12-checkpoint-hold-smoke.md`](baselines/2026-06-12-checkpoint-hold-smoke.md) | A one-repeat local macOS `tagflow:large_article` run with `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=1` passed, captured bounded memory JSON, recorded a VM service URI, and emitted named checkpoint attach markers. | Harness smoke only; DevTools exports still pending. |
+| Memory evidence manifest smoke | [`baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md) | A real one-repeat local macOS `tagflow:large_article` hold-open run wrote `memory-evidence-manifest.json`, linked it from the profile manifest, recorded expected DevTools export paths, and passed summary/check after the summary was generated. | Harness smoke only; manual heap snapshots, allocation diffs, and retained-object review still pending. |
 | Physical target probe | [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md), superseding the earlier [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) probe note | Current read-only discovery sees the iPhone 17 only in Flutter's wireless bucket while CoreDevice reports a paired local-network session with disconnected tunnel and unavailable DDI services; `xctrace` still lists the device offline. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 | Kite hosted-alpha app evidence | Kite evidence commit `be97da15`, adopted locally on `feat/dashboard` as `80160401` (`test(ipo): validate hosted tagflow alpha3`) | A focused Kite widget test consumes hosted `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`, renders checked-in IPO HTML fixture content through `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, and validates native block document/patch decode-adapt-apply. The local adoption commit is not pushed while `gitlab.zerodha.tech` DNS is unavailable. | App-integration evidence only; not profile evidence. |
@@ -165,12 +166,15 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   Reviewed repeat-5 baselines also exist for those lanes. Heap snapshots,
   allocation diffs, retained-object review, and promotion from bounded samples
   to reviewed allocation evidence remain follow-up work. The harness can now
-  replay named hold-open checkpoints for DevTools attachment, but the exports
-  still have to be captured manually. Use
+  replay named hold-open checkpoints for DevTools attachment and generate a
+  `memory-evidence-manifest.json` checklist, but the exports still have to be
+  captured manually. Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
   for the capture sequence and reviewed note requirements. The current
   non-device scoping blocker is recorded in
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md).
+  The latest real-harness manifest smoke is recorded in
+  [`docs/benchmarks/baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md).
 - Frame attribution: update-frame attribution exists for streaming updates, and
   static first-render, warm-rebuild, and warm-scroll phases are split. macOS
   local-runner launch markers are recorded separately as `launchAttribution`,
