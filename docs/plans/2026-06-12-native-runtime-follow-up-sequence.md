@@ -189,7 +189,8 @@ Acceptance after unblock:
 
 Type: benchmark/device/reference-target slice
 Status: PR #72 benchmark gate satisfied by synthetic report-only evidence;
-physical and observed-host qualification remain future work
+physical and observed-host qualification remain future work; latest physical
+target audit still found no credible device profile target
 
 #74 is satisfied for PR #72 by the accepted synthetic viewport path. That
 evidence proves internal harness stability only. It does not qualify this Mac
@@ -200,6 +201,13 @@ stable, or comparative performance claims.
 The equivalent answer-detail repeat-5 synthetic run is useful local evidence
 for PR #72, but repeating the observed-host command on the current `1.0x`
 display is still not expected to satisfy the `2.0x` observed-host policy.
+
+The latest physical-target availability refresh is
+`docs/benchmarks/baselines/2026-06-12-physical-target-availability-refresh-1752.md`.
+It found no connected physical iOS target in Flutter, all physical iOS devices
+offline in `xctrace`, only a disconnected local-network CoreDevice iPad, and no
+attached Android device. No profile probe was run because the selected target
+state did not meet the minimum availability bar.
 
 Future physical/observed-host work is blocked until one of these is true:
 

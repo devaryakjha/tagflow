@@ -159,6 +159,12 @@ evidence, supported-target profile evidence, and final release-gate approval.
   one-repeat iOS native JSON probe reached Xcode signing but produced no
   install, launch, integration artifact, or runtime metrics; see
   `docs/benchmarks/baselines/2026-06-12-ios-physical-signing-blocked.md`.
+  The latest physical-target availability refresh at
+  `docs/benchmarks/baselines/2026-06-12-physical-target-availability-refresh-1752.md`
+  still found no credible device profile target: Flutter exposed no connected
+  physical iOS device, `xctrace` listed physical iOS devices offline,
+  CoreDevice showed only a disconnected local-network iPad, and ADB had no
+  attached Android device.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
