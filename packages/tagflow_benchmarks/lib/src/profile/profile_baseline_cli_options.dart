@@ -16,6 +16,7 @@ final class ProfileBaselineCliOptions {
     required this.profileMemory,
     required this.profileHoldOpen,
     required this.profileHoldOpenSeconds,
+    required this.profileViewportConfiguration,
     this.pairs,
     this.runId,
   });
@@ -55,6 +56,17 @@ final class ProfileBaselineCliOptions {
           values['profile-hold-open'] ?? env['TAGFLOW_PROFILE_HOLD_OPEN'],
         ) ||
         profileHoldOpenSeconds != null;
+    final profileViewportConfiguration = _profileViewportConfiguration(
+      modeValue:
+          values['profile-viewport-mode'] ??
+          env['TAGFLOW_PROFILE_VIEWPORT_MODE'],
+      logicalSizeValue:
+          values['profile-synthetic-logical-size'] ??
+          env['TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE'],
+      devicePixelRatioValue:
+          values['profile-synthetic-device-pixel-ratio'] ??
+          env['TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO'],
+    );
 
     return ProfileBaselineCliOptions(
       renderers: pairs == null
@@ -89,6 +101,7 @@ final class ProfileBaselineCliOptions {
       profileHoldOpenSeconds: profileHoldOpen
           ? profileHoldOpenSeconds ?? defaultProfileHoldOpenSeconds
           : null,
+      profileViewportConfiguration: profileViewportConfiguration,
       pairs: pairs,
       runId: values['run-id'] ?? env['TAGFLOW_PROFILE_RUN_ID'],
     );
@@ -123,6 +136,9 @@ final class ProfileBaselineCliOptions {
 
   /// Hold-open duration in seconds, when checkpoint replay is enabled.
   final int? profileHoldOpenSeconds;
+
+  /// Viewport mode requested for this profile run.
+  final ProfileBaselineViewportConfiguration profileViewportConfiguration;
 
   /// Optional stable run id.
   final String? runId;
@@ -211,6 +227,76 @@ bool _boolFlag(String? value) {
   }
   final normalized = value.trim().toLowerCase();
   return normalized == 'true' || normalized == '1' || normalized == 'yes';
+}
+
+ProfileBaselineViewportConfiguration _profileViewportConfiguration({
+  required String? modeValue,
+  required String? logicalSizeValue,
+  required String? devicePixelRatioValue,
+}) {
+  final mode = _viewportMode(modeValue);
+  final hasLogicalSize =
+      logicalSizeValue != null && logicalSizeValue.trim().isNotEmpty;
+  final hasDevicePixelRatio =
+      devicePixelRatioValue != null && devicePixelRatioValue.trim().isNotEmpty;
+
+  if (mode == ProfileBaselineViewportMode.observedHost) {
+    if (hasLogicalSize || hasDevicePixelRatio) {
+      throw const FormatException(
+        'Synthetic viewport inputs require profile viewport mode synthetic.',
+      );
+    }
+    return const ProfileBaselineViewportConfiguration.observedHost();
+  }
+
+  if (!hasLogicalSize || !hasDevicePixelRatio) {
+    throw const FormatException(
+      'Synthetic viewport mode requires logical size and device pixel ratio.',
+    );
+  }
+
+  final logicalSize = _logicalSize(logicalSizeValue);
+  return ProfileBaselineViewportConfiguration.synthetic(
+    viewport: ProfileBaselineSyntheticViewport(
+      logicalWidth: logicalSize.$1,
+      logicalHeight: logicalSize.$2,
+      devicePixelRatio: _positiveDouble(devicePixelRatioValue),
+    ),
+  );
+}
+
+ProfileBaselineViewportMode _viewportMode(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return ProfileBaselineViewportMode.observedHost;
+  }
+  return switch (value.trim()) {
+    'observed_host' ||
+    'observedHost' => ProfileBaselineViewportMode.observedHost,
+    'synthetic' => ProfileBaselineViewportMode.synthetic,
+    _ => throw FormatException(
+      'Expected profile viewport mode observed_host or synthetic, got: $value',
+    ),
+  };
+}
+
+(double, double) _logicalSize(String value) {
+  final separator = value.toLowerCase().indexOf('x');
+  if (separator == -1 || separator != value.toLowerCase().lastIndexOf('x')) {
+    throw FormatException(
+      'Expected synthetic logical size as <width>x<height>, got: $value',
+    );
+  }
+  final width = _positiveDouble(value.substring(0, separator));
+  final height = _positiveDouble(value.substring(separator + 1));
+  return (width, height);
+}
+
+double _positiveDouble(String value) {
+  final parsed = double.tryParse(value.trim());
+  if (parsed == null || !parsed.isFinite || parsed <= 0) {
+    throw FormatException('Expected a finite positive number, got: $value');
+  }
+  return parsed;
 }
 
 List<String> _unique(Iterable<String> values) {

@@ -110,6 +110,33 @@ void main() {
     expect(options.profileHoldOpenSeconds, 120);
   });
 
+  test('defaults to observed-host viewport mode', () {
+    final options = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {},
+    );
+
+    expect(options.profileViewportConfiguration.mode.name, 'observedHost');
+    expect(options.profileViewportConfiguration.syntheticViewport, isNull);
+  });
+
+  test('parses synthetic viewport mode from environment', () {
+    final options = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {
+        'TAGFLOW_PROFILE_VIEWPORT_MODE': 'synthetic',
+        'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE': '800x600',
+        'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO': '2.0',
+      },
+    );
+
+    final viewport = options.profileViewportConfiguration.syntheticViewport!;
+    expect(options.profileViewportConfiguration.mode.name, 'synthetic');
+    expect(viewport.logicalWidth, 800);
+    expect(viewport.logicalHeight, 600);
+    expect(viewport.devicePixelRatio, 2);
+  });
+
   test('rejects malformed profile pairs', () {
     expect(
       () => ProfileBaselineCliOptions.parse(const [
@@ -124,6 +151,57 @@ void main() {
       () => ProfileBaselineCliOptions.parse(const [
         '--profile-hold-open-seconds=0',
       ], environment: const {}),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects partial synthetic viewport configuration', () {
+    expect(
+      () => ProfileBaselineCliOptions.parse(
+        const [],
+        environment: const {
+          'TAGFLOW_PROFILE_VIEWPORT_MODE': 'synthetic',
+          'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE': '800x600',
+        },
+      ),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects non-finite synthetic viewport values', () {
+    expect(
+      () => ProfileBaselineCliOptions.parse(
+        const [],
+        environment: const {
+          'TAGFLOW_PROFILE_VIEWPORT_MODE': 'synthetic',
+          'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE': '800xNaN',
+          'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO': '2.0',
+        },
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => ProfileBaselineCliOptions.parse(
+        const [],
+        environment: const {
+          'TAGFLOW_PROFILE_VIEWPORT_MODE': 'synthetic',
+          'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE': '800x600',
+          'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO': 'Infinity',
+        },
+      ),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects synthetic inputs in observed-host viewport mode', () {
+    expect(
+      () => ProfileBaselineCliOptions.parse(
+        const [],
+        environment: const {
+          'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE': '800x600',
+          'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO': '2.0',
+        },
+      ),
       throwsFormatException,
     );
   });

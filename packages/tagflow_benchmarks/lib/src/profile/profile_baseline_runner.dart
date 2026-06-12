@@ -21,6 +21,87 @@ const List<String> defaultProfileBaselineFixtures = [
 /// Default checkpoint hold-open duration for DevTools attachment.
 const int defaultProfileHoldOpenSeconds = 120;
 
+/// Profile benchmark viewport mode.
+enum ProfileBaselineViewportMode {
+  /// Use the host viewport reported by Flutter without test overrides.
+  observedHost,
+
+  /// Apply a synthetic logical size and DPR through test view overrides.
+  synthetic,
+}
+
+/// Synthetic viewport requested for profile benchmark collection.
+final class ProfileBaselineSyntheticViewport {
+  /// Creates a requested synthetic viewport.
+  const ProfileBaselineSyntheticViewport({
+    required this.logicalWidth,
+    required this.logicalHeight,
+    required this.devicePixelRatio,
+  });
+
+  /// Requested logical Flutter view width.
+  final double logicalWidth;
+
+  /// Requested logical Flutter view height.
+  final double logicalHeight;
+
+  /// Requested Flutter view device-pixel ratio.
+  final double devicePixelRatio;
+
+  /// Encodes the requested logical size as `<width>x<height>`.
+  String get logicalSizeValue =>
+      '${_formatDouble(logicalWidth)}x'
+      '${_formatDouble(logicalHeight)}';
+
+  /// Converts this synthetic viewport to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'logicalWidth': logicalWidth,
+    'logicalHeight': logicalHeight,
+    'devicePixelRatio': devicePixelRatio,
+  };
+}
+
+/// Profile viewport configuration passed to the benchmark harness.
+final class ProfileBaselineViewportConfiguration {
+  /// Creates an observed-host viewport configuration.
+  const ProfileBaselineViewportConfiguration.observedHost()
+    : mode = ProfileBaselineViewportMode.observedHost,
+      syntheticViewport = null;
+
+  /// Creates a synthetic viewport configuration.
+  const ProfileBaselineViewportConfiguration.synthetic({
+    required ProfileBaselineSyntheticViewport viewport,
+  }) : mode = ProfileBaselineViewportMode.synthetic,
+       syntheticViewport = viewport;
+
+  /// Viewport collection mode.
+  final ProfileBaselineViewportMode mode;
+
+  /// Requested synthetic viewport, when [mode] is synthetic.
+  final ProfileBaselineSyntheticViewport? syntheticViewport;
+
+  /// Environment values consumed by the root Melos profile script.
+  Map<String, String> toEnvironment() {
+    final syntheticViewport = this.syntheticViewport;
+    return <String, String>{
+      'TAGFLOW_PROFILE_VIEWPORT_MODE': _viewportModeValue(mode),
+      if (syntheticViewport != null) ...<String, String>{
+        'TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE':
+            syntheticViewport.logicalSizeValue,
+        'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO': _formatDouble(
+          syntheticViewport.devicePixelRatio,
+        ),
+      },
+    };
+  }
+
+  /// Converts this configuration to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'mode': _viewportModeValue(mode),
+    'syntheticViewport': syntheticViewport?.toJson(),
+  };
+}
+
 /// One explicit profile benchmark renderer/fixture cell.
 final class ProfileBaselineCell {
   /// Creates one explicit profile baseline cell.
@@ -91,6 +172,7 @@ final class ProfileBaselineManifest {
     required this.profileMemory,
     required this.profileHoldOpen,
     required this.profileHoldOpenSeconds,
+    required this.profileViewportConfiguration,
     required this.renderers,
     required this.fixtures,
     required this.selectionMode,
@@ -129,6 +211,9 @@ final class ProfileBaselineManifest {
 
   /// Hold-open duration for checkpoint replay, when enabled.
   final int? profileHoldOpenSeconds;
+
+  /// Viewport mode requested for this profile run.
+  final ProfileBaselineViewportConfiguration profileViewportConfiguration;
 
   /// Renderer ids included in this run.
   final List<String> renderers;
@@ -171,6 +256,7 @@ final class ProfileBaselineManifest {
     'profileMemory': profileMemory,
     'profileHoldOpen': profileHoldOpen,
     'profileHoldOpenSeconds': profileHoldOpenSeconds,
+    'profileViewportConfiguration': profileViewportConfiguration.toJson(),
     'renderers': renderers,
     'fixtures': fixtures,
     'selectionMode': selectionMode,
@@ -312,6 +398,8 @@ final class ProfileBaselineRunner {
     this.profileMemory = false,
     bool profileHoldOpen = false,
     int? profileHoldOpenSeconds,
+    this.profileViewportConfiguration =
+        const ProfileBaselineViewportConfiguration.observedHost(),
     this.pairs,
     ProfileProcessRunner? processRunner,
     ProfileEnvironmentProcessRunner? environmentProcessRunner,
@@ -403,6 +491,9 @@ final class ProfileBaselineRunner {
   /// Hold-open duration for checkpoint replay, when enabled.
   final int? profileHoldOpenSeconds;
 
+  /// Viewport mode requested for this profile run.
+  final ProfileBaselineViewportConfiguration profileViewportConfiguration;
+
   /// Explicit renderer/fixture cells to run instead of the renderer matrix.
   final List<ProfileBaselineCell>? pairs;
 
@@ -448,6 +539,7 @@ final class ProfileBaselineRunner {
           'TAGFLOW_RENDERER': renderer,
           'TAGFLOW_FIXTURE': fixture,
           'TAGFLOW_PROFILE_DEVICE': device,
+          ...profileViewportConfiguration.toEnvironment(),
         };
         if (memoryProfile != null) {
           processEnvironment['TAGFLOW_PROFILE_MEMORY_FILE'] =
@@ -624,6 +716,7 @@ final class ProfileBaselineRunner {
       profileMemory: profileMemory,
       profileHoldOpen: profileHoldOpen,
       profileHoldOpenSeconds: profileHoldOpenSeconds,
+      profileViewportConfiguration: profileViewportConfiguration,
       renderers: List<String>.unmodifiable(renderers),
       fixtures: List<String>.unmodifiable(fixtures),
       selectionMode: selectedPairs == null ? 'matrix' : 'pairs',
@@ -673,6 +766,20 @@ final class ProfileBaselineRunner {
       }
     }
   }
+}
+
+String _viewportModeValue(ProfileBaselineViewportMode mode) {
+  return switch (mode) {
+    ProfileBaselineViewportMode.observedHost => 'observed_host',
+    ProfileBaselineViewportMode.synthetic => 'synthetic',
+  };
+}
+
+String _formatDouble(double value) {
+  if (value == value.roundToDouble()) {
+    return value.toStringAsFixed(0);
+  }
+  return value.toString();
 }
 
 String _writeMemoryEvidenceManifest({

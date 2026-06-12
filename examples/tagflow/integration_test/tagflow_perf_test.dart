@@ -14,6 +14,8 @@ import 'package:tagflow_example/benchmarks/renderer_registry.dart';
 import 'package:tagflow_example/benchmarks/semantic_patch_stream.dart';
 import 'package:tagflow_example/screens/benchmark_screen.dart';
 
+import 'profile_viewport.dart';
+
 const double _frameBudgetMillis = 16.667;
 
 void main() {
@@ -35,6 +37,10 @@ void main() {
     final renderer = benchmarkRendererById(rendererId);
 
     _verifyRendererFixturePair(renderer: renderer, fixture: fixture);
+    final viewportMode = applyProfileViewport(
+      tester,
+      options: _profileViewportOptionsFromEnvironment(),
+    );
 
     if (fixture.scenario == BenchmarkScenario.streamingChunks) {
       await _runStreamingBenchmark(
@@ -42,6 +48,7 @@ void main() {
         binding: binding,
         fixture: fixture,
         renderer: renderer,
+        viewportMode: viewportMode,
       );
       return;
     }
@@ -52,6 +59,7 @@ void main() {
         binding: binding,
         fixture: fixture,
         renderer: renderer,
+        viewportMode: viewportMode,
       );
       return;
     }
@@ -71,10 +79,10 @@ void main() {
       holdOptions: checkpointHold,
     );
     _recordViewport(
-      tester,
       binding,
       rendererId: rendererId,
       fixtureId: fixtureId,
+      viewportMode: viewportMode,
     );
     await _recordLaunchAttribution(
       binding,
@@ -148,6 +156,7 @@ Future<void> _runStreamingBenchmark({
   required IntegrationTestWidgetsFlutterBinding binding,
   required ProfileBenchmarkFixture fixture,
   required BenchmarkRenderer renderer,
+  required ProfileViewportModePayload viewportMode,
 }) async {
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
   final updateLatencies = <Map<String, Object?>>[];
@@ -167,10 +176,10 @@ Future<void> _runStreamingBenchmark({
     holdOptions: checkpointHold,
   );
   _recordViewport(
-    tester,
     binding,
     rendererId: renderer.id,
     fixtureId: fixture.id,
+    viewportMode: viewportMode,
   );
   await _recordLaunchAttribution(
     binding,
@@ -263,6 +272,7 @@ Future<void> _runSemanticPatchStreamingBenchmark({
   required IntegrationTestWidgetsFlutterBinding binding,
   required ProfileBenchmarkFixture fixture,
   required BenchmarkRenderer renderer,
+  required ProfileViewportModePayload viewportMode,
 }) async {
   final fullDocument = await rootBundle.loadString(fixture.source.assetPath);
   final stream = SemanticPatchStream.fromFixture(fixture, fullDocument);
@@ -283,10 +293,10 @@ Future<void> _runSemanticPatchStreamingBenchmark({
     holdOptions: checkpointHold,
   );
   _recordViewport(
-    tester,
     binding,
     rendererId: renderer.id,
     fixtureId: fixture.id,
+    viewportMode: viewportMode,
   );
   await _recordLaunchAttribution(
     binding,
@@ -404,32 +414,33 @@ void _recordCheckpointHoldConfig(
       holdOptions.toJson();
 }
 
+ProfileViewportOptions _profileViewportOptionsFromEnvironment() {
+  return ProfileViewportOptions.parse(
+    modeValue: const String.fromEnvironment(
+      'TAGFLOW_PROFILE_VIEWPORT_MODE',
+      defaultValue: 'observed_host',
+    ),
+    logicalSizeValue: _nonEmptyEnvironmentValue(
+      const String.fromEnvironment('TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE'),
+    ),
+    devicePixelRatioValue: _nonEmptyEnvironmentValue(
+      const String.fromEnvironment(
+        'TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO',
+      ),
+    ),
+  );
+}
+
 void _recordViewport(
-  WidgetTester tester,
   IntegrationTestWidgetsFlutterBinding binding, {
   required String rendererId,
   required String fixtureId,
+  required ProfileViewportModePayload viewportMode,
 }) {
-  final physicalSize = tester.view.physicalSize;
-  final devicePixelRatio = tester.view.devicePixelRatio;
-  final viewport = <String, Object?>{
-    'logicalWidth': physicalSize.width / devicePixelRatio,
-    'logicalHeight': physicalSize.height / devicePixelRatio,
-    'physicalWidth': physicalSize.width,
-    'physicalHeight': physicalSize.height,
-    'devicePixelRatio': devicePixelRatio,
-  };
   binding.reportData!['${rendererId}_${fixtureId}_viewport'] =
-      <String, Object?>{...viewport};
-  binding.reportData!['${rendererId}_${fixtureId}_viewport_mode'] =
-      <String, Object?>{
-        'schemaVersion': 1,
-        'mode': 'observedHost',
-        'requested': null,
-        'observedHostBeforeOverride': viewport,
-        'applied': null,
-        'caveats': <String>[],
-      };
+      <String, Object?>{...viewportMode.effectiveViewport};
+  binding.reportData!['${rendererId}_${fixtureId}_viewport_mode'] = viewportMode
+      .toJson();
 }
 
 Future<void> _recordLaunchAttribution(

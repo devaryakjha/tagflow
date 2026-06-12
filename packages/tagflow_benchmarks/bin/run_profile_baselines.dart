@@ -33,6 +33,7 @@ Future<void> main(List<String> arguments) async {
     profileMemory: options.profileMemory,
     profileHoldOpen: options.profileHoldOpen,
     profileHoldOpenSeconds: options.profileHoldOpenSeconds,
+    profileViewportConfiguration: options.profileViewportConfiguration,
   );
 
   final manifest = await runner.run();
@@ -71,6 +72,15 @@ Options:
   --profile-hold-open-seconds=<count>
                     Hold each checkpoint open for the given number of seconds.
                     Also accepts TAGFLOW_PROFILE_HOLD_OPEN_SECONDS.
+  --profile-viewport-mode=<mode>
+                    Viewport mode: observed_host or synthetic.
+                    Also accepts TAGFLOW_PROFILE_VIEWPORT_MODE.
+  --profile-synthetic-logical-size=<width>x<height>
+                    Synthetic logical viewport size, required in synthetic mode.
+                    Also accepts TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE.
+  --profile-synthetic-device-pixel-ratio=<number>
+                    Synthetic device-pixel ratio, required in synthetic mode.
+                    Also accepts TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO.
 
 Example:
   TAGFLOW_RENDERER=tagflow \

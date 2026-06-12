@@ -6,10 +6,10 @@
 - Scope: Tagflow example-app profile benchmark harness
 - Classification: design candidate for review
 - Related gate: #74 qualified native runtime benchmark evidence
-- Current posture: Slice 1 observed-host metadata is implemented on the PR
-  branch; synthetic override, checker-policy mode, synthetic probe, and
-  repeat-5 collection are not implemented. No benchmark evidence is promoted
-  by this document.
+- Current posture: Slice 1 observed-host metadata and Slice 2 synthetic
+  override plumbing are implemented on the PR branch. Checker-policy mode,
+  synthetic probe qualification, and repeat-5 collection are not implemented.
+  No benchmark evidence is promoted by this document.
 
 ## Purpose
 
@@ -162,6 +162,8 @@ Acceptance:
 - No benchmark command behavior changes.
 
 ### Slice 2: Synthetic Override Plumbing
+
+Implementation status: implemented on the PR branch.
 
 Files:
 

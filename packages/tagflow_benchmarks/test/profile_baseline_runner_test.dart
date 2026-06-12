@@ -391,6 +391,83 @@ void main() {
     expect(logJson['profileHoldOpenSeconds'], 90);
   });
 
+  test('passes synthetic viewport settings into each run', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_synthetic_viewport_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    late Map<String, String> environment;
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow'],
+      fixtures: const ['ai_answer_rich'],
+      repeatCount: 1,
+      runId: '2026-06-12T12-15-00Z',
+      profileViewportConfiguration:
+          const ProfileBaselineViewportConfiguration.synthetic(
+            viewport: ProfileBaselineSyntheticViewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ),
+      processRunner: (executable, arguments, options) async {
+        environment = options.environment;
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': 1,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(751, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(environment['TAGFLOW_PROFILE_VIEWPORT_MODE'], 'synthetic');
+    expect(environment['TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE'], '800x600');
+    expect(environment['TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO'], '2');
+    expect(
+      manifest.profileViewportConfiguration.mode,
+      ProfileBaselineViewportMode.synthetic,
+    );
+
+    final manifestPath = p.join(
+      workspaceRoot.path,
+      'build',
+      'benchmarks',
+      'profile',
+      '2026-06-12T12-15-00Z',
+      'profile-baseline-manifest.json',
+    );
+    final json =
+        jsonDecode(File(manifestPath).readAsStringSync())
+            as Map<String, Object?>;
+    expect(json['profileViewportConfiguration'], <String, Object?>{
+      'mode': 'synthetic',
+      'syntheticViewport': <String, Object?>{
+        'logicalWidth': 800.0,
+        'logicalHeight': 600.0,
+        'devicePixelRatio': 2.0,
+      },
+    });
+  });
+
   test(
     'writes memory evidence checkpoint manifest for hold-open runs',
     () async {
