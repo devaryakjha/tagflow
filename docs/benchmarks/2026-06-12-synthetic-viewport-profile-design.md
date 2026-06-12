@@ -7,9 +7,10 @@
 - Classification: design candidate for review
 - Related gate: #74 qualified native runtime benchmark evidence
 - Current posture: Slice 1 observed-host metadata and Slice 2 synthetic
-  override plumbing are implemented on the PR branch. Checker-policy mode,
-  synthetic probe qualification, and repeat-5 collection are not implemented.
-  No benchmark evidence is promoted by this document.
+  override plumbing are implemented on the PR branch. Slice 3 checker-policy
+  mode is implemented on the PR branch. Synthetic probe qualification and
+  repeat-5 collection are not implemented. No benchmark evidence is promoted
+  by this document.
 
 ## Purpose
 
@@ -191,10 +192,12 @@ Acceptance:
 
 ### Slice 3: Checker Policy Mode
 
+Implementation status: implemented on the PR branch.
+
 Files:
 
 - `docs/benchmarks/policies/profile-reference-runner-policy.json`
-- optionally a second synthetic policy JSON
+- `docs/benchmarks/policies/profile-synthetic-viewport-policy.json`
 - `packages/tagflow_benchmarks/lib/src/profile/profile_baseline_check.dart`
 - focused checker tests
 

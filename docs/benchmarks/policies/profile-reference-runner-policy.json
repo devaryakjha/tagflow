@@ -18,6 +18,7 @@
   },
   "check": {
     "minRepeats": 5,
+    "viewportMode": "observed_host",
     "expectedViewport": {
       "logicalWidth": 800,
       "logicalHeight": 600,

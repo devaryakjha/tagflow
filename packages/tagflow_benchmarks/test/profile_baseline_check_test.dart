@@ -467,10 +467,33 @@ void main() {
 
     expect(policy.id, 'tagflow-alpha-macos-reference-report-only');
     expect(policy.minRepeats, 5);
+    expect(policy.viewportMode, ProfileBaselineViewportPolicyMode.observedHost);
     expect(policy.thresholdMode, 'report_only');
     expect(policy.expectedViewport?.logicalWidth, 800);
     expect(policy.expectedViewport?.logicalHeight, 600);
     expect(policy.expectedViewport?.devicePixelRatio, 2);
+  });
+
+  test('defaults missing policy viewport mode to observed-host', () {
+    final policyFile = _writePolicy(includeViewportMode: false);
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+
+    final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
+
+    expect(policy.viewportMode, ProfileBaselineViewportPolicyMode.observedHost);
+  });
+
+  test('rejects synthetic policy without expected viewport', () {
+    final policyFile = _writePolicy(
+      viewportMode: 'synthetic',
+      includeExpectedViewport: false,
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+
+    expect(
+      () => ProfileBaselineCheckPolicy.fromFile(policyFile),
+      throwsA(isA<FormatException>()),
+    );
   });
 
   test('applies policy repeat count and viewport guard', () {
@@ -506,6 +529,270 @@ void main() {
     expect(result.minRepeats, 5);
     expect(result.toJson(), containsPair('policy', policy.toJson()));
   });
+
+  test('observed-host policy rejects synthetic viewport metadata', () {
+    final policyFile = _writePolicy();
+    final summaryFile = _writeSummary(
+      totalRuns: 5,
+      successfulRuns: 5,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+          viewportModes: <Map<String, Object?>>[_syntheticViewportMode()],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'synthetic_viewport_not_allowed');
+    expect(
+      result.issues.single.details,
+      containsPair('policyViewportMode', 'observed_host'),
+    );
+  });
+
+  test('synthetic policy fails when synthetic mode metadata is missing', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'missing_synthetic_viewport_mode');
+  });
+
+  test('synthetic policy fails when requested metadata is missing', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[
+            _syntheticViewportMode(requested: null),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'missing_synthetic_requested_viewport');
+  });
+
+  test('synthetic policy fails when requested metadata mismatches policy', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[
+            _syntheticViewportMode(
+              requested: <String, Object?>{
+                'logicalWidth': 390.0,
+                'logicalHeight': 844.0,
+                'devicePixelRatio': 3.0,
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(
+      result.issues.single.code,
+      'unexpected_synthetic_requested_viewport',
+    );
+    expect(result.issues.single.details, contains('observedRequestedViewport'));
+  });
+
+  test('synthetic policy fails when applied metadata is missing', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[
+            _syntheticViewportMode(applied: null),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'missing_synthetic_applied_viewport');
+  });
+
+  test('synthetic policy fails when applied metadata mismatches policy', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[
+            _syntheticViewportMode(
+              applied: _viewport(
+                logicalWidth: 1024,
+                logicalHeight: 768,
+                devicePixelRatio: 2,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'unexpected_synthetic_applied_viewport');
+    expect(result.issues.single.details, contains('observedAppliedViewport'));
+  });
+
+  test('synthetic policy fails when host metadata is missing', () {
+    final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[
+            _syntheticViewportMode(observedHostBeforeOverride: null),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'missing_synthetic_host_viewport');
+  });
+
+  test(
+    'synthetic policy passes collection quality with report-only finding',
+    () {
+      final policyFile = _writePolicy(viewportMode: 'synthetic', minRepeats: 1);
+      final summaryFile = _writeSummary(
+        totalRuns: 1,
+        successfulRuns: 1,
+        cellSummaries: <Map<String, Object?>>[
+          _cellSummary(
+            renderer: 'tagflow',
+            fixture: 'ai_answer_rich',
+            repeats: 1,
+            viewports: <Map<String, Object?>>[
+              _viewport(
+                logicalWidth: 800,
+                logicalHeight: 600,
+                devicePixelRatio: 2,
+              ),
+            ],
+            viewportModes: <Map<String, Object?>>[_syntheticViewportMode()],
+          ),
+        ],
+      );
+      addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+      addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+      final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
+      final result = checkProfileBaselineSummary(
+        summaryFile: summaryFile,
+        policy: policy,
+      );
+
+      expect(result.passed, isTrue);
+      expect(result.issues, isEmpty);
+      expect(
+        result.policy!.viewportMode,
+        ProfileBaselineViewportPolicyMode.synthetic,
+      );
+      expect(
+        result.reportOnlyFindings.map((finding) => finding.code),
+        contains('synthetic_viewport_not_reference_target'),
+      );
+    },
+  );
 
   test('rejects policy modes that would add performance gates', () {
     final policyFile = _writePolicy(thresholdMode: 'enforced');
@@ -553,6 +840,7 @@ Map<String, Object?> _cellSummary({
   required String fixture,
   required int repeats,
   List<Map<String, Object?>> viewports = const <Map<String, Object?>>[],
+  List<Map<String, Object?>> viewportModes = const <Map<String, Object?>>[],
   List<Map<String, Object?>> outlierRepeats = const <Map<String, Object?>>[],
   Map<String, Object?>? launchAttribution,
   Map<String, Object?>? newGenGcCount,
@@ -564,6 +852,7 @@ Map<String, Object?> _cellSummary({
   if (newGenGcCount != null) 'newGenGcCount': newGenGcCount,
   if (oldGenGcCount != null) 'oldGenGcCount': oldGenGcCount,
   'viewports': viewports,
+  if (viewportModes.isNotEmpty) 'viewportModes': viewportModes,
   'launchAttribution':
       launchAttribution ??
       <String, Object?>{
@@ -606,7 +895,48 @@ Map<String, Object?> _viewport({
   'devicePixelRatio': devicePixelRatio.toDouble(),
 };
 
-File _writePolicy({String thresholdMode = 'report_only'}) {
+Map<String, Object?> _syntheticViewportMode({
+  Map<String, Object?>? requested = const <String, Object?>{
+    'logicalWidth': 800.0,
+    'logicalHeight': 600.0,
+    'devicePixelRatio': 2.0,
+  },
+  Map<String, Object?>? observedHostBeforeOverride = const <String, Object?>{
+    'logicalWidth': 800.0,
+    'logicalHeight': 600.0,
+    'physicalWidth': 800.0,
+    'physicalHeight': 600.0,
+    'devicePixelRatio': 1.0,
+  },
+  Map<String, Object?>? applied = const <String, Object?>{
+    'logicalWidth': 800.0,
+    'logicalHeight': 600.0,
+    'physicalWidth': 1600.0,
+    'physicalHeight': 1200.0,
+    'devicePixelRatio': 2.0,
+  },
+}) {
+  return <String, Object?>{
+    'schemaVersion': 1,
+    'mode': 'synthetic',
+    'requested': requested,
+    'observedHostBeforeOverride': observedHostBeforeOverride,
+    'applied': applied,
+    'caveats': <String>[
+      'test_view_override',
+      'not_real_display_scale',
+      'not_public_reference_target',
+    ],
+  };
+}
+
+File _writePolicy({
+  String thresholdMode = 'report_only',
+  String viewportMode = 'observed_host',
+  int minRepeats = 5,
+  bool includeViewportMode = true,
+  bool includeExpectedViewport = true,
+}) {
   final directory = Directory.systemTemp.createTempSync(
     'tagflow_profile_policy_test_',
   );
@@ -615,12 +945,14 @@ File _writePolicy({String thresholdMode = 'report_only'}) {
       'schemaVersion': 1,
       'id': 'tagflow-alpha-macos-reference-report-only',
       'check': <String, Object?>{
-        'minRepeats': 5,
-        'expectedViewport': <String, Object?>{
-          'logicalWidth': 800,
-          'logicalHeight': 600,
-          'devicePixelRatio': 2,
-        },
+        'minRepeats': minRepeats,
+        if (includeViewportMode) 'viewportMode': viewportMode,
+        if (includeExpectedViewport)
+          'expectedViewport': <String, Object?>{
+            'logicalWidth': 800,
+            'logicalHeight': 600,
+            'devicePixelRatio': 2,
+          },
       },
       'thresholdPolicy': <String, Object?>{
         'mode': thresholdMode,

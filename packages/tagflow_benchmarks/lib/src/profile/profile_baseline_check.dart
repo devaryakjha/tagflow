@@ -50,12 +50,22 @@ final class ProfileBaselineExpectedViewport {
   }
 }
 
+/// Viewport metadata policy for a profile baseline check.
+enum ProfileBaselineViewportPolicyMode {
+  /// Require a real observed-host viewport and reject synthetic metadata.
+  observedHost,
+
+  /// Require synthetic requested/applied metadata.
+  synthetic,
+}
+
 /// Machine-readable policy for the profile baseline checker.
 final class ProfileBaselineCheckPolicy {
   /// Creates a profile baseline check policy.
   const ProfileBaselineCheckPolicy({
     required this.id,
     required this.minRepeats,
+    required this.viewportMode,
     required this.expectedViewport,
     required this.thresholdMode,
   });
@@ -101,6 +111,8 @@ final class ProfileBaselineCheckPolicy {
       );
     }
 
+    final viewportMode = _readViewportPolicyMode(check['viewportMode']);
+
     final thresholdPolicy = json['thresholdPolicy'];
     if (thresholdPolicy is! Map<String, Object?>) {
       throw const FormatException(
@@ -129,9 +141,17 @@ final class ProfileBaselineCheckPolicy {
       );
     }
 
+    if (viewportMode == ProfileBaselineViewportPolicyMode.synthetic &&
+        expectedViewport == null) {
+      throw const FormatException(
+        'Synthetic profile baseline policy requires check.expectedViewport.',
+      );
+    }
+
     return ProfileBaselineCheckPolicy(
       id: id,
       minRepeats: minRepeats,
+      viewportMode: viewportMode,
       expectedViewport: expectedViewport,
       thresholdMode: thresholdMode,
     );
@@ -142,6 +162,9 @@ final class ProfileBaselineCheckPolicy {
 
   /// Minimum successful repeat count per renderer/fixture cell.
   final int minRepeats;
+
+  /// Viewport metadata mode required by this policy.
+  final ProfileBaselineViewportPolicyMode viewportMode;
 
   /// Expected viewport for a pinned reference runner, when known.
   final ProfileBaselineExpectedViewport? expectedViewport;
@@ -156,6 +179,7 @@ final class ProfileBaselineCheckPolicy {
   Map<String, Object?> toJson() => <String, Object?>{
     'id': id,
     'minRepeats': minRepeats,
+    'viewportMode': _viewportPolicyModeValue(viewportMode),
     'expectedViewport': expectedViewport?.toJson(),
     'thresholdMode': thresholdMode,
   };
@@ -239,6 +263,8 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
 }) {
   final effectiveMinRepeats = minRepeats ?? policy?.minRepeats ?? 1;
   final effectiveViewport = expectedViewport ?? policy?.expectedViewport;
+  final effectiveViewportMode =
+      policy?.viewportMode ?? ProfileBaselineViewportPolicyMode.observedHost;
   if (effectiveMinRepeats < 1) {
     throw ArgumentError.value(
       effectiveMinRepeats,
@@ -402,6 +428,41 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
       );
     }
 
+    final viewportModes =
+        ((cell['viewportModes'] as List<Object?>?) ?? const [])
+            .cast<Map<String, Object?>>();
+
+    if (effectiveViewportMode == ProfileBaselineViewportPolicyMode.synthetic) {
+      _checkSyntheticViewportMode(
+        cell: cell,
+        viewportModes: viewportModes,
+        expectedViewport: effectiveViewport!,
+        issues: issues,
+        reportOnlyFindings: reportOnlyFindings,
+      );
+      continue;
+    }
+
+    final syntheticViewportModes = viewportModes
+        .where((mode) => mode['mode'] == 'synthetic')
+        .toList(growable: false);
+    if (syntheticViewportModes.isNotEmpty) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'synthetic_viewport_not_allowed',
+          message:
+              'An observed-host profile policy cannot qualify synthetic '
+              'viewport artifacts.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'policyViewportMode': 'observed_host',
+            'viewportModes': syntheticViewportModes,
+          },
+        ),
+      );
+    }
+
     if (effectiveViewport == null) {
       continue;
     }
@@ -457,6 +518,148 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
   );
 }
 
+void _checkSyntheticViewportMode({
+  required Map<String, Object?> cell,
+  required List<Map<String, Object?>> viewportModes,
+  required ProfileBaselineExpectedViewport expectedViewport,
+  required List<ProfileBaselineCheckIssue> issues,
+  required List<ProfileBaselineCheckIssue> reportOnlyFindings,
+}) {
+  final syntheticModes = viewportModes
+      .where((mode) => mode['mode'] == 'synthetic')
+      .toList(growable: false);
+  if (syntheticModes.isEmpty) {
+    issues.add(
+      ProfileBaselineCheckIssue(
+        code: 'missing_synthetic_viewport_mode',
+        message:
+            'A synthetic profile policy requires synthetic viewport-mode '
+            'metadata.',
+        details: <String, Object?>{
+          'renderer': cell['renderer'],
+          'fixture': cell['fixture'],
+          'expectedViewport': expectedViewport.toJson(),
+        },
+      ),
+    );
+    return;
+  }
+
+  final missingRequested = syntheticModes
+      .where((mode) => mode['requested'] == null)
+      .toList(growable: false);
+  if (missingRequested.isNotEmpty) {
+    issues.add(
+      ProfileBaselineCheckIssue(
+        code: 'missing_synthetic_requested_viewport',
+        message:
+            'Synthetic viewport-mode metadata is missing the requested '
+            'viewport.',
+        details: <String, Object?>{
+          'renderer': cell['renderer'],
+          'fixture': cell['fixture'],
+          'expectedViewport': expectedViewport.toJson(),
+          'viewportModes': missingRequested,
+        },
+      ),
+    );
+  }
+
+  final missingHost = syntheticModes
+      .where((mode) => mode['observedHostBeforeOverride'] == null)
+      .toList(growable: false);
+  if (missingHost.isNotEmpty) {
+    issues.add(
+      ProfileBaselineCheckIssue(
+        code: 'missing_synthetic_host_viewport',
+        message:
+            'Synthetic viewport-mode metadata is missing host viewport '
+            'metadata captured before the override.',
+        details: <String, Object?>{
+          'renderer': cell['renderer'],
+          'fixture': cell['fixture'],
+          'viewportModes': missingHost,
+        },
+      ),
+    );
+  }
+
+  final missingApplied = syntheticModes
+      .where((mode) => mode['applied'] == null)
+      .toList(growable: false);
+  if (missingApplied.isNotEmpty) {
+    issues.add(
+      ProfileBaselineCheckIssue(
+        code: 'missing_synthetic_applied_viewport',
+        message:
+            'Synthetic viewport-mode metadata is missing the applied '
+            'viewport.',
+        details: <String, Object?>{
+          'renderer': cell['renderer'],
+          'fixture': cell['fixture'],
+          'expectedViewport': expectedViewport.toJson(),
+          'viewportModes': missingApplied,
+        },
+      ),
+    );
+  }
+
+  for (final mode in syntheticModes) {
+    final requested = mode['requested'];
+    if (requested is Map<String, Object?> &&
+        !expectedViewport.matches(requested)) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'unexpected_synthetic_requested_viewport',
+          message:
+              'Synthetic requested viewport metadata does not match the '
+              'configured policy.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'expectedViewport': expectedViewport.toJson(),
+            'observedRequestedViewport': requested,
+          },
+        ),
+      );
+    }
+
+    final applied = mode['applied'];
+    if (applied is Map<String, Object?> && !expectedViewport.matches(applied)) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'unexpected_synthetic_applied_viewport',
+          message:
+              'Synthetic applied viewport metadata does not match the '
+              'configured policy.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'expectedViewport': expectedViewport.toJson(),
+            'observedAppliedViewport': applied,
+          },
+        ),
+      );
+    }
+  }
+
+  reportOnlyFindings.add(
+    ProfileBaselineCheckIssue(
+      code: 'synthetic_viewport_not_reference_target',
+      message:
+          'Synthetic viewport profile evidence is harness-stability evidence '
+          'only and does not qualify a real reference display target.',
+      details: <String, Object?>{
+        'renderer': cell['renderer'],
+        'fixture': cell['fixture'],
+        'policyViewportMode': 'synthetic',
+        'expectedViewport': expectedViewport.toJson(),
+        'viewportModes': syntheticModes,
+      },
+    ),
+  );
+}
+
 double _readDouble(Map<String, Object?> map, String key) {
   final value = map[key];
   if (value case final num number) {
@@ -464,6 +667,33 @@ double _readDouble(Map<String, Object?> map, String key) {
   }
 
   throw FormatException('Expected numeric "$key" in viewport metadata.');
+}
+
+ProfileBaselineViewportPolicyMode _readViewportPolicyMode(Object? value) {
+  if (value == null) {
+    return ProfileBaselineViewportPolicyMode.observedHost;
+  }
+  if (value is! String) {
+    throw const FormatException(
+      'Profile baseline policy check.viewportMode must be a string.',
+    );
+  }
+  return switch (value.trim()) {
+    'observed_host' ||
+    'observedHost' => ProfileBaselineViewportPolicyMode.observedHost,
+    'synthetic' => ProfileBaselineViewportPolicyMode.synthetic,
+    _ => throw FormatException(
+      'Expected policy check.viewportMode observed_host or synthetic, got: '
+      '$value',
+    ),
+  };
+}
+
+String _viewportPolicyModeValue(ProfileBaselineViewportPolicyMode mode) {
+  return switch (mode) {
+    ProfileBaselineViewportPolicyMode.observedHost => 'observed_host',
+    ProfileBaselineViewportPolicyMode.synthetic => 'synthetic',
+  };
 }
 
 String? _memoryEvidenceFixtureFor(Map<String, Object?> cell) {
