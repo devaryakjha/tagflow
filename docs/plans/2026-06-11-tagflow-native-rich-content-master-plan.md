@@ -58,6 +58,13 @@ path that does not rely on the legacy converter bridge for production behavior.
   alpha migration guide frame the package as a native rich content runtime.
   The alpha3 handoff and publish evidence live in
   `docs/plans/2026-06-12-tagflow-alpha3-release-handoff.md`.
+- Package discovery posture: the native runtime line is prerelease-only. The
+  2026-06-12 pub.dev API check still reports stable `tagflow` `0.0.8` and
+  stable `tagflow_table` `0.0.4+5` as each package's default `latest` release,
+  so pub.dev search/default package-page metadata can still look HTML-first or
+  table-plugin-first. Downstream app validation must explicitly request
+  `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`; this discovery
+  mismatch is not a reason to skip beta/stable evidence gates.
 - Benchmark posture: parser and widget-render microbenchmarks are committed;
   the deterministic corpus now includes `table_stress`; the example app has a
   profile-mode benchmark harness with renderer, fixture, and device selection

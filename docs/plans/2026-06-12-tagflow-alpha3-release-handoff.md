@@ -80,6 +80,31 @@ The approved publish completed successfully:
 
 `tagflow_table` was not tagged or released as part of this handoff.
 
+## Package Discovery Posture
+
+The native runtime line is published only as a prerelease. As of the
+2026-06-12 coordinator check, the pub.dev package API still reports stable
+`tagflow` `0.0.8` as the default `latest` release and stable `tagflow_table`
+`0.0.4+5` as the default `latest` release. Those stable versions carry the
+older HTML-renderer and pluggable-table package descriptions, so pub.dev search
+results and the default package pages can look HTML-first even though
+`1.0.0-alpha.3` and `1.0.0-alpha.1` are available through the prerelease
+version list.
+
+Downstream validation must therefore depend explicitly on the native runtime
+prerelease line:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0-alpha.3
+  tagflow_table: ^1.0.0-alpha.1
+```
+
+Do not promote Tagflow to beta or stable only to fix package-page discovery.
+The beta/stable evidence gates still apply: production-route integration,
+supported-target profile evidence, memory/allocation review, and public API
+freeze review must remain separate release decisions.
+
 ## Publish Sequence
 
 These are the steps that were run after coordinator approval.
