@@ -105,14 +105,14 @@ Acceptable pre-beta paths:
 - collect fresh repeat-5 evidence on a credible physical iOS or Android target
   that passes target audit and profile collection;
 - collect fresh repeat-5 evidence on an owner-approved observed-host target
-  that passes the reference policy;
+  that passes the native JSON observed-host policy;
 - record an explicit beta-preapproval-only waiver while keeping public
   benchmark, frame-budget, memory, comparative, stable, publishing, and package
   claim boundaries blocked.
 
 The current observed-host repeat-5 run is local stabilization evidence only:
 it passed repeat completeness but reported `800x600 @ 1.0x`, while the current
-reference policy expects `800x600 @ 2.0x`.
+native JSON observed-host policy expects `800x600 @ 2.0x`.
 
 ## Allowed Next Actions
 
@@ -180,11 +180,13 @@ Do not mark `real-app-route` satisfied without explicit owner acceptance,
 normal source-review evidence, or an approved equivalent real app route.
 
 Do not mark `physical-observed-profile` satisfied from local stabilization
-evidence, Simulator smoke, or an observed host that fails the reference policy.
+evidence, Simulator smoke, or an observed host that fails the native JSON
+observed-host policy.
 
 Do not weaken `docs/benchmarks/policies/profile-reference-runner-policy.json`
-to match this machine without an owner-approved target decision and fresh
-repeat-5 evidence.
+or `docs/benchmarks/policies/profile-native-json-observed-policy.json` to match
+this machine without an owner-approved target decision and fresh repeat-5
+evidence.
 
 Do not remove `real-app-route` or `physical-observed-profile` from the
 `beta-preapproval` profile to make the gate pass.

@@ -31,10 +31,11 @@ Threshold promotion and reference-environment rules are centralized in
 | Parser microbench | `benchmark:micro` emits fixture-level JSON through a Flutter-capable harness. | Smoke gate. | Not claim-grade parser speed evidence. |
 | Widget render microbench | `benchmark:render` emits conversion/build samples, stats, input bytes, and node counts. | Smoke gate. | Internal trend data only. |
 | Default macOS profile matrix | `2026-06-11-macos-reference-profile-baseline-repeat5.md` records `60 / 60` cells across three renderers and four HTML fixtures. | Local stabilization evidence. | Not claim-grade because the environment is not a promoted stable reference target. |
-| Profile checker policy | `profile-reference-runner-policy.json` requires five repeats and checks viewport metadata against the qualified `800x600 @ 2.0x` reference target while keeping thresholds `report_only`. | Collection-quality gate. | Cannot enforce timing thresholds. |
+| HTML profile checker policy | `profile-reference-runner-policy.json` requires five repeats for the default HTML renderer/fixture matrix and checks viewport metadata against the qualified `800x600 @ 2.0x` reference target while keeping thresholds `report_only`. | Collection-quality gate. | Cannot qualify native JSON cells or enforce timing thresholds. |
 | Competitor adapters | `flutter_html` and `flutter_widget_from_html` lanes exist in the profile matrix. | Fairness input. | Needs explicit feature-support and configuration review before comparisons. |
 | Native transport microbench | `benchmark:native-transport` and `2026-06-11-native-transport-smoke.md` measure JSON decode/adapt/patch phases. | Report-only smoke. | Measures transport overhead, not rendered frame performance. |
 | Native JSON profile lane | `2026-06-12-native-json-repeat5-local-baseline.md` records `15 / 15` cells for `tagflow_native_json` across `native_ai_answer`, `native_table_dense`, and `native_large_article`. | Local stabilization evidence. | Native-only evidence; not fixture-comparable to HTML renderers or claim-grade reference-target evidence. |
+| Native JSON observed-host policy | `profile-native-json-observed-policy.json` requires five repeats for selected `tagflow_native_json` cells and the same `800x600 @ 2.0x` observed-host guard. | Native-runtime collection-quality gate. | Report-only and not comparable to HTML lanes. |
 | iOS Simulator native JSON smoke | `2026-06-12-ios-simulator-smoke.md` records a passing debug-mode route smoke and a failed profile-mode probe on the iPhone 17 Simulator. | Route smoke. | Route/render/scroll confidence only; not profile, physical-device, or reference-runner qualification. |
 | Dynamic patch/update lanes | Semantic streaming and authored insertion pair baselines record update attribution. | Report-only diagnostic evidence. | GC/raster outliers must be explained before dynamic-content claims. |
 | Kite real-app probe | Kite evidence proves real app reachability and hosted alpha3 compatibility; debug profile probe is diagnostic. | Integration evidence. | Not a supported profile benchmark or public performance baseline. |
@@ -61,8 +62,10 @@ reviewed evidence:
 3. Repeat policy
    - Every claimed cell has at least five successful repeats.
    - `profile-baseline-summary.json` has no failed runs.
-   - `benchmark:profile:check` passes with
+   - HTML profile claims pass `benchmark:profile:check` with
      `docs/benchmarks/policies/profile-reference-runner-policy.json`.
+   - Native JSON profile claims pass `benchmark:profile:check` with
+     `docs/benchmarks/policies/profile-native-json-observed-policy.json`.
 4. Fixture policy
    - Claimed fixture set records input bytes, node count, table dimensions
      where relevant, update chunk count where relevant, and feature coverage.
@@ -160,6 +163,25 @@ TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-native-json \
 dart run melos run benchmark:profile:baselines
 ```
 
+Summarize:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<native-json-run-id> \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-native-json \
+dart run melos run benchmark:profile:summarize
+```
+
+Check collection completeness and viewport policy:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_PROFILE_RUN_ID=<native-json-run-id> \
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-native-json \
+TAGFLOW_PROFILE_CHECK_POLICY=docs/benchmarks/policies/profile-native-json-observed-policy.json \
+dart run melos run benchmark:profile:check
+```
+
 Dynamic authored-insertion pair:
 
 ```bash
@@ -172,10 +194,11 @@ TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
 dart run melos run benchmark:profile:baselines
 ```
 
-Run the same summarize/check sequence for each output directory. Keep both
-lanes report-only. Dynamic authored-insertion still needs explained GC/raster
-behavior before any update-path claim, and native JSON still lacks a promoted
-stable reference target plus any comparison policy against HTML lanes.
+Run the same summarize/check sequence for each dynamic output directory, using
+an explicit policy only after a dynamic-lane policy exists. Keep both lanes
+report-only. Dynamic authored-insertion still needs explained GC/raster behavior
+before any update-path claim, and native JSON still lacks a promoted stable
+reference target plus any comparison policy against HTML lanes.
 
 ## Physical Target Qualification
 

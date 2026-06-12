@@ -48,8 +48,26 @@ issues=[
 
 The second result is expected. `profile-reference-runner-policy.json` describes
 the default HTML renderer/fixture reference matrix. It should not qualify the
-native JSON profile lane unless that policy is explicitly revised through a
-future benchmark-policy decision.
+native JSON profile lane.
+
+Native JSON observed-host run against the native JSON policy:
+
+```text
+TAGFLOW_PROFILE_RUN_ID=2026-06-12-observed-host-native-json-repeat5-timeout-r1
+TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-observed-host
+TAGFLOW_PROFILE_CHECK_POLICY=docs/benchmarks/policies/profile-native-json-observed-policy.json
+dart run melos run benchmark:profile:check
+
+result=failed
+issues=[
+  unexpected_viewport for observed 800x600 @ 1.0x versus expected
+  800x600 @ 2.0x
+]
+```
+
+The native JSON policy gives the native runtime lane its own matrix while
+preserving the same observed-host viewport guard. The current local run still
+does not satisfy `physical-observed-profile`.
 
 ## Claim Boundary
 

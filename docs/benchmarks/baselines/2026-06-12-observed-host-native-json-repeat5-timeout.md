@@ -75,13 +75,13 @@ TAGFLOW_PROFILE_MIN_REPEATS=5 \
 dart run melos run benchmark:profile:check
 ```
 
-Reference-runner policy check:
+Native JSON observed-host policy check:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_PROFILE_RUN_ID=2026-06-12-observed-host-native-json-repeat5-timeout-r1 \
 TAGFLOW_PROFILE_OUTPUT_DIR=build/benchmarks/profile-observed-host \
-TAGFLOW_PROFILE_CHECK_POLICY=docs/benchmarks/policies/profile-reference-runner-policy.json \
+TAGFLOW_PROFILE_CHECK_POLICY=docs/benchmarks/policies/profile-native-json-observed-policy.json \
 TAGFLOW_PROFILE_MIN_REPEATS=5 \
 dart run melos run benchmark:profile:check
 ```
@@ -143,7 +143,7 @@ Completeness check:
 - `issues=[]`
 - `minRepeats=5`
 
-Reference-runner policy check:
+Native JSON observed-host policy check:
 
 - Exit status: failed as expected
 - `passed=false`
@@ -160,7 +160,13 @@ health and local stabilization discussion.
 
 It does not qualify the current host as the reference runner because the device
 pixel ratio does not match
-`docs/benchmarks/policies/profile-reference-runner-policy.json`.
+`docs/benchmarks/policies/profile-native-json-observed-policy.json`.
+
+After policy matrix enforcement, this native JSON run is intentionally outside
+`docs/benchmarks/policies/profile-reference-runner-policy.json`, which describes
+the default HTML renderer/fixture matrix. Use
+`docs/benchmarks/policies/profile-native-json-observed-policy.json` for future
+observed-host native JSON profile checks.
 
 The physical or qualified observed-host profile gate remains open. This
 evidence does not support physical-device readiness, public benchmark ranking,

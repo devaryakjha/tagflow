@@ -5,8 +5,8 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Related gate: `physical-observed-profile`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
-- Reference policy:
-  `docs/benchmarks/policies/profile-reference-runner-policy.json`
+- Native JSON observed-host policy:
+  `docs/benchmarks/policies/profile-native-json-observed-policy.json`
 - Posture: owner decision request; not gate closure until accepted
 
 ## Purpose
@@ -80,9 +80,16 @@ The repeat-5 observed-host run reported:
 ```
 
 The collection-quality check passes with `minRepeats=5`, but the
-reference-runner policy check fails on `unexpected_viewport`. The current host
-therefore remains a local stabilization host, not the configured qualified
-observed-host target.
+native JSON observed-host policy check fails on `unexpected_viewport`. The
+current host therefore remains a local stabilization host, not the configured
+qualified observed-host target.
+
+After profile-policy matrix enforcement, the default HTML reference policy at
+`docs/benchmarks/policies/profile-reference-runner-policy.json` intentionally
+does not qualify `tagflow_native_json:native_ai_answer`. Native JSON profile
+checks should use
+`docs/benchmarks/policies/profile-native-json-observed-policy.json`, which keeps
+the same `800x600 @ 2.0x` observed-host guard.
 
 The physical target audit also says no physical iOS or Android target is
 credible for profile-mode collection on this machine.
@@ -98,18 +105,19 @@ Required next evidence:
 
 - attach a credible physical iOS or Android target that passes
   `benchmark:profile:target-audit`, then collect a repeat-5 profile run; or
-- update `docs/benchmarks/policies/profile-reference-runner-policy.json` to an
-  owner-approved observed-host target, then collect fresh repeat-5 evidence on
-  that target and pass the updated policy check.
+- update `docs/benchmarks/policies/profile-native-json-observed-policy.json` to
+  an owner-approved observed-host target, then collect fresh repeat-5 evidence
+  on that target and pass the updated policy check.
 
 Acceptance text:
 
 ```text
 I do not waive physical-observed-profile. Beta preapproval requires a fresh
 repeat-5 profile run on a credible physical device or on the approved observed
-host described by docs/benchmarks/policies/profile-reference-runner-policy.json.
-Do not mark physical-observed-profile satisfied until that run passes the
-collection-quality and policy checks.
+host described by
+docs/benchmarks/policies/profile-native-json-observed-policy.json. Do not mark
+physical-observed-profile satisfied until that run passes the collection-quality
+and policy checks.
 ```
 
 ### Option B: Waive For Beta Preapproval Only

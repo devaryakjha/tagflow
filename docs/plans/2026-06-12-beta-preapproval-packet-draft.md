@@ -149,8 +149,8 @@ Decision request:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
-- Reference policy:
-  `docs/benchmarks/policies/profile-reference-runner-policy.json`
+- Native JSON observed-host policy:
+  `docs/benchmarks/policies/profile-native-json-observed-policy.json`
 
 Current evidence summary:
 
@@ -164,14 +164,16 @@ observed-host repeat-5 native JSON run:
   minRepeats=5 check=passed
   observedViewport=800x600 @ 1.0x
 
-reference policy:
+native JSON observed-host policy:
   expectedViewport=800x600 @ 2.0x
   result=failed unexpected_viewport
 
 policy matrix after checker enforcement:
   referencePolicyMatrix=default HTML renderer/fixture cells
+  nativeJsonPolicyMatrix=tagflow_native_json/native_* cells
   nativeJsonCell=tagflow_native_json:native_ai_answer
-  currentCheckerResult=failed cell_outside_policy_matrix
+  htmlReferencePolicyResult=failed cell_outside_policy_matrix
+  nativeJsonPolicyResult=failed unexpected_viewport
 
 ios simulator recovery:
   bootedSimulator=iPhone 17 3BA9E377-4B6F-49A7-83FA-F640060D6442
@@ -188,9 +190,10 @@ Owner option A requires qualifying evidence:
 ```text
 I do not waive physical-observed-profile. Beta preapproval requires a fresh
 repeat-5 profile run on a credible physical device or on the approved observed
-host described by docs/benchmarks/policies/profile-reference-runner-policy.json.
-Do not mark physical-observed-profile satisfied until that run passes the
-collection-quality and policy checks.
+host described by
+docs/benchmarks/policies/profile-native-json-observed-policy.json. Do not mark
+physical-observed-profile satisfied until that run passes the collection-quality
+and policy checks.
 ```
 
 Owner option B waives the gate for beta preapproval only:
@@ -274,6 +277,7 @@ Do not remove `real-app-route` or `physical-observed-profile` from
 `beta-preapproval` to make the profile pass.
 
 Do not weaken
+`docs/benchmarks/policies/profile-native-json-observed-policy.json` or
 `docs/benchmarks/policies/profile-reference-runner-policy.json` to match this
 machine without an owner-approved observed-host target decision and fresh
 repeat-5 evidence.
