@@ -215,9 +215,9 @@ reviewed baseline and regression policy.
 
 The current report-only policy fixture lives at
 `docs/benchmarks/policies/profile-reference-runner-policy.json`. It sets the
-default alpha policy to five successful repeats, the candidate pinned macOS
-viewport of `800x600` at device-pixel-ratio `2`, and
-`thresholdPolicy.mode: report_only`.
+default alpha policy to five successful repeats, a candidate macOS
+reference-target viewport expectation of `800x600` at device-pixel-ratio `2`,
+and `thresholdPolicy.mode: report_only`.
 
 Direct checker usage with the policy:
 
