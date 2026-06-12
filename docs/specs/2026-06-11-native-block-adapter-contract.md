@@ -1,16 +1,18 @@
 # Tagflow Native Block Adapter Contract SPEC
 
-**Status:** Draft for master-thread review
-**Last Updated:** 2026-06-11
+**Status:** Implemented adapter foundation; follow-up contract review open
+**Last Updated:** 2026-06-12
 **Target Release Line:** post-`1.0.0-alpha.1` stabilization
 **Primary Audience:** Tagflow runtime, adapter, benchmark, and internal-app
 validation workers
 
 **Current-state note:** the implementation-status section below reflects the
-newer alpha.2 candidate state and supersedes older deferred-first-slice wording
-later in this SPEC. In particular, the narrow
-`TagflowNativeBlockPatchEnvelope` JSON transport has landed; broader
-controller, cache, storage, sync, and conflict semantics remain deferred.
+coordinator branch after alpha.3 follow-ups. It supersedes older
+deferred-first-slice wording later in this SPEC. In particular, the narrow
+`TagflowNativeBlockPatchEnvelope` JSON transport, first-class table blocks,
+description-list blocks, and node-tap view callbacks have landed; broader
+controller, cache, storage, sync, conflict semantics, and executable actions
+remain deferred.
 
 ## Implementation Status
 
@@ -20,12 +22,16 @@ The first compileable adapter foundation landed in `packages/tagflow` on
 - `TagflowNativeBlockDocument`, `TagflowNativeBlock`, and
   `TagflowNativeBlockAdapter` adapt typed block payloads into
   `TagflowDocument`.
-- The first slice supports `paragraph`, `heading`, `text`, `link`, `list`,
-  `listItem`, `blockquote`, `codeBlock`, `inlineCode`, `image`, `container`,
-  and `horizontalRule`.
+- The typed block vocabulary now supports `paragraph`, `heading`, `text`,
+  `link`, `list`, `listItem`, `descriptionList`, `descriptionTerm`,
+  `descriptionDetails`, `blockquote`, `codeBlock`, `inlineCode`, `image`,
+  `container`, and `horizontalRule`.
 - Table blocks now map directly to runtime `table`, `tableRow`, and
   `tableCell` nodes while preserving stable IDs, child order, and the semantic
   `header`, `rowSpan`, and `colSpan` cell fields.
+- Description-list blocks now map directly to runtime `descriptionList`,
+  `descriptionTerm`, and `descriptionDetails` nodes. They are first-class
+  native content, not HTML-only compatibility tags.
 - Callout blocks now normalize to runtime `container` nodes. Stable IDs,
   children, and callout attributes remain preserved; `variant` is exposed as a
   presentation variant, while non-semantic attributes remain metadata-backed.
@@ -57,6 +63,9 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   finite numbers, strings, arrays, and string-keyed objects. Callbacks,
   widgets, opaque Dart objects, non-string map keys, and non-finite numbers fail
   with `FormatException`.
+- Node tap behavior remains view-owned through `TagflowViewOptions`; native
+  block documents, block attributes, native JSON payloads, and patch envelopes
+  must remain data-only and must not encode executable handlers.
 - Native JSON transport currently accepts only `schemaVersion: 1` for document
   envelopes and patch envelopes. Future schema versions must fail during codec
   decode until a reviewed compatibility policy exists.
@@ -261,6 +270,9 @@ Required first-slice block kinds:
 - `link`
 - `list`
 - `listItem`
+- `descriptionList`
+- `descriptionTerm`
+- `descriptionDetails`
 - `blockquote`
 - `codeBlock`
 - `inlineCode`

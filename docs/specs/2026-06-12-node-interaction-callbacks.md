@@ -1,10 +1,33 @@
 # Tagflow Node Interaction Callbacks SPEC
 
-**Status:** Active implementation SPEC
+**Status:** Implemented first slice; follow-ups open
 **Last Updated:** 2026-06-12
 **Target Release Line:** post-`1.0.0-alpha.3` stabilization
 **Primary Audience:** Tagflow runtime, renderer, adapter, and example-app
 workers
+
+## Implementation Status
+
+The first node-tap slice landed on the coordinator branch in
+`848f1fc feat(runtime): add node tap callbacks`:
+
+- `TagflowNodeTapCallback` and `TagflowNodeTapDetails` are public through
+  `package:tagflow/tagflow.dart`.
+- `TagflowViewOptions` now carries `nodeTapCallback` and `tapTargetKinds`.
+- Legacy `TagflowOptions` mirrors those fields through
+  `fromViewOptions(...)`, `toViewOptions()`, `copyWith(...)`, equality props,
+  and `TagflowScope`.
+- `TagflowComponentRegistry.render(...)` wraps rendered output for opted-in
+  non-link node kinds, after built-in, extension, or app override dispatch.
+- `TagflowNodeKind.link` preserves the existing `linkTapCallback` path and
+  does not fire both link and node callbacks in this first slice.
+- Focused tests cover default inert non-link nodes, opted-in
+  `Tagflow.document(...)` nodes, opted-in `Tagflow.html(...)` nodes with
+  authored IDs and metadata, link behavior preservation, legacy option
+  conversion, and public export reachability.
+- The roadmap item `Custom tap handlers per element type` is checked. Long
+  press, broader gesture recognition, selection, copy/paste, and a unified
+  action disposition model remain open.
 
 ## 1. Problem Statement
 

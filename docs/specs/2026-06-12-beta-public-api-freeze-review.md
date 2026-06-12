@@ -3,9 +3,10 @@
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
 **Reviewed Baseline:** current coordinator branch after published
-`tagflow-v1.0.0-alpha.3`, including public API follow-ups in
-`packages/tagflow` and `packages/tagflow_table` plus benchmark evidence through
-`d919d45 docs(benchmarks): record control retained paths`
+`tagflow-v1.0.0-alpha.3`, including runtime follow-ups through
+`848f1fc feat(runtime): add node tap callbacks`, public API follow-ups in
+`packages/tagflow` and `packages/tagflow_table`, and report-only benchmark
+evidence through the reviewed raw heap/class-diff interpretation notes
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -50,6 +51,13 @@ package.
 - The built-in runtime registry now gives `TagflowNodeKind.unsupported` a
   dedicated placeholder renderer instead of relying on the generic empty-leaf
   fallback.
+- Description-list semantics are now first-class across the runtime document
+  model, HTML adapter, legacy bridge, native block adapter, native JSON codec,
+  document patches, built-in renderer, and public export tests.
+- View-owned node interaction callbacks now exist through
+  `TagflowViewOptions.nodeTapCallback` and `tapTargetKinds`, mirrored by
+  `TagflowOptions`, with `TagflowNodeKind.link` preserving the existing link
+  callback path.
 
 This review therefore classifies the current coordinator export surface, not
 only the published alpha.3 artifact.
@@ -103,6 +111,16 @@ omitted nullable arguments preserve existing values, while explicit `clearX`
 flags remove nullable runtime fields such as document `source` and node
 payloads. Calling a helper with both a replacement value and the matching clear
 flag is an `ArgumentError`.
+
+Current node-kind posture:
+
+- `descriptionList`, `descriptionTerm`, and `descriptionDetails` are now
+  runtime-level semantic kinds, not HTML-only tags. They are additive beta
+  candidates because native block producers and HTML adapters can both target
+  them without passing through legacy converters.
+- `unsupported` remains a runtime placeholder kind for preserved policy
+  rejections and app-authored unsupported nodes. It is not the native JSON
+  unknown-kind compatibility model.
 
 `alpha-only review required`:
 
@@ -166,6 +184,8 @@ runtime registry can see them.
 - `TagflowSelectableOptions`
 - `TagflowImageSelectionBehavior`
 - `TagflowLinkTapCallback`
+- `TagflowNodeTapCallback`
+- `TagflowNodeTapDetails`
 - `TagflowErrorWidgetBuilder`
 - `TagflowScope`
 
@@ -173,6 +193,23 @@ Rationale: these APIs now align with the native runtime framing. `Tagflow` can
 render a `TagflowDocument` directly, and `Tagflow.html(...)` is an adapter-backed
 convenience entry point. `TagflowViewOptions` is the correct place for view
 behavior such as links, selection, images, cache behavior, and error rendering.
+Node tap callbacks continue that view-owned behavior model: documents and
+transport payloads remain data-only, while a particular Flutter view can opt
+specific `TagflowNodeKind` values into tap handling and receive the tapped
+`TagflowDocumentNode`.
+
+Current node interaction policy:
+
+- Non-link nodes are inert by default.
+- Apps opt into tappable semantic kinds with `tapTargetKinds`.
+- `TagflowComponentRegistry.render(...)` wraps rendered output after registry
+  dispatch, so built-ins, extension components, and app overrides share the
+  same view-level interaction path.
+- `TagflowNodeKind.link` keeps the existing `linkTapCallback` path and does not
+  fire both link and node callbacks in the first node-interaction slice.
+- Long press, generic gestures, selection, copy/paste, and a unified action
+  disposition model remain outside the beta-stable candidate surface until
+  there is real-app evidence for those semantics.
 
 `beta-stable candidate`:
 
@@ -197,9 +234,10 @@ Kite push remains blocked by DNS for `gitlab.zerodha.tech`.
 - `ErrorWidgetBuilder`
 
 Rationale: `TagflowOptions` bridges the older HTML-first widget API into
-`TagflowViewOptions`. `TagflowRenderBoundary` remains HTML-specific and should
-not become part of the source-agnostic runtime model. `ErrorWidgetBuilder` is a
-legacy typedef alias.
+`TagflowViewOptions`, including node tap callbacks and tap target kind sets.
+`TagflowRenderBoundary` remains HTML-specific and should not become part of
+the source-agnostic runtime model. `ErrorWidgetBuilder` is a legacy typedef
+alias.
 
 Recommendation: keep `TagflowOptions` and the legacy `Tagflow(html: ...)`
 constructor through beta. Mark new docs and examples toward
@@ -251,6 +289,15 @@ values, adapts it, decodes a patch envelope, adapts the patch operations, and
 applies them against hosted package APIs in a focused downstream test harness.
 This is verified app-integration test evidence, not live production-route
 validation and not benchmark/profile evidence.
+
+Current native block vocabulary additions:
+
+- `descriptionList`, `descriptionTerm`, and `descriptionDetails` are now part
+  of the typed native block vocabulary and JSON codec enum-name transport.
+- These kinds adapt into matching runtime nodes and are covered by adapter,
+  transport codec, public export, patch, HTML adapter, and renderer tests.
+- They do not introduce executable behavior into native JSON; node taps remain
+  view-owned through `TagflowViewOptions`.
 
 `alpha-only review required`:
 
@@ -456,6 +503,15 @@ to republish the extension package.
 - App-authored/native document copy helpers have explicit nullable-field
   clearing semantics. Done with `clearX` flags on document and node copy
   helpers; omitted nullable arguments continue to preserve current values.
+- Description-list support is first-class across runtime nodes, HTML adapter,
+  native block transport, patch preservation, and built-in rendering. Done for
+  the current alpha line; no beta blocker remains for `<dl>`, `<dt>`, or
+  `<dd>` semantics.
+- Custom tap handlers per semantic node kind are view-owned and data-safe.
+  Done with `TagflowNodeTapCallback`, `TagflowNodeTapDetails`,
+  `TagflowViewOptions.nodeTapCallback`, and `tapTargetKinds`, with legacy
+  `TagflowOptions` mirroring. Long press and broader gesture/action semantics
+  remain follow-up work rather than beta blockers for the first node-tap slice.
 - `Tagflow.html(..., registry: ...)` has focused package widget coverage for
   semantic overrides, legacy-converter precedence, and registry-only rebuilds
   without reparsing. Hosted widget-test validation is done in Kite commit
