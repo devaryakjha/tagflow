@@ -42,10 +42,22 @@
       "status": "satisfied",
       "summary": "Canonical native runtime surface is implemented and documented.",
       "evidence": [
-        "TagflowDocument canonical runtime input",
-        "Tagflow.document(...) and semantic Tagflow.html(...) paths",
-        "strict native block JSON document and patch transport",
-        "view-owned node taps and public adapter metadata inspectors"
+        {
+          "type": "note",
+          "value": "TagflowDocument canonical runtime input"
+        },
+        {
+          "type": "note",
+          "value": "Tagflow.document(...) and semantic Tagflow.html(...) paths"
+        },
+        {
+          "type": "note",
+          "value": "strict native block JSON document and patch transport"
+        },
+        {
+          "type": "note",
+          "value": "view-owned node taps and public adapter metadata inspectors"
+        }
       ]
     },
     {
@@ -53,8 +65,14 @@
       "status": "satisfied",
       "summary": "Coordinator branch validates locally and in PR #72 CI.",
       "evidence": [
-        "PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate",
-        "PR #72 CI / Validate latest pushed branch status"
+        {
+          "type": "command",
+          "value": "PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate"
+        },
+        {
+          "type": "url",
+          "value": "https://github.com/devaryakjha/tagflow/pull/72"
+        }
       ]
     },
     {
@@ -63,9 +81,18 @@
       "summary": "PR #72 benchmark gate is satisfied by internal synthetic report-only evidence.",
       "tracker": "https://github.com/devaryakjha/tagflow/issues/74",
       "evidence": [
-        "docs/benchmarks/2026-06-12-benchmark-gate-decision.md",
-        "docs/benchmarks/baselines/2026-06-12-synthetic-viewport-repeat5.md",
-        "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/2026-06-12-benchmark-gate-decision.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-synthetic-viewport-repeat5.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+        }
       ]
     },
     {
@@ -74,9 +101,18 @@
       "summary": "A hosted native-runtime route must be pushed or otherwise reviewable through an approved real Flutter app path.",
       "tracker": "https://github.com/devaryakjha/tagflow/issues/73",
       "evidence": [
-        "docs/plans/2026-06-12-real-app-route-qualification.md",
-        "docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md",
-        "docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md"
+        {
+          "type": "localPath",
+          "value": "docs/plans/2026-06-12-real-app-route-qualification.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md"
+        }
       ]
     },
     {
@@ -84,8 +120,14 @@
       "status": "open",
       "summary": "Physical or observed-host profile evidence remains future work and is not required for PR #72 draft continuation.",
       "evidence": [
-        "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md",
-        "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
+        }
       ]
     },
     {
@@ -93,8 +135,14 @@
       "status": "open",
       "summary": "Existing memory/allocation exports are report-only and do not support beta/stable memory claims.",
       "evidence": [
-        "docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md",
-        "docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md"
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md"
+        }
       ]
     },
     {

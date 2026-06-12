@@ -20,6 +20,7 @@ Future<void> main(List<String> arguments) async {
     final result = checkNativeRuntimeGateStatus(
       manifestFile: options.manifestFile,
       profileId: options.profileId,
+      evidenceRoot: workspaceRoot,
     );
 
     stdout.writeln(const JsonEncoder.withIndent('  ').convert(result.toJson()));

@@ -11,8 +11,16 @@ void main() {
     final manifestFile = _writeManifest(
       requiredGateIds: <String>['runtime-surface', 'benchmark-gate'],
       gates: <Map<String, Object?>>[
-        _gate('runtime-surface', 'satisfied'),
-        _gate('benchmark-gate', 'satisfied'),
+        _gate(
+          'runtime-surface',
+          'satisfied',
+          evidence: <Object?>[_evidence('note', 'runtime implemented')],
+        ),
+        _gate(
+          'benchmark-gate',
+          'satisfied',
+          evidence: <Object?>[_evidence('note', 'benchmark accepted')],
+        ),
         _gate('real-app-route', 'open'),
       ],
     );
@@ -27,6 +35,59 @@ void main() {
     expect(result.issues, isEmpty);
     expect(result.nonRequiredOpenGates.single.id, 'real-app-route');
     expect(result.toJson(), containsPair('passed', true));
+  });
+
+  test('fails when required localPath evidence is missing', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface'],
+      gates: <Map<String, Object?>>[
+        _gate(
+          'runtime-surface',
+          'satisfied',
+          evidence: <Object?>[_evidence('localPath', 'missing.md')],
+        ),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    final result = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'draft',
+      evidenceRoot: manifestFile.parent,
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'required_gate_evidence_path_missing');
+    expect(result.issues.single.details, containsPair('path', 'missing.md'));
+  });
+
+  test('accepts existing required localPath evidence', () {
+    final directory = Directory.systemTemp.createTempSync(
+      'tagflow_gate_status_evidence_test_',
+    );
+    final evidenceFile = File(p.join(directory.path, 'evidence.md'))
+      ..writeAsStringSync('evidence');
+    final manifestFile = _writeManifest(
+      directory: directory,
+      requiredGateIds: <String>['runtime-surface'],
+      gates: <Map<String, Object?>>[
+        _gate(
+          'runtime-surface',
+          'satisfied',
+          evidence: <Object?>[_evidence('localPath', 'evidence.md')],
+        ),
+      ],
+    );
+    addTearDown(() => directory.deleteSync(recursive: true));
+
+    final result = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'draft',
+      evidenceRoot: directory,
+    );
+
+    expect(evidenceFile.existsSync(), isTrue);
+    expect(result.passed, isTrue);
   });
 
   test('fails a profile when a required gate is open', () {
@@ -103,6 +164,42 @@ void main() {
     );
   });
 
+  test('rejects unsupported or unsafe typed evidence', () {
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'unknown',
+        'value': 'x',
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'url',
+        'value': 'http://github.com/devaryakjha/tagflow',
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'localPath',
+        'value': '../outside.md',
+      }),
+      throwsFormatException,
+    );
+  });
+
+  test('round-trips manifest schema version', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface'],
+      gates: <Map<String, Object?>>[_gate('runtime-surface', 'satisfied')],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
+
+    expect(manifest.toJson(), containsPair('schemaVersion', 1));
+  });
+
   test('reads the checked repo manifest profile boundaries', () {
     final workspaceRoot = resolveWorkspaceRoot();
     final result = checkNativeRuntimeGateStatus(
@@ -115,6 +212,7 @@ void main() {
         ),
       ),
       profileId: 'pr72-draft',
+      evidenceRoot: workspaceRoot,
     );
 
     expect(result.passed, isTrue);
@@ -133,11 +231,12 @@ void main() {
 File _writeManifest({
   required List<String> requiredGateIds,
   required List<Map<String, Object?>> gates,
+  Directory? directory,
 }) {
-  final directory = Directory.systemTemp.createTempSync(
-    'tagflow_gate_status_test_',
-  );
-  final file = File(p.join(directory.path, 'manifest.json'))
+  final manifestDirectory =
+      directory ??
+      Directory.systemTemp.createTempSync('tagflow_gate_status_test_');
+  final file = File(p.join(manifestDirectory.path, 'manifest.json'))
     ..writeAsStringSync(
       const JsonEncoder.withIndent('  ').convert(<String, Object?>{
         'schemaVersion': 1,
@@ -156,11 +255,21 @@ File _writeManifest({
   return file;
 }
 
-Map<String, Object?> _gate(String id, String status, {String? tracker}) {
+Map<String, Object?> _gate(
+  String id,
+  String status, {
+  String? tracker,
+  List<Object?> evidence = const <Object?>[],
+}) {
   return <String, Object?>{
     'id': id,
     'status': status,
     'summary': '$id summary',
     if (tracker != null) 'tracker': tracker,
+    if (evidence.isNotEmpty) 'evidence': evidence,
   };
+}
+
+Map<String, Object?> _evidence(String type, String value) {
+  return <String, Object?>{'type': type, 'value': value};
 }

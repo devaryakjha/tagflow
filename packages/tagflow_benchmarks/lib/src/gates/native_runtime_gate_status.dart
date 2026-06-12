@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 /// Gate status values accepted by the native runtime gate manifest.
 enum NativeRuntimeGateStatus {
   /// Gate has evidence strong enough for the selected profile.
@@ -14,6 +16,64 @@ enum NativeRuntimeGateStatus {
 
   /// Gate is intentionally deferred to a later release phase.
   deferred,
+}
+
+/// Evidence entry type accepted by the native runtime gate manifest.
+enum NativeRuntimeGateEvidenceType {
+  /// Workspace-relative local file path.
+  localPath,
+
+  /// External URL.
+  url,
+
+  /// Verification command.
+  command,
+
+  /// Human-readable evidence note.
+  note,
+}
+
+/// Evidence supporting a native runtime gate status.
+final class NativeRuntimeGateEvidence {
+  /// Creates a gate evidence entry.
+  const NativeRuntimeGateEvidence({required this.type, required this.value});
+
+  /// Reads evidence from JSON.
+  ///
+  /// Plain string entries are treated as notes for compatibility with the
+  /// original gate manifest shape.
+  factory NativeRuntimeGateEvidence.fromJson(Object? json) {
+    if (json is String && json.trim().isNotEmpty) {
+      return NativeRuntimeGateEvidence(
+        type: NativeRuntimeGateEvidenceType.note,
+        value: json,
+      );
+    }
+
+    if (json is! Map<String, Object?>) {
+      throw const FormatException(
+        'Native runtime gate evidence must be a string or map.',
+      );
+    }
+
+    final type = _readEvidenceType(json['type']);
+    final value = _readNonEmptyString(json, 'value');
+    _validateEvidenceValue(type: type, value: value);
+
+    return NativeRuntimeGateEvidence(type: type, value: value);
+  }
+
+  /// Evidence entry type.
+  final NativeRuntimeGateEvidenceType type;
+
+  /// Evidence value.
+  final String value;
+
+  /// Converts this evidence entry to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'type': _evidenceTypeValue(type),
+    'value': value,
+  };
 }
 
 /// A named release-readiness profile from the gate manifest.
@@ -78,7 +138,7 @@ final class NativeRuntimeGate {
       status: _readGateStatus(json['status']),
       summary: _readNonEmptyString(json, 'summary'),
       tracker: _readOptionalString(json, 'tracker'),
-      evidence: _readStringList(json, 'evidence', required: false),
+      evidence: _readEvidenceList(json, 'evidence'),
     );
   }
 
@@ -94,8 +154,8 @@ final class NativeRuntimeGate {
   /// Optional external tracker URL.
   final String? tracker;
 
-  /// Evidence paths, commands, or notes supporting the current status.
-  final List<String> evidence;
+  /// Evidence supporting the current status.
+  final List<NativeRuntimeGateEvidence> evidence;
 
   /// Converts this gate to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
@@ -103,7 +163,8 @@ final class NativeRuntimeGate {
     'status': _gateStatusValue(status),
     'summary': summary,
     if (tracker != null) 'tracker': tracker,
-    if (evidence.isNotEmpty) 'evidence': evidence,
+    if (evidence.isNotEmpty)
+      'evidence': evidence.map((entry) => entry.toJson()).toList(),
   };
 }
 
@@ -205,6 +266,7 @@ final class NativeRuntimeGateManifest {
 
   /// Converts this manifest to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
+    'schemaVersion': 1,
     'id': id,
     'description': description,
     'profiles': profiles.map((profile) => profile.toJson()).toList(),
@@ -285,10 +347,12 @@ final class NativeRuntimeGateStatusCheckResult {
 NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
   required File manifestFile,
   required String profileId,
+  Directory? evidenceRoot,
 }) {
   final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
   final profile = manifest.profileById(profileId);
   final requiredGateIds = profile.requiredGateIds.toSet();
+  final resolvedEvidenceRoot = evidenceRoot ?? manifestFile.parent;
   final issues = <NativeRuntimeGateStatusIssue>[];
 
   for (final gateId in profile.requiredGateIds) {
@@ -318,6 +382,27 @@ NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
           },
         ),
       );
+    }
+
+    for (final evidence in gate.evidence.where(
+      (entry) => entry.type == NativeRuntimeGateEvidenceType.localPath,
+    )) {
+      final evidencePath = p.join(resolvedEvidenceRoot.path, evidence.value);
+      if (!File(evidencePath).existsSync() &&
+          !Directory(evidencePath).existsSync()) {
+        issues.add(
+          NativeRuntimeGateStatusIssue(
+            code: 'required_gate_evidence_path_missing',
+            message:
+                'Required gate "${gate.id}" references missing evidence path.',
+            details: <String, Object?>{
+              'gateId': gate.id,
+              'path': evidence.value,
+              'resolvedPath': evidencePath,
+            },
+          ),
+        );
+      }
     }
   }
 
@@ -380,6 +465,20 @@ List<String> _readStringList(
   return strings;
 }
 
+List<NativeRuntimeGateEvidence> _readEvidenceList(
+  Map<String, Object?> json,
+  String key,
+) {
+  final value = json[key];
+  if (value == null) {
+    return const <NativeRuntimeGateEvidence>[];
+  }
+  if (value is! List<Object?>) {
+    throw FormatException('$key must be a list.');
+  }
+  return value.map(NativeRuntimeGateEvidence.fromJson).toList();
+}
+
 List<Map<String, Object?>> _readMapList(Map<String, Object?> json, String key) {
   final value = json[key];
   if (value is! List<Object?>) {
@@ -393,6 +492,22 @@ List<Map<String, Object?>> _readMapList(Map<String, Object?> json, String key) {
   }).toList();
 }
 
+NativeRuntimeGateEvidenceType _readEvidenceType(Object? value) {
+  if (value is! String || value.trim().isEmpty) {
+    throw const FormatException(
+      'Native runtime gate evidence type must be a non-empty string.',
+    );
+  }
+  for (final type in NativeRuntimeGateEvidenceType.values) {
+    if (_evidenceTypeValue(type) == value) {
+      return type;
+    }
+  }
+  throw FormatException(
+    'Unsupported native runtime gate evidence type: $value.',
+  );
+}
+
 NativeRuntimeGateStatus _readGateStatus(Object? value) {
   if (value is! String || value.trim().isEmpty) {
     throw const FormatException('Gate status must be a non-empty string.');
@@ -403,6 +518,42 @@ NativeRuntimeGateStatus _readGateStatus(Object? value) {
     }
   }
   throw FormatException('Unsupported native runtime gate status: $value.');
+}
+
+String _evidenceTypeValue(NativeRuntimeGateEvidenceType type) {
+  return switch (type) {
+    NativeRuntimeGateEvidenceType.localPath => 'localPath',
+    NativeRuntimeGateEvidenceType.url => 'url',
+    NativeRuntimeGateEvidenceType.command => 'command',
+    NativeRuntimeGateEvidenceType.note => 'note',
+  };
+}
+
+void _validateEvidenceValue({
+  required NativeRuntimeGateEvidenceType type,
+  required String value,
+}) {
+  switch (type) {
+    case NativeRuntimeGateEvidenceType.localPath:
+      final normalized = p.normalize(value);
+      if (p.isAbsolute(value) ||
+          normalized == '..' ||
+          normalized.startsWith('..${p.separator}')) {
+        throw const FormatException(
+          'Native runtime gate localPath evidence must be workspace-relative.',
+        );
+      }
+    case NativeRuntimeGateEvidenceType.url:
+      final uri = Uri.tryParse(value);
+      if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+        throw const FormatException(
+          'Native runtime gate url evidence must be an https URL.',
+        );
+      }
+    case NativeRuntimeGateEvidenceType.command:
+    case NativeRuntimeGateEvidenceType.note:
+      break;
+  }
 }
 
 String _gateStatusValue(NativeRuntimeGateStatus status) {
