@@ -22,6 +22,11 @@ exists, memory/allocation evidence is reviewed, and release gates are approved.
 The reviewed style and table public-surface blockers have been resolved on the
 coordinator branch.
 
+This review assumes one breaking native-runtime `1.0.0` prerelease line. A
+future `1.0.0-beta.x` or `1.0.0-pre.x` label should be chosen only when the
+freeze gates are satisfied; this document does not change package versions or
+create a separate compatibility line.
+
 This document does not authorize publishing, tagging, package-version changes,
 or beta release copy.
 
@@ -176,8 +181,9 @@ captured in commit `be97da15` and is now adopted locally on Kite
 `feat/dashboard` as `80160401`; it exercises real IPO HTML fixture content
 through
 `Tagflow.html(..., registry: ...)` with `tagflow_table` registry extensions and
-no legacy converters in the focused validation path. The Kite push remains
-blocked by DNS for `gitlab.zerodha.tech`.
+no legacy converters in the focused validation path. This verifies a hosted
+widget-test evidence slice, not a pushed production-route or profile gate. The
+Kite push remains blocked by DNS for `gitlab.zerodha.tech`.
 
 `compatibility surface`:
 
@@ -238,6 +244,8 @@ runtime model. Kite hosted-alpha3 widget-test evidence, now adopted locally as
 commit `80160401`, decodes a native block document from real IPO fixture
 values, adapts it, decodes a patch envelope, adapts the patch operations, and
 applies them against hosted package APIs in a focused downstream test harness.
+This is verified app-integration test evidence, not live production-route
+validation and not benchmark/profile evidence.
 
 `alpha-only review required`:
 
@@ -428,12 +436,12 @@ to republish the extension package.
 `1.0.0-beta.0` is not ready until all of these are complete:
 
 - Hosted alpha package is consumed by at least one real app through
-  `Tagflow.html(...)` or `TagflowHtmlAdapter`. Done for a Kite hosted widget
-  test that uses real IPO fixture content; live production-route and profile
-  evidence remain separate.
+  `Tagflow.html(...)` or `TagflowHtmlAdapter`. Verified for a Kite hosted
+  widget test that uses real IPO fixture content; live production-route and
+  profile evidence remain pending.
 - Hosted alpha package is consumed by at least one real app through native block
-  document and patch transport. Done for a Kite hosted-alpha widget-test
-  fixture; production integration remains pending.
+  document and patch transport. Verified for a Kite hosted-alpha widget-test
+  fixture; pushed production integration remains pending.
 - App-authored/native document construction has a documented fail-fast identity
   validation path. Done with `TagflowDocument.validated(...)`. Beta posture is
   now explicit: keep `TagflowDocument(...)` permissive through beta for
@@ -480,6 +488,9 @@ to republish the extension package.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
 - Release docs avoid beta/stable language until this checklist is green.
+- Stable `1.0.0` remains blocked after beta until freeze decisions hold through
+  prerelease adoption, benchmark evidence gates are credible, and at least one
+  hosted real-app validation path is pushed, merged, routed, and reviewed.
 
 ## Verdict
 

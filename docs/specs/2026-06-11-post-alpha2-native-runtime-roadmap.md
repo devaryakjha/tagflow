@@ -12,6 +12,12 @@ internal-app implementation workers
 This SPEC defines the next architecture target after the native block JSON
 transport slice prepared for `1.0.0-alpha.2`.
 
+Owner release decision: use one breaking native-runtime `1.0.0` prerelease line.
+Do not create a parallel compatibility package line and do not change package
+versions from this SPEC. Future labels may use `1.0.0-beta.x` or
+`1.0.0-pre.x` style prerelease wording, but the label is a release-gate
+decision, not a docs-only churn mechanism.
+
 The decision is conservative: the next natural target is
 `1.0.0-alpha.3` for runtime contract hardening and app integration evidence,
 not `1.0.0-beta.0`. Beta should wait until the public runtime and adapter
@@ -111,6 +117,12 @@ Recommendation: keep `tagflow` and keep shifting copy toward "native rich
 content runtime for Flutter apps". Do not create a new package name unless the
 product later splits into multiple independently versioned runtimes.
 
+The name remains valid for the native-runtime line because Tagflow owns the
+structured content flow inside Flutter: source adapters produce
+`TagflowDocument`, policies bound the input, and registries render semantic
+nodes. HTML remains an adapter and compatibility source, not the product
+definition.
+
 ## 4. Versioned Architecture Target
 
 ### `1.0.0-alpha.3`: contract hardening target
@@ -164,6 +176,12 @@ Beta.0 should wait until these gates are true:
 
 Beta.0 should mean "API shape is close to stable", not "every renderer feature
 is complete".
+
+Stable `1.0.0` should wait until the beta freeze decisions above have held
+through prerelease adoption, benchmark gates have credible supported-target and
+memory/allocation evidence, and at least one hosted real-app path has been
+pushed, merged, opened through the intended route, and reviewed as release
+evidence.
 
 ## 5. Runtime Model
 

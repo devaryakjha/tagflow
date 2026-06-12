@@ -1,9 +1,19 @@
 # Tagflow v1 Alpha Migration Guide
 
 This guide covers the docs-facing migration from the `0.0.x` HTML-first API to
-the `1.0.0-alpha.1` runtime direction. The alpha line is intentionally breaking:
+the `1.0.0-alpha.x` runtime direction. The alpha line is intentionally breaking:
 Tagflow is becoming a native rich content runtime for Flutter apps, with HTML as
 one adapter into that runtime.
+
+Release posture: keep this as one breaking `1.0.0` prerelease line rather than
+parallel compatibility and runtime lines. A future `1.0.0-beta.x` or
+`1.0.0-pre.x` label should mean the public runtime, adapter, compatibility, and
+first-party extension surfaces are close to frozen; it should not be used only
+to repair package discovery or marketing copy. Stable `1.0.0` should wait until
+the beta API freeze review is complete, benchmark evidence gates are credible
+and still report-only unless separately promoted, and at least one hosted
+real-app validation path has been pushed, merged, and exercised through the
+intended app route.
 
 Current-state note: this guide keeps the original alpha.1 migration framing,
 but the implemented runtime on the native-runtime branch is later than that
