@@ -292,7 +292,101 @@ void main() {
     expect(manifest.toJson(), containsPair('schemaVersion', 1));
   });
 
+  test('round-trips gate claim boundary', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['memory-allocation-review'],
+      gates: <Map<String, Object?>>[
+        _gate(
+          'memory-allocation-review',
+          'satisfied',
+          claimBoundary: 'Report-only local evidence.',
+        ),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
+    final gate = manifest.gateById('memory-allocation-review');
+
+    expect(gate?.claimBoundary, 'Report-only local evidence.');
+    expect(
+      gate?.toJson(),
+      containsPair('claimBoundary', 'Report-only local evidence.'),
+    );
+  });
+
   test('reads the checked repo manifest profile boundaries', () {
+    final workspaceRoot = resolveWorkspaceRoot();
+    final manifestFile = File(
+      p.join(
+        workspaceRoot.path,
+        'docs',
+        'plans',
+        'native-runtime-gate-status.json',
+      ),
+    );
+    final draftResult = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'pr72-draft',
+      evidenceRoot: workspaceRoot,
+    );
+    final readyResult = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'pr72-ready',
+      evidenceRoot: workspaceRoot,
+    );
+    final betaResult = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'beta-candidate',
+      evidenceRoot: workspaceRoot,
+    );
+
+    expect(draftResult.passed, isTrue);
+    expect(
+      draftResult.nonRequiredOpenGates.map((gate) => gate.id),
+      containsAll(<String>[
+        'real-app-route',
+        'physical-observed-profile',
+        'release-approval',
+      ]),
+    );
+    expect(
+      draftResult.nonRequiredOpenGates.map((gate) => gate.id),
+      isNot(contains('memory-allocation-review')),
+    );
+
+    expect(readyResult.passed, isFalse);
+    expect(readyResult.issues.map((issue) => issue.details['gateId']), <String>[
+      'real-app-route',
+    ]);
+
+    expect(betaResult.passed, isFalse);
+    expect(betaResult.issues.map((issue) => issue.details['gateId']), <String>[
+      'real-app-route',
+      'physical-observed-profile',
+      'release-approval',
+    ]);
+    expect(
+      betaResult.issues.map((issue) => issue.details['gateId']),
+      isNot(contains('memory-allocation-review')),
+    );
+
+    final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
+    final memoryGate = manifest.gateById('memory-allocation-review');
+
+    expect(memoryGate?.status, NativeRuntimeGateStatus.satisfied);
+    expect(memoryGate?.claimBoundary, contains('Report-only local macOS'));
+    expect(
+      memoryGate?.evidence.map((entry) => entry.value),
+      containsAll(<String>[
+        'docs/benchmarks/baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md',
+        'docs/benchmarks/baselines/2026-06-12-large-article-raw-heap-diff-evidence.md',
+        'docs/benchmarks/baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md',
+      ]),
+    );
+  });
+
+  test('keeps repo manifest memory gate claim boundaries in JSON output', () {
     final workspaceRoot = resolveWorkspaceRoot();
     final result = checkNativeRuntimeGateStatus(
       manifestFile: File(
@@ -306,16 +400,25 @@ void main() {
       profileId: 'pr72-draft',
       evidenceRoot: workspaceRoot,
     );
+    final manifestJson = NativeRuntimeGateManifest.fromFile(
+      File(
+        p.join(
+          workspaceRoot.path,
+          'docs',
+          'plans',
+          'native-runtime-gate-status.json',
+        ),
+      ),
+    ).toJson();
+    final gates = manifestJson['gates']! as List<Object?>;
+    final memoryGateJson = gates.cast<Map<String, Object?>>().singleWhere(
+      (gate) => gate['id'] == 'memory-allocation-review',
+    );
 
     expect(result.passed, isTrue);
     expect(
-      result.nonRequiredOpenGates.map((gate) => gate.id),
-      containsAll(<String>[
-        'real-app-route',
-        'physical-observed-profile',
-        'memory-allocation-review',
-        'release-approval',
-      ]),
+      memoryGateJson,
+      containsPair('claimBoundary', contains('does not support leak-free')),
     );
   });
 }
@@ -351,6 +454,7 @@ Map<String, Object?> _gate(
   String id,
   String status, {
   String? tracker,
+  String? claimBoundary,
   List<Object?> evidence = const <Object?>[],
 }) {
   return <String, Object?>{
@@ -358,6 +462,7 @@ Map<String, Object?> _gate(
     'status': status,
     'summary': '$id summary',
     if (tracker != null) 'tracker': tracker,
+    if (claimBoundary != null) 'claimBoundary': claimBoundary,
     if (evidence.isNotEmpty) 'evidence': evidence,
   };
 }

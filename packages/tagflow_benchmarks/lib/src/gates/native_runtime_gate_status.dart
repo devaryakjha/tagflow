@@ -148,6 +148,7 @@ final class NativeRuntimeGate {
     required this.status,
     required this.summary,
     required this.tracker,
+    required this.claimBoundary,
     required this.evidence,
   });
 
@@ -158,6 +159,7 @@ final class NativeRuntimeGate {
       status: _readGateStatus(json['status']),
       summary: _readNonEmptyString(json, 'summary'),
       tracker: _readOptionalHttpsUrl(json, 'tracker'),
+      claimBoundary: _readOptionalString(json, 'claimBoundary'),
       evidence: _readEvidenceList(json, 'evidence'),
     );
   }
@@ -174,6 +176,9 @@ final class NativeRuntimeGate {
   /// Optional external tracker URL.
   final String? tracker;
 
+  /// Optional boundary for what this gate status is allowed to claim.
+  final String? claimBoundary;
+
   /// Evidence supporting the current status.
   final List<NativeRuntimeGateEvidence> evidence;
 
@@ -183,6 +188,7 @@ final class NativeRuntimeGate {
     'status': _gateStatusValue(status),
     'summary': summary,
     if (tracker != null) 'tracker': tracker,
+    if (claimBoundary != null) 'claimBoundary': claimBoundary,
     if (evidence.isNotEmpty)
       'evidence': evidence.map((entry) => entry.toJson()).toList(),
   };

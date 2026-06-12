@@ -121,6 +121,37 @@ Route evidence to capture:
   the migrated code;
 - source-control link once GitLab/DNS access is available.
 
+### Non-GitLab Kite Review Packet
+
+GitLab access is not itself a Tagflow package requirement. It is only the
+current blocker because Kite's normal review remote is
+`git@gitlab.zerodha.tech:mobile-apps/kite.git`, and that host does not resolve
+from this machine right now.
+
+If Kite's owner explicitly accepts a non-GitLab packet as the review artifact
+for this gate, the packet can replace the GitLab source-control link for #73.
+Without that owner acceptance, the packet is supporting evidence only and #73
+must remain open.
+
+The minimum packet should include:
+
+- a `git bundle` or patch series for Kite commits `355c79d6`, `e9a86803`, and
+  `50bee7ce`;
+- `git log --format=fuller -3` from the Kite route branch;
+- `git diff --stat feat/dashboard..HEAD`;
+- `git diff --check feat/dashboard..HEAD`;
+- the full diff for `lib/main_local.dart`,
+  `lib/screens/ipos/ipo_instrument_sheet.dart`, and
+  `test/ipos/tagflow_hosted_alpha3_test.dart`;
+- hosted package-resolution proof from Kite `pubspec.yaml` and `pubspec.lock`;
+- focused Kite validation output for analysis and the
+  `tagflow_hosted_alpha3_test.dart` widget test;
+- route-smoke logs and the ignored screenshot artifact recorded in
+  `docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`;
+- explicit owner wording that the packet is accepted as the review artifact for
+  the `IPOInstrumentSheet` Tagflow native-runtime route, and that the local
+  debug fixture/auth constraints are accepted for #73.
+
 ## Equivalent App Route
 
 If Kite remains blocked, another real Flutter app route can satisfy #73 when it

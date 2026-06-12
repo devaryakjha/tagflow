@@ -136,8 +136,9 @@
     },
     {
       "id": "memory-allocation-review",
-      "status": "open",
-      "summary": "Existing memory/allocation exports are report-only and do not support beta/stable memory claims.",
+      "status": "satisfied",
+      "summary": "Local report-only non-device HTML memory review is complete for the required lanes.",
+      "claimBoundary": "Report-only local macOS evidence: does not support leak-free, lower-memory, allocation, public benchmark, beta/stable wording, ranking, threshold, device, or real-app memory claims.",
       "evidence": [
         {
           "type": "localPath",
@@ -146,6 +147,18 @@
         {
           "type": "localPath",
           "value": "docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-large-article-raw-heap-diff-evidence.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md"
         }
       ]
     },
