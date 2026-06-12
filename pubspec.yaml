@@ -35,6 +35,7 @@ melos:
         --scope=tagflow
         --scope=tagflow_table
         --scope=tagflow_benchmarks
+        --scope=tagflow_example
         -c 1 --fail-fast --
         "flutter test --coverage"
       description: Run tests for all packages that have tests
@@ -99,6 +100,7 @@ melos:
         --scope=tagflow
         --scope=tagflow_table
         --scope=tagflow_benchmarks
+        --scope=tagflow_example
         -c 1 --fail-fast --
         "flutter test --coverage"
       description: Run tests with coverage

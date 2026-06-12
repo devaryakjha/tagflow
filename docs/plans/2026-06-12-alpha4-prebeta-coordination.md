@@ -139,6 +139,8 @@ no attached Android device.
 - Refresh docs when PR #72 head, CI, gate output, or owner decisions change.
 - Use `gate:native-runtime:beta-preapproval-known-open` for the current
   expected-open beta-preapproval check while #73 and #75 remain open.
+- Keep `tagflow_example` inside the root `melos run test` coverage lane because
+  it hosts the routed native JSON example and benchmark-control widgets.
 - Keep raw benchmark artifacts under ignored `build/benchmarks/`.
 
 ## Non-Goals

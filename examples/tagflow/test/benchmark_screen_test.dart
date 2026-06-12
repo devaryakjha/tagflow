@@ -33,7 +33,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
     await _pumpBenchmarkScreen(tester);
 
-    await tester.tap(find.text('table_dense'));
+    final tableFixtureFinder = find.text('table_dense');
+    await tester.ensureVisible(tableFixtureFinder);
+    await tester.tap(tableFixtureFinder);
     await _pumpBenchmarkScreen(tester);
 
     expect(_segmentedButtons(tester).first.selected, {'table_dense'});
@@ -45,7 +47,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: BenchmarkScreen()));
     await _pumpBenchmarkScreen(tester);
 
-    await tester.tap(find.text('ai_answer_rich_md'));
+    final markdownFixtureFinder = find.text('ai_answer_rich_md');
+    await tester.ensureVisible(markdownFixtureFinder);
+    await tester.tap(markdownFixtureFinder);
     await _pumpBenchmarkScreen(tester);
 
     final segmentedButtons = _segmentedButtons(tester);

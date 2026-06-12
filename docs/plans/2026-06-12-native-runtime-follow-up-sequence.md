@@ -267,8 +267,10 @@ confirmation: `examples/tagflow/lib/screens/native_json_example.dart`,
 `examples/tagflow/test/native_json_route_test.dart` cover document
 decode/render, patch envelope apply, revision updates, removal/reset behavior,
 public metadata helper tap summaries, and home-route navigation into the native
-JSON screen. The node-tap follow-up now also has a focused package slice for
-button-like semantics on opted-in non-link tap targets.
+JSON screen. The root `melos run test` and `melos run coverage` scripts now
+include `tagflow_example`, so that route/example coverage is part of the normal
+workspace test lane. The node-tap follow-up now also has a focused package
+slice for button-like semantics on opted-in non-link tap targets.
 
 The current beta-preapproval health check is the manifest-owned known-open
 alias:

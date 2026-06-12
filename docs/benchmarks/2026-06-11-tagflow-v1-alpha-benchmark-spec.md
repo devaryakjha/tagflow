@@ -17,7 +17,7 @@ committed.
 
 ## Repo Facts This Plan Assumes
 
-- The workspace is a Melos monorepo declared in the root [pubspec.yaml](../../pubspec.yaml) with three members today: `packages/tagflow`, `packages/tagflow_table`, and `examples/tagflow`.
+- The workspace is a Melos monorepo declared in the root [pubspec.yaml](../../pubspec.yaml) with four members today: `packages/tagflow`, `packages/tagflow_benchmarks`, `packages/tagflow_table`, and `examples/tagflow`.
 - CI currently runs dependency install, `dart run melos bootstrap`, and `dart run melos run validate` on `ubuntu-latest` from [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml).
 - The example app already has multiple routed demo screens in [examples/tagflow/lib/utils/router.dart](../../examples/tagflow/lib/utils/router.dart) and is the obvious host for profile-mode rendering scenarios.
 - The roadmap already calls out unchecked items for performance benchmarks and a performance profiling page in [ROADMAP.md](../../ROADMAP.md).
