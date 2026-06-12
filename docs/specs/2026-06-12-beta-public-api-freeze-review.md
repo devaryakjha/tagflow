@@ -2,10 +2,10 @@
 
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
-**Reviewed Baseline:** current coordinator branch through
-`fe28a17 docs(benchmarks): record memory manifest smoke` after published
-`tagflow-v1.0.0-alpha.3`; this includes post-publish public API follow-ups in
-`packages/tagflow`, `packages/tagflow_table`, and benchmark/docs evidence
+**Reviewed Baseline:** current coordinator branch after published
+`tagflow-v1.0.0-alpha.3`, including public API follow-ups in
+`packages/tagflow` and `packages/tagflow_table` plus benchmark evidence through
+`6ad9895 docs(benchmarks): refresh kite profile blocker`
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -18,7 +18,8 @@ claim is made.
 The conclusion is conservative: Tagflow is not beta-ready yet. The runtime
 direction is correct, but beta should wait until hosted alpha app integration
 covers a pushed and merged production route, supported-target profile evidence
-exists, memory/allocation evidence is reviewed, and release gates are approved.
+exists, retained-object memory evidence is reviewed, and release gates are
+approved.
 The reviewed style and table public-surface blockers have been resolved on the
 coordinator branch.
 
@@ -487,6 +488,14 @@ to republish the extension package.
   tests remain green.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
+- Memory evidence remains report-only. The authored-insertion pair now has
+  named-checkpoint VM-service allocation exports and a class-growth review, but
+  retained-object paths, raw DevTools heap/diff exports, and public memory
+  wording remain blocked.
+- Supported physical-target profile evidence remains blocked by current tool
+  state: latest discovery sees iOS devices as wireless/offline or with a
+  disconnected CoreDevice tunnel, and no attached Android profile target is
+  available.
 - Release docs avoid beta/stable language until this checklist is green.
 - Stable `1.0.0` remains blocked after beta until freeze decisions hold through
   prerelease adoption, benchmark evidence gates are credible, and at least one

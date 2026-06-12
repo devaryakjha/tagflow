@@ -132,7 +132,7 @@ runtime vision.
 
 Required outcomes:
 
-- document the hosted alpha.2 native transport integration path after publish;
+- document the hosted alpha native transport integration path after publish;
 - close public API naming mismatches in docs, especially `TagflowDocumentNode`
   versus earlier `TagflowNode` examples;
 - make the native transport unknown-kind behavior explicit before producers

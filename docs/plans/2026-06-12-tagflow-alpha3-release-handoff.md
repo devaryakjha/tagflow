@@ -190,10 +190,22 @@ Validation evidence:
 3. `fvm flutter analyze lib/component/tagflow_details_converter.dart lib/screens/ipos/ipo_instrument_sheet.dart test/ipos/ipo_tagflow_render_test.dart`
    - passed with `No issues found!`.
 
+Later coordinator refreshes adopted the same hosted-alpha validation locally on
+Kite `feat/dashboard` as `80160401 test(ipo): validate hosted tagflow alpha3`
+and reran the focused test under
+`test/ipos/tagflow_hosted_alpha3_test.dart`. A separate local Kite branch,
+`codex/ipo-tagflow-registry-content`, prepares content-only production IPO
+rendering through `Tagflow.html(..., registry: ...)` as `e26a14e6`, with
+follow-up test cleanup `6d0d29f8` keeping assertions on public rendered table
+content and `tagflowTableComponents(...)`. These Kite branches remain local
+while `gitlab.zerodha.tech` DNS is unavailable.
+
 Limits:
 
 - Kite production IPO rendering still uses the legacy converter bridge to keep
   current app behavior stable.
+- The content-only registry migration branch is not merged, not pushed, and not
+  profile evidence.
 - Built-in disclosure behavior is validated in a Kite widget harness, not yet
   through a live backend IPO payload that already contains authored
   `details` / `summary` markup.
