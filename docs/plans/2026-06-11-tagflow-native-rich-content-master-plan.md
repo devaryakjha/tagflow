@@ -37,6 +37,7 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
+  `d919d45 docs(benchmarks): record control retained paths`,
   `19e0fc4 docs(benchmarks): record multi-checkpoint retained paths`,
   `11c644a fix(benchmarks): dedupe retained path class targets`,
   `4e190ea docs(benchmarks): record retained path memory evidence`,
@@ -103,8 +104,9 @@ evidence, supported-target profile evidence, and final release-gate approval.
   or speed claims until the reference-runner qualification gates in
   `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
   and a separate threshold/comparison policy is reviewed.
-- Follow-up benchmark commits through `19e0fc4`, `11c644a`, `4e190ea`, and the earlier
-  memory-manifest/exporter work clarify the current memory/allocation boundary.
+- Follow-up benchmark commits through `d919d45`, `19e0fc4`, `11c644a`,
+  `4e190ea`, and the earlier memory-manifest/exporter work clarify the current
+  memory/allocation boundary.
   The repeated profile runner
   can now request per-cell `--profile-memory` artifacts with
   `TAGFLOW_PROFILE_MEMORY=true`, record VM service URIs, replay named
@@ -124,10 +126,13 @@ evidence, supported-target profile evidence, and final release-gate approval.
   same-process retained-path exports for `before_first_patch`,
   `after_first_patch`, `after_final_patch`, and `after_scroll`, with stable
   high-level retaining-path shape through the live `Tagflow` widget and Flutter
-  keep-alive wrappers. The exporter now de-duplicates repeated retained-path
-  class targets before export. This remains report-only memory evidence: raw
-  DevTools heap/diff exports, paired control-lane retained paths, and public
-  memory/allocation claims remain blocked.
+  keep-alive wrappers. The paired control lane now has same-process
+  retained-path exports for `before_first_update`, `after_first_update`,
+  `after_final_update`, and `after_scroll`, with stable high-level path shape
+  through the live `Tagflow` widget and active Flutter scroll tree. The exporter
+  now de-duplicates repeated retained-path class targets before export. This
+  remains report-only memory evidence: raw DevTools heap/diff exports and
+  public memory/allocation claims remain blocked.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
   profile evidence, and review of memory/allocation artifacts. Threshold policy
