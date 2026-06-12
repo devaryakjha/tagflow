@@ -41,7 +41,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Memory snapshot blocker | [`baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md) | The repeated profile runner can now request per-cell bounded `--profile-memory` files, record any VM service URI printed by Flutter, and optionally replay named hold-open checkpoints for DevTools attachment. Heap snapshots, class allocation diffs, and retained-object review still require manual export. | Allocation evidence still blocked. |
 | Checkpoint hold smoke | [`baselines/2026-06-12-checkpoint-hold-smoke.md`](baselines/2026-06-12-checkpoint-hold-smoke.md) | A one-repeat local macOS `tagflow:large_article` run with `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=1` passed, captured bounded memory JSON, recorded a VM service URI, and emitted named checkpoint attach markers. | Harness smoke only; DevTools exports still pending. |
 | Memory evidence manifest smoke | [`baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md) | A real one-repeat local macOS `tagflow:large_article` hold-open run wrote `memory-evidence-manifest.json`, linked it from the profile manifest, recorded expected DevTools export paths, and passed summary/check after the summary was generated. | Harness smoke only; manual heap snapshots, allocation diffs, and retained-object review still pending. |
-| VM-service memory export helper | `benchmark:memory-evidence:export` | A live hold-open VM service URI can now be used to export `getAllocationProfile(gc: true)` JSON and a class-level heap snapshot summary through the VM service protocol. Generated manifests include per-checkpoint helper command metadata. | Report-only review input; retained-object interpretation and raw DevTools exports remain manual when needed. |
+| VM-service memory export helper | [`baselines/2026-06-12-memory-vm-service-exporter-smoke.md`](baselines/2026-06-12-memory-vm-service-exporter-smoke.md) | A live hold-open VM service URI can now be used to export `getAllocationProfile(gc: true)` JSON and a class-level heap snapshot summary through the VM service protocol. Generated manifests include per-checkpoint helper command metadata, and the first live smoke exported real JSON artifacts from a local `tagflow:large_article` run. | Report-only review input; retained-object interpretation and raw DevTools exports remain manual when needed. |
 | Physical target probe | [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md), superseding the earlier [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) probe note | Current read-only discovery sees the iPhone 17 only in Flutter's wireless bucket while CoreDevice reports a paired local-network session with disconnected tunnel and unavailable DDI services; `xctrace` still lists the device offline. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 | Kite hosted-alpha app evidence | Kite evidence commit `be97da15`, adopted locally on `feat/dashboard` as `80160401` (`test(ipo): validate hosted tagflow alpha3`) | A focused Kite widget test consumes hosted `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`, renders checked-in IPO HTML fixture content through `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, and validates native block document/patch decode-adapt-apply. The local adoption commit is not pushed while `gitlab.zerodha.tech` DNS is unavailable. | App-integration evidence only; not profile evidence. |
@@ -475,16 +475,19 @@ Blocked until a future threshold review:
    hold-open run, starting with the authored-insertion control/patch pair in
    `2026-06-12-memory-allocation-snapshot-blocker.md`. Do not substitute another
    bounded `--profile-memory` sample for the missing snapshot/diff evidence.
-2. Re-run physical-device qualification only after a USB iOS target appears as a
+2. Stream profile child stdout/stderr or otherwise expose VM service URIs while
+   checkpoint holds are still active, so `memory-evidence-manifest.json`
+   commands can be used at named checkpoints without process-table discovery.
+3. Re-run physical-device qualification only after a USB iOS target appears as a
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update
    the physical-target note.
-3. Push, merge, and real-route validate the Kite
+4. Push, merge, and real-route validate the Kite
    `codex/ipo-tagflow-registry-content` branch before treating it as production
    surface evidence.
-4. Record real-app profile-mode evidence for the hosted-alpha production
+5. Record real-app profile-mode evidence for the hosted-alpha production
    surface after the production route is merged, separate from debug probes and
    converter-free widget tests.
-5. Add or promote threshold policy only after a stable reference environment is
+6. Add or promote threshold policy only after a stable reference environment is
    selected and a fresh repeat-5 matrix plus memory/allocation review are
    complete.

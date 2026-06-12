@@ -586,11 +586,16 @@ final class ProfileBaselineRunner {
       }
     }
 
+    final environment = _detectEnvironment(
+      workspaceRoot,
+      _environmentProcessRunner,
+    );
     final memoryEvidenceManifestPath = profileHoldOpen
         ? _writeMemoryEvidenceManifest(
             workspaceRoot: workspaceRoot,
             runDirectory: runDirectory,
             runId: runId,
+            gitCommit: environment.gitCommit,
             device: device,
             profileMemory: profileMemory,
             profileHoldOpenSeconds: profileHoldOpenSeconds,
@@ -599,10 +604,6 @@ final class ProfileBaselineRunner {
           )
         : null;
     final selectedPairs = pairs;
-    final environment = _detectEnvironment(
-      workspaceRoot,
-      _environmentProcessRunner,
-    );
     final manifest = ProfileBaselineManifest(
       runId: runId,
       generatedAt: _clock().toUtc(),
@@ -668,6 +669,7 @@ String _writeMemoryEvidenceManifest({
   required Directory workspaceRoot,
   required Directory runDirectory,
   required String runId,
+  required String gitCommit,
   required String device,
   required bool profileMemory,
   required int? profileHoldOpenSeconds,
@@ -699,6 +701,7 @@ String _writeMemoryEvidenceManifest({
     '${const JsonEncoder.withIndent('  ').convert(<String, Object?>{
       'runId': runId,
       'generatedAt': generatedAt.toUtc().toIso8601String(),
+      'gitCommit': gitCommit,
       'status': 'manualExportsRequired',
       'device': device,
       'profileMemory': profileMemory,

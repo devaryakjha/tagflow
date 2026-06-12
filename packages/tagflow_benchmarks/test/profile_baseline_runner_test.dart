@@ -468,6 +468,7 @@ void main() {
           jsonDecode(evidenceManifest.readAsStringSync())
               as Map<String, Object?>;
       expect(evidenceJson['runId'], '2026-06-12T12-20-00Z');
+      expect(evidenceJson['gitCommit'], manifestJson['gitCommit']);
       expect(evidenceJson['status'], 'manualExportsRequired');
       expect(evidenceJson['interactiveDevToolsCommand'], <Object?>[
         'dart',

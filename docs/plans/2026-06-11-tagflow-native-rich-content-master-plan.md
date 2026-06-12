@@ -110,8 +110,9 @@ evidence, supported-target profile evidence, and final release-gate approval.
   `memory-evidence-manifest.json` checklist with expected manual export paths.
   `benchmark:memory-evidence:export` can now connect to a live hold-open VM
   service URI and write `getAllocationProfile(gc: true)` JSON plus a compact
-  class-level heap snapshot summary. This is still report-only review input.
-  The remaining memory gate is reviewed checkpoint evidence, including
+  class-level heap snapshot summary. The first live smoke exported real JSON
+  artifacts for `tagflow:large_article`. This is still report-only review
+  input. The remaining memory gate is reviewed checkpoint evidence, including
   retained-object interpretation and raw DevTools exports when class-level
   summaries are not sufficient.
 - Post-alpha stabilization in progress: stable reference-environment selection,
@@ -708,6 +709,13 @@ Master review gate:
 - Follow-up resolved: future profile manifests mirror
   `environment.gitCommit` into the top-level `gitCommit` field so reviewed
   artifacts do not lose commit identity at the manifest summary level.
+- Latest live exporter smoke:
+  `2026-06-12-memory-vm-service-exporter-smoke.md` validates
+  `benchmark:memory-evidence:export` against a real hold-open
+  `tagflow:large_article` profile target. The remaining harness friction is
+  live URI availability: the profile runner buffers child process output, so
+  the smoke used process-table discovery instead of the generated manifest
+  command while the checkpoint was active.
 
 ### Beta API Freeze Delta Review
 
