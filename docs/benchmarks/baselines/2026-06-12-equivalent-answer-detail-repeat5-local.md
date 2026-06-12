@@ -145,6 +145,28 @@ The blocking check issue was consistent across all three cells:
 This means the repeat-completeness target was met, but the existing
 reference-runner viewport guard was not.
 
+## Viewport Policy Audit
+
+This mismatch is a reference-runner qualification issue, not a fixture-specific
+harness bug.
+
+- The macOS example app pins the benchmark window to `800 x 600` logical size.
+- The profile test records `tester.view.physicalSize` and
+  `tester.view.devicePixelRatio` as observed; it does not override DPR.
+- The repeated baseline runner exposes no collection flag that can force macOS
+  DPR for `benchmark:profile:baselines`.
+
+That means this run's `800x600` physical viewport at device-pixel-ratio `1.0`
+came from the host display scale for this local collection, while the current
+policy file describes a qualified `2.0x` reference target.
+
+The smallest correct next action is documentation/policy qualification, not an
+immediate rerun. Keep this run as local report-only evidence, and only apply
+the `800x600 @ 2.0x` viewport policy to macOS runs collected on a reviewed
+reference target that is known to provide that display scale. A cheap repeat of
+the same local command is not expected to satisfy the policy unless the display
+environment changes first.
+
 ## Interpretation
 
 This run is useful as first-pass local equivalence-family evidence because it
