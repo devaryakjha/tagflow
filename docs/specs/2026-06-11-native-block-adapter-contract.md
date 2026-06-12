@@ -616,20 +616,35 @@ Rules for sequencing:
 
 The following decisions should stay open until implementation evidence exists:
 
-- whether the public adapter surface is Dart-model-first, JSON-first, or both
-- whether native block policy extends `TagflowContentPolicy` directly or wraps
-  it with a semantic-kind policy layer
-- whether `callout` deserves a first-class runtime node kind or should stay a
-  container normalization path
 - how table captions, sections, and richer media groups normalize in the first
   adapter slice
-- whether patch transport requires producer revision tokens for the first public
-  contract
-- whether unsupported behavior should default exactly to the current runtime
-  policy defaults or become adapter-specific
-- how much serializer surface should be public in the first release versus kept
-  internal until multiple producers need it
+- whether unsupported behavior eventually needs adapter-specific defaults
+  instead of the current shared runtime policy defaults
 
 Closed for beta: future `schemaVersion` negotiation and unknown producer block
 preservation remain deferred. Beta keeps the strict `schemaVersion == 1` and
 known-kind codec contract.
+
+Closed for beta: the public native adapter surface is both typed-model and
+JSON-codec based. `TagflowNativeBlock`, `TagflowNativeBlockDocument`,
+`TagflowNativeBlockPatch`, `TagflowNativeBlockPatchEnvelope`,
+`TagflowNativeBlockCodec`, and `TagflowNativeBlockAdapter` are exported through
+`package:tagflow/tagflow.dart`. No additional serializer surface is added for
+beta beyond the explicit codec.
+
+Closed for beta: native block policy reuses `TagflowContentPolicy` directly.
+Do not add a native-specific semantic-kind policy layer until a real app needs
+kind-level allowlists, per-kind degradation, or source-specific behavior that
+cannot be represented by the current URL/resource and unsupported-content
+policy.
+
+Closed for beta: `callout` stays a native producer kind normalized into
+`TagflowNodeKind.container` with preserved native metadata and optional
+presentation hints. Do not add a first-class runtime node kind or built-in
+callout renderer until app integration proves the generic container plus
+semantic registry path is insufficient.
+
+Closed for beta: patch transport includes optional producer revision tokens as
+part of the first public contract, but those tokens are not core conflict
+semantics. Tagflow preserves them on envelopes and metadata while apps own
+revision checks and state updates.

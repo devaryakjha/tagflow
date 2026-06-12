@@ -250,14 +250,18 @@ Transport does not promise:
 - automatic revision conflict checks or document revision advancement; the
   document and patch revision fields are opaque producer tokens that apps check
   and update around `applyPatches(...)`.
+- a broader serializer framework beyond the explicit native block JSON codec;
+- a native-specific semantic-kind policy layer before real app evidence;
+- a first-class runtime callout node before container normalization plus
+  registry overrides prove insufficient.
 
 Schema-version rule:
 
 - `schemaVersion == 1` is the only producer shape currently reviewed;
 - documents and patch envelopes with any other version fail during
   `TagflowNativeBlockCodec` decode;
-- beta.0 should decide whether future schema versions keep failing strictly,
-  degrade through adapter policy, or route through versioned codecs.
+- beta keeps future schema versions failing strictly; versioned codecs or
+  degradation require a later producer-driven SPEC.
 
 ## 7. Patch and Update Semantics
 

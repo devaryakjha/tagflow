@@ -332,6 +332,21 @@ Revision decision for beta:
 Reopen this only if a real app proves that generic revision enforcement belongs
 in Tagflow rather than in the app/backend protocol.
 
+Native adapter surface decisions for beta:
+
+- Keep both typed Dart models and the explicit JSON codec public. The typed
+  surface is the app/runtime boundary; the codec is the trusted native JSON
+  transport boundary.
+- Do not add a broader serializer framework beyond
+  `TagflowNativeBlockCodec.encode*` / `decode*` methods.
+- Reuse `TagflowContentPolicy` directly for native URL-bearing blocks and
+  unsupported behavior. Do not add a native-specific semantic-kind policy layer
+  for beta.
+- Keep `callout` as a native producer kind that normalizes to
+  `TagflowNodeKind.container` with native metadata and presentation hints.
+  Dedicated callout widgets should be app-owned registry components until real
+  integration proves a first-class runtime kind is necessary.
+
 ### Content Policy
 
 `beta-stable candidate`:
@@ -567,6 +582,10 @@ to republish the extension package.
   `revision` and `baseRevision` are opaque producer tokens, codec-preserved but
   not enforced by core patch application; app/backend code owns stale-envelope
   checks, merge policy, and displayed current revision state.
+- Native adapter surface decisions are documented for beta. Done: keep typed
+  native models plus `TagflowNativeBlockCodec`, avoid a broader serializer
+  framework, reuse `TagflowContentPolicy`, and keep callouts normalized to
+  containers with metadata/presentation hints.
 - `tagflow_table` beta posture is decided and documented. Done: keep it as a
   separate first-party extension through beta, release it in lockstep for
   `beta.0` compatibility validation, and permit independent patch/minor

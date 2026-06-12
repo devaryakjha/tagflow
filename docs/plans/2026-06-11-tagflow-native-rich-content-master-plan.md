@@ -288,9 +288,6 @@ Architecture open decisions:
   moves behind a separate legacy API.
 - Whether `tagflow_table` remains separate through beta or folds into core after
   the semantic registry exists.
-- Whether unsupported content defaults to dropping nodes or preserving debug
-  placeholders.
-- Whether `TagflowOptions` is renamed to `TagflowViewOptions` during alpha.
 - How much class-based styling the HTML adapter should preserve in alpha.
 - The native block adapter foundation has landed, including direct semantic
   table block mapping, callout normalization, and operation-shaped native block
@@ -299,9 +296,10 @@ Architecture open decisions:
   slice has also landed for data-only JSON documents and ordered patch payloads.
   Unknown producer block kinds, unknown patch operations, and future schema
   versions remain strict codec failures through beta; placeholders are only for
-  reviewed policy rejections on known blocks. Broader storage/sync protocol
-  decisions and any future dedicated runtime callout renderer contract remain
-  tracked in
+  reviewed policy rejections on known blocks. Native adapter beta surface is
+  typed-model plus explicit JSON codec, policy reuses `TagflowContentPolicy`,
+  and callouts stay container-normalized until app evidence proves otherwise.
+  Broader storage/sync protocol decisions remain tracked in
   `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
@@ -586,8 +584,8 @@ Master review gate:
   envelopes now decode through `TagflowNativeBlockPatchEnvelope` and adapt
   through `TagflowNativeBlockAdapter.adaptPatches(...)`. Document caching,
   citations, optional actions, broader serializer helpers, CMS sync, and any
-  dedicated callout renderer remain later work unless internal app integration
-  proves they are required before beta.
+  dedicated callout renderer remain later work. They are not beta blockers
+  without new real-app evidence.
 
 ### Wave 4: Migration and Internal App Trial
 
