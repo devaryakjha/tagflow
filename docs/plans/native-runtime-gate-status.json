@@ -170,6 +170,10 @@
           "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-repeat5-timeout.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
         },
@@ -188,6 +192,10 @@
         {
           "type": "note",
           "value": "timeout-bounded observed-host native JSON repeat5 passed minRepeats=5 but failed reference policy because current host is 800x600 @ 1.0x, not 2.0x"
+        },
+        {
+          "type": "note",
+          "value": "physical-observed-profile requires a qualifying target or explicit owner waiver for beta preapproval"
         }
       ]
     },
