@@ -445,8 +445,9 @@ to republish the extension package.
   without reparsing. Hosted widget-test validation is done in Kite commit
   `80160401` locally on `feat/dashboard`; a separate isolated Kite branch
   `codex/ipo-tagflow-registry-content` prepares content-only production
-  rendering through the registry path as `e26a14e6`. Push, merge, real-route
-  validation, and profile evidence remain separate.
+  rendering through the registry path as `e26a14e6` and keeps downstream table
+  coverage aligned with the beta public barrel in test cleanup `6d0d29f8`.
+  Push, merge, real-route validation, and profile evidence remain separate.
 - `TagflowOptions` support window is written in migration docs. Done in
   "Compatibility Support Windows".
 - `package:tagflow/legacy.dart` support window is written in migration docs.

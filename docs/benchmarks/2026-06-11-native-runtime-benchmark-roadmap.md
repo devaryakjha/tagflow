@@ -43,7 +43,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Physical target probe | [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md), superseding the earlier [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) probe note | Current read-only discovery sees the iPhone 17 only in Flutter's wireless bucket while CoreDevice reports a paired local-network session with disconnected tunnel and unavailable DDI services; `xctrace` still lists the device offline. Android tooling was present with no attached target. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 | Kite hosted-alpha app evidence | Kite evidence commit `be97da15`, adopted locally on `feat/dashboard` as `80160401` (`test(ipo): validate hosted tagflow alpha3`) | A focused Kite widget test consumes hosted `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`, renders checked-in IPO HTML fixture content through `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, and validates native block document/patch decode-adapt-apply. The local adoption commit is not pushed while `gitlab.zerodha.tech` DNS is unavailable. | App-integration evidence only; not profile evidence. |
-| Kite profile blocker | [`baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md`](baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md) | Kite now has hosted-alpha widget evidence, but no credible production profile capture is available because the main app branch is not pushed, no deterministic production fixture opener exists, and physical target tooling is inconsistent. A content-only production migration has been prepared in isolated Kite branch `codex/ipo-tagflow-registry-content` as `e26a14e6` while keeping excerpt rendering on the legacy bridge, but it is not merged or profile evidence. | Negative qualification evidence; real-app profile baseline still pending. |
+| Kite profile blocker | [`baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md`](baselines/2026-06-12-kite-ipo-profile-evidence-blocked.md) | Kite now has hosted-alpha widget evidence, but no credible production profile capture is available because the main app branch is not pushed, no deterministic production fixture opener exists, and physical target tooling is inconsistent. A content-only production migration has been prepared in isolated Kite branch `codex/ipo-tagflow-registry-content` as `e26a14e6`, then beta-aligned with test cleanup `6d0d29f8` so downstream coverage avoids low-level table widget exports. The branch is not merged or profile evidence. | Negative qualification evidence; real-app profile baseline still pending. |
 
 ## Benchmark Tiers
 
@@ -136,8 +136,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   is not pushed, no deterministic production fixture opener exists, and
   physical-device tooling is inconsistent. A narrower content-only production
   migration slice exists as Kite branch `codex/ipo-tagflow-registry-content`
-  commit `e26a14e6`, but it is not profile evidence until merged and validated
-  on a supported target.
+  with production migration commit `e26a14e6` and beta-aligned test cleanup
+  commit `6d0d29f8`, but it is not profile evidence until merged and
+  validated on a supported target.
 - Reference environment: the complete macOS repeat-5 run used Flutter master
   prerelease bits and prerelease macOS, so it is not claim-grade.
 - Cold versus warm: static profile artifacts now capture first fixture render,
