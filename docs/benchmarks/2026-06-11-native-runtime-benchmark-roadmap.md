@@ -41,7 +41,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Memory snapshot blocker | [`baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md) | The repeated profile runner can now request per-cell bounded `--profile-memory` files, record any VM service URI printed by Flutter, and optionally replay named hold-open checkpoints for DevTools attachment. Heap snapshots, class allocation diffs, and retained-object review still require manual export. | Allocation evidence still blocked. |
 | Checkpoint hold smoke | [`baselines/2026-06-12-checkpoint-hold-smoke.md`](baselines/2026-06-12-checkpoint-hold-smoke.md) | A one-repeat local macOS `tagflow:large_article` run with `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=1` passed, captured bounded memory JSON, recorded a VM service URI, and emitted named checkpoint attach markers. | Harness smoke only; DevTools exports still pending. |
 | Memory evidence manifest smoke | [`baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md) | A real one-repeat local macOS `tagflow:large_article` hold-open run wrote `memory-evidence-manifest.json`, linked it from the profile manifest, recorded expected DevTools export paths, and passed summary/check after the summary was generated. | Harness smoke only; manual heap snapshots, allocation diffs, and retained-object review still pending. |
-| VM-service memory export helper | [`baselines/2026-06-12-memory-vm-service-exporter-smoke.md`](baselines/2026-06-12-memory-vm-service-exporter-smoke.md) | A live hold-open VM service URI can now be used to export `getAllocationProfile(gc: true)` JSON and a class-level heap snapshot summary through the VM service protocol. Generated manifests include per-checkpoint helper command metadata, and the first live smoke exported real JSON artifacts from a local `tagflow:large_article` run. | Report-only review input; retained-object interpretation and raw DevTools exports remain manual when needed. |
+| VM-service memory export helper | [`baselines/2026-06-12-memory-vm-service-exporter-smoke.md`](baselines/2026-06-12-memory-vm-service-exporter-smoke.md) plus retained-path exporter support added after it | A live hold-open VM service URI can now be used to export `getAllocationProfile(gc: true)` JSON, a class-level heap snapshot summary, and optional bounded `getRetainingPath` samples for selected classes through the VM service protocol. Generated manifests include per-checkpoint helper command metadata, and the first live smoke exported real JSON artifacts from a local `tagflow:large_article` run before retained-path sampling was added. | Report-only review input; retained-path exports still need a live checkpoint run and raw DevTools heap/diff exports remain manual when needed. |
 | Streamed profile output smoke | [`baselines/2026-06-12-streamed-profile-output-smoke.md`](baselines/2026-06-12-streamed-profile-output-smoke.md) | The profile baseline runner now streams child `benchmark:profile` output while preserving manifest/log capture. A one-repeat `tagflow:large_article` hold-open smoke showed the VM service URI and checkpoint markers before the runner returned. | Harness smoke only; enables named-checkpoint exporter use without process-table discovery. |
 | Authored insertion checkpoint memory exports | [`baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md`](baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md) | A one-repeat local macOS authored-insertion control/patch profile pass exported VM-service allocation profiles and class-level heap summaries for all named control and patch checkpoints, with one supplemental control-only run used for the missed control `after_scroll` export. | Report-only allocation review input; retained-object interpretation and raw DevTools heap/diff exports remain pending. |
 | Authored insertion class-growth review | [`baselines/2026-06-12-authored-insertion-class-growth-review.md`](baselines/2026-06-12-authored-insertion-class-growth-review.md) | Existing VM-service exports were reviewed for class-level growth. Same-process patch aggregate object count and heap-summary shallow size did not grow from `before_first_patch` to `after_scroll`; package-level Tagflow growth was limited to one `TagflowDocumentNode` and one `TagflowDocument`. | Report-only class-growth interpretation only; retained-object proof and public claims remain blocked without raw DevTools retained paths or heap diffs. |
@@ -173,8 +173,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   replay named hold-open checkpoints for DevTools attachment, generate a
   `memory-evidence-manifest.json` checklist, and export report-only
   VM-service allocation profiles plus class-level heap summaries from a live
-  checkpoint. Retained-object interpretation and raw DevTools exports still
-  have to be captured or reviewed manually when needed. Use
+  checkpoint. The exporter can now also collect bounded `getRetainingPath`
+  samples for named classes such as `TagflowDocumentNode` and
+  `TagflowDocument`. Retained-path exports still need a live checkpoint run and
+  raw DevTools heap/diff exports still have to be captured or reviewed manually
+  when needed. Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
   for the capture sequence and reviewed note requirements. The current
   non-device scoping blocker is recorded in
@@ -484,11 +487,16 @@ Blocked until a future threshold review:
 
 1. Capture the first playbook-complete DevTools memory/allocation note from a
    hold-open run, starting with the authored-insertion control/patch pair in
-   `2026-06-12-memory-allocation-snapshot-blocker.md`. Do not substitute another
-   bounded `--profile-memory` sample for the missing snapshot/diff evidence.
+   `2026-06-12-memory-allocation-snapshot-blocker.md`. Include
+   `TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES=TagflowDocumentNode,TagflowDocument`
+   on the patch `after_scroll` checkpoint so the exporter records bounded
+   retained-path samples for the classes surfaced by the class-growth review.
+   Do not substitute another bounded `--profile-memory` sample for the missing
+   snapshot/diff evidence.
 2. Run the authored-insertion control/patch pair with checkpoint holds and use
    the streamed VM service URI plus `memory-evidence-manifest.json` command
-   metadata to export VM-service evidence at each named checkpoint.
+   metadata to export VM-service evidence at each named checkpoint, including
+   retained-path samples for the reviewed Tagflow classes where requested.
 3. Re-run physical-device qualification only after a USB iOS target appears as a
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update

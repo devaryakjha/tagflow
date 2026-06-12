@@ -64,6 +64,24 @@ MemoryEvidenceExportOptions _parseOptions(
     throw const FormatException('--top-classes must be an integer >= 1.');
   }
 
+  final retainingPathSampleLimit = int.tryParse(
+    values['retaining-path-sample-limit'] ?? '1',
+  );
+  if (retainingPathSampleLimit == null || retainingPathSampleLimit < 1) {
+    throw const FormatException(
+      '--retaining-path-sample-limit must be an integer >= 1.',
+    );
+  }
+
+  final retainingPathLimit = int.tryParse(
+    values['retaining-path-limit'] ?? '20',
+  );
+  if (retainingPathLimit == null || retainingPathLimit < 1) {
+    throw const FormatException(
+      '--retaining-path-limit must be an integer >= 1.',
+    );
+  }
+
   return MemoryEvidenceExportOptions(
     vmServiceUri: Uri.parse(vmServiceUri),
     outputDirectory: Directory(
@@ -75,6 +93,15 @@ MemoryEvidenceExportOptions _parseOptions(
     isolateId: values['isolate-id'],
     topClasses: topClasses,
     gc: _parseBool(values['gc'] ?? 'true', optionName: '--gc'),
+    retainingPathClassTargets: normalizeRetainingPathClassTargets([
+      if (values['retaining-path-classes'] != null)
+        values['retaining-path-classes']!,
+      if (Platform.environment['TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES']
+          case final retainingClasses?)
+        retainingClasses,
+    ]),
+    retainingPathSampleLimit: retainingPathSampleLimit,
+    retainingPathLimit: retainingPathLimit,
   );
 }
 
@@ -103,7 +130,10 @@ Usage:
     [--output-dir=<path>] \
     [--isolate-id=<id-or-name>] \
     [--top-classes=<n>] \
-    [--gc=true|false]
+    [--gc=true|false] \
+    [--retaining-path-classes=<ClassName[,OtherClass]>] \
+    [--retaining-path-sample-limit=<n>] \
+    [--retaining-path-limit=<n>]
 
 The target VM service must still be live. Use this against a profile hold-open
 run and one checkpoint listed in memory-evidence-manifest.json.
@@ -111,6 +141,7 @@ run and one checkpoint listed in memory-evidence-manifest.json.
 Outputs:
   <checkpoint>-allocation-profile.json
   <checkpoint>-heap-summary.json
+  <checkpoint>-retaining-paths.json, when retained-path classes are requested
 
 These files are review inputs. They do not replace human retained-object
 interpretation, and they should stay under ignored build/ output.

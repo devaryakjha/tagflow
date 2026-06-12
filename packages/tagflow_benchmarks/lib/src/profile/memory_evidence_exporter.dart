@@ -16,6 +16,9 @@ final class MemoryEvidenceExportOptions {
     this.isolateId,
     this.topClasses = 30,
     this.gc = true,
+    this.retainingPathClassTargets = const <String>[],
+    this.retainingPathSampleLimit = 1,
+    this.retainingPathLimit = 20,
   });
 
   /// HTTP or WebSocket VM service URI for a live profile target.
@@ -35,6 +38,19 @@ final class MemoryEvidenceExportOptions {
 
   /// Whether to request GC before reading the allocation profile.
   final bool gc;
+
+  /// Class targets for optional retained-path sampling.
+  ///
+  /// A target may be either a class name such as `TagflowDocumentNode`, or a
+  /// library-qualified selector such as
+  /// `package:tagflow/src/runtime/document.dart::TagflowDocumentNode`.
+  final List<String> retainingPathClassTargets;
+
+  /// Maximum instances to sample for each matched retained-path class target.
+  final int retainingPathSampleLimit;
+
+  /// Maximum number of objects to include in each retaining path.
+  final int retainingPathLimit;
 }
 
 /// Result produced by [exportMemoryEvidence].
@@ -46,6 +62,7 @@ final class MemoryEvidenceExportResult {
     required this.checkpoint,
     required this.heapSummaryPath,
     required this.allocationProfilePath,
+    this.retainingPathsPath,
   });
 
   /// Connected VM service URI.
@@ -63,6 +80,9 @@ final class MemoryEvidenceExportResult {
   /// Path to the allocation profile JSON.
   final String allocationProfilePath;
 
+  /// Path to the retained-path JSON, when class targets were requested.
+  final String? retainingPathsPath;
+
   /// Converts this result to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'vmServiceUri': vmServiceUri.toString(),
@@ -70,6 +90,7 @@ final class MemoryEvidenceExportResult {
     'checkpoint': checkpoint,
     'heapSummaryPath': heapSummaryPath,
     'allocationProfilePath': allocationProfilePath,
+    if (retainingPathsPath != null) 'retainingPathsPath': retainingPathsPath,
   };
 }
 
@@ -117,12 +138,29 @@ Future<MemoryEvidenceExportResult> exportMemoryEvidence(
       summarizeHeapSnapshot(heapSnapshot, topClasses: options.topClasses),
     );
 
+    String? retainingPathsPath;
+    if (options.retainingPathClassTargets.isNotEmpty) {
+      retainingPathsPath = paths.retainingPathsPath;
+      _writePrettyJson(
+        File(retainingPathsPath),
+        await exportRetainingPathSummary(
+          service: service,
+          isolateId: isolateId,
+          allocationProfile: allocationProfile,
+          classTargets: options.retainingPathClassTargets,
+          sampleLimit: options.retainingPathSampleLimit,
+          retainingPathLimit: options.retainingPathLimit,
+        ),
+      );
+    }
+
     return MemoryEvidenceExportResult(
       vmServiceUri: options.vmServiceUri,
       isolateId: isolateId,
       checkpoint: options.checkpoint,
       heapSummaryPath: paths.heapSummaryPath,
       allocationProfilePath: paths.allocationProfilePath,
+      retainingPathsPath: retainingPathsPath,
     );
   } finally {
     await service.dispose();
@@ -135,6 +173,7 @@ final class MemoryEvidenceExportPaths {
   const MemoryEvidenceExportPaths({
     required this.heapSummaryPath,
     required this.allocationProfilePath,
+    required this.retainingPathsPath,
   });
 
   /// Heap snapshot class summary path.
@@ -142,6 +181,9 @@ final class MemoryEvidenceExportPaths {
 
   /// Allocation profile path.
   final String allocationProfilePath;
+
+  /// Retained-path sampling path.
+  final String retainingPathsPath;
 }
 
 /// Resolves output paths for a checkpoint memory export.
@@ -158,6 +200,10 @@ MemoryEvidenceExportPaths memoryEvidenceExportPaths({
     allocationProfilePath: p.join(
       outputDirectory.path,
       '$normalizedCheckpoint-allocation-profile.json',
+    ),
+    retainingPathsPath: p.join(
+      outputDirectory.path,
+      '$normalizedCheckpoint-retaining-paths.json',
     ),
   );
 }
@@ -221,6 +267,160 @@ Map<String, Object?> summarizeHeapSnapshot(
         .take(topClasses)
         .map((summary) => summary.toJson())
         .toList(),
+  };
+}
+
+/// Exports bounded retained-path samples for selected allocation classes.
+Future<Map<String, Object?>> exportRetainingPathSummary({
+  required VmService service,
+  required String isolateId,
+  required AllocationProfile allocationProfile,
+  required List<String> classTargets,
+  int sampleLimit = 1,
+  int retainingPathLimit = 20,
+}) async {
+  if (sampleLimit < 1) {
+    throw ArgumentError.value(
+      sampleLimit,
+      'sampleLimit',
+      'Must be at least 1.',
+    );
+  }
+  if (retainingPathLimit < 1) {
+    throw ArgumentError.value(
+      retainingPathLimit,
+      'retainingPathLimit',
+      'Must be at least 1.',
+    );
+  }
+
+  final normalizedTargets = normalizeRetainingPathClassTargets(classTargets);
+  final members = allocationProfile.members ?? const <ClassHeapStats>[];
+
+  return <String, Object?>{
+    'type': 'tagflow.memory.retainingPaths',
+    'isolateId': isolateId,
+    'classTargets': normalizedTargets,
+    'sampleLimit': sampleLimit,
+    'retainingPathLimit': retainingPathLimit,
+    'classes': [
+      for (final target in normalizedTargets)
+        <String, Object?>{
+          'target': target,
+          'matches': [
+            for (final member in members)
+              if (_matchesClassTarget(member.classRef, target))
+                await _retainingPathClassSummary(
+                  service: service,
+                  isolateId: isolateId,
+                  classStats: member,
+                  sampleLimit: sampleLimit,
+                  retainingPathLimit: retainingPathLimit,
+                ),
+          ],
+        },
+    ],
+  };
+}
+
+/// Normalizes retained-path class targets from CLI/config input.
+List<String> normalizeRetainingPathClassTargets(Iterable<String> targets) {
+  final normalized = <String>[];
+  for (final target in targets) {
+    for (final part in target.split(',')) {
+      final value = part.trim();
+      if (value.isEmpty) {
+        continue;
+      }
+      if (!RegExp(
+        r'^[A-Za-z0-9_.$:/-]+(?:::[A-Za-z0-9_.$-]+)?$',
+      ).hasMatch(value)) {
+        throw ArgumentError.value(
+          value,
+          'targets',
+          'Use class names or library-uri::ClassName selectors.',
+        );
+      }
+      normalized.add(value);
+    }
+  }
+  return List.unmodifiable(normalized);
+}
+
+bool _matchesClassTarget(ClassRef? classRef, String target) {
+  if (classRef == null) {
+    return false;
+  }
+  final className = classRef.name;
+  if (className == target) {
+    return true;
+  }
+  final libraryUri = classRef.library?.uri;
+  return libraryUri != null && '$libraryUri::$className' == target;
+}
+
+Future<Map<String, Object?>> _retainingPathClassSummary({
+  required VmService service,
+  required String isolateId,
+  required ClassHeapStats classStats,
+  required int sampleLimit,
+  required int retainingPathLimit,
+}) async {
+  final classRef = classStats.classRef;
+  final classId = classRef?.id;
+  if (classRef == null || classId == null) {
+    return <String, Object?>{
+      'class': classRef?.toJson(),
+      'error': 'Matched class does not expose a VM-service class id.',
+    };
+  }
+
+  final instanceSet = await service.getInstances(
+    isolateId,
+    classId,
+    sampleLimit,
+  );
+  final instances = instanceSet.instances ?? const <ObjRef>[];
+
+  return <String, Object?>{
+    'class': classRef.toJson(),
+    'instancesCurrent': classStats.instancesCurrent,
+    'bytesCurrent': classStats.bytesCurrent,
+    'totalCount': instanceSet.totalCount,
+    'sampledInstances': [
+      for (final instance in instances)
+        await _retainingPathInstanceSummary(
+          service: service,
+          isolateId: isolateId,
+          instance: instance,
+          retainingPathLimit: retainingPathLimit,
+        ),
+    ],
+  };
+}
+
+Future<Map<String, Object?>> _retainingPathInstanceSummary({
+  required VmService service,
+  required String isolateId,
+  required ObjRef instance,
+  required int retainingPathLimit,
+}) async {
+  final instanceId = instance.id;
+  if (instanceId == null) {
+    return <String, Object?>{
+      'instance': instance.toJson(),
+      'error': 'Instance does not expose a VM-service object id.',
+    };
+  }
+
+  final retainingPath = await service.getRetainingPath(
+    isolateId,
+    instanceId,
+    retainingPathLimit,
+  );
+  return <String, Object?>{
+    'instance': instance.toJson(),
+    'retainingPath': retainingPath.toJson(),
   };
 }
 

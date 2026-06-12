@@ -273,10 +273,19 @@ It writes:
 
 - `<checkpoint>-allocation-profile.json`
 - `<checkpoint>-heap-summary.json`
+- `<checkpoint>-retaining-paths.json`, when retained-path class targets are
+  requested
 
 The heap file is a compact class-level summary, not a raw DevTools heap export.
 It is useful for before/after class growth review, but it still needs reviewer
 interpretation before any memory wording can be promoted.
+
+When the class-level review identifies specific live Tagflow classes, pass
+`TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES` to collect bounded
+`getRetainingPath` samples for those classes from the same live checkpoint.
+Use comma-separated class names, or library-qualified selectors when a class
+name is ambiguous. Keep the sample count small; these paths are review inputs,
+not complete heap ownership proof.
 
 Example for one checkpoint:
 
@@ -285,6 +294,9 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI=http://127.0.0.1:52010/2Vu4UM2pM9g=/ \
 TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT=after_first_patch \
 TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools \
+TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES=TagflowDocumentNode,TagflowDocument \
+TAGFLOW_MEMORY_EVIDENCE_RETAINING_SAMPLE_LIMIT=1 \
+TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT=20 \
 dart run melos run benchmark:memory-evidence:export
 ```
 
