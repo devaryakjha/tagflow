@@ -49,8 +49,9 @@ reviewed evidence:
    - Host OS is a stable release, not a prerelease seed.
    - Hardware model, CPU/GPU, memory, power source, thermal state, and display
      placement are recorded.
-   - Desktop runs pin logical viewport and DPR, currently `800x600 @ 2.0x`
-     unless a reviewed policy changes it.
+   - Desktop runs pin logical viewport, currently `800x600`. DPR is
+     reference-target/display qualified; the current checker policy expects
+     `2.0x` unless a reviewed policy changes it.
 2. Device matrix
    - At least one physical iOS and one physical Android target are qualified,
      or the claim explicitly says it is desktop-only.
@@ -136,6 +137,11 @@ The default profile matrix currently covers:
 - fixtures: `ai_answer_rich`, `table_dense`, `large_article`, `table_stress`
 - expected policy repeat count: `5`
 - expected policy viewport: `800x600 @ 2.0x`
+
+The macOS collection path pins the example window to `800x600` logical size,
+but records the live device-pixel-ratio reported by Flutter. A local run on a
+`1.0x` display can complete all repeats while still failing the current
+`2.0x` reference-target viewport policy.
 
 Passing this sequence qualifies collection completeness for the configured
 local target only. It still does not qualify public performance copy.
