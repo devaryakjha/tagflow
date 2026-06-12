@@ -369,6 +369,20 @@ void main() {
             'physicalHeight': 1264.0,
             'devicePixelRatio': 2.0,
           },
+          'tagflow_ai_answer_rich_viewport_mode': <String, Object?>{
+            'schemaVersion': 1,
+            'mode': 'observedHost',
+            'requested': null,
+            'observedHostBeforeOverride': <String, Object?>{
+              'logicalWidth': 800.0,
+              'logicalHeight': 632.0,
+              'physicalWidth': 1600.0,
+              'physicalHeight': 1264.0,
+              'devicePixelRatio': 2.0,
+            },
+            'applied': null,
+            'caveats': <String>[],
+          },
         }),
       );
 
@@ -401,6 +415,43 @@ void main() {
     expect(summary.cellSummaries.single.viewports, hasLength(1));
     expect(summary.cellSummaries.single.viewports.single.logicalWidth, 800.0);
     expect(summary.cellSummaries.single.viewports.single.devicePixelRatio, 2.0);
+    expect(summary.cellSummaries.single.viewportModes, hasLength(1));
+    expect(
+      summary.cellSummaries.single.viewportModes.single.mode,
+      'observedHost',
+    );
+    expect(summary.cellSummaries.single.viewportModes.single.requested, isNull);
+    expect(
+      summary
+          .cellSummaries
+          .single
+          .viewportModes
+          .single
+          .observedHostBeforeOverride!
+          .logicalWidth,
+      800.0,
+    );
+    expect(summary.cellSummaries.single.viewportModes.single.applied, isNull);
+    expect(summary.cellSummaries.single.viewportModes.single.caveats, isEmpty);
+    expect(
+      summary.cellSummaries.single.toJson(),
+      containsPair('viewportModes', <Object?>[
+        <String, Object?>{
+          'schemaVersion': 1,
+          'mode': 'observedHost',
+          'requested': null,
+          'observedHostBeforeOverride': <String, Object?>{
+            'logicalWidth': 800.0,
+            'logicalHeight': 632.0,
+            'physicalWidth': 1600.0,
+            'physicalHeight': 1264.0,
+            'devicePixelRatio': 2.0,
+          },
+          'applied': null,
+          'caveats': <String>[],
+        },
+      ]),
+    );
     expect(summary.cellSummaries.single.inputSummary, isNull);
     expect(
       summary.cellSummaries.single.toJson().containsKey('updateSummary'),
@@ -421,6 +472,102 @@ void main() {
       summary.cellSummaries.single.launchAttribution.caveats,
       contains('not_process_cold_start'),
     );
+  });
+
+  test('parses synthetic requested viewport mode metadata', () {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_summary_synthetic_viewport_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final runDirectory = Directory(
+      p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile', 'synthetic'),
+    )..createSync(recursive: true);
+    final artifactPath = p.join(
+      'build',
+      'benchmarks',
+      'profile',
+      'synthetic',
+      'tagflow',
+      'ai_answer_rich',
+      'repeat-01.json',
+    );
+
+    File(p.join(workspaceRoot.path, artifactPath))
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        jsonEncode(<String, Object?>{
+          'tagflow_ai_answer_rich_scroll': <String, Object?>{
+            'average_frame_build_time_millis': 0.2,
+            '90th_percentile_frame_build_time_millis': 0.3,
+            'worst_frame_build_time_millis': 0.4,
+            'average_frame_rasterizer_time_millis': 0.8,
+            '90th_percentile_frame_rasterizer_time_millis': 1.1,
+            'worst_frame_rasterizer_time_millis': 4.0,
+            'missed_frame_build_budget_count': 0,
+            'missed_frame_rasterizer_budget_count': 0,
+            'frame_count': 23,
+            'new_gen_gc_count': 0,
+            'old_gen_gc_count': 0,
+          },
+          'tagflow_ai_answer_rich_viewport_mode': <String, Object?>{
+            'schemaVersion': 1,
+            'mode': 'synthetic',
+            'requested': <String, Object?>{
+              'logicalWidth': 800.0,
+              'logicalHeight': 600.0,
+              'devicePixelRatio': 2.0,
+            },
+            'observedHostBeforeOverride': <String, Object?>{
+              'logicalWidth': 800.0,
+              'logicalHeight': 600.0,
+              'physicalWidth': 800.0,
+              'physicalHeight': 600.0,
+              'devicePixelRatio': 1.0,
+            },
+            'applied': <String, Object?>{
+              'logicalWidth': 800.0,
+              'logicalHeight': 600.0,
+              'physicalWidth': 1600.0,
+              'physicalHeight': 1200.0,
+              'devicePixelRatio': 2.0,
+            },
+            'caveats': <String>['test_view_override'],
+          },
+        }),
+      );
+
+    final manifestFile =
+        File(p.join(runDirectory.path, 'profile-baseline-manifest.json'))
+          ..writeAsStringSync(
+            jsonEncode(<String, Object?>{
+              'runId': 'synthetic',
+              'runs': [
+                <String, Object?>{
+                  'renderer': 'tagflow',
+                  'fixture': 'ai_answer_rich',
+                  'repeat': 1,
+                  'status': 'passed',
+                  'artifactPath': artifactPath,
+                },
+              ],
+            }),
+          );
+
+    final summary = summarizeProfileBaselineManifest(
+      manifestFile: manifestFile,
+      workspaceRoot: workspaceRoot,
+      clock: () => DateTime.utc(2026, 6, 12, 10),
+    );
+
+    final viewportMode = summary.cellSummaries.single.viewportModes.single;
+    expect(viewportMode.mode, 'synthetic');
+    expect(viewportMode.requested!.logicalWidth, 800.0);
+    expect(viewportMode.requested!.logicalHeight, 600.0);
+    expect(viewportMode.requested!.devicePixelRatio, 2.0);
+    expect(viewportMode.observedHostBeforeOverride!.devicePixelRatio, 1.0);
+    expect(viewportMode.applied!.physicalWidth, 1600.0);
+    expect(viewportMode.caveats, ['test_view_override']);
   });
 
   test('summarizes legacy update latencies without phase fields', () {

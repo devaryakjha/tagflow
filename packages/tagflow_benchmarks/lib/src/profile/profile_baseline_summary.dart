@@ -128,6 +128,7 @@ final class ProfileBaselineCellSummary {
     required this.newGenGcCount,
     required this.oldGenGcCount,
     required this.viewports,
+    required this.viewportModes,
     required this.inputSummary,
     required this.framePhaseSummaries,
     required this.launchAttribution,
@@ -180,6 +181,9 @@ final class ProfileBaselineCellSummary {
   /// Unique viewport configurations observed across repeats.
   final List<ProfileBaselineViewport> viewports;
 
+  /// Unique viewport-mode metadata observed across repeats.
+  final List<ProfileBaselineViewportMode> viewportModes;
+
   /// Optional input metadata captured for this renderer/fixture cell.
   final ProfileBaselineInputSummary? inputSummary;
 
@@ -212,6 +216,8 @@ final class ProfileBaselineCellSummary {
     'newGenGcCount': newGenGcCount.toJson(),
     'oldGenGcCount': oldGenGcCount.toJson(),
     'viewports': viewports.map((viewport) => viewport.toJson()).toList(),
+    if (viewportModes.isNotEmpty)
+      'viewportModes': viewportModes.map((mode) => mode.toJson()).toList(),
     if (inputSummary != null) 'inputSummary': inputSummary!.toJson(),
     if (framePhaseSummaries.isNotEmpty)
       'framePhaseSummaries': framePhaseSummaries.map(
@@ -721,6 +727,73 @@ final class ProfileBaselineViewport {
   };
 }
 
+/// Requested synthetic viewport metadata.
+final class ProfileBaselineRequestedViewport {
+  /// Creates requested synthetic viewport metadata.
+  const ProfileBaselineRequestedViewport({
+    required this.logicalWidth,
+    required this.logicalHeight,
+    required this.devicePixelRatio,
+  });
+
+  /// Requested logical Flutter view width.
+  final double logicalWidth;
+
+  /// Requested logical Flutter view height.
+  final double logicalHeight;
+
+  /// Requested Flutter view device-pixel ratio.
+  final double devicePixelRatio;
+
+  /// Converts this requested viewport to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'logicalWidth': logicalWidth,
+    'logicalHeight': logicalHeight,
+    'devicePixelRatio': devicePixelRatio,
+  };
+}
+
+/// Viewport qualification-mode metadata captured by the profile test.
+final class ProfileBaselineViewportMode {
+  /// Creates viewport qualification-mode metadata.
+  const ProfileBaselineViewportMode({
+    required this.schemaVersion,
+    required this.mode,
+    required this.requested,
+    required this.observedHostBeforeOverride,
+    required this.applied,
+    required this.caveats,
+  });
+
+  /// Metadata schema version.
+  final int schemaVersion;
+
+  /// Viewport mode for the benchmark measurement.
+  final String mode;
+
+  /// Requested synthetic viewport, when synthetic mode is enabled.
+  final ProfileBaselineRequestedViewport? requested;
+
+  /// Host viewport observed before any test override.
+  final ProfileBaselineViewport? observedHostBeforeOverride;
+
+  /// Applied synthetic viewport, when synthetic mode is enabled.
+  final ProfileBaselineViewport? applied;
+
+  /// Caveats describing how the viewport mode should be interpreted.
+  final List<String> caveats;
+
+  /// Converts this viewport-mode metadata to JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'schemaVersion': schemaVersion,
+    'mode': mode,
+    'requested': requested?.toJson(),
+    'observedHostBeforeOverride': observedHostBeforeOverride?.toJson(),
+    'applied': applied?.toJson(),
+    'caveats': caveats,
+  };
+}
+
 /// Numeric distribution summary across repeats.
 final class ProfileBaselineNumberSummary {
   /// Creates a numeric distribution summary.
@@ -949,6 +1022,7 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
       initialRenderMetrics: artifact.initialRenderMetrics,
       warmRebuildMetrics: artifact.warmRebuildMetrics,
       viewport: artifact.viewport,
+      viewportMode: artifact.viewportMode,
       inputPayload: artifact.inputPayload,
       launchAttribution: artifact.launchAttribution,
       updateMetrics: artifact.updateMetrics,
@@ -1006,6 +1080,11 @@ ProfileBaselineSummary summarizeProfileBaselineManifest({
                 records
                     .map((record) => record.viewport)
                     .whereType<ProfileBaselineViewport>(),
+              ),
+              viewportModes: _uniqueViewportModes(
+                records
+                    .map((record) => record.viewportMode)
+                    .whereType<ProfileBaselineViewportMode>(),
               ),
               inputSummary: _buildInputSummary(records),
               framePhaseSummaries: _buildFramePhaseSummaries(records),
@@ -1261,6 +1340,7 @@ final class _ProfileBaselineRunRecord {
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.viewportMode,
     required this.inputPayload,
     required this.launchAttribution,
     required this.updateMetrics,
@@ -1272,6 +1352,7 @@ final class _ProfileBaselineRunRecord {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final ProfileBaselineViewportMode? viewportMode;
   final _ProfileInputPayload? inputPayload;
   final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
@@ -1480,6 +1561,7 @@ final class _ProfileArtifact {
     required this.initialRenderMetrics,
     required this.warmRebuildMetrics,
     required this.viewport,
+    required this.viewportMode,
     required this.inputPayload,
     required this.launchAttribution,
     required this.updateMetrics,
@@ -1490,6 +1572,7 @@ final class _ProfileArtifact {
   final _ProfileMetrics? initialRenderMetrics;
   final _ProfileMetrics? warmRebuildMetrics;
   final ProfileBaselineViewport? viewport;
+  final ProfileBaselineViewportMode? viewportMode;
   final _ProfileInputPayload? inputPayload;
   final _ProfileLaunchAttributionPayload launchAttribution;
   final _ProfileUpdateMetrics? updateMetrics;
@@ -1513,6 +1596,8 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
 
   final viewportKey = '${run.renderer}_${run.fixture}_viewport';
   final viewportPayload = root[viewportKey];
+  final viewportModeKey = '${run.renderer}_${run.fixture}_viewport_mode';
+  final viewportModePayload = root[viewportModeKey];
   final inputKey = '${run.renderer}_${run.fixture}_input';
   final inputPayload = root[inputKey];
   final launchAttributionKey =
@@ -1533,6 +1618,9 @@ _ProfileArtifact _readArtifact(File artifactFile, _ManifestRun run) {
         : null,
     viewport: viewportPayload is Map<String, Object?>
         ? _readViewport(viewportPayload)
+        : null,
+    viewportMode: viewportModePayload is Map<String, Object?>
+        ? _readViewportMode(viewportModePayload)
         : null,
     inputPayload: inputPayload is Map<String, Object?>
         ? _readInputPayload(inputPayload)
@@ -1742,6 +1830,69 @@ ProfileBaselineViewport _readViewport(Map<String, Object?> payload) {
   );
 }
 
+ProfileBaselineViewportMode _readViewportMode(Map<String, Object?> payload) {
+  final schemaVersion = payload['schemaVersion'];
+  if (schemaVersion is! int || schemaVersion < 1) {
+    throw const FormatException(
+      'viewport_mode.schemaVersion must be an integer >= 1.',
+    );
+  }
+
+  final mode = payload['mode'];
+  if (mode is! String || mode.trim().isEmpty) {
+    throw const FormatException(
+      'viewport_mode.mode must be a non-empty string.',
+    );
+  }
+
+  return ProfileBaselineViewportMode(
+    schemaVersion: schemaVersion,
+    mode: mode,
+    requested: _readOptionalRequestedViewport(payload, 'requested'),
+    observedHostBeforeOverride: _readOptionalViewport(
+      payload,
+      'observedHostBeforeOverride',
+    ),
+    applied: _readOptionalViewport(payload, 'applied'),
+    caveats: List<String>.unmodifiable(
+      ((payload['caveats'] as List<Object?>?) ?? const <Object?>[])
+          .cast<String>(),
+    ),
+  );
+}
+
+ProfileBaselineRequestedViewport? _readOptionalRequestedViewport(
+  Map<String, Object?> payload,
+  String key,
+) {
+  final rawViewport = payload[key];
+  if (rawViewport == null) {
+    return null;
+  }
+  if (rawViewport is! Map<String, Object?>) {
+    throw FormatException('viewport_mode.$key must be a JSON map or null.');
+  }
+  return ProfileBaselineRequestedViewport(
+    logicalWidth: (rawViewport['logicalWidth']! as num).toDouble(),
+    logicalHeight: (rawViewport['logicalHeight']! as num).toDouble(),
+    devicePixelRatio: (rawViewport['devicePixelRatio']! as num).toDouble(),
+  );
+}
+
+ProfileBaselineViewport? _readOptionalViewport(
+  Map<String, Object?> payload,
+  String key,
+) {
+  final rawViewport = payload[key];
+  if (rawViewport == null) {
+    return null;
+  }
+  if (rawViewport is! Map<String, Object?>) {
+    throw FormatException('viewport_mode.$key must be a JSON map or null.');
+  }
+  return _readViewport(rawViewport);
+}
+
 List<ProfileBaselineViewport> _uniqueViewports(
   Iterable<ProfileBaselineViewport> viewports,
 ) {
@@ -1750,6 +1901,16 @@ List<ProfileBaselineViewport> _uniqueViewports(
     unique.putIfAbsent(jsonEncode(viewport.toJson()), () => viewport);
   }
   return List<ProfileBaselineViewport>.unmodifiable(unique.values);
+}
+
+List<ProfileBaselineViewportMode> _uniqueViewportModes(
+  Iterable<ProfileBaselineViewportMode> modes,
+) {
+  final unique = <String, ProfileBaselineViewportMode>{};
+  for (final mode in modes) {
+    unique.putIfAbsent(jsonEncode(mode.toJson()), () => mode);
+  }
+  return List<ProfileBaselineViewportMode>.unmodifiable(unique.values);
 }
 
 List<String> _uniqueStrings(Iterable<String> values) {

@@ -412,13 +412,23 @@ void _recordViewport(
 }) {
   final physicalSize = tester.view.physicalSize;
   final devicePixelRatio = tester.view.devicePixelRatio;
+  final viewport = <String, Object?>{
+    'logicalWidth': physicalSize.width / devicePixelRatio,
+    'logicalHeight': physicalSize.height / devicePixelRatio,
+    'physicalWidth': physicalSize.width,
+    'physicalHeight': physicalSize.height,
+    'devicePixelRatio': devicePixelRatio,
+  };
   binding.reportData!['${rendererId}_${fixtureId}_viewport'] =
+      <String, Object?>{...viewport};
+  binding.reportData!['${rendererId}_${fixtureId}_viewport_mode'] =
       <String, Object?>{
-        'logicalWidth': physicalSize.width / devicePixelRatio,
-        'logicalHeight': physicalSize.height / devicePixelRatio,
-        'physicalWidth': physicalSize.width,
-        'physicalHeight': physicalSize.height,
-        'devicePixelRatio': devicePixelRatio,
+        'schemaVersion': 1,
+        'mode': 'observedHost',
+        'requested': null,
+        'observedHostBeforeOverride': viewport,
+        'applied': null,
+        'caveats': <String>[],
       };
 }
 
