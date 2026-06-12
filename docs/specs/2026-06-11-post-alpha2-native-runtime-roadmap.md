@@ -603,21 +603,17 @@ Acceptance:
 
 ## 14. Recommended Next Threads
 
-1. `bench(memory): capture devtools allocation evidence`
-   - run the hold-open benchmark path from
-     `docs/benchmarks/baselines/2026-06-12-memory-allocation-snapshot-blocker.md`
-     with a human reviewer attached to DevTools; commit only the reviewed
-     baseline note, not raw `build/` exports.
-2. `test(kite): land ipo registry content branch`
+1. `test(kite): land ipo registry content branch`
    - push and merge Kite branch `codex/ipo-tagflow-registry-content` after
      `gitlab.zerodha.tech` DNS is available, then validate the real route.
-3. `bench(device): qualify one physical profile target`
+2. `bench(device): qualify one physical profile target`
    - rerun the bounded one-repeat physical probe only after Flutter and Apple
      tooling agree on a normal connected iOS target, or after a physical
      Android target is attached.
-4. `bench(app): profile the hosted-alpha production surface`
+3. `bench(app): profile the hosted-alpha production surface`
    - collect profile-mode evidence for the pushed Kite production route,
      separate from widget tests and debug VM timeline probes.
-5. `docs(release): prepare alpha.4 or beta gate review`
-   - only after the evidence above is reviewed; do not change versions or add
-     beta/stable wording as a discovery workaround.
+4. `docs(release): prepare alpha.4 or beta gate review`
+   - only after the app, device, reference-environment, and wording-policy
+     gates are reviewed; do not change versions or add beta/stable wording as
+     a discovery workaround.

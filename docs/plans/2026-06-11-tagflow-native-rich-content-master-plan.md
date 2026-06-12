@@ -130,16 +130,18 @@ evidence, supported-target profile evidence, and final release-gate approval.
   retained-path exports for `before_first_update`, `after_first_update`,
   `after_final_update`, and `after_scroll`, with stable high-level path shape
   through the live `Tagflow` widget and active Flutter scroll tree. The exporter
-  now de-duplicates repeated retained-path class targets before export. This
-  remains report-only memory evidence: raw DevTools heap/diff exports and
-  public memory/allocation claims remain blocked.
+  now de-duplicates repeated retained-path class targets before export. Later
+  raw VM-service heap snapshot/class-diff evidence covers the authored-insertion
+  control/patch pair, `large_article`, and `table_stress`; the reviewed
+  interpretation keeps that evidence as local macOS report-only input, not
+  leak-free, allocation, or public memory proof.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
-  profile evidence, and review of memory/allocation artifacts. Threshold policy
-  is documented, but no benchmark claim should be promoted until the reference
-  environment and evidence gates are satisfied together. The attribution-enabled
-  authored-ID ordered-insertion repeat-5 rerun completed with no report-only
-  outliers and remains bounded report-only evidence.
+  profile evidence, and approved wording for any memory/allocation language.
+  Threshold policy is documented, but no benchmark claim should be promoted
+  until the reference environment and evidence gates are satisfied together. The
+  attribution-enabled authored-ID ordered-insertion repeat-5 rerun completed
+  with no report-only outliers and remains bounded report-only evidence.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -784,11 +786,11 @@ Master review gate:
 
 - Status: blocked by current target state, not by missing Tagflow harness code.
 - Latest evidence:
-  `25ff39e docs(benchmarks): refresh physical target availability` records that
-  the iPhone 17 appears only in Flutter's wireless bucket while CoreDevice
-  reports a paired local-network session with a disconnected tunnel and DDI
-  unavailable; `xctrace` still lists physical devices offline, and Android
-  tooling reports no attached target.
+  `0318a1c docs(benchmarks): refresh physical target status` records that the
+  iPhone 17 and iPad appear only in Flutter's wireless bucket while `xctrace`
+  lists those same devices offline, CoreDevice still reports them as paired and
+  available, and the exact `adb devices -l` command fails because `adb` is not
+  on `PATH`.
 - Next action: rerun the bounded one-repeat physical profile probe only after
   Flutter and Apple tooling agree on a normal connected physical target, or
   after an attached Android profile target is available.
@@ -834,7 +836,9 @@ Master review gate:
   `flutter_widget_from_html` comparisons landed; the markdown-only
   `flutter_markdown_plus` and `markdown_widget` lane landed; `table_stress` is
   in the deterministic corpus; a complete local macOS repeat-5 reference
-  baseline and report-only checker policy exist. Stable reference-machine
-  selection and numeric regression thresholds are still in progress.
+  baseline, report-only checker policy, and report-only HTML raw
+  heap/class-diff interpretation exist. Stable reference-machine selection,
+  supported physical targets, real-app production profiling, and numeric
+  regression thresholds are still in progress.
 - `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
   but stable `1.0.0` must wait for internal app validation.

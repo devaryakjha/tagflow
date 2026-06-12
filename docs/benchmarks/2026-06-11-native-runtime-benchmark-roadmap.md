@@ -197,12 +197,13 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   retained-path review across `before_first_update`,
   `after_first_update`, `after_final_update`, and `after_scroll` recorded in
   [`docs/benchmarks/baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md`](baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md).
-  Raw heap/diff exports still have to be reviewed and interpreted before any
-  public memory/allocation wording can be promoted. Use
+  Raw heap/diff exports have now been reviewed at the report-only local macOS
+  scope, but public memory/allocation wording still depends on the target,
+  repeat, real-app, reference-environment, and wording-policy gates recorded in
+  [`docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md`](baselines/2026-06-12-html-memory-evidence-interpretation-scope.md).
+  Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
-  for the capture sequence and reviewed note requirements. The current
-  non-device scoping blocker is recorded in
-  [`docs/benchmarks/baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md).
+  for any future capture sequence and reviewed note requirements.
   The latest real-harness manifest smoke is recorded in
   [`docs/benchmarks/baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md).
   The authored-insertion control/patch pair now has named-checkpoint
