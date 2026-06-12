@@ -564,9 +564,11 @@ to republish the extension package.
   reference-environment qualification, repeat policy, and approved
   interpretation language.
 - Supported physical-target profile evidence remains blocked by current tool
-  state: latest discovery sees iOS devices as wireless/offline or with a
-  disconnected CoreDevice tunnel, and no attached Android profile target is
-  available.
+  and signing state. Latest discovery still sees iOS devices as
+  wireless/offline, no attached Android profile target is available, and the
+  bounded one-repeat iOS native JSON probe failed before install/launch because
+  Xcode had no valid account/profile for team `7573STCA2W` and bundle id
+  `dev.aryak.tagflow`.
 - Release docs avoid beta/stable language until this checklist is green.
 - Stable `1.0.0` remains blocked after beta until freeze decisions hold through
   prerelease adoption, benchmark evidence gates are credible, and at least one

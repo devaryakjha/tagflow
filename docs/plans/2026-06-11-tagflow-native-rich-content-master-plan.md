@@ -37,12 +37,11 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
-  `d919d45 docs(benchmarks): record control retained paths`,
-  `19e0fc4 docs(benchmarks): record multi-checkpoint retained paths`,
-  `11c644a fix(benchmarks): dedupe retained path class targets`,
-  `4e190ea docs(benchmarks): record retained path memory evidence`,
-  `6e3c3c1 feat(benchmarks): export retained path memory evidence`, and
-  `e2b25e1 docs(spec): refresh beta readiness evidence`.
+  `de2d9ec docs(benchmarks): record ios physical signing blocker`,
+  `246e33a docs(specs): decide patch result semantics`,
+  `fb9e20e docs(specs): reconcile native runtime current state`,
+  `20456e1 docs(plans): sequence native runtime follow-up slices`, and
+  `9491aa5 docs(benchmarks): document profile dpr qualification`.
 - Latest integrated implementation commits include
   `3eb7b9b feat(benchmarks): emit memory evidence checkpoints`,
   `a4861dd refactor(table): narrow public table exports`,
@@ -60,9 +59,11 @@ evidence, supported-target profile evidence, and final release-gate approval.
   The alpha3 handoff and publish evidence live in
   `docs/plans/2026-06-12-tagflow-alpha3-release-handoff.md`.
 - Package discovery posture: the native runtime line is prerelease-only. The
-  2026-06-12 pub.dev API check still reports stable `tagflow` `0.0.8` and
-  stable `tagflow_table` `0.0.4+5` as each package's default `latest` release,
-  so pub.dev search/default package-page metadata can still look HTML-first or
+  2026-06-12 pub.dev API checks still report stable `tagflow` `0.0.8` and
+  stable `tagflow_table` `0.0.4+5` as each package's default `latest` release.
+  The same checks list `tagflow` prereleases `1.0.0-alpha.1` and
+  `1.0.0-alpha.3`, and `tagflow_table` prerelease `1.0.0-alpha.1`, so pub.dev
+  search/default package-page metadata can still look HTML-first or
   table-plugin-first. Downstream app validation must explicitly request
   `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`; this discovery
   mismatch is not a reason to skip beta/stable evidence gates.
@@ -142,6 +143,14 @@ evidence, supported-target profile evidence, and final release-gate approval.
   until the reference environment and evidence gates are satisfied together. The
   attribution-enabled authored-ID ordered-insertion repeat-5 rerun completed
   with no report-only outliers and remains bounded report-only evidence.
+- Latest gate refresh: `ssh -T git@gitlab.zerodha.tech` still fails DNS
+  resolution, `flutter devices` still lists physical iOS candidates only in
+  the wireless bucket, `xctrace` still lists those same UDIDs under
+  `Devices Offline`, and `adb devices -l` with platform-tools on `PATH` reports
+  no attached Android devices. The bounded one-repeat iOS native JSON probe
+  reached Xcode signing and produced a failed manifest, but no install,
+  launch, integration artifact, or runtime metrics; see
+  `docs/benchmarks/baselines/2026-06-12-ios-physical-signing-blocked.md`.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -598,10 +607,12 @@ Master review gate:
 ### Wave 6: Alpha.4 / Pre-Beta Hardening
 
 - Status: active coordination.
-- The pauseable profile benchmark checkpoint path is implemented. The next
-  credible memory/allocation evidence slice is an interactive DevTools export
-  from a hold-open run, producing reviewed heap snapshots, allocation diffs, or
-  retained-object notes without committing raw `build/` artifacts.
+- The pauseable profile benchmark checkpoint path is implemented. Local macOS
+  memory/allocation evidence now includes named hold-open checkpoint exports,
+  retained-path samples, and raw heap/class-diff reviews for the scoped
+  authored-insertion, `large_article`, and `table_stress` lanes. This remains
+  report-only until physical-target, real-app, reference-environment, repeat,
+  and wording-policy gates are reviewed together.
 - The beta public API freeze review is refreshed against the current
   coordinator exports from `package:tagflow/tagflow.dart`,
   `package:tagflow/legacy.dart`, and the first-party `tagflow_table`
@@ -610,6 +621,10 @@ Master review gate:
 - Keep Kite hosted-alpha validation as downstream evidence, but do not count
   the current local Kite commit as pushed or release-grade profile evidence
   while GitLab DNS/network and physical-device profile blockers remain open.
+- Keep physical-device profile work to one-repeat qualification probes until a
+  target can be signed, installed, launched, and shown to produce the copied
+  integration artifact. The latest iOS probe is a signing blocker, not a
+  performance result.
 - Do not publish, tag, or bump versions from this wave without a separate
   release gate review.
 
@@ -784,16 +799,26 @@ Master review gate:
 
 ### Physical Profile Qualification
 
-- Status: blocked by current target state, not by missing Tagflow harness code.
+- Status: blocked by current target/signing state, not by missing Tagflow
+  harness code.
 - Latest evidence:
-  `0318a1c docs(benchmarks): refresh physical target status` records that the
-  iPhone 17 and iPad appear only in Flutter's wireless bucket while `xctrace`
-  lists those same devices offline, CoreDevice still reports them as paired and
-  available, and the exact `adb devices -l` command fails because `adb` is not
-  on `PATH`.
-- Next action: rerun the bounded one-repeat physical profile probe only after
-  Flutter and Apple tooling agree on a normal connected physical target, or
-  after an attached Android profile target is available.
+  `0318a1c docs(benchmarks): refresh physical target status` recorded the
+  wireless/offline iOS disagreement and missing Android target. Later
+  `de2d9ec docs(benchmarks): record ios physical signing blocker` records a
+  bounded one-repeat probe on `00008150-00110C960186401C` for
+  `tagflow_native_json:native_ai_answer`; the runner wrote a failed manifest,
+  but Xcode could not sign `dev.aryak.tagflow` for team `7573STCA2W`, no
+  `Runner.app` was produced, and no integration artifact or runtime metric was
+  collected.
+- Current gate refresh:
+  `flutter devices` still lists the iPhone 17 and iPad only as wireless
+  targets, `xctrace` still lists those physical UDIDs offline, and
+  `adb devices -l` reports no attached Android devices when platform-tools is
+  placed on `PATH`.
+- Next action: fix iOS signing/provisioning for `dev.aryak.tagflow` or attach a
+  real Android profile target, then rerun the same bounded one-repeat native
+  JSON probe. Do not run repeat-5 until the one-repeat probe installs, launches,
+  and produces the copied integration artifact.
 
 ### Package Discovery Surface
 
@@ -840,5 +865,7 @@ Master review gate:
   heap/class-diff interpretation exist. Stable reference-machine selection,
   supported physical targets, real-app production profiling, and numeric
   regression thresholds are still in progress.
-- `1.0.0-alpha.1` can be treated as a prerelease candidate after release review,
-  but stable `1.0.0` must wait for internal app validation.
+- `1.0.0-alpha.3` is published and usable as the current native-runtime
+  prerelease line. The next target is alpha.4 or pre-beta gate review; beta and
+  stable still wait for the real-app, physical/reference-target benchmark, and
+  wording-policy gates above.

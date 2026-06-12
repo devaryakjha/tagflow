@@ -614,9 +614,9 @@ Acceptance:
    - push and merge Kite branch `codex/ipo-tagflow-registry-content` after
      `gitlab.zerodha.tech` DNS is available, then validate the real route.
 2. `bench(device): qualify one physical profile target`
-   - rerun the bounded one-repeat physical probe only after Flutter and Apple
-     tooling agree on a normal connected iOS target, or after a physical
-     Android target is attached.
+   - fix iOS signing/provisioning for `dev.aryak.tagflow` or attach a real
+     Android profile target, then rerun the bounded one-repeat native JSON
+     probe before any repeat-5 collection.
 3. `bench(app): profile the hosted-alpha production surface`
    - collect profile-mode evidence for the pushed Kite production route,
      separate from widget tests and debug VM timeline probes.
