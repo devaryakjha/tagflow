@@ -186,7 +186,18 @@
     {
       "id": "release-approval",
       "status": "deferred",
-      "summary": "Beta/stable approval is intentionally deferred until real-app and benchmark evidence gates are satisfied."
+      "summary": "Beta/stable approval is intentionally deferred until real-app and benchmark evidence gates are satisfied.",
+      "claimBoundary": "This gate is an owner approval gate. It does not authorize publishing, tagging, beta/stable wording, or package-page claim changes until the approval packet is reviewed and explicitly accepted.",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/plans/2026-06-12-beta-release-approval-plan.md"
+        },
+        {
+          "type": "note",
+          "value": "release approval remains deferred; no beta/stable publish or tag is authorized"
+        }
+      ]
     }
   ]
 }
