@@ -26,9 +26,9 @@ The first node-tap slice landed on the coordinator branch in
   same view-owned callback.
 - Focused tests cover default inert non-link nodes, opted-in
   `Tagflow.document(...)` nodes, semantics-action activation for opted-in
-  document nodes, opted-in `Tagflow.html(...)` nodes with authored IDs and
-  metadata, link behavior preservation, legacy option conversion, and public
-  export reachability.
+  document and HTML-adapted nodes, opted-in `Tagflow.html(...)` nodes with
+  authored IDs and metadata, link behavior preservation, legacy option
+  conversion, and public export reachability.
 - The roadmap item `Custom tap handlers per element type` is checked. Long
   press, broader gesture recognition, selection, copy/paste, and a unified
   action disposition model remain open.
@@ -188,7 +188,7 @@ The first implementation slice must include focused tests proving:
 - `Tagflow.document(...)` invokes `nodeTapCallback` for an opted-in semantic
   node kind and passes the tapped node
 - semantics tap actions on opted-in non-link tap targets invoke
-  `nodeTapCallback` with the same tapped node
+  `nodeTapCallback` with the same tapped document or HTML-adapted node
 - `Tagflow.html(...)` can tap an HTML-adapted node by semantic kind while
   preserving stable node ID and metadata for the callback
 - `linkTapCallback` still handles links as before

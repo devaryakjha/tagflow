@@ -6,11 +6,12 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Recorded CI-validated PR anchor:
-  `f4df58f test(example): include example app in validation`
+  `0035b58 test(runtime): cover semantics node tap activation`
 - Recorded anchored coordinator evidence:
-  `f4df58f test(example): include example app in validation`, after
-  native JSON route coverage in `f6ce373`, node-tap semantics in `f044844`,
-  and gate-tooling updates in `8897929` and `b4ff260`
+  `0035b58 test(runtime): cover semantics node tap activation`, after
+  example validation in `f4df58f`, native JSON route coverage in `f6ce373`,
+  node-tap semantics in `f044844`, and gate-tooling updates in `8897929` and
+  `b4ff260`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -21,13 +22,13 @@ runtime expansion.
 Current anchored gate evidence:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for `f4df58f`.
+  passed for `0035b58`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for `f4df58f` in run
-  `27433735873`.
+- GitHub Actions `CI / Validate` passed on PR #72 for `0035b58` in run
+  `27434363274`.
 - Use PR #72 checks, not this historical anchor, for the current branch-head
   validation state.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
@@ -75,8 +76,8 @@ The native runtime direction is structurally in place:
   semantic runtime unless legacy custom converters are explicitly supplied.
 - Native block JSON document and patch transport are strict and data-only.
 - View-owned node taps, first button-like semantics for opted-in non-link tap
-  targets, semantics-action activation coverage, and adapter metadata
-  inspectors exist.
+  targets, semantics-action activation coverage for document and HTML-adapted
+  nodes, and adapter metadata inspectors exist.
 - The first equivalent HTML/native fixture family has repeat-5 local evidence.
 
 The remaining blocking evidence gap is now the real-app route gate:
@@ -271,8 +272,9 @@ decode/render, patch envelope apply, revision updates, removal/reset behavior,
 public metadata helper tap summaries, and home-route navigation into the native
 JSON screen. The root `melos run test` and `melos run coverage` scripts now
 include `tagflow_example`, so that route/example coverage is part of the normal
-workspace test lane. The node-tap follow-up now also has a focused package
-slice for button-like semantics on opted-in non-link tap targets.
+workspace test lane. The node-tap follow-up now also has focused package
+coverage for button-like semantics and semantics-action activation on opted-in
+non-link document and HTML-adapted tap targets.
 
 The current beta-preapproval health check is the manifest-owned known-open
 alias:

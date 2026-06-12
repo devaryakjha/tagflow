@@ -560,9 +560,9 @@ to republish the extension package.
   Done with `TagflowNodeTapCallback`, `TagflowNodeTapDetails`,
   `TagflowViewOptions.nodeTapCallback`, and `tapTargetKinds`, with legacy
   `TagflowOptions` mirroring. Focused widget coverage now includes
-  semantics-tap activation for opted-in non-link targets. Long press and
-  broader gesture/action semantics remain follow-up work rather than beta
-  blockers for the first node-tap slice.
+  semantics-tap activation for opted-in non-link document and HTML-adapted
+  targets. Long press and broader gesture/action semantics remain follow-up
+  work rather than beta blockers for the first node-tap slice.
 - Adapter metadata inspection is public and app-safe. Done with native block
   document/node metadata helpers and HTML node metadata helpers exported from
   `package:tagflow/tagflow.dart`, with routing and revision enforcement still

@@ -498,6 +498,57 @@ void main() {
       );
     });
 
+    testWidgets('dispatches HTML node taps from semantics tap actions', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      TagflowDocumentNode? tappedNode;
+
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.html(
+              html:
+                  '<section data-tagflow-id="summary" data-action="open"> '
+                  '<p>Open summary</p> '
+                  '</section>',
+              adapter: const TagflowHtmlAdapter(
+                nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+              ),
+              viewOptions: TagflowViewOptions(
+                nodeTapCallback: (details) {
+                  tappedNode = details.node;
+                },
+                tapTargetKinds: const {TagflowNodeKind.container},
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Open summary')),
+          matchesSemantics(
+            label: 'Open summary',
+            hasTapAction: true,
+            isButton: true,
+          ),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Open summary'));
+        await tester.pump();
+
+        expect(tappedNode?.id, 'summary');
+        expect(tappedNode?.kind, TagflowNodeKind.container);
+        expect(tappedNode?.metadata['htmlTag'], 'section');
+        expect(
+          tappedNode?.metadata['htmlAttributes'],
+          containsPair('data-action', 'open'),
+        );
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('applies node tap callbacks to list items rendered by lists', (
       tester,
     ) async {
