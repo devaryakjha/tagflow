@@ -12,9 +12,9 @@
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **Alpha prerelease**: `1.0.0-alpha.1` is aligned with the Tagflow native
-> rich content runtime alpha. APIs may change before the stable `1.0.0`
-> release.
+> ⚠️ **Alpha prerelease**: `tagflow_table` `1.0.0-alpha.1` is aligned with
+> the Tagflow native rich content runtime alpha line. APIs may change before
+> the stable `1.0.0` release.
 
 # tagflow_table
 
@@ -24,7 +24,7 @@ toward a semantic rich content runtime.
 
 ## ✨ Features
 
-- Integration with the `tagflow` `1.0.0-alpha.1` runtime package
+- Integration with the `tagflow` `1.0.0-alpha.3` runtime package
 - Semantic registry integration for native `TagflowDocument` table nodes
 - HTML table converter compatibility through `package:tagflow/legacy.dart`
 - Support for complex table structures, headers, and merged cells
@@ -37,7 +37,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-alpha.1
+  tagflow: ^1.0.0-alpha.3
   tagflow_table: ^1.0.0-alpha.1
 ```
 
@@ -56,9 +56,12 @@ Low-level render-object classes such as `TagflowTable`, `TableCell`,
 `RenderTagflowTable`, and `TableCellData` are package internals rather than the
 beta extension contract.
 
-The current `tagflow: ^1.0.0-alpha.1` dependency constraint is intentionally
-compatible with the `tagflow` alpha prerelease line while the core runtime moves
-through alpha. For `1.0.0-beta.0`, `tagflow_table` should release in lockstep
+The package's current `tagflow: ^1.0.0-alpha.1` dependency constraint is
+intentionally compatible with the `tagflow` alpha prerelease line while the
+core runtime moves through alpha. Apps should use the latest reviewed core
+alpha, currently `tagflow: ^1.0.0-alpha.3`, with
+`tagflow_table: ^1.0.0-alpha.1`. For `1.0.0-beta.0`, `tagflow_table` should
+release in lockstep
 with `tagflow` to validate the runtime-extension contract together. After
 `beta.0`, table-only patch or minor prereleases may move independently only
 when the `tagflow` constraint remains compatible with the current beta runtime
