@@ -745,26 +745,52 @@ Map<String, Object?> _memoryEvidenceRunJson({
         '--record-memory-profile=$headlessMemoryProfilePath',
         vmServiceUri,
       ],
-    'checkpoints': _memoryEvidenceCheckpoints(run)
-        .map(
-          (checkpoint) => <String, Object?>{
-            'checkpoint': checkpoint,
-            'status': 'manualExportRequired',
-            'heapSnapshotPath': p.join(
-              devtoolsPath,
-              '$laneId-$repeatId-$checkpoint-heap-snapshot.json',
-            ),
-            'allocationDiffPath': p.join(
-              devtoolsPath,
-              '$laneId-$repeatId-$checkpoint-allocation-diff.json',
-            ),
-            'retainedObjectReviewPath': p.join(
-              devtoolsPath,
-              '$laneId-$repeatId-$checkpoint-retained-objects.md',
-            ),
-          },
-        )
-        .toList(),
+    'checkpoints': _memoryEvidenceCheckpoints(run).map((checkpoint) {
+      final automatedCheckpoint = '$laneId-$repeatId-$checkpoint';
+      final heapSummaryPath = p.join(
+        devtoolsPath,
+        '$automatedCheckpoint-heap-summary.json',
+      );
+      final allocationProfilePath = p.join(
+        devtoolsPath,
+        '$automatedCheckpoint-allocation-profile.json',
+      );
+      return <String, Object?>{
+        'checkpoint': checkpoint,
+        'status': 'manualExportRequired',
+        'heapSnapshotPath': p.join(
+          devtoolsPath,
+          '$laneId-$repeatId-$checkpoint-heap-snapshot.json',
+        ),
+        'allocationDiffPath': p.join(
+          devtoolsPath,
+          '$laneId-$repeatId-$checkpoint-allocation-diff.json',
+        ),
+        'retainedObjectReviewPath': p.join(
+          devtoolsPath,
+          '$laneId-$repeatId-$checkpoint-retained-objects.md',
+        ),
+        'automatedVmServiceExport': vmServiceUri == null
+            ? null
+            : <String, Object?>{
+                'checkpoint': automatedCheckpoint,
+                'heapSummaryPath': heapSummaryPath,
+                'allocationProfilePath': allocationProfilePath,
+                'environment': <String, String>{
+                  'TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI': vmServiceUri,
+                  'TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT': automatedCheckpoint,
+                  'TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR': devtoolsPath,
+                },
+                'command': [
+                  'dart',
+                  'run',
+                  'melos',
+                  'run',
+                  'benchmark:memory-evidence:export',
+                ],
+              },
+      };
+    }).toList(),
   };
 }
 

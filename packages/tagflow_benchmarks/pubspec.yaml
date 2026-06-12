@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   path: ^1.9.1
   tagflow: ^1.0.0-alpha.3
+  vm_service: ^15.2.0
 
 dev_dependencies:
   flutter_test:

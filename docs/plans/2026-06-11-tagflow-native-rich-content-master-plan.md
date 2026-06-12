@@ -108,9 +108,12 @@ evidence, supported-target profile evidence, and final release-gate approval.
   `TAGFLOW_PROFILE_MEMORY=true`, record VM service URIs, replay named
   checkpoint holds for DevTools attachment, and emit a
   `memory-evidence-manifest.json` checklist with expected manual export paths.
-  This is still harness and bounded-sample evidence only. The remaining memory
-  gate is exported checkpoint snapshots, class allocation diffs, or
-  retained-object review against a still-live benchmark session.
+  `benchmark:memory-evidence:export` can now connect to a live hold-open VM
+  service URI and write `getAllocationProfile(gc: true)` JSON plus a compact
+  class-level heap snapshot summary. This is still report-only review input.
+  The remaining memory gate is reviewed checkpoint evidence, including
+  retained-object interpretation and raw DevTools exports when class-level
+  summaries are not sufficient.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
   profile evidence, and review of memory/allocation artifacts. Threshold policy
@@ -690,7 +693,9 @@ Master review gate:
   `memoryEvidenceManifestPath`. The manifest records VM service URIs, bounded
   memory sample status, headless DevTools memory-profile command targets, named
   checkpoints, and expected manual export filenames for heap snapshots,
-  allocation diffs, and retained-object notes.
+  allocation diffs, and retained-object notes. It now also includes
+  per-checkpoint `benchmark:memory-evidence:export` command metadata for
+  report-only VM-service allocation profiles and heap class summaries.
 - Latest smoke: `2026-06-12-memory-manifest-smoke` ran
   `tagflow:large_article` once on local macOS with
   `TAGFLOW_PROFILE_MEMORY=true`, `TAGFLOW_PROFILE_HOLD_OPEN=true`, and

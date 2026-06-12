@@ -521,6 +521,41 @@ void main() {
         ),
       );
       expect(checkpoints.first, containsPair('status', 'manualExportRequired'));
+      final automatedExport =
+          (checkpoints.first!
+                  as Map<String, Object?>)['automatedVmServiceExport']!
+              as Map<String, Object?>;
+      expect(
+        automatedExport['checkpoint'],
+        'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
+        'repeat-01-before_first_patch',
+      );
+      expect(
+        automatedExport['heapSummaryPath'],
+        'build/benchmarks/profile/2026-06-12T12-20-00Z/devtools/'
+        'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
+        'repeat-01-before_first_patch-heap-summary.json',
+      );
+      expect(
+        automatedExport['allocationProfilePath'],
+        'build/benchmarks/profile/2026-06-12T12-20-00Z/devtools/'
+        'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
+        'repeat-01-before_first_patch-allocation-profile.json',
+      );
+      expect(automatedExport['command'], <Object?>[
+        'dart',
+        'run',
+        'melos',
+        'run',
+        'benchmark:memory-evidence:export',
+      ]);
+      expect(
+        automatedExport['environment'],
+        containsPair(
+          'TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI',
+          'http://127.0.0.1:54321/xyz=/',
+        ),
+      );
     },
   );
 

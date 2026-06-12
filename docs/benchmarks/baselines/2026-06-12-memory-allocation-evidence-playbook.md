@@ -178,6 +178,8 @@ does not replace the checkpoint snapshots or allocation diffs below.
 Two supported capture modes exist:
 
 - headless memory recording with `dart devtools --record-memory-profile`
+- automated VM-service evidence export with
+  `benchmark:memory-evidence:export`
 - interactive DevTools Memory snapshots or allocation profile diffs
 
 For checkpoint snapshots or class allocation diffs, the harness now supports an
@@ -261,6 +263,36 @@ dart devtools --record-memory-profile=build/benchmarks/profile-memory-evidence/$
 The same command shape works for the other lanes. Replace the output file name
 so it clearly identifies the lane and the checkpoint you recorded.
 
+### Automated VM-service evidence export
+
+The benchmark package also includes a small report-only exporter for live
+hold-open sessions. It connects to the VM service URI from
+`memory-evidence-manifest.json`, requests `getAllocationProfile(gc: true)`, and
+requests a VM-service heap snapshot through the `HeapSnapshot` event stream.
+It writes:
+
+- `<checkpoint>-allocation-profile.json`
+- `<checkpoint>-heap-summary.json`
+
+The heap file is a compact class-level summary, not a raw DevTools heap export.
+It is useful for before/after class growth review, but it still needs reviewer
+interpretation before any memory wording can be promoted.
+
+Example for one checkpoint:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI=http://127.0.0.1:52010/2Vu4UM2pM9g=/ \
+TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT=after_first_patch \
+TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools \
+dart run melos run benchmark:memory-evidence:export
+```
+
+Run the command while the target checkpoint is still held open. Repeat it for
+each checkpoint listed in `memory-evidence-manifest.json`. The resulting JSON
+files stay under ignored `build/` output; commit only a reviewed baseline note
+with filenames, command, and interpretation.
+
 ### Interactive Memory snapshots
 
 Use the browser UI when you need a before/after snapshot or a class allocation
@@ -301,7 +333,8 @@ that checkpoint is held open.
 
 Manual exports still required from DevTools:
 
-- heap snapshots for each required checkpoint
+- raw heap snapshots for each required checkpoint, when class-level summaries
+  are not sufficient
 - class allocation diffs or equivalent allocation-profile export
 - retained-object review notes for any suspicious class growth or old-gen GC
 

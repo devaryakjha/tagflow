@@ -51,12 +51,16 @@ measurement and keeps each checkpoint alive for bounded DevTools attachment.
 Hold-open runs write a machine-readable `memory-evidence-manifest.json` with
 checkpoint names, expected DevTools export paths, and headless
 `dart devtools --record-memory-profile` command templates when a VM service URI
-is available.
+is available. A follow-up helper,
+`benchmark:memory-evidence:export`, can also connect to one live VM service URI
+and checkpoint to write a VM-service allocation profile plus a compact heap
+snapshot class summary.
 
 That support preserves bounded memory sample artifacts for repeated runs. It
-does not export heap snapshots, class allocation diffs, or retained-object
-analysis automatically. A reviewer still has to connect DevTools and export
-those artifacts manually while the checkpoint is held open.
+does not export raw DevTools heap snapshots, class allocation diffs, or
+retained-object analysis automatically. The VM-service helper provides
+class-level review inputs, but a reviewer still has to interpret the exports
+and use DevTools manually when raw snapshot/diff inspection is needed.
 
 The local SDK exposes headless DevTools memory sampling:
 
@@ -75,8 +79,9 @@ Do not run another bounded `flutter drive --profile-memory` lane in this
 worktree as the next evidence slice. The smallest useful non-device progress is
 to record this blocker and leave the next commands explicit.
 
-The next playbook-complete slice is an interactive DevTools Memory session
-attached to a hold-open benchmark run, with exported checkpoint snapshots and
+The next playbook-complete slice is a hold-open benchmark run with either
+VM-service allocation/heap-summary exports for each checkpoint or an
+interactive DevTools Memory session with exported checkpoint snapshots and
 allocation diffs under
 `build/benchmarks/profile-memory-evidence/<run-id>/devtools/`.
 

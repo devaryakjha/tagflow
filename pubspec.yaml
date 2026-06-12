@@ -170,6 +170,18 @@ melos:
         ${TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO:+--expected-device-pixel-ratio=$TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO}
       description: Check profile benchmark baseline collection completeness
 
+    benchmark:memory-evidence:export:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/export_memory_evidence.dart
+        --vm-service-uri=${TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI}
+        --checkpoint=${TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT}
+        --output-dir=${TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR:-build/benchmarks/profile-memory-evidence/manual}
+        ${TAGFLOW_MEMORY_EVIDENCE_ISOLATE_ID:+--isolate-id=$TAGFLOW_MEMORY_EVIDENCE_ISOLATE_ID}
+        ${TAGFLOW_MEMORY_EVIDENCE_TOP_CLASSES:+--top-classes=$TAGFLOW_MEMORY_EVIDENCE_TOP_CLASSES}
+        ${TAGFLOW_MEMORY_EVIDENCE_GC:+--gc=$TAGFLOW_MEMORY_EVIDENCE_GC}
+      description: Export report-only memory evidence from a live VM service
+
     combine-coverage:
       run: |
         mkdir -p coverage &&
