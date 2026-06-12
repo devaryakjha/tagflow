@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Evidence baseline commit: `15e26a9`
+- Evidence baseline commit: `07f8fc7`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -49,6 +49,10 @@ issues=[
   real-app-route: open,
   physical-observed-profile: open
 ]
+requiredOpenGates=[
+  real-app-route,
+  physical-observed-profile
+]
 ```
 
 Current beta candidate gate:
@@ -75,7 +79,7 @@ result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27424033457
+run=https://github.com/devaryakjha/tagflow/actions/runs/27426428908
 ```
 
 ## Evidence Already Satisfied
@@ -109,6 +113,13 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
+Current GitHub state checked for this packet:
+
+- issue #73 remains open;
+- no issue or PR comment records the owner acceptance text below;
+- `real-app-route` therefore remains open in
+  `docs/plans/native-runtime-gate-status.json`.
+
 Owner acceptance text:
 
 ```text
@@ -132,6 +143,8 @@ physical or observed-host evidence.
 Decision request:
 
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
+- latest simulator recovery note:
+  `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
 - Reference policy:
   `docs/benchmarks/policies/profile-reference-runner-policy.json`
 
@@ -150,7 +163,16 @@ observed-host repeat-5 native JSON run:
 reference policy:
   expectedViewport=800x600 @ 2.0x
   result=failed unexpected_viewport
+
+ios simulator recovery:
+  bootedSimulator=iPhone 17 3BA9E377-4B6F-49A7-83FA-F640060D6442
+  flutterSeesSimulator=true
+  profileBuildResult=failed
+  profileBuildMessage="Profile mode is not supported for simulators."
 ```
+
+The Simulator recovery path is useful debug-route smoke evidence, but it cannot
+produce Flutter profile-mode benchmark evidence and does not satisfy this gate.
 
 Owner option A requires qualifying evidence:
 
