@@ -41,6 +41,8 @@ void main() {
           'arguments': arguments,
           'workingDirectory': options.workingDirectory,
           'environment': options.environment,
+          'stdoutSinkPresent': options.stdoutSink != null,
+          'stderrSinkPresent': options.stderrSink != null,
         });
         integrationOutput.writeAsStringSync(
           jsonEncode(<String, Object?>{
@@ -68,6 +70,8 @@ void main() {
         commands.first['environment']! as Map<String, String>;
     expect(firstEnvironment['TAGFLOW_RENDERER'], 'tagflow');
     expect(firstEnvironment['TAGFLOW_FIXTURE'], 'ai_answer_rich');
+    expect(commands.first['stdoutSinkPresent'], isTrue);
+    expect(commands.first['stderrSinkPresent'], isTrue);
 
     final artifactPath = p.join(
       workspaceRoot.path,

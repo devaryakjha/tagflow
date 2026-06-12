@@ -45,6 +45,8 @@ final class ProfileProcessOptions {
   const ProfileProcessOptions({
     required this.workingDirectory,
     required this.environment,
+    this.stdoutSink,
+    this.stderrSink,
   });
 
   /// Working directory for the spawned process.
@@ -52,6 +54,12 @@ final class ProfileProcessOptions {
 
   /// Environment overrides for the spawned process.
   final Map<String, String> environment;
+
+  /// Optional sink for live stdout chunks from the spawned process.
+  final void Function(String chunk)? stdoutSink;
+
+  /// Optional sink for live stderr chunks from the spawned process.
+  final void Function(String chunk)? stderrSink;
 }
 
 /// Runs one profile benchmark process.
@@ -457,6 +465,8 @@ final class ProfileBaselineRunner {
           ProfileProcessOptions(
             workingDirectory: workspaceRoot.path,
             environment: processEnvironment,
+            stdoutSink: stdout.write,
+            stderrSink: stderr.write,
           ),
         );
         final finishedAt = _clock().toUtc();
@@ -963,12 +973,34 @@ Future<ProcessResult> _defaultProcessRunner(
   String executable,
   List<String> arguments,
   ProfileProcessOptions options,
-) {
-  return Process.run(
+) async {
+  final process = await Process.start(
     executable,
     arguments,
     workingDirectory: options.workingDirectory,
     environment: options.environment,
+  );
+
+  final stdoutBuffer = StringBuffer();
+  final stderrBuffer = StringBuffer();
+
+  final stdoutDone = process.stdout.transform(utf8.decoder).listen((chunk) {
+    stdoutBuffer.write(chunk);
+    options.stdoutSink?.call(chunk);
+  }).asFuture<void>();
+  final stderrDone = process.stderr.transform(utf8.decoder).listen((chunk) {
+    stderrBuffer.write(chunk);
+    options.stderrSink?.call(chunk);
+  }).asFuture<void>();
+
+  final exitCode = await process.exitCode;
+  await Future.wait<void>([stdoutDone, stderrDone]);
+
+  return ProcessResult(
+    process.pid,
+    exitCode,
+    stdoutBuffer.toString(),
+    stderrBuffer.toString(),
   );
 }
 

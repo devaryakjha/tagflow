@@ -170,6 +170,9 @@ The checker passed with no blocking issues and emitted the expected report-only
 - The generated `memory-evidence-manifest.json` was written after the profile
   process exited, so its per-checkpoint helper commands could not be used
   during this same run. The live URI had to be discovered from `ps`.
+  Follow-up `2026-06-12-streamed-profile-output-smoke.md` validated streamed
+  child process output so future runs can see the VM service URI while holds are
+  active.
 - This run's `memory-evidence-manifest.json` predates the follow-up fix that
   mirrors `gitCommit` into the memory evidence manifest. The profile manifest
   did record the commit correctly.
@@ -183,7 +186,7 @@ The VM-service exporter is validated against a real hold-open profile target.
 It can produce useful report-only allocation-profile and heap-summary artifacts
 without the DevTools UI.
 
-The next harness improvement is to stream child profile process output, or
-otherwise expose the VM service URI before the run exits, so the generated
-`memory-evidence-manifest.json` commands can be used at the intended named
-checkpoints instead of relying on process-table discovery.
+The follow-up harness improvement is complete: the profile baseline runner now
+streams child process output while preserving manifest/log capture. The next
+evidence slice should use the streamed URI at the intended named checkpoints
+instead of relying on process-table discovery.

@@ -713,9 +713,11 @@ Master review gate:
   `2026-06-12-memory-vm-service-exporter-smoke.md` validates
   `benchmark:memory-evidence:export` against a real hold-open
   `tagflow:large_article` profile target. The remaining harness friction is
-  live URI availability: the profile runner buffers child process output, so
-  the smoke used process-table discovery instead of the generated manifest
-  command while the checkpoint was active.
+  addressed by streaming child process output from the profile baseline
+  runner, so future hold-open runs can expose VM service URIs while checkpoint
+  holds are still active instead of requiring process-table discovery. The
+  streaming smoke is recorded in
+  `2026-06-12-streamed-profile-output-smoke.md`.
 
 ### Beta API Freeze Delta Review
 
