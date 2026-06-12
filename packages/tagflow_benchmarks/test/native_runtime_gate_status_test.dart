@@ -436,6 +436,37 @@ void main() {
       containsPair('claimBoundary', contains('does not support leak-free')),
     );
   });
+
+  test('keeps coordination drafts out of repo manifest gate evidence', () {
+    final workspaceRoot = resolveWorkspaceRoot();
+    final manifestFile = File(
+      p.join(
+        workspaceRoot.path,
+        'docs',
+        'plans',
+        'native-runtime-gate-status.json',
+      ),
+    );
+    final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
+    final releaseGate = manifest.gateById('release-approval');
+    final evidenceValues = manifest.gates
+        .expand((gate) => gate.evidence)
+        .map((entry) => entry.value);
+
+    expect(releaseGate?.status, NativeRuntimeGateStatus.deferred);
+    expect(
+      releaseGate?.evidence.map((entry) => entry.value),
+      contains('docs/plans/2026-06-12-beta-release-approval-plan.md'),
+    );
+    expect(
+      evidenceValues,
+      isNot(contains('docs/plans/2026-06-12-beta-preapproval-packet-draft.md')),
+    );
+    expect(
+      evidenceValues,
+      isNot(contains('docs/plans/2026-06-12-alpha4-prebeta-coordination.md')),
+    );
+  });
 }
 
 File _writeManifest({
