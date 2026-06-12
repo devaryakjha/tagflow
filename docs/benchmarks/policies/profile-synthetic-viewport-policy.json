@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "tagflow-alpha-synthetic-viewport-report-only",
-  "status": "candidate",
+  "status": "active_report_only",
   "description": "Alpha profile baseline policy for synthetic viewport harness-stability evidence. Synthetic timing metrics remain internal and report-only; this policy does not qualify a real display-scale reference target.",
   "matrix": {
     "renderers": [

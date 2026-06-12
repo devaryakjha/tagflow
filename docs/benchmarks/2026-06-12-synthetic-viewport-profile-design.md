@@ -4,12 +4,15 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Scope: Tagflow example-app profile benchmark harness
-- Classification: design candidate for review
+- Classification: accepted internal/report-only benchmark design for PR #72
 - Related gate: #74 qualified native runtime benchmark evidence
 - Current posture: Slice 1 observed-host metadata, Slice 2 synthetic override
   plumbing, Slice 3 checker-policy mode, Slice 4 one-repeat synthetic probe
   qualification, and Slice 5 repeat-5 synthetic collection are implemented on
-  the PR branch. No benchmark evidence is promoted by this document.
+  the PR branch. This design is accepted only for internal synthetic
+  harness-stability evidence. No public benchmark, real display-scale, beta,
+  stable, frame-budget, memory, or comparative performance claim is promoted by
+  this document.
 
 ## Purpose
 
@@ -299,7 +302,7 @@ Blocked:
 - "Synthetic results can be compared with historical observed-host runs without
   separate policy."
 
-## Open Review Questions
+## Deferred Follow-up Questions
 
 1. Should synthetic mode be allowed for the default HTML renderer matrix only,
    or for native JSON and dynamic patch lanes too?
@@ -314,7 +317,12 @@ Blocked:
 
 ## Recommendation
 
-Implement slices 1 through 3 before collecting any synthetic run. Then run the
-one-repeat synthetic probe in slice 4 before attempting the repeat-5 matrix in
-slice 5. Until then, #74 remains open and the current macOS `1.0x` display
-should continue to stop at the observed-host one-repeat probe.
+The PR branch has implemented slices 1 through 5 in order. The synthetic path
+now satisfies the #74 benchmark gate for PR #72 as internal/report-only
+harness-stability evidence only.
+
+Keep using the observed-host policy for any real display-scale target. The
+current macOS `1.0x` display should continue to stop at the observed-host
+one-repeat probe, and any future physical-device, observed-host `2.0x`,
+memory/allocation, frame-budget, beta, stable, or comparative performance gate
+must use a separate reviewed policy and fresh evidence.

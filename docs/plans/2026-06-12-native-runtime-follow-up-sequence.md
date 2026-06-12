@@ -39,6 +39,11 @@ External gate trackers:
   `docs/plans/2026-06-12-real-app-route-qualification.md`.
 - Qualified benchmark/device evidence is tracked in
   https://github.com/devaryakjha/tagflow/issues/74.
+  The PR #72 benchmark gate is satisfied by the accepted synthetic
+  report-only path recorded in
+  `docs/benchmarks/2026-06-12-benchmark-gate-decision.md`; physical,
+  observed-host, memory, frame-budget, beta/stable, and comparative
+  performance gates remain separate future work.
 
 ## Current Read
 
@@ -51,19 +56,15 @@ The native runtime direction is structurally in place:
 - View-owned node taps and adapter metadata inspectors exist.
 - The first equivalent HTML/native fixture family has repeat-5 local evidence.
 
-The blocking evidence gaps are now mostly external-state or qualification
-gates:
+The remaining blocking evidence gap is now the real-app route gate:
 
-- the local equivalent profile run completed but failed the `2.0x` viewport
-  policy on this `1.0x` display;
-- a silent DPR override would change benchmark semantics, so the profile lane
-  must wait for a reviewed target or an explicit synthetic-viewport design;
 - Kite production-route evidence still depends on Kite GitLab/DNS or an
   approved equivalent real Flutter app route;
-- physical-device profile evidence still depends on a normal connected iOS or
-  Android target;
-- Simulator evidence is useful only as debug route smoke unless Flutter tooling
-  proves profile-mode support for the selected simulator/runtime.
+- the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
+  while physical-device, observed-host, frame-budget, memory, beta/stable, and
+  comparative performance evidence remain future benchmark work;
+- Simulator evidence remains useful only as debug route smoke unless Flutter
+  tooling proves profile-mode support for the selected simulator/runtime.
 
 ## Next Slices
 
@@ -167,25 +168,28 @@ Acceptance after unblock:
 - route opens through the intended app path with real fixture/data constraints;
 - any profile evidence stays separate from widget-test evidence.
 
-### 5. Refresh Equivalent Profile Evidence Only On A Qualified Target
+### 5. Keep Physical/Observed-host Profile Evidence Separate
 
 Type: benchmark/device/reference-target slice
-Status: blocked by target qualification; one-repeat physical iOS probe now
-blocked at signing/provisioning. Simulator debug smoke is available, but
-Simulator profile mode is not.
+Status: PR #72 benchmark gate satisfied by synthetic report-only evidence;
+physical and observed-host qualification remain future work
 
-The equivalent answer-detail repeat-5 run is useful local evidence, but it is
-not claim-ready. Repeating the same command on the current `1.0x` display is
-not expected to satisfy the current `2.0x` policy.
+#74 is satisfied for PR #72 by the accepted synthetic viewport path. That
+evidence proves internal harness stability only. It does not qualify this Mac
+as a real `2.0x` reference target, does not qualify a physical iOS/Android
+target, and does not support public benchmark, frame-budget, memory, beta,
+stable, or comparative performance claims.
 
-Blocked until one of these is true:
+The equivalent answer-detail repeat-5 synthetic run is useful local evidence
+for PR #72, but repeating the observed-host command on the current `1.0x`
+display is still not expected to satisfy the `2.0x` observed-host policy.
+
+Future physical/observed-host work is blocked until one of these is true:
 
 - a reviewed macOS target produces the expected observed `800x600 @ 2.0x`
   metadata; or
 - a physical iOS/Android profile target is connected, signed, installed, and
-  qualified; or
-- a synthetic viewport mode is explicitly designed with separate requested and
-  observed viewport metadata.
+  qualified.
 
 Acceptance after unblock:
 
@@ -203,9 +207,11 @@ decode/render, patch envelope apply, revision updates, removal/reset behavior,
 and public metadata helper tap summaries.
 
 Do not start another repeat-5 profile rerun until the target qualification
-blocker changes. The next useful benchmark move is first qualifying a connected
-physical iOS target across Flutter and Apple tooling, then fixing signing for
-`dev.aryak.tagflow` if that remains the blocker; or attaching a real Android
-profile target. Rerun the same one-repeat native JSON pair before collecting any
-larger baseline. The current Simulator route smoke is useful for app-path
-confidence but cannot replace that physical/profile qualification gate.
+blocker changes, unless a future PR explicitly targets a different benchmark
+policy. The next useful physical/observed-host benchmark move is first
+qualifying a connected physical iOS target across Flutter and Apple tooling,
+then fixing signing for `dev.aryak.tagflow` if that remains the blocker; or
+attaching a real Android profile target. Rerun the same one-repeat native JSON
+pair before collecting any larger physical/observed-host baseline. The current
+Simulator route smoke is useful for app-path confidence but cannot replace that
+physical/profile qualification gate.
