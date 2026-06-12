@@ -36,6 +36,13 @@ build/benchmarks/target-availability/2026-06-12-current-machine-r1/target-availa
 The JSON records raw command output, parsed target signals, and the conservative
 `canRunPhysicalProfileProbe` decision.
 
+Follow-up signal refresh:
+
+- `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md`
+- the audit now records iOS Simulator candidates under
+  `signals.flutterIosSimulators`;
+- simulators remain excluded from `credibleProfileTargets`.
+
 ## Current Machine Result
 
 The audit returned:
@@ -71,7 +78,8 @@ The first implementation is intentionally conservative:
   DDI-unavailable state blocks the target;
 - Android requires the same target to appear in Flutter and ADB;
 - Android emulators are excluded even when both Flutter and ADB report them;
-- iOS Simulator UUID-shaped targets are excluded.
+- iOS Simulator UUID-shaped targets are recorded as simulator signals and
+  excluded from physical target qualification.
 
 The CLI has an opt-in failure mode for future gates:
 

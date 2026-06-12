@@ -56,6 +56,11 @@ developerModeStatus: enabled
 
       expect(result.canRunPhysicalProfileProbe, isFalse);
       expect(result.credibleProfileTargets, isEmpty);
+      expect(result.signals.flutterIosSimulators, hasLength(1));
+      expect(
+        result.signals.flutterIosSimulators.single.id,
+        '3BA9E377-4B6F-49A7-83FA-F640060D6442',
+      );
       expect(result.signals.flutterWirelessIos, hasLength(1));
       expect(result.signals.xctraceOfflinePhysicalIos, hasLength(1));
       expect(
@@ -79,8 +84,52 @@ developerModeStatus: enabled
           jsonDecode(artifact.readAsStringSync()) as Map<String, Object?>;
       expect(json['canRunPhysicalProfileProbe'], isFalse);
       expect(json['summary'], contains('No credible physical profile target'));
+      final signals = json['signals']! as Map<String, Object?>;
+      final simulators = signals['flutterIosSimulators']! as List<Object?>;
+      expect(simulators, hasLength(1));
     },
   );
+
+  test('records iOS simulators without qualifying physical targets', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_target_audit_ios_simulator_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final auditor = TargetAvailabilityAuditor(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'targets'),
+      ),
+      runId: 'ios-simulator',
+      generatedAt: DateTime.utc(2026, 6, 12, 12),
+      processRunner: _fakeRunner({
+        'flutter devices -v': '''
+Found 1 connected device:
+  iPhone 17 (mobile) • 3BA9E377-4B6F-49A7-83FA-F640060D6442 • ios • com.apple.CoreSimulator.SimRuntime.iOS-26-5 (simulator)
+''',
+        'xcrun xctrace list devices': '''
+== Simulators ==
+iPhone 17 (26.5) (3BA9E377-4B6F-49A7-83FA-F640060D6442)
+''',
+        'xcrun devicectl list devices': '',
+        'xcrun devicectl list devices --verbose': '',
+        'adb devices -l': 'List of devices attached\n\n',
+        'system_profiler SPUSBDataType': '',
+      }),
+    );
+
+    final result = await auditor.run();
+
+    expect(result.canRunPhysicalProfileProbe, isFalse);
+    expect(result.credibleProfileTargets, isEmpty);
+    expect(result.signals.flutterConnectedPhysicalIos, isEmpty);
+    expect(result.signals.flutterWirelessIos, isEmpty);
+    expect(result.signals.flutterIosSimulators, hasLength(1));
+    expect(result.signals.flutterIosSimulators.single.blockingReasons, [
+      'simulator',
+    ]);
+  });
 
   test('qualifies iOS only when Flutter and Instruments agree', () async {
     final workspaceRoot = Directory.systemTemp.createTempSync(

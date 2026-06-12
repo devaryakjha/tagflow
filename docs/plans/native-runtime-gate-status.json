@@ -127,14 +127,23 @@
       "id": "physical-observed-profile",
       "status": "open",
       "summary": "Physical or observed-host profile evidence remains future work and is not required for PR #72 draft continuation.",
+      "claimBoundary": "Simulator/debug-smoke evidence does not satisfy physical iOS/Android profile, frame-budget, memory, beta/stable, public benchmark, or faster/slower claims.",
       "evidence": [
         {
           "type": "localPath",
           "value": "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r2; simulator recorded separately"
         }
       ]
     },

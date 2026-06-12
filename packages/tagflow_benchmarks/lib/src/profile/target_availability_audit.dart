@@ -122,6 +122,7 @@ final class TargetAvailabilitySignals {
   /// Creates parsed availability signals.
   const TargetAvailabilitySignals({
     required this.flutterConnectedPhysicalIos,
+    required this.flutterIosSimulators,
     required this.flutterWirelessIos,
     required this.flutterConnectedAndroid,
     required this.xctraceOnlinePhysicalIos,
@@ -133,6 +134,9 @@ final class TargetAvailabilitySignals {
 
   /// Wired physical iOS devices seen by Flutter.
   final List<TargetCandidate> flutterConnectedPhysicalIos;
+
+  /// iOS Simulator targets seen by Flutter.
+  final List<TargetCandidate> flutterIosSimulators;
 
   /// Wireless-only iOS devices seen by Flutter.
   final List<TargetCandidate> flutterWirelessIos;
@@ -158,6 +162,9 @@ final class TargetAvailabilitySignals {
   /// Converts parsed signals to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'flutterConnectedPhysicalIos': flutterConnectedPhysicalIos
+        .map((candidate) => candidate.toJson())
+        .toList(),
+    'flutterIosSimulators': flutterIosSimulators
         .map((candidate) => candidate.toJson())
         .toList(),
     'flutterWirelessIos': flutterWirelessIos
@@ -431,10 +438,21 @@ TargetAvailabilitySignals _parseSignals(
   final flutterIos = _parseFlutterDevices(flutter, platform: 'ios');
   return TargetAvailabilitySignals(
     flutterConnectedPhysicalIos: flutterIos
-        .where((candidate) => !candidate.isWireless)
+        .where(
+          (candidate) =>
+              !candidate.isWireless &&
+              !candidate.blockingReasons.contains('simulator'),
+        )
+        .toList(),
+    flutterIosSimulators: flutterIos
+        .where((candidate) => candidate.blockingReasons.contains('simulator'))
         .toList(),
     flutterWirelessIos: flutterIos
-        .where((candidate) => candidate.isWireless)
+        .where(
+          (candidate) =>
+              candidate.isWireless &&
+              !candidate.blockingReasons.contains('simulator'),
+        )
         .toList(),
     flutterConnectedAndroid: _parseFlutterDevices(flutter, platform: 'android'),
     xctraceOnlinePhysicalIos: _parseXctraceDevices(xctrace, offline: false),
@@ -502,9 +520,6 @@ List<TargetCandidate> _parseFlutterDevices(
           _looksLikeSimulatorId(id) ||
           description.contains('simulator') ||
           lineLower.contains('coresimulator');
-      if (isSimulator) {
-        continue;
-      }
       candidates.add(
         TargetCandidate(
           id: id,
@@ -512,6 +527,7 @@ List<TargetCandidate> _parseFlutterDevices(
           platform: 'ios',
           source: 'flutter',
           isWireless: inWirelessSection || lineLower.contains('wireless'),
+          blockingReasons: isSimulator ? const <String>['simulator'] : const [],
         ),
       );
     } else if (platform == 'android' &&
