@@ -23,9 +23,10 @@ contract: Kite's IPO sheet production rich-content route no longer depends on
 hosted/current `Tagflow.html(..., registry: ...)` public path.
 
 It does not close #73 because the route is not pushed or reviewable through
-Kite's intended GitLab path from this machine, and the migrated route has not
-yet been opened through the real app navigation path with live app data/auth
-constraints.
+Kite's intended source-control path from this machine, and the simulator route
+uses Kite's debug `main_local.dart` fixture plus a fake imported dev session
+rather than approved live or fixture auth constraints outside the local debug
+path.
 
 ## Local Change
 
@@ -123,6 +124,29 @@ No issues found!
 Both commands emitted Flutter plugin warnings about packages that do not yet
 support Swift Package Manager. Those warnings were not caused by this change
 and did not fail validation.
+
+## Package Resolution
+
+The Kite branch resolves the hosted native-runtime prerelease packages, not
+local Tagflow path overrides:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0-alpha.3
+  tagflow_table: ^1.0.0-alpha.1
+```
+
+The only `tagflow` / `tagflow_table` path overrides in `pubspec.yaml` are
+commented out. The checked `pubspec.lock` entries are hosted:
+
+```text
+tagflow:
+  source: hosted
+  version: "1.0.0-alpha.3"
+tagflow_table:
+  source: hosted
+  version: "1.0.0-alpha.1"
+```
 
 After adding the `main_local.dart` route fixture, focused validation passed
 again:
@@ -244,8 +268,6 @@ The gate remains open until all of these are true:
   intended source-control path;
 - the intended IPO sheet route is opened through the real app path with
   approved fixture/data/auth constraints outside the local debug server path;
-- package resolution is rechecked from the downstream app state with no local
-  Tagflow path overrides;
 - Tagflow PR/docs describe the result factually and without performance claims.
 
 Current GitLab status from this machine remains blocked:

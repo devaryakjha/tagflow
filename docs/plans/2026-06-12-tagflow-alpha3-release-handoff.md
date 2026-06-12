@@ -191,23 +191,33 @@ Validation evidence:
    - passed with `No issues found!`.
 
 Later coordinator refreshes adopted the same hosted-alpha validation locally on
-Kite `feat/dashboard` as `80160401 test(ipo): validate hosted tagflow alpha3`
-and reran the focused test under
-`test/ipos/tagflow_hosted_alpha3_test.dart`. A separate local Kite branch,
-`codex/ipo-tagflow-registry-content`, prepares content-only production IPO
-rendering through `Tagflow.html(..., registry: ...)` as `e26a14e6`, with
-follow-up test cleanup `6d0d29f8` keeping assertions on public rendered table
-content and `tagflowTableComponents(...)`. These Kite branches remain local
-while `gitlab.zerodha.tech` DNS is unavailable.
+Kite and then consolidated the production-route candidate on
+`codex/tagflow-ipo-native-route`:
+
+- `80160401 test(ipo): validate hosted tagflow alpha3`
+- `355c79d6 feat(ipo): render IPO content through tagflow registry`
+- `e9a86803 test(ipo): cover tagflow sheet registry path`
+- `50bee7ce test(ipo): serve local IPO fixture route`
+
+That branch now renders both IPO excerpt and main IPO content through
+`Tagflow.html(..., registry: tagflowRegistry())`, keeps assertions on public
+rendered table content and `tagflowTableComponents(...)`, and includes a local
+`main_local.dart` AFCONS fixture for simulator route smoke. Its `pubspec.lock`
+resolves hosted `tagflow 1.0.0-alpha.3` and hosted
+`tagflow_table 1.0.0-alpha.1`; the local Tagflow path overrides in
+`pubspec.yaml` are commented out. The Kite branch remains local while
+`gitlab.zerodha.tech` DNS is unavailable.
 
 Limits:
 
-- Kite production IPO rendering still uses the legacy converter bridge to keep
-  current app behavior stable.
-- The content-only registry migration branch is not merged, not pushed, and not
-  profile evidence.
-- Built-in disclosure behavior is validated in a Kite widget harness, not yet
-  through a live backend IPO payload that already contains authored
+- The registry migration branch is not merged, not pushed, and not profile
+  evidence.
+- The simulator smoke uses Kite's debug `main_local.dart` server and a fake
+  imported dev session, not approved live/fixture auth constraints outside the
+  local debug path.
+- Built-in disclosure behavior is validated in a Kite widget harness, while
+  the simulator route smoke exercises table/list content from the local AFCONS
+  fixture rather than a live backend IPO payload containing authored
   `details` / `summary` markup.
 
 Do not claim public performance wins from the current benchmark evidence. The

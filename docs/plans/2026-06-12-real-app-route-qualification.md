@@ -34,9 +34,11 @@ Latest coordinator audit found no route satisfying #73 as-is.
   `main_local.dart` fixture commit now supports a simulator route smoke through
   Bids -> IPO -> AFCONS -> `IPOInstrumentSheet`, including a successful
   `/ipo/afcons?format=json` fetch and visible Tagflow-rendered table content.
-  That branch is still not pushed or reviewable through Kite's intended
-  source-control path. Its intended GitLab review path is not reachable from
-  this machine because `gitlab.zerodha.tech` DNS fails.
+  Its `pubspec.lock` resolves hosted `tagflow 1.0.0-alpha.3` and
+  `tagflow_table 1.0.0-alpha.1` from pub.dev, with only commented-out local
+  Tagflow path overrides. That branch is still not pushed or reviewable through
+  Kite's intended source-control path. Its intended GitLab review path is not
+  reachable from this machine because `gitlab.zerodha.tech` DNS fails.
 - Varsity has real rich-content routes, but it is still on old
   `tagflow ^0.0.7`, so it does not validate the current hosted native runtime.
 - Seisei provides package-adapter evidence, not a real downstream app route
@@ -46,8 +48,9 @@ The Kite hosted-alpha widget/native-transport tests and local simulator smoke
 are useful supporting evidence. They prove the hosted packages can decode and
 render targeted fixtures, that the migrated sheet code can render seeded real
 IPO content in a harness, and that Kite's debug route can navigate into the
-migrated production sheet with a local fixture. #73 still requires an approved
-real app path and reviewable source-control trail.
+migrated production sheet with a local fixture while resolving hosted Tagflow
+packages. #73 still requires an approved real app path and reviewable
+source-control trail.
 
 The local Kite production-file migration is recorded in
 `docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`. It is
@@ -94,8 +97,8 @@ Implementation scope:
   evidence, not as the route gate itself;
 - reuse the `main_local.dart` AFCONS fixture for debug-route repros if needed,
   but do not present that local fixture as live auth/data evidence;
-- verify the lockfile resolves hosted `tagflow 1.0.0-alpha.3` and
-  `tagflow_table 1.0.0-alpha.1` without local overrides.
+- preserve the currently verified hosted lockfile resolution for
+  `tagflow 1.0.0-alpha.3` and `tagflow_table 1.0.0-alpha.1`.
 
 Route evidence to capture:
 

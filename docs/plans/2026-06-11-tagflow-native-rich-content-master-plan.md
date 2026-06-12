@@ -162,15 +162,19 @@ evidence, supported-target profile evidence, and final release-gate approval.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
-  The clean branch `codex/kite-tagflow-alpha-runtime` at `d9682aec` updates only
-  hosted `tagflow`/`tagflow_table` `1.0.0-alpha.1` constraints plus the two IPO
-  legacy imports; it reached the real `IPOInstrumentSheet` through the
-  authenticated Bids -> IPO route in Kite's in-app Dark theme, with screenshot
-  evidence under `docs/validation/evidence/2026-06-11-kite-alpha-ipo-real-*`.
-  A debug VM timeline attribution probe exists, but it is not release-grade
-  performance evidence. A physical iPhone profile attempt is documented as a
-  supported-target blocker because the phone was wireless-only from Flutter's
-  perspective and stalled before install/launch; see
+  The current local Kite branch `codex/tagflow-ipo-native-route` resolves
+  hosted `tagflow 1.0.0-alpha.3` and hosted `tagflow_table 1.0.0-alpha.1`,
+  migrates the IPO sheet off `package:tagflow/legacy.dart` to
+  `Tagflow.html(..., registry: tagflowRegistry())`, and has a local iOS
+  Simulator debug-route smoke through Bids -> IPO -> AFCONS ->
+  `IPOInstrumentSheet` showing Tagflow-rendered table content. This remains
+  local supporting evidence only because the branch is not pushed/reviewable
+  through Kite's intended source-control path and the simulator run uses
+  `main_local.dart` plus a fake imported dev session. A debug VM timeline
+  attribution probe exists, but it is not release-grade performance evidence. A
+  physical iPhone profile attempt is documented as a supported-target blocker
+  because the phone was wireless-only from Flutter's perspective and stalled
+  before install/launch; see
   `docs/validation/evidence/2026-06-11-kite-alpha-profile-blocker-summary.md`.
 - A focused Kite native JSON transport probe confirmed the alpha2 release need:
   hosted `1.0.0-alpha.1` lacked `TagflowNativeBlockCodec` and
@@ -187,32 +191,28 @@ evidence, supported-target profile evidence, and final release-gate approval.
   `Tagflow.html(..., registry: TagflowComponentRegistry(extensions:
   [tagflowTableComponents(...)]))`. `fvm flutter test
   test/ipos/ipo_tagflow_render_test.dart` passed two tests, and focused
-  analysis passed. Limitation: Kite production IPO rendering still uses the
-  legacy converter bridge for stability; the built-in disclosure path is proven
-  in a Kite test harness, not yet in a live backend IPO payload.
+  analysis passed. Later coordinator work moved the production IPO sheet route
+  to the registry path on the local `codex/tagflow-ipo-native-route` branch;
+  the built-in disclosure path remains proven in a Kite test harness, not yet
+  in a live backend IPO payload.
 - Follow-up Kite hosted-alpha3 reconciliation thread
   `019eb906-47fd-7543-a6b2-5349f2e5aa00` completed with
-  `DONE_WITH_CONCERNS`. The main Kite checkout is still at local commit
-  `80160401 test(ipo): validate hosted tagflow alpha3` on `feat/dashboard`,
-  one commit ahead of `origin/feat/dashboard`; a single push retry failed with
+  `DONE_WITH_CONCERNS`. Later coordinator work moved the active local Kite
+  candidate to branch `codex/tagflow-ipo-native-route` with commits
+  `355c79d6`, `e9a86803`, and `50bee7ce`. Focused Kite validation passed:
+
+  ```bash
+  flutter analyze \
+    lib/main_local.dart \
+    lib/screens/ipos/ipo_instrument_sheet.dart \
+    test/ipos/tagflow_hosted_alpha3_test.dart
+  flutter test test/ipos/tagflow_hosted_alpha3_test.dart
+  git diff --check -- lib/main_local.dart
+  ```
+
+  A push/review path is still blocked by
   `ssh: Could not resolve hostname gitlab.zerodha.tech: nodename nor servname
-  provided, or not known`. The worker reran
-  `fvm flutter test test/ipos/tagflow_hosted_alpha3_test.dart` and focused
-  analysis over `lib/screens/ipos/ipo_instrument_sheet.dart`,
-  `lib/component/tagflow_details_converter.dart`, and
-  `test/ipos/tagflow_hosted_alpha3_test.dart`; both passed. No new Kite patch
-  was made.
-- The production-safe Kite migration candidate has been prepared locally as
-  isolated branch `codex/ipo-tagflow-registry-content`. Commit `e26a14e6`
-  moves only the real `store.ipoInfo.content` render in
-  `lib/screens/ipos/ipo_instrument_sheet.dart` to
-  `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, while
-  keeping `store.ipoInfo.excerpt` on the legacy path. Follow-up commit
-  `6d0d29f8` keeps the focused test aligned with the beta table public barrel by
-  asserting rendered table content instead of low-level table widget exports.
-  This branch remains local while GitLab DNS is unavailable and is not profile
-  evidence until pushed, merged, and validated through a real route on a
-  supported target.
+  provided, or not known`.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through
@@ -790,24 +790,28 @@ Master review gate:
 - Pending worktree: `local:e200a636-dd09-4659-9fa6-45cc57dd1e1f`
 - Thread ID: `019eb906-47fd-7543-a6b2-5349f2e5aa00`
 - Status: complete; archived after handoff.
-- Result: hosted-alpha3 validation remains clean locally, but GitLab push is
-  blocked by DNS for `gitlab.zerodha.tech`. Recommended next Kite code slice is
-  content-only IPO rendering through `Tagflow.html(..., registry: ...)` while
-  leaving the excerpt path on the legacy bridge.
+- Result: hosted-alpha3 validation remains clean locally. Later coordinator
+  work moved both IPO excerpt and content rendering to
+  `Tagflow.html(..., registry: tagflowRegistry())` on local branch
+  `codex/tagflow-ipo-native-route`, added production-sheet widget coverage, and
+  captured a local iOS Simulator debug-route smoke through Bids -> IPO ->
+  AFCONS -> `IPOInstrumentSheet`. GitLab push/review remains blocked by DNS for
+  `gitlab.zerodha.tech`.
 - Constraints: no local Tagflow path overrides, diagnostics screens, broad Kite
   rewrites, or release-grade profile claims while network and physical-device
   blockers remain open.
 
-### Kite IPO Registry Content Branch
+### Kite IPO Native Route Branch
 
-- Branch: `codex/ipo-tagflow-registry-content`
-- Status: local branch tip `6d0d29f8 test(ipo): avoid tagflow table internals`;
+- Branch: `codex/tagflow-ipo-native-route`
+- Status: local branch tip `50bee7ce test(ipo): serve local IPO fixture route`;
   not pushed while `gitlab.zerodha.tech` DNS resolution is unavailable.
-- Result: `e26a14e6 feat(ipo): render ipo content through tagflow registry`
-  prepares the content-only production migration to
-  `Tagflow.html(..., registry: ...)`; `6d0d29f8` keeps downstream test coverage
-  on public behavior and public `tagflowTableComponents(...)` instead of
-  low-level table widget exports.
+- Result: `355c79d6 feat(ipo): render IPO content through tagflow registry`
+  migrates the production IPO sheet to
+  `Tagflow.html(..., registry: tagflowRegistry())`; `e9a86803` keeps downstream
+  test coverage on production sheet behavior and public
+  `tagflowTableComponents(...)`; `50bee7ce` adds a local AFCONS fixture for the
+  simulator route smoke.
 - Constraints: not profile evidence until pushed, merged, opened through a real
   app route, and profiled on a supported physical or approved reference target.
 

@@ -64,8 +64,10 @@ The remaining blocking evidence gap is now the real-app route gate:
   `e9a86803`, and `50bee7ce`. The latest local simulator smoke opens the real
   Bids -> IPO -> AFCONS -> `IPOInstrumentSheet` path against Kite's debug
   `main_local.dart` fixture and captures visible Tagflow-rendered IPO tables,
-  but it is not pushed/reviewable through Kite's intended source-control path
-  and uses local fixture/auth constraints, so it does not close #73;
+  with hosted `tagflow 1.0.0-alpha.3` and `tagflow_table 1.0.0-alpha.1`
+  resolved from pub.dev. It is still not pushed/reviewable through Kite's
+  intended source-control path and uses local fixture/auth constraints, so it
+  does not close #73;
 - the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
   while physical-device, observed-host, frame-budget, memory, beta/stable, and
   comparative performance evidence remain future benchmark work;
@@ -163,8 +165,8 @@ production sheet file to `Tagflow.html(..., registry: ...)` with a
 production-sheet harness that pumps `IPOInstrumentSheet` using real IPO fixture
 content. A local `main_local.dart` fixture now also supports a simulator smoke
 through Bids -> IPO -> AFCONS -> `IPOInstrumentSheet`, including the
-Tagflow-rendered table section. Push/merge and approved real app-route evidence
-are still not complete.
+Tagflow-rendered table section, while the app resolves hosted alpha packages.
+Push/merge and approved real app-route evidence are still not complete.
 
 The current route qualification plan is
 `docs/plans/2026-06-12-real-app-route-qualification.md`.
