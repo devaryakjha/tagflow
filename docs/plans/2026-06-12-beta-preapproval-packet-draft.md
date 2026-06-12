@@ -147,6 +147,7 @@ physical or observed-host evidence.
 
 Decision request:
 
+- Tracker: https://github.com/devaryakjha/tagflow/issues/75
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 - latest simulator recovery note:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`

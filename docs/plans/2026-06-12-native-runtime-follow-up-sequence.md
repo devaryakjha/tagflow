@@ -212,6 +212,8 @@ Status: PR #72 benchmark gate satisfied by synthetic report-only evidence;
 physical and observed-host qualification remain future work; latest target
 audit after Simulator relaunch still found no credible physical profile target
 
+Tracker: https://github.com/devaryakjha/tagflow/issues/75
+
 #74 is satisfied for PR #72 by the accepted synthetic viewport path. That
 evidence proves internal harness stability only. It does not qualify this Mac
 as a real `2.0x` reference target, does not qualify a physical iOS/Android

@@ -147,6 +147,7 @@
       "id": "physical-observed-profile",
       "status": "open",
       "summary": "Physical or observed-host profile evidence remains future work and is not required for PR #72 draft continuation.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/75",
       "claimBoundary": "Simulator/debug-smoke evidence does not satisfy physical iOS/Android profile, frame-budget, memory, beta/stable, public benchmark, or faster/slower claims.",
       "evidence": [
         {

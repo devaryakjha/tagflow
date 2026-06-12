@@ -98,6 +98,7 @@ The `physical-observed-profile` gate remains open.
 
 Owner decision request:
 
+- Tracker: https://github.com/devaryakjha/tagflow/issues/75
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 
 Acceptable pre-beta paths:

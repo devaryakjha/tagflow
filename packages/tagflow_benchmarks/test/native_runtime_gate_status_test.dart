@@ -390,6 +390,13 @@ void main() {
       <String>['real-app-route', 'physical-observed-profile'],
     );
     expect(
+      betaPreapprovalResult.requiredOpenGates.map((gate) => gate.tracker),
+      <String>[
+        'https://github.com/devaryakjha/tagflow/issues/73',
+        'https://github.com/devaryakjha/tagflow/issues/75',
+      ],
+    );
+    expect(
       betaPreapprovalResult.requiredOpenGates
           .expand((gate) => gate.evidence)
           .map((entry) => entry.value),
@@ -401,6 +408,10 @@ void main() {
     expect(
       betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
       isNot(contains('release-approval')),
+    );
+    expect(
+      betaPreapprovalResult.issues.map((issue) => issue.details['tracker']),
+      contains('https://github.com/devaryakjha/tagflow/issues/75'),
     );
 
     expect(betaResult.passed, isFalse);
