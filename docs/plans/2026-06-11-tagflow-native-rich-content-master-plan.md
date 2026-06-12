@@ -37,10 +37,10 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
-  `6ad9895 docs(benchmarks): refresh kite profile blocker`,
-  `fbd53eb docs(benchmarks): review authored insertion memory growth`,
-  `25ff39e docs(benchmarks): refresh physical target availability`, and
-  `0267505 docs(benchmarks): record authored insertion memory evidence`.
+  `11c644a fix(benchmarks): dedupe retained path class targets`,
+  `4e190ea docs(benchmarks): record retained path memory evidence`,
+  `6e3c3c1 feat(benchmarks): export retained path memory evidence`, and
+  `e2b25e1 docs(spec): refresh beta readiness evidence`.
 - Latest integrated implementation commits include
   `3eb7b9b feat(benchmarks): emit memory evidence checkpoints`,
   `a4861dd refactor(table): narrow public table exports`,
@@ -102,7 +102,7 @@ evidence, supported-target profile evidence, and final release-gate approval.
   or speed claims until the reference-runner qualification gates in
   `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
   and a separate threshold/comparison policy is reviewed.
-- Follow-up benchmark commits through `0267505`, `fbd53eb`, and the earlier
+- Follow-up benchmark commits through `11c644a`, `4e190ea`, and the earlier
   memory-manifest/exporter work clarify the current memory/allocation boundary.
   The repeated profile runner
   can now request per-cell `--profile-memory` artifacts with
@@ -110,15 +110,20 @@ evidence, supported-target profile evidence, and final release-gate approval.
   checkpoint holds for DevTools attachment, and emit a
   `memory-evidence-manifest.json` checklist with expected manual export paths.
   `benchmark:memory-evidence:export` can now connect to a live hold-open VM
-  service URI and write `getAllocationProfile(gc: true)` JSON plus a compact
-  class-level heap snapshot summary. The authored-insertion control/patch pair
-  now has named-checkpoint VM-service allocation-profile and class-level heap
-  summary exports, plus a report-only class-growth review. That review found no
-  same-process patch aggregate growth from `before_first_patch` to
-  `after_scroll`, with package-level Tagflow growth limited to one
-  `TagflowDocumentNode` and one `TagflowDocument`. This is still report-only
-  class-growth evidence: retained-object paths, raw DevTools heap/diff exports,
-  and public memory/allocation claims remain blocked.
+  service URI and write `getAllocationProfile(gc: true)` JSON, a compact
+  class-level heap snapshot summary, and bounded `getRetainingPath` samples.
+  The authored-insertion control/patch pair now has named-checkpoint
+  VM-service allocation-profile and class-level heap-summary exports, plus a
+  report-only class-growth review. That review found no same-process patch
+  aggregate growth from `before_first_patch` to `after_scroll`, with
+  package-level Tagflow growth limited to one `TagflowDocumentNode` and one
+  `TagflowDocument`. A follow-up patch-only `after_scroll` run exported live
+  retained paths for those classes; the sampled paths flowed through the live
+  `Tagflow` widget and Flutter widget tree. The exporter now de-duplicates
+  repeated retained-path class targets before export. This remains report-only
+  memory evidence: raw DevTools heap/diff exports, multi-checkpoint
+  retained-object comparison, control-lane retained paths, and public
+  memory/allocation claims remain blocked.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
   profile evidence, and review of memory/allocation artifacts. Threshold policy
