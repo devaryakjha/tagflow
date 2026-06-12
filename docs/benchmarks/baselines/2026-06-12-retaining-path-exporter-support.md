@@ -34,6 +34,8 @@ summary files. When retained-path classes are provided, it also writes:
 
 Class targets may be simple class names or library-qualified selectors in the
 form `package:...::ClassName` when a class name is ambiguous.
+Duplicate targets from repeated flags or env forwarding are de-duplicated in
+first-seen order before export.
 
 ## Interpretation
 

@@ -82,6 +82,21 @@ void main() {
     );
   });
 
+  test('deduplicates retained-path class selectors in first-seen order', () {
+    const qualifiedTagflowDocumentNode =
+        'package:tagflow/src/runtime/document.dart::TagflowDocumentNode';
+
+    expect(
+      normalizeRetainingPathClassTargets([
+        'TagflowDocumentNode, TagflowDocument',
+        'TagflowDocumentNode',
+        qualifiedTagflowDocumentNode,
+        'TagflowDocument, $qualifiedTagflowDocumentNode',
+      ]),
+      ['TagflowDocumentNode', 'TagflowDocument', qualifiedTagflowDocumentNode],
+    );
+  });
+
   test('rejects unsafe retained-path class selectors', () {
     expect(
       () => normalizeRetainingPathClassTargets(['Tagflow Document']),

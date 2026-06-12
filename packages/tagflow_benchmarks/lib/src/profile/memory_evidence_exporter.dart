@@ -326,6 +326,7 @@ Future<Map<String, Object?>> exportRetainingPathSummary({
 /// Normalizes retained-path class targets from CLI/config input.
 List<String> normalizeRetainingPathClassTargets(Iterable<String> targets) {
   final normalized = <String>[];
+  final seen = <String>{};
   for (final target in targets) {
     for (final part in target.split(',')) {
       final value = part.trim();
@@ -341,7 +342,9 @@ List<String> normalizeRetainingPathClassTargets(Iterable<String> targets) {
           'Use class names or library-uri::ClassName selectors.',
         );
       }
-      normalized.add(value);
+      if (seen.add(value)) {
+        normalized.add(value);
+      }
     }
   }
   return List.unmodifiable(normalized);
