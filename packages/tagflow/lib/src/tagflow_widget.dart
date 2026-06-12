@@ -206,33 +206,46 @@ class _TagflowState extends State<Tagflow> {
 
   Widget _buildContent(BuildContext context) {
     if (_error != null) {
-      return (widget.viewOptions.errorBuilder ?? widget.errorBuilder)(
-        context,
-        _error,
-      );
+      return _buildErrorContent(context, _error);
     }
 
     if (_document == null) {
       return widget.loadingBuilder(context);
     }
 
-    Widget content;
+    try {
+      final content = _buildRenderedContent(context);
+      return widget.viewOptions.selectable.enabled
+          ? SelectionArea(child: content)
+          : content;
+    } catch (e, stack) {
+      if (widget.viewOptions.debug) {
+        debugPrint('Error rendering Tagflow content: $e\n$stack');
+      }
+      return _buildErrorContent(context, e);
+    }
+  }
+
+  Widget _buildRenderedContent(BuildContext context) {
     if (_usesLegacyCompatibilityRenderer) {
       if (_element == null) return widget.loadingBuilder(context);
-      content = _converter.convert(_element!, context);
-    } else {
-      content = (widget.registry ?? TagflowComponentRegistry.builtIn).render(
-        context,
-        TagflowDocumentNode.root(
-          id: '${_document!.id}:root',
-          children: _document!.children,
-        ),
-      );
+      return _converter.convert(_element!, context);
     }
 
-    return widget.viewOptions.selectable.enabled
-        ? SelectionArea(child: content)
-        : content;
+    return (widget.registry ?? TagflowComponentRegistry.builtIn).render(
+      context,
+      TagflowDocumentNode.root(
+        id: '${_document!.id}:root',
+        children: _document!.children,
+      ),
+    );
+  }
+
+  Widget _buildErrorContent(BuildContext context, Object? error) {
+    return (widget.viewOptions.errorBuilder ?? widget.errorBuilder)(
+      context,
+      error,
+    );
   }
 
   bool get _usesLegacyCompatibilityRenderer =>

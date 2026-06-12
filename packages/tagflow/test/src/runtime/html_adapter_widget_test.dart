@@ -167,6 +167,57 @@ void main() {
       expect(find.text('Built-in paragraph'), findsNothing);
     });
 
+    testWidgets('custom legacy converter errors use the widget error builder', (
+      tester,
+    ) async {
+      const html = '<p>Built-in paragraph</p>';
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.html(
+            html: html,
+            converters: const [_ThrowingLegacyParagraphConverter()],
+            errorBuilder: (context, error) {
+              return Text('Legacy error: $error');
+            },
+          ),
+        ),
+      );
+
+      expect(
+        find.textContaining('Legacy error: Bad state: legacy failed'),
+        findsOneWidget,
+      );
+      expect(find.text('Built-in paragraph'), findsNothing);
+    });
+
+    testWidgets('parse errors keep using the widget error builder', (
+      tester,
+    ) async {
+      const html = '<div data-tagflow-id="root"><hr></div>';
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.html(
+            html: html,
+            adapter: const TagflowHtmlAdapter(
+              nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(
+                fallbackToPath: false,
+              ),
+            ),
+            errorBuilder: (context, error) {
+              return Text('Parse error: $error');
+            },
+          ),
+        ),
+      );
+
+      expect(
+        find.textContaining('Parse error: Bad state: Missing required'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('document entrypoint renders semantic paragraph content', (
       tester,
     ) async {
@@ -220,6 +271,44 @@ void main() {
       expect(find.text('Built-in runtime'), findsNothing);
     });
 
+    testWidgets(
+      'document entrypoint routes registry render errors to view options',
+      (tester) async {
+        final document = _documentWithParagraph('Built-in runtime');
+        final registry = TagflowComponentRegistry(
+          overrides: {
+            TagflowNodeKind.paragraph: (context, node) {
+              throw StateError('registry failed');
+            },
+          },
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.document(
+              document,
+              registry: registry,
+              errorBuilder: (context, error) {
+                return const Text('Widget-level error');
+              },
+              viewOptions: TagflowViewOptions(
+                errorBuilder: (context, error) {
+                  return Text('View options error: $error');
+                },
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.textContaining('View options error: Bad state: registry failed'),
+          findsOneWidget,
+        );
+        expect(find.text('Widget-level error'), findsNothing);
+        expect(find.text('Built-in runtime'), findsNothing);
+      },
+    );
+
     testWidgets('html entrypoint uses registry overrides', (tester) async {
       const html = '<p>Built-in HTML runtime</p>';
       final registry = TagflowComponentRegistry(
@@ -239,6 +328,38 @@ void main() {
       expect(find.text('Registry HTML paragraph'), findsOneWidget);
       expect(find.text('Built-in HTML runtime'), findsNothing);
     });
+
+    testWidgets(
+      'html entrypoint routes registry render errors to widget error builder',
+      (tester) async {
+        const html = '<p>Built-in HTML runtime</p>';
+        final registry = TagflowComponentRegistry(
+          overrides: {
+            TagflowNodeKind.paragraph: (context, node) {
+              throw StateError('html registry failed');
+            },
+          },
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.html(
+              html: html,
+              registry: registry,
+              errorBuilder: (context, error) {
+                return Text('Widget error: $error');
+              },
+            ),
+          ),
+        );
+
+        expect(
+          find.textContaining('Widget error: Bad state: html registry failed'),
+          findsOneWidget,
+        );
+        expect(find.text('Built-in HTML runtime'), findsNothing);
+      },
+    );
 
     testWidgets('html registry does not replace legacy converters', (
       tester,
@@ -725,6 +846,23 @@ final class _LegacyParagraphConverter extends ElementConverter<TagflowNode> {
     TagflowConverter converter,
   ) {
     return const Text('Legacy bridge');
+  }
+}
+
+final class _ThrowingLegacyParagraphConverter
+    extends ElementConverter<TagflowNode> {
+  const _ThrowingLegacyParagraphConverter();
+
+  @override
+  Set<String> get supportedTags => {'p'};
+
+  @override
+  Widget convert(
+    TagflowNode element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    throw StateError('legacy failed');
   }
 }
 

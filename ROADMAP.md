@@ -25,7 +25,7 @@
 - [x] Native runtime document model
 - [x] HTML adapter layer
 - [x] Semantic component registry
-- [ ] Error boundary implementation for graceful fallbacks
+- [x] Error boundary implementation for graceful fallbacks
 
 ## HTML Element Support
 
