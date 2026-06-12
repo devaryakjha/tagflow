@@ -153,23 +153,19 @@ void main() {
     );
   });
 
-  test('fails a profile when a required gate id is not defined', () {
+  test('rejects profile references to undefined gates', () {
     final manifestFile = _writeManifest(
       requiredGateIds: <String>['missing-gate'],
       gates: <Map<String, Object?>>[_gate('runtime-surface', 'satisfied')],
     );
     addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
 
-    final result = checkNativeRuntimeGateStatus(
-      manifestFile: manifestFile,
-      profileId: 'draft',
-    );
-
-    expect(result.passed, isFalse);
-    expect(result.issues.single.code, 'required_gate_missing');
     expect(
-      result.issues.single.details,
-      containsPair('gateId', 'missing-gate'),
+      () => checkNativeRuntimeGateStatus(
+        manifestFile: manifestFile,
+        profileId: 'draft',
+      ),
+      throwsFormatException,
     );
   });
 
@@ -211,6 +207,52 @@ void main() {
       () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
         'type': 'localPath',
         'value': '../outside.md',
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'note',
+        'value': 'not a command',
+        'cwd': '.',
+      }),
+      throwsFormatException,
+    );
+  });
+
+  test('round-trips structured command evidence metadata', () {
+    const pathValue = r'/Users/arya/fvm/cache.git/bin:$PATH';
+    final evidence = NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+      'type': 'command',
+      'value': 'dart run melos run validate',
+      'cwd': '.',
+      'env': <String, Object?>{'PATH': pathValue},
+    });
+
+    expect(evidence.type, NativeRuntimeGateEvidenceType.command);
+    expect(evidence.cwd, '.');
+    expect(evidence.env, containsPair('PATH', pathValue));
+    expect(evidence.toJson(), containsPair('cwd', '.'));
+    expect(
+      evidence.toJson(),
+      containsPair('env', containsPair('PATH', pathValue)),
+    );
+  });
+
+  test('rejects unsafe structured command evidence metadata', () {
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'command',
+        'value': 'dart run melos run validate',
+        'cwd': '../outside',
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => NativeRuntimeGateEvidence.fromJson(<String, Object?>{
+        'type': 'command',
+        'value': 'dart run melos run validate',
+        'env': <String, Object?>{'PATH': ''},
       }),
       throwsFormatException,
     );

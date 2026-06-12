@@ -67,7 +67,11 @@
       "evidence": [
         {
           "type": "command",
-          "value": "PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate"
+          "value": "dart run melos run validate",
+          "cwd": ".",
+          "env": {
+            "PATH": "/Users/arya/fvm/cache.git/bin:$PATH"
+          }
         },
         {
           "type": "url",

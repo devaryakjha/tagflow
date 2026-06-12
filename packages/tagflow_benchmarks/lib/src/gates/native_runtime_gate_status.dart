@@ -36,7 +36,12 @@ enum NativeRuntimeGateEvidenceType {
 /// Evidence supporting a native runtime gate status.
 final class NativeRuntimeGateEvidence {
   /// Creates a gate evidence entry.
-  const NativeRuntimeGateEvidence({required this.type, required this.value});
+  const NativeRuntimeGateEvidence({
+    required this.type,
+    required this.value,
+    this.cwd,
+    this.env = const <String, String>{},
+  });
 
   /// Reads evidence from JSON.
   ///
@@ -58,9 +63,16 @@ final class NativeRuntimeGateEvidence {
 
     final type = _readEvidenceType(json['type']);
     final value = _readNonEmptyString(json, 'value');
-    _validateEvidenceValue(type: type, value: value);
+    final cwd = _readOptionalString(json, 'cwd');
+    final env = _readOptionalStringMap(json, 'env');
+    _validateEvidenceValue(type: type, value: value, cwd: cwd, env: env);
 
-    return NativeRuntimeGateEvidence(type: type, value: value);
+    return NativeRuntimeGateEvidence(
+      type: type,
+      value: value,
+      cwd: cwd,
+      env: env,
+    );
   }
 
   /// Evidence entry type.
@@ -69,10 +81,18 @@ final class NativeRuntimeGateEvidence {
   /// Evidence value.
   final String value;
 
+  /// Optional workspace-relative command working directory.
+  final String? cwd;
+
+  /// Optional command environment metadata.
+  final Map<String, String> env;
+
   /// Converts this evidence entry to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'type': _evidenceTypeValue(type),
     'value': value,
+    if (cwd != null) 'cwd': cwd,
+    if (env.isNotEmpty) 'env': env,
   };
 }
 
@@ -223,6 +243,7 @@ final class NativeRuntimeGateManifest {
       ids: profiles.map((profile) => profile.id),
     );
     _validateUniqueIds(label: 'gate', ids: gates.map((gate) => gate.id));
+    _validateProfileGateReferences(profiles: profiles, gates: gates);
 
     return NativeRuntimeGateManifest(
       id: _readNonEmptyString(json, 'id'),
@@ -471,6 +492,27 @@ List<String> _readStringList(
   return strings;
 }
 
+Map<String, String> _readOptionalStringMap(
+  Map<String, Object?> json,
+  String key,
+) {
+  final value = json[key];
+  if (value == null) {
+    return const <String, String>{};
+  }
+  if (value is! Map<String, Object?>) {
+    throw FormatException('$key must be a map of strings.');
+  }
+  return value.map((entryKey, entryValue) {
+    if (entryKey.trim().isEmpty ||
+        entryValue is! String ||
+        entryValue.trim().isEmpty) {
+      throw FormatException('$key must contain only non-empty strings.');
+    }
+    return MapEntry(entryKey, entryValue);
+  });
+}
+
 List<NativeRuntimeGateEvidence> _readEvidenceList(
   Map<String, Object?> json,
   String key,
@@ -538,20 +580,25 @@ String _evidenceTypeValue(NativeRuntimeGateEvidenceType type) {
 void _validateEvidenceValue({
   required NativeRuntimeGateEvidenceType type,
   required String value,
+  required String? cwd,
+  required Map<String, String> env,
 }) {
+  if (type != NativeRuntimeGateEvidenceType.command &&
+      (cwd != null || env.isNotEmpty)) {
+    throw const FormatException(
+      'Native runtime gate evidence metadata is only supported for commands.',
+    );
+  }
+
   switch (type) {
     case NativeRuntimeGateEvidenceType.localPath:
-      final normalized = p.normalize(value);
-      if (p.isAbsolute(value) ||
-          normalized == '..' ||
-          normalized.startsWith('..${p.separator}')) {
-        throw const FormatException(
-          'Native runtime gate localPath evidence must be workspace-relative.',
-        );
-      }
+      _validateWorkspaceRelativePath(value, label: 'localPath evidence');
     case NativeRuntimeGateEvidenceType.url:
       _validateHttpsUrl(value, label: 'url evidence');
     case NativeRuntimeGateEvidenceType.command:
+      if (cwd != null) {
+        _validateWorkspaceRelativePath(cwd, label: 'command cwd');
+      }
     case NativeRuntimeGateEvidenceType.note:
       break;
   }
@@ -591,6 +638,17 @@ void _validateHttpsUrl(String value, {required String label}) {
   }
 }
 
+void _validateWorkspaceRelativePath(String value, {required String label}) {
+  final normalized = p.normalize(value);
+  if (p.isAbsolute(value) ||
+      normalized == '..' ||
+      normalized.startsWith('..${p.separator}')) {
+    throw FormatException(
+      'Native runtime gate $label must be workspace-relative.',
+    );
+  }
+}
+
 String _gateStatusValue(NativeRuntimeGateStatus status) {
   return switch (status) {
     NativeRuntimeGateStatus.satisfied => 'satisfied',
@@ -608,6 +666,23 @@ void _validateUniqueIds({
   for (final id in ids) {
     if (!seen.add(id)) {
       throw FormatException('Duplicate native runtime gate $label id: $id.');
+    }
+  }
+}
+
+void _validateProfileGateReferences({
+  required List<NativeRuntimeGateProfile> profiles,
+  required List<NativeRuntimeGate> gates,
+}) {
+  final gateIds = gates.map((gate) => gate.id).toSet();
+  for (final profile in profiles) {
+    for (final gateId in profile.requiredGateIds) {
+      if (!gateIds.contains(gateId)) {
+        throw FormatException(
+          'Native runtime gate profile "${profile.id}" references undefined '
+          'gate: $gateId.',
+        );
+      }
     }
   }
 }
