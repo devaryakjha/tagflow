@@ -22,14 +22,17 @@ Future<void> main(List<String> arguments) async {
       profileId: options.profileId,
       evidenceRoot: workspaceRoot,
     );
+    final expectedOpenGateIds = options.expectProfileOpenGates
+        ? result.profile.expectedOpenGateIds
+        : options.expectedOpenGateIds;
     final expectationPassed = _expectationPassed(
       result: result,
-      expectedOpenGateIds: options.expectedOpenGateIds,
+      expectedOpenGateIds: expectedOpenGateIds,
     );
     final json = result.toJson();
-    if (options.expectedOpenGateIds != null) {
+    if (expectedOpenGateIds != null) {
       json.addAll(<String, Object?>{
-        'expectedOpenGateIds': options.expectedOpenGateIds,
+        'expectedOpenGateIds': expectedOpenGateIds,
         'expectationPassed': expectationPassed,
       });
     }
@@ -82,11 +85,24 @@ _CheckNativeRuntimeGatesOptions _parseOptions({
     values['expect-open-gates'] ??
         Platform.environment['TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES'],
   );
+  final expectProfileOpenGates = _readBoolFlag(
+    values['expect-profile-open-gates'] ??
+        Platform
+            .environment['TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES'],
+    label: '--expect-profile-open-gates',
+  );
+  if (expectedOpenGateIds != null && expectProfileOpenGates) {
+    throw const FormatException(
+      'Use either --expect-open-gates or --expect-profile-open-gates, '
+      'not both.',
+    );
+  }
 
   return _CheckNativeRuntimeGatesOptions(
     manifestFile: File(resolvedManifestPath),
     profileId: profileId,
     expectedOpenGateIds: expectedOpenGateIds,
+    expectProfileOpenGates: expectProfileOpenGates,
   );
 }
 
@@ -107,6 +123,18 @@ List<String>? _readExpectedOpenGateIds(String? value) {
   }
 
   return gateIds;
+}
+
+bool _readBoolFlag(String? value, {required String label}) {
+  if (value == null) {
+    return false;
+  }
+
+  return switch (value.trim().toLowerCase()) {
+    '1' || 'true' || 'yes' => true,
+    '0' || 'false' || 'no' => false,
+    _ => throw FormatException('$label must be true or false when provided.'),
+  };
 }
 
 bool _expectationPassed({
@@ -168,6 +196,11 @@ Options:
                      profile. When provided, exits 0 only if the profile fails
                      exactly on those required gates and has no other issues.
                      Also accepts TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES.
+  --expect-profile-open-gates=<true|false>
+                     Use the selected profile's expectedOpenGateIds metadata
+                     for expected-open verification. Mutually exclusive with
+                     --expect-open-gates. Also accepts
+                     TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES.
 
 Examples:
   dart run bin/check_native_runtime_gates.dart --profile=pr72-draft
@@ -183,9 +216,11 @@ final class _CheckNativeRuntimeGatesOptions {
     required this.manifestFile,
     required this.profileId,
     required this.expectedOpenGateIds,
+    required this.expectProfileOpenGates,
   });
 
   final File manifestFile;
   final String profileId;
   final List<String>? expectedOpenGateIds;
+  final bool expectProfileOpenGates;
 }

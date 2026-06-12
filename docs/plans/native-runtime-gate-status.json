@@ -32,6 +32,10 @@
         "real-app-route",
         "physical-observed-profile",
         "memory-allocation-review"
+      ],
+      "expectedOpenGateIds": [
+        "real-app-route",
+        "physical-observed-profile"
       ]
     },
     {

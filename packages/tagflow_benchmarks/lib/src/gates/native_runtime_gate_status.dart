@@ -103,6 +103,7 @@ final class NativeRuntimeGateProfile {
     required this.id,
     required this.description,
     required this.requiredGateIds,
+    this.expectedOpenGateIds = const <String>[],
   });
 
   /// Reads a gate profile from JSON.
@@ -110,6 +111,11 @@ final class NativeRuntimeGateProfile {
     final id = _readNonEmptyString(json, 'id');
     final description = _readNonEmptyString(json, 'description');
     final requiredGateIds = _readStringList(json, 'requiredGateIds');
+    final expectedOpenGateIds = _readStringList(
+      json,
+      'expectedOpenGateIds',
+      required: false,
+    );
     if (requiredGateIds.isEmpty) {
       throw FormatException(
         'Native runtime gate profile "$id" must require at least one gate.',
@@ -120,6 +126,7 @@ final class NativeRuntimeGateProfile {
       id: id,
       description: description,
       requiredGateIds: requiredGateIds,
+      expectedOpenGateIds: expectedOpenGateIds,
     );
   }
 
@@ -132,11 +139,19 @@ final class NativeRuntimeGateProfile {
   /// Gate ids that must be `satisfied` for this profile to pass.
   final List<String> requiredGateIds;
 
+  /// Required gate ids that are expected to remain open for review-only checks.
+  ///
+  /// This metadata does not change default profile pass/fail semantics unless a
+  /// caller explicitly opts into expected-open verification.
+  final List<String> expectedOpenGateIds;
+
   /// Converts this profile to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'id': id,
     'description': description,
     'requiredGateIds': requiredGateIds,
+    if (expectedOpenGateIds.isNotEmpty)
+      'expectedOpenGateIds': expectedOpenGateIds,
   };
 }
 
@@ -250,6 +265,7 @@ final class NativeRuntimeGateManifest {
     );
     _validateUniqueIds(label: 'gate', ids: gates.map((gate) => gate.id));
     _validateProfileGateReferences(profiles: profiles, gates: gates);
+    _validateProfileExpectedOpenGateReferences(profiles: profiles);
 
     return NativeRuntimeGateManifest(
       id: _readNonEmptyString(json, 'id'),
@@ -701,6 +717,22 @@ void _validateProfileGateReferences({
         throw FormatException(
           'Native runtime gate profile "${profile.id}" references undefined '
           'gate: $gateId.',
+        );
+      }
+    }
+  }
+}
+
+void _validateProfileExpectedOpenGateReferences({
+  required List<NativeRuntimeGateProfile> profiles,
+}) {
+  for (final profile in profiles) {
+    final requiredGateIds = profile.requiredGateIds.toSet();
+    for (final gateId in profile.expectedOpenGateIds) {
+      if (!requiredGateIds.contains(gateId)) {
+        throw FormatException(
+          'Native runtime gate profile "${profile.id}" lists expected open '
+          'gate "$gateId" that is not required by the profile.',
         );
       }
     }

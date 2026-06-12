@@ -37,6 +37,50 @@ void main() {
     expect(result.toJson(), containsPair('passed', true));
   });
 
+  test('reads optional profile expected open gate metadata', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface', 'real-app-route'],
+      expectedOpenGateIds: <String>['real-app-route'],
+      gates: <Map<String, Object?>>[
+        _gate('runtime-surface', 'satisfied'),
+        _gate('real-app-route', 'open'),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    final manifest = NativeRuntimeGateManifest.fromFile(manifestFile);
+    final profile = manifest.profileById('draft');
+
+    expect(profile.expectedOpenGateIds, <String>['real-app-route']);
+    expect(
+      profile.toJson(),
+      containsPair('expectedOpenGateIds', <String>['real-app-route']),
+    );
+  });
+
+  test('rejects expected open gates that are not required by the profile', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface'],
+      expectedOpenGateIds: <String>['real-app-route'],
+      gates: <Map<String, Object?>>[
+        _gate('runtime-surface', 'satisfied'),
+        _gate('real-app-route', 'open'),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    expect(
+      () => NativeRuntimeGateManifest.fromFile(manifestFile),
+      throwsA(
+        isA<FormatException>().having(
+          (error) => error.message,
+          'message',
+          contains('is not required by the profile'),
+        ),
+      ),
+    );
+  });
+
   test('fails when required localPath evidence is missing', () {
     final manifestFile = _writeManifest(
       requiredGateIds: <String>['runtime-surface'],
@@ -389,6 +433,10 @@ void main() {
       betaPreapprovalResult.requiredOpenGates.map((gate) => gate.id),
       <String>['real-app-route', 'physical-observed-profile'],
     );
+    expect(betaPreapprovalResult.profile.expectedOpenGateIds, <String>[
+      'real-app-route',
+      'physical-observed-profile',
+    ]);
     expect(
       betaPreapprovalResult.requiredOpenGates.map((gate) => gate.tracker),
       <String>[
@@ -512,6 +560,7 @@ void main() {
 File _writeManifest({
   required List<String> requiredGateIds,
   required List<Map<String, Object?>> gates,
+  List<String> expectedOpenGateIds = const <String>[],
   Directory? directory,
 }) {
   final manifestDirectory =
@@ -528,6 +577,8 @@ File _writeManifest({
             'id': 'draft',
             'description': 'Draft profile',
             'requiredGateIds': requiredGateIds,
+            if (expectedOpenGateIds.isNotEmpty)
+              'expectedOpenGateIds': expectedOpenGateIds,
           },
         ],
         'gates': gates,

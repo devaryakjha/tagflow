@@ -39,10 +39,8 @@ passed=true
 Current beta preapproval gate:
 
 ```text
-TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
-TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES=real-app-route,physical-observed-profile \
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-  dart run melos run gate:native-runtime
+  dart run melos run gate:native-runtime:beta-preapproval-known-open
 
 profile=beta-preapproval
 passed=false

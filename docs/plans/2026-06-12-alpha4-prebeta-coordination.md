@@ -155,10 +155,8 @@ For docs-only alpha.4/pre-beta coordination changes, run:
 ```bash
 git diff --check
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run gate:native-runtime
-TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
-TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES=real-app-route,physical-observed-profile \
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-  dart run melos run gate:native-runtime
+  dart run melos run gate:native-runtime:beta-preapproval-known-open
 jq empty docs/plans/native-runtime-gate-status.json
 ```
 

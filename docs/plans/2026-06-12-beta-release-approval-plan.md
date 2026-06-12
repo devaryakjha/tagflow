@@ -62,10 +62,11 @@ Before `release-approval` can become satisfied, all of these must be true:
   lower-memory, leak-free, ranking, frame-budget, stable, or production-ready
   claims unsupported by the evidence gates;
 - `TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval dart run melos run
-  gate:native-runtime` passes, or the same command with
-  `TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES=<waived-gates>` reports
-  `expectationPassed=true` and every expected non-approval failure has an
-  explicit owner waiver in the approval packet;
+  gate:native-runtime` passes, or `dart run melos run
+  gate:native-runtime:beta-preapproval-known-open` reports
+  `expectationPassed=true` for the profile-owned expected open gates and every
+  expected non-approval failure has an explicit owner waiver in the approval
+  packet;
 - publish validation passes without warnings for every package in scope;
 - CI is green on the release candidate commit;
 - any tag/publish step is separately approved after the packet is reviewed.

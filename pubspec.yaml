@@ -204,7 +204,17 @@ melos:
         --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
         --profile=${TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE:-pr72-draft}
         ${TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES:+--expect-open-gates=$TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES}
+        ${TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES:+--expect-profile-open-gates=$TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES}
       description: Check native runtime coordinator gate status
+
+    gate:native-runtime:beta-preapproval-known-open:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/check_native_runtime_gates.dart
+        --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
+        --profile=beta-preapproval
+        --expect-profile-open-gates=true
+      description: Check beta preapproval against manifest-owned expected open gates
 
     combine-coverage:
       run: |
