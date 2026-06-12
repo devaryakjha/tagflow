@@ -35,6 +35,8 @@ External gate trackers:
 
 - Real-app route evidence is tracked in
   https://github.com/devaryakjha/tagflow/issues/73.
+  Qualification rules and candidate-route stop rules are recorded in
+  `docs/plans/2026-06-12-real-app-route-qualification.md`.
 - Qualified benchmark/device evidence is tracked in
   https://github.com/devaryakjha/tagflow/issues/74.
 
@@ -149,6 +151,9 @@ equivalent real Flutter app route
 The beta-readiness docs already identify Kite as the live-app evidence path.
 Widget-test evidence exists, but production-route push/merge/profile evidence
 is still not complete.
+
+The current route qualification plan is
+`docs/plans/2026-06-12-real-app-route-qualification.md`.
 
 Blocked until:
 
