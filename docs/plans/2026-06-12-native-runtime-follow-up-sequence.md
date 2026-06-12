@@ -49,13 +49,15 @@ External gate trackers:
   https://github.com/devaryakjha/tagflow/issues/73.
   Qualification rules and candidate-route stop rules are recorded in
   `docs/plans/2026-06-12-real-app-route-qualification.md`.
-- Qualified benchmark/device evidence is tracked in
+- The PR #72 synthetic benchmark decision is recorded in
   https://github.com/devaryakjha/tagflow/issues/74.
   The PR #72 benchmark gate is satisfied by the accepted synthetic
   report-only path recorded in
-  `docs/benchmarks/2026-06-12-benchmark-gate-decision.md`; physical,
-  observed-host, memory, frame-budget, beta/stable, and comparative
-  performance gates remain separate future work.
+  `docs/benchmarks/2026-06-12-benchmark-gate-decision.md`; #74 is closed for
+  that scoped decision. Physical, observed-host, memory, frame-budget,
+  beta/stable, and comparative performance gates remain separate future work
+  tracked by `physical-observed-profile`, release approval, and any future
+  reviewed benchmark policy.
 - Machine-readable coordinator status is tracked in
   `docs/plans/native-runtime-gate-status.json`. The default
   `gate:native-runtime` Melos script checks the `pr72-draft` profile; set

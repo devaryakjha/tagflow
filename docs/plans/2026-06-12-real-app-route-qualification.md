@@ -202,6 +202,9 @@ When a route qualifies, update #73 with:
 - fixture/data/auth constraints;
 - screenshots or logs if captured;
 - any accepted behavior deltas;
-- explicit statement that performance evidence is tracked separately in #74.
+- explicit statement that performance evidence is separate from #73: the PR #72
+  synthetic benchmark decision is recorded in closed #74, while physical,
+  observed-host, frame-budget, memory, beta/stable, or comparative performance
+  claims require separate reviewed evidence.
 
 Until then, PR #72 should remain draft and should describe #73 as open.

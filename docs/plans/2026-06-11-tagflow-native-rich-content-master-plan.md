@@ -158,8 +158,11 @@ evidence, supported-target profile evidence, and final release-gate approval.
 - Latest gate refresh: GitLab DNS/access remains a Kite-specific blocker, not
   a Tagflow-wide requirement. Real-app route evidence is tracked in
   https://github.com/devaryakjha/tagflow/issues/73 and can use Kite or an
-  approved equivalent Flutter app route. Benchmark/device evidence is tracked
-  in https://github.com/devaryakjha/tagflow/issues/74. The iOS Simulator
+  approved equivalent Flutter app route. The PR #72 synthetic benchmark
+  decision is recorded in closed
+  https://github.com/devaryakjha/tagflow/issues/74, while physical or
+  observed-host qualification remains separate future evidence. The iOS
+  Simulator
   restart path is healthy enough for debug route smoke, and the native JSON
   `native_ai_answer` smoke passed there, but Flutter rejects iOS Simulator
   profile/release builds; see
