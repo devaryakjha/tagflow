@@ -700,8 +700,9 @@ Master review gate:
 - Constraint: the generated manifest is a capture checklist, not memory
   evidence. Heap snapshots, allocation diffs, and retained-object review remain
   manual exports under ignored `build/`.
-- Follow-up: fix the profile manifest schema mismatch where the top-level
-  `gitCommit` field can be `null` while `environment.gitCommit` is populated.
+- Follow-up resolved: future profile manifests mirror
+  `environment.gitCommit` into the top-level `gitCommit` field so reviewed
+  artifacts do not lose commit identity at the manifest summary level.
 
 ### Beta API Freeze Delta Review
 

@@ -76,6 +76,7 @@ final class ProfileBaselineManifest {
   const ProfileBaselineManifest({
     required this.runId,
     required this.generatedAt,
+    required this.gitCommit,
     required this.environment,
     required this.device,
     required this.repeatCount,
@@ -99,6 +100,9 @@ final class ProfileBaselineManifest {
 
   /// UTC manifest generation time.
   final DateTime generatedAt;
+
+  /// Git commit checked out for this run, mirrored from [environment].
+  final String gitCommit;
 
   /// Host and toolchain fields for this profile baseline run.
   final ProfileBaselineEnvironment environment;
@@ -152,6 +156,7 @@ final class ProfileBaselineManifest {
   Map<String, Object?> toJson() => <String, Object?>{
     'runId': runId,
     'generatedAt': generatedAt.toUtc().toIso8601String(),
+    'gitCommit': gitCommit,
     'environment': environment.toJson(),
     'device': device,
     'repeatCount': repeatCount,
@@ -594,10 +599,15 @@ final class ProfileBaselineRunner {
           )
         : null;
     final selectedPairs = pairs;
+    final environment = _detectEnvironment(
+      workspaceRoot,
+      _environmentProcessRunner,
+    );
     final manifest = ProfileBaselineManifest(
       runId: runId,
       generatedAt: _clock().toUtc(),
-      environment: _detectEnvironment(workspaceRoot, _environmentProcessRunner),
+      gitCommit: environment.gitCommit,
+      environment: environment,
       device: device,
       repeatCount: repeatCount,
       profileMemory: profileMemory,

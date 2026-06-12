@@ -97,6 +97,11 @@ void main() {
     expect(json['runId'], '2026-06-11T12-00-00Z');
     expect(json['selectionMode'], 'matrix');
     expect(json.containsKey('pairs'), isFalse);
+    expect(json['gitCommit'], manifest.environment.gitCommit);
+    expect(
+      (json['environment']! as Map<String, Object?>)['gitCommit'],
+      json['gitCommit'],
+    );
     expect(json['runs'], isA<List<Object?>>());
     expect(
       (json['runs']! as List<Object?>).first,

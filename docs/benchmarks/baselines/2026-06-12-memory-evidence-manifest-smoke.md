@@ -85,6 +85,8 @@ The profile manifest linked the memory checklist:
 The top-level `gitCommit` field in this manifest was `null`; the environment
 block recorded the actual commit as
 `3eb7b9b11e0ac22ca1044d14ce056d0875415a08`.
+This was a harness schema mismatch, not a missing Git probe; future manifests
+mirror `environment.gitCommit` into top-level `gitCommit`.
 
 The memory evidence manifest recorded:
 
