@@ -74,6 +74,41 @@ void main() {
       expect(document.children.first.children, [existingItem]);
     });
 
+    test('appends children to description list parents immutably', () {
+      final existingTerm = TagflowDocumentNode.descriptionTerm(
+        id: 'term',
+        children: [TagflowDocumentNode.text(id: 'term.text', text: 'Term')],
+      );
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.descriptionList(
+            id: 'glossary',
+            children: [existingTerm],
+          ),
+        ],
+      );
+      final appended = TagflowDocumentNode.descriptionDetails(
+        id: 'details',
+        children: [
+          TagflowDocumentNode.text(id: 'details.text', text: 'Definition'),
+        ],
+      );
+
+      final updated = document.applyPatch(
+        TagflowDocumentPatch.appendChildren(
+          parentNodeId: 'glossary',
+          children: [appended],
+        ),
+      );
+
+      final updatedList = updated.children.single;
+      expect(updatedList.kind, TagflowNodeKind.descriptionList);
+      expect(updatedList.children, [existingTerm, appended]);
+      expect(updatedList.children.first, same(existingTerm));
+      expect(document.children.single.children, [existingTerm]);
+    });
+
     test('removes an existing node immutably', () {
       final first = TagflowDocumentNode.paragraph(id: 'first');
       final removed = TagflowDocumentNode.paragraph(id: 'remove');

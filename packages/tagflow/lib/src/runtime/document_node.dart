@@ -17,6 +17,9 @@ enum TagflowNodeKind {
   link,
   list,
   listItem,
+  descriptionList,
+  descriptionTerm,
+  descriptionDetails,
   blockquote,
   codeBlock,
   inlineCode,
@@ -200,6 +203,60 @@ final class TagflowDocumentNode {
     return TagflowDocumentNode._(
       id: id,
       kind: TagflowNodeKind.listItem,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description list node.
+  factory TagflowDocumentNode.descriptionList({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.descriptionList,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description term node.
+  factory TagflowDocumentNode.descriptionTerm({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.descriptionTerm,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description details node.
+  factory TagflowDocumentNode.descriptionDetails({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.descriptionDetails,
       children: children,
       presentation: presentation,
       metadata: metadata,

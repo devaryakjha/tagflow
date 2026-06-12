@@ -365,6 +365,28 @@ TagflowDocumentNode _copyNodeWithChildren(
       metadata: node.metadata,
       source: node.source,
     ),
+    TagflowNodeKind.descriptionList => TagflowDocumentNode.descriptionList(
+      id: node.id,
+      children: children,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.descriptionTerm => TagflowDocumentNode.descriptionTerm(
+      id: node.id,
+      children: children,
+      presentation: node.presentation,
+      metadata: node.metadata,
+      source: node.source,
+    ),
+    TagflowNodeKind.descriptionDetails =>
+      TagflowDocumentNode.descriptionDetails(
+        id: node.id,
+        children: children,
+        presentation: node.presentation,
+        metadata: node.metadata,
+        source: node.source,
+      ),
     TagflowNodeKind.blockquote => TagflowDocumentNode.blockquote(
       id: node.id,
       children: children,

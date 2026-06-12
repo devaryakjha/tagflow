@@ -16,6 +16,9 @@ enum TagflowNativeBlockKind {
   link,
   list,
   listItem,
+  descriptionList,
+  descriptionTerm,
+  descriptionDetails,
   blockquote,
   codeBlock,
   inlineCode,
@@ -145,6 +148,54 @@ final class TagflowNativeBlock {
     return TagflowNativeBlock(
       id: id,
       kind: TagflowNativeBlockKind.listItem,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description-list block.
+  factory TagflowNativeBlock.descriptionList({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.descriptionList,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description-term block.
+  factory TagflowNativeBlock.descriptionTerm({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.descriptionTerm,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a description-details block.
+  factory TagflowNativeBlock.descriptionDetails({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.descriptionDetails,
       children: children,
       metadata: metadata,
       source: source,

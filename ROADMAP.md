@@ -50,7 +50,7 @@
 
   - [x] Unordered lists (`<ul>`, `<li>`)
   - [x] Ordered lists (`<ol>`, `<li>`)
-  - [ ] Description lists (`<dl>`, `<dt>`, `<dd>`)
+  - [x] Description lists (`<dl>`, `<dt>`, `<dd>`)
 
 - [ ] Tables
 

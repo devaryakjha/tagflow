@@ -118,6 +118,27 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
+      TagflowNativeBlockKind.descriptionList =>
+        TagflowDocumentNode.descriptionList(
+          id: block.id,
+          children: children,
+          metadata: metadata,
+          source: source,
+        ),
+      TagflowNativeBlockKind.descriptionTerm =>
+        TagflowDocumentNode.descriptionTerm(
+          id: block.id,
+          children: children,
+          metadata: metadata,
+          source: source,
+        ),
+      TagflowNativeBlockKind.descriptionDetails =>
+        TagflowDocumentNode.descriptionDetails(
+          id: block.id,
+          children: children,
+          metadata: metadata,
+          source: source,
+        ),
       TagflowNativeBlockKind.blockquote => TagflowDocumentNode.blockquote(
         id: block.id,
         children: children,

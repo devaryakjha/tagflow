@@ -56,6 +56,29 @@ void main() {
               ),
             ],
           ),
+          TagflowNativeBlock.descriptionList(
+            id: 'glossary',
+            children: [
+              TagflowNativeBlock.descriptionTerm(
+                id: 'glossary.term',
+                children: [
+                  TagflowNativeBlock.text(
+                    id: 'glossary.term.text',
+                    text: 'NAV',
+                  ),
+                ],
+              ),
+              TagflowNativeBlock.descriptionDetails(
+                id: 'glossary.details',
+                children: [
+                  TagflowNativeBlock.text(
+                    id: 'glossary.details.text',
+                    text: 'Net asset value',
+                  ),
+                ],
+              ),
+            ],
+          ),
           TagflowNativeBlock.image(
             id: 'hero',
             url: 'https://example.com/hero.png',
@@ -77,6 +100,7 @@ void main() {
         'title',
         'intro',
         'steps',
+        'glossary',
         'hero',
       ]);
 
@@ -105,7 +129,18 @@ void main() {
       expect(list.startIndex, 3);
       expect(list.children.map((node) => node.id), ['step-1', 'step-2']);
 
-      final image = adapted.children[3];
+      final descriptionList = adapted.children[3];
+      expect(descriptionList.kind, TagflowNodeKind.descriptionList);
+      expect(descriptionList.children.map((node) => node.kind), [
+        TagflowNodeKind.descriptionTerm,
+        TagflowNodeKind.descriptionDetails,
+      ]);
+      expect(
+        descriptionList.children.last.children.single.text,
+        'Net asset value',
+      );
+
+      final image = adapted.children[4];
       expect(image.kind, TagflowNodeKind.image);
       expect(image.url, Uri.parse('https://example.com/hero.png'));
       expect(image.alt, 'Hero image');

@@ -197,15 +197,38 @@ void main() {
           ),
         ],
       );
-      final image = TagflowDocumentNode.image(
+      final descriptionList = TagflowDocumentNode.descriptionList(
         id: TagflowNodeIds.fromPath([2]),
+        children: [
+          TagflowDocumentNode.descriptionTerm(
+            id: TagflowNodeIds.fromPath([2, 0]),
+            children: [
+              TagflowDocumentNode.text(
+                id: TagflowNodeIds.fromPath([2, 0, 0]),
+                text: 'Term',
+              ),
+            ],
+          ),
+          TagflowDocumentNode.descriptionDetails(
+            id: TagflowNodeIds.fromPath([2, 1]),
+            children: [
+              TagflowDocumentNode.text(
+                id: TagflowNodeIds.fromPath([2, 1, 0]),
+                text: 'Definition',
+              ),
+            ],
+          ),
+        ],
+      );
+      final image = TagflowDocumentNode.image(
+        id: TagflowNodeIds.fromPath([3]),
         url: Uri.parse('https://example.com/image.png'),
         alt: 'Hero image',
         width: 640,
         height: 480,
       );
       final cell = TagflowDocumentNode.tableCell(
-        id: TagflowNodeIds.fromPath([3]),
+        id: TagflowNodeIds.fromPath([4]),
         rowSpan: 2,
         colSpan: 3,
         header: true,
@@ -219,6 +242,17 @@ void main() {
       expect(list.kind, TagflowNodeKind.list);
       expect(list.ordered, isTrue);
       expect(list.startIndex, 3);
+
+      expect(descriptionList.kind, TagflowNodeKind.descriptionList);
+      expect(
+        descriptionList.children.first.kind,
+        TagflowNodeKind.descriptionTerm,
+      );
+      expect(
+        descriptionList.children.last.kind,
+        TagflowNodeKind.descriptionDetails,
+      );
+      expect(descriptionList.children.last.children.single.text, 'Definition');
 
       expect(image.kind, TagflowNodeKind.image);
       expect(image.url, Uri.parse('https://example.com/image.png'));

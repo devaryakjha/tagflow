@@ -122,6 +122,9 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.link: _renderLink,
   TagflowNodeKind.list: _renderList,
   TagflowNodeKind.listItem: _renderListItem,
+  TagflowNodeKind.descriptionList: _renderDescriptionList,
+  TagflowNodeKind.descriptionTerm: _renderDescriptionTerm,
+  TagflowNodeKind.descriptionDetails: _renderDescriptionDetails,
   TagflowNodeKind.blockquote: _renderBlockquote,
   TagflowNodeKind.codeBlock: _renderCodeBlock,
   TagflowNodeKind.inlineCode: _renderInlineCode,
@@ -313,6 +316,43 @@ Widget _renderListRow(
         Expanded(child: _renderBlockChildren(context, node)),
       ],
     ),
+  );
+}
+
+Widget _renderDescriptionList(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: context.renderChildren(node),
+    ),
+  );
+}
+
+Widget _renderDescriptionTerm(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 4),
+    child: DefaultTextStyle.merge(
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      child: Wrap(children: context.renderChildren(node)),
+    ),
+  );
+}
+
+Widget _renderDescriptionDetails(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16, bottom: 6),
+    child: _renderBlockChildren(context, node),
   );
 }
 

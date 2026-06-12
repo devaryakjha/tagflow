@@ -682,6 +682,20 @@ void main() {
       expect(attributes, contains('open'));
     });
 
+    test('maps description lists into first-class runtime nodes', () {
+      const html = '<dl><dt>Term</dt><dd>Definition</dd></dl>';
+
+      final document = const TagflowHtmlAdapter().parse(html);
+      final descriptionList = document.children.single;
+
+      expect(descriptionList.kind, TagflowNodeKind.descriptionList);
+      expect(descriptionList.children.map((node) => node.kind), [
+        TagflowNodeKind.descriptionTerm,
+        TagflowNodeKind.descriptionDetails,
+      ]);
+      expect(_flattenText(descriptionList.children), 'TermDefinition');
+    });
+
     test('normalizes HTML table presentation hints for semantic renderers', () {
       const rowBackground = Color(0xFFE8F1FF);
       const cellBackground = Color(0xFFFFF4CC);
@@ -756,6 +770,18 @@ void main() {
 
       expect(details.attributes, containsPair('open', ''));
       expect(_flattenLegacyText(summary), 'Offer details');
+    });
+
+    test('bridges HTML description list tags back to legacy nodes', () {
+      const html = '<dl><dt>Term</dt><dd>Definition</dd></dl>';
+      final document = const TagflowHtmlAdapter().parse(html);
+
+      final legacyNode = TagflowHtmlDocumentBridge.toLegacyNode(document);
+
+      expect(_findLegacyTags(legacyNode, 'dl'), hasLength(1));
+      expect(_findLegacyTags(legacyNode, 'dt'), hasLength(1));
+      expect(_findLegacyTags(legacyNode, 'dd'), hasLength(1));
+      expect(_flattenLegacyText(legacyNode), 'TermDefinition');
     });
 
     test('drops blocked elements with the default content policy', () {

@@ -145,6 +145,54 @@ void main() {
       expect(cell?.children.single.text, 'Status');
     });
 
+    test('round-trips description list JSON through adapter behavior', () {
+      final json = {
+        'id': 'doc',
+        'schemaVersion': 1,
+        'blocks': [
+          {
+            'id': 'glossary',
+            'kind': 'descriptionList',
+            'children': [
+              {
+                'id': 'term',
+                'kind': 'descriptionTerm',
+                'children': [
+                  {'id': 'term.text', 'kind': 'text', 'text': 'NAV'},
+                ],
+              },
+              {
+                'id': 'details',
+                'kind': 'descriptionDetails',
+                'children': [
+                  {
+                    'id': 'details.text',
+                    'kind': 'text',
+                    'text': 'Net asset value',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      final document = codec.decodeDocument(json);
+      final encoded = codec.encodeDocument(document);
+      final adapted = const TagflowNativeBlockAdapter().adapt(
+        codec.decodeDocument(encoded),
+      );
+
+      final glossary = adapted.children.single;
+      expect(encoded, json);
+      expect(glossary.kind, TagflowNodeKind.descriptionList);
+      expect(glossary.children.map((node) => node.kind), [
+        TagflowNodeKind.descriptionTerm,
+        TagflowNodeKind.descriptionDetails,
+      ]);
+      expect(glossary.children.last.children.single.text, 'Net asset value');
+    });
+
     test('decodes patch envelopes and applies through runtime patches', () {
       final document = TagflowDocument(
         id: 'doc',

@@ -301,6 +301,24 @@ void main() {
       expect(find.text('Bullet'), findsOneWidget);
     });
 
+    testWidgets('renders description lists semantically', (tester) async {
+      final document = const TagflowHtmlAdapter().parse(
+        '<dl><dt>Term</dt><dd>Definition</dd></dl>',
+      );
+
+      await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
+
+      expect(document.children.single.kind, TagflowNodeKind.descriptionList);
+      expect(find.text('Term'), findsOneWidget);
+      expect(find.text('Definition'), findsOneWidget);
+      expect(_richTextStyle(tester, 'Term')?.fontWeight, FontWeight.w700);
+      expect(
+        tester.getTopLeft(find.text('Definition')).dx,
+        greaterThan(tester.getTopLeft(find.text('Term')).dx),
+      );
+      expect(find.text('Unsupported content'), findsNothing);
+    });
+
     testWidgets('renders html details through the document registry', (
       tester,
     ) async {

@@ -12,6 +12,13 @@ void main() {
           id: 'paragraph',
           children: [api.TagflowDocumentNode.text(id: 'text', text: 'Hello')],
         ),
+        api.TagflowDocumentNode.descriptionList(
+          id: 'glossary',
+          children: [
+            api.TagflowDocumentNode.descriptionTerm(id: 'glossary.term'),
+            api.TagflowDocumentNode.descriptionDetails(id: 'glossary.details'),
+          ],
+        ),
       ],
     );
     const adapter = api.TagflowHtmlAdapter();
@@ -31,6 +38,17 @@ void main() {
                   children: [
                     api.TagflowNativeBlock.tableCell(id: 'native-cell'),
                   ],
+                ),
+              ],
+            ),
+            api.TagflowNativeBlock.descriptionList(
+              id: 'native-glossary',
+              children: [
+                api.TagflowNativeBlock.descriptionTerm(
+                  id: 'native-glossary.term',
+                ),
+                api.TagflowNativeBlock.descriptionDetails(
+                  id: 'native-glossary.details',
                 ),
               ],
             ),
@@ -66,7 +84,8 @@ void main() {
       defaultStyle: api.TagflowStyle.empty,
     );
 
-    expect(document.children.single.kind, api.TagflowNodeKind.paragraph);
+    expect(document.children.first.kind, api.TagflowNodeKind.paragraph);
+    expect(document.children.last.kind, api.TagflowNodeKind.descriptionList);
     expect(
       api.TagflowDocument.validated(
         id: 'validated-doc',
@@ -74,7 +93,7 @@ void main() {
       ).children,
       isEmpty,
     );
-    expect(document.nodeById('paragraph'), same(document.children.single));
+    expect(document.nodeById('paragraph'), same(document.children.first));
     expect(document.containsNodeId('text'), isTrue);
     document.validateUniqueNodeIds();
     expect(adapter.policy, policy);
@@ -87,8 +106,12 @@ void main() {
       api.TagflowNativeBlockKind.callout,
     );
     expect(
-      nativeDocument.blocks.single.children.single.kind,
+      nativeDocument.blocks.single.children.first.kind,
       api.TagflowNativeBlockKind.table,
+    );
+    expect(
+      nativeDocument.blocks.single.children.last.kind,
+      api.TagflowNativeBlockKind.descriptionList,
     );
     expect(nativeCodec.encodeDocument(nativeDocument)['id'], 'native-doc');
     expect(
@@ -99,7 +122,7 @@ void main() {
       document
           .applyPatch(nativeAdapter.adaptPatch(nativePatch))
           .children
-          .single
+          .first
           .children
           .last
           .id,
