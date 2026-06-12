@@ -56,6 +56,7 @@ void main() {
 
       expect(documentA, documentB);
       expect(documentA.hashCode, documentB.hashCode);
+      expect(documentA.version, 1);
       expect(() => documentA.children.add(child), throwsUnsupportedError);
       expect(
         () => documentA.metadata.values['extra'] = true,
@@ -125,6 +126,29 @@ void main() {
       expect(original.id, 'doc');
       expect(original.children.single.id, 'paragraph');
       expect(() => copied.children.add(replacement), throwsUnsupportedError);
+    });
+
+    test('rejects non-positive runtime schema versions', () {
+      expect(
+        () => TagflowDocument(id: 'doc', children: const [], version: 0),
+        throwsArgumentError,
+      );
+      expect(
+        () => TagflowDocument.validated(
+          id: 'doc',
+          children: const [],
+          version: -1,
+        ),
+        throwsArgumentError,
+      );
+
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'paragraph')],
+      );
+
+      expect(() => document.copyWith(version: 0), throwsArgumentError);
+      expect(() => document.copyWithValidated(version: 0), throwsArgumentError);
     });
 
     test('copyWith clears nullable document fields explicitly', () {

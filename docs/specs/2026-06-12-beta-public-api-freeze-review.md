@@ -122,7 +122,7 @@ Current node-kind posture:
   rejections and app-authored unsupported nodes. It is not the native JSON
   unknown-kind compatibility model.
 
-`alpha-only review required`:
+`beta-stable candidate`:
 
 - `TagflowDocument.version`
 
@@ -133,8 +133,12 @@ runtime nodes with children render through the child-preserving fallback.
 Unknown producer block kinds are not placeholders in the alpha native JSON
 transport; they fail during codec decode before adaptation. The beta line still
 needs a vocabulary decision only if Tagflow wants a future unknown-block
-compatibility model. `TagflowDocument.version` must stay clearly described as
-runtime schema rather than app payload schema.
+compatibility model. `TagflowDocument.version` is now classified for beta as the
+runtime document model schema version. It is intentionally separate from adapter
+or wire-format schema versions such as native block JSON `schemaVersion`.
+`TagflowDocument` constructors and copy helpers reject non-positive values, and
+app, CMS, AI, or adapter producers should store their own payload schemas or
+revision tokens in adapter metadata instead of mapping them into this field.
 
 ### Rendering Registry
 

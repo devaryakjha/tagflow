@@ -92,6 +92,7 @@ void main() {
       final adapted = const TagflowNativeBlockAdapter().adapt(document);
 
       expect(adapted.id, 'announcement');
+      expect(adapted.version, 1);
       expect(adapted.source, same(source));
       expect(adapted.metadata['surface'], 'detail');
       expect(adapted.metadata['revision'], 'rev-42');

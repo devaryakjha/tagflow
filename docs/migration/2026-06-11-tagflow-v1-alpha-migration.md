@@ -139,6 +139,11 @@ New app-authored, CMS-authored, or AI-authored native documents should use
 rendering or patch application. Use `TagflowDocument.copyWithValidated(...)`
 for the same fail-fast boundary during structural updates.
 
+`TagflowDocument.version` is Tagflow's in-process runtime document model
+version. Leave it at the default `1` unless Tagflow documents a runtime-model
+migration. App, CMS, AI, and adapter payload schema or revision values should
+live in adapter metadata or producer envelope fields instead.
+
 Before `1.0.0` stable, the project may revisit whether the permissive
 constructor needs a deprecation, rename, or stricter alternative, but beta
 should not change constructor failure behavior without real hosted-app evidence.

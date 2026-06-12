@@ -34,6 +34,20 @@ void main() {
       expect(document.children.first.kind, TagflowNodeKind.paragraph);
     });
 
+    test('preserves runtime document schema version', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        version: 2,
+        children: [TagflowDocumentNode.paragraph(id: 'intro')],
+      );
+
+      final updated = document.applyPatch(
+        const TagflowDocumentPatch.removeNode(nodeId: 'intro'),
+      );
+
+      expect(updated.version, 2);
+    });
+
     test('appends children to an existing parent immutably', () {
       final existingItem = TagflowDocumentNode.listItem(
         id: 'list.item.1',

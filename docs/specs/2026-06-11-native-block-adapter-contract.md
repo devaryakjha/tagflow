@@ -203,7 +203,9 @@ Adaptation result:
 - one envelope becomes one `TagflowDocument`
 - `schemaVersion` maps to adapter-level compatibility handling
 - runtime `TagflowDocument.version` remains the runtime-model version and is
-  not required to equal the wire payload version
+  not required to equal the wire payload version. Producers should keep their
+  payload schema and revision values in native block envelope fields or adapter
+  metadata rather than mapping them into `TagflowDocument.version`.
 
 ### 5.2 Block shape
 

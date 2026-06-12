@@ -218,6 +218,11 @@ during codec decode. `TagflowUnsupportedBehavior` applies after decode to
 known blocks rejected by adapter policy, such as a known image block whose URL
 policy rejects the source.
 
+`TagflowDocument.version` is the in-process runtime document model version. It
+is separate from native JSON `schemaVersion`; app, CMS, AI, or adapter producers
+should keep payload schema and revision values in adapter metadata or native
+block envelope fields instead of mapping them into `TagflowDocument.version`.
+
 Patch envelopes use `TagflowNativeBlockPatchEnvelope`: decode the producer
 envelope, adapt the ordered native operations, then apply runtime document
 patches.

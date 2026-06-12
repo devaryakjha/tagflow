@@ -17,8 +17,9 @@ final class TagflowDocument {
     required List<TagflowDocumentNode> children,
     TagflowMetadata? metadata,
     this.source,
-    this.version = 1,
-  }) : children = List.unmodifiable(children),
+    int version = 1,
+  }) : version = _validateRuntimeDocumentVersion(version),
+       children = List.unmodifiable(children),
        metadata = metadata ?? TagflowMetadata.empty;
 
   /// Creates a runtime document and validates that every node ID is unique.
@@ -58,7 +59,11 @@ final class TagflowDocument {
   /// Source information for the document.
   final TagflowSourceInfo? source;
 
-  /// Runtime document schema version.
+  /// Runtime document model schema version.
+  ///
+  /// This version belongs to Tagflow's in-process [TagflowDocument] model. It
+  /// is intentionally separate from adapter or wire-format schema versions such
+  /// as native block JSON `schemaVersion` values.
   final int version;
 
   /// Creates a copy of this document with selected fields replaced.
@@ -139,6 +144,23 @@ final class TagflowDocument {
     source,
     version,
   );
+}
+
+/// Validates a runtime document model schema version.
+///
+/// The version is reserved for Tagflow runtime model compatibility. App, CMS,
+/// AI or adapter producers should use adapter metadata for their own payload
+/// schema or revision values instead of mapping them into
+/// [TagflowDocument.version].
+int _validateRuntimeDocumentVersion(int version) {
+  if (version < 1) {
+    throw ArgumentError.value(
+      version,
+      'version',
+      'TagflowDocument.version must be greater than 0.',
+    );
+  }
+  return version;
 }
 
 T? _resolveNullableCopyField<T>({
