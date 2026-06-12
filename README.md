@@ -117,8 +117,8 @@ melos bootstrap
 # Run all tests
 melos run test
 
-# Build all packages
-melos run build
+# Clean build outputs
+melos run build:clean
 
 # Format code
 melos run format
