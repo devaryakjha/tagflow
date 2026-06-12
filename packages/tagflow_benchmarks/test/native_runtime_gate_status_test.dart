@@ -449,9 +449,11 @@ void main() {
           .expand((gate) => gate.evidence)
           .map((entry) => entry.value),
       containsAll(<String>[
+        'docs/validation/evidence/2026-06-12-kite-non-gitlab-review-packet.md',
         'docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md',
         'docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md',
         'docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md',
+        'docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md',
       ]),
     );
     expect(
