@@ -442,8 +442,8 @@ Patch-envelope requirements:
 
 - wire `id` field, represented as `documentId` on
   `TagflowNativeBlockPatchEnvelope`
-- `schemaVersion: 1`; other values fail during codec decode until a reviewed
-  compatibility policy exists
+- `schemaVersion: 1`; other values fail during codec decode through beta, until
+  a later producer-versioning SPEC defines an explicit compatibility policy
 - operation payloads referencing stable block IDs
 
 Recommended patch fields:

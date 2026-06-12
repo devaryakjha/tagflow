@@ -288,7 +288,8 @@ Architecture open decisions:
   moves behind a separate legacy API.
 - Whether `tagflow_table` remains separate through beta or folds into core after
   the semantic registry exists.
-- How much class-based styling the HTML adapter should preserve in alpha.
+- HTML/CSS styling helpers remain public through beta as compatibility styling;
+  they are not the native component extension model.
 - The native block adapter foundation has landed, including direct semantic
   table block mapping, callout normalization, and operation-shaped native block
   patch adaptation into `TagflowDocumentPatch`. The adapter-side

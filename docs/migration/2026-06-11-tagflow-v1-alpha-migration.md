@@ -46,6 +46,12 @@ Shared style primitives such as `Display`, `SizeValue`, `SizeUnit`,
 not legacy-only imports even though their main use remains HTML/CSS
 compatibility styling during the transition.
 
+`StyleParser`, `TagflowTheme`, and `TagflowThemeProvider` also remain public
+through beta as HTML/CSS compatibility styling APIs. New native document
+integrations should use typed components, presentation hints, and app-owned
+rendering policy instead of treating CSS parsing or HTML-node theme resolution
+as the native extension model.
+
 ## HTML-First Usage
 
 Existing code may look like this:

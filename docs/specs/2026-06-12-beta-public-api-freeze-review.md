@@ -410,8 +410,9 @@ semantics. The shared style primitives now live on the primary style surface
 even though their main use remains compatibility styling rather than the
 primary component-registry contract.
 
-Recommendation: keep these exported through beta for migration stability, but
-avoid presenting CSS parsing as the future app-extension model.
+Beta decision: keep these exported through beta for migration stability, but
+present CSS parsing and HTML-node theme resolution as compatibility styling,
+not the future app-extension model.
 
 Resolved for value types:
 
@@ -420,17 +421,17 @@ Resolved for value types:
   shared style primitives instead of remaining only reachable through the
   `legacy.dart` export chain.
 
-Remaining beta question:
+Resolved for compatibility styling:
 
-- `TagflowTheme` and `StyleParser` still model HTML/CSS compatibility behavior,
-  and `TagflowTheme.resolveStyle(...)` still operates on the legacy HTML node
-  tree rather than the native runtime document model.
+- `StyleParser`, `TagflowTheme`, and `TagflowThemeProvider` stay public through
+  beta as HTML/CSS compatibility APIs.
+- `TagflowTheme.resolveStyle(...)` may continue to operate on the legacy HTML
+  node tree through beta. Native component extension should use typed
+  components, presentation hints, and app-owned rendering policy instead of
+  depending on CSS parser semantics.
 
 Beta can now describe `package:tagflow/legacy.dart` as optional for these
-style value types. The remaining compatibility decision is whether
-HTML-node-based theme resolution stays public through beta as compatibility
-styling, gets narrowed, or later moves behind a more explicit compatibility
-surface.
+style value types and compatibility styling helpers.
 
 ## `package:tagflow/legacy.dart` Support Window
 
@@ -574,6 +575,9 @@ to republish the extension package.
   that coupling is explicitly frozen as part of beta compatibility policy. Done:
   shared style primitives are intentionally exported from the primary style
   surface, and style libraries no longer import them through `legacy.dart`.
+- HTML/CSS theme helpers are classified for beta. Done: `StyleParser`,
+  `TagflowTheme`, and `TagflowThemeProvider` stay public through beta as
+  compatibility styling, not the native component extension model.
 - `tagflow_table` low-level render-object exports are either intentionally
   classified for beta support or narrowed before the freeze. Done: the public
   barrel is narrowed to the semantic extension surface, `TagflowTableBorder`,

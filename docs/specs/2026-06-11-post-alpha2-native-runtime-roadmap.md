@@ -600,8 +600,8 @@ Work:
   `package:tagflow_table/tagflow_table.dart`;
 - classify each as beta-stable, alpha-only, or compatibility;
 - decide `TagflowOptions` and `package:tagflow/legacy.dart` support windows;
-- decide whether the HTML-node-based styling helpers that remain in the
-  primary barrel stay public through beta as compatibility styling after the
+- keep the HTML-node-based styling helpers (`StyleParser`, `TagflowTheme`, and
+  `TagflowThemeProvider`) public through beta as compatibility styling after the
   shared style primitives (`Display`, `SizeValue`, and related enums) were
   promoted onto the primary style surface;
 - decide table extension package posture through beta. Current decision:
