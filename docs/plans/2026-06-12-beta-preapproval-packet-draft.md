@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Evidence baseline commit: `07f8fc7`
+- Evidence baseline commit: `e47c73f`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -74,12 +74,14 @@ issues=[
 Latest coordinator validation evidence for the candidate commit:
 
 ```text
+commit=e47c73f
+
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27426428908
+run=https://github.com/devaryakjha/tagflow/actions/runs/27427468409
 ```
 
 ## Evidence Already Satisfied
@@ -113,7 +115,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-Current GitHub state checked for this packet:
+Current GitHub state checked for this packet at `e47c73f`:
 
 - issue #73 remains open;
 - no issue or PR comment records the owner acceptance text below;
@@ -145,6 +147,8 @@ Decision request:
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 - latest simulator recovery note:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
+- latest policy-matrix enforcement note:
+  `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Reference policy:
   `docs/benchmarks/policies/profile-reference-runner-policy.json`
 
@@ -163,6 +167,11 @@ observed-host repeat-5 native JSON run:
 reference policy:
   expectedViewport=800x600 @ 2.0x
   result=failed unexpected_viewport
+
+policy matrix after checker enforcement:
+  referencePolicyMatrix=default HTML renderer/fixture cells
+  nativeJsonCell=tagflow_native_json:native_ai_answer
+  currentCheckerResult=failed cell_outside_policy_matrix
 
 ios simulator recovery:
   bootedSimulator=iPhone 17 3BA9E377-4B6F-49A7-83FA-F640060D6442
