@@ -174,9 +174,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
 - Memory/allocation: GC counts are captured in profile summaries, and a bounded
   `--profile-memory` capture now exists for the required macOS HTML lanes, the
   authored-insertion control/patch pair, and one optional native-support lane.
-  Reviewed repeat-5 baselines also exist for those lanes. Heap snapshots,
-  allocation diffs, retained-object review, and promotion from bounded samples
-  to reviewed allocation evidence remain follow-up work. The harness can now
+  Reviewed repeat-5 baselines also exist for those lanes. Raw heap snapshots,
+  allocation diffs, and retained-path samples are now recorded for the required
+  non-device HTML lanes listed below, but retained-object interpretation and
+  promotion from report-only samples to reviewed allocation evidence remain
+  follow-up work. The harness can now
   replay named hold-open checkpoints for DevTools attachment, generate a
   `memory-evidence-manifest.json` checklist, and export report-only
   VM-service allocation profiles, class-level heap summaries, optional raw
@@ -194,9 +196,8 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   retained-path review across `before_first_update`,
   `after_first_update`, `after_final_update`, and `after_scroll` recorded in
   [`docs/benchmarks/baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md`](baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md).
-  Raw DevTools heap/diff exports still have to be captured or reviewed
-  manually when needed before any public memory/allocation wording can be
-  promoted. Use
+  Raw heap/diff exports still have to be reviewed and interpreted before any
+  public memory/allocation wording can be promoted. Use
   [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
   for the capture sequence and reviewed note requirements. The current
   non-device scoping blocker is recorded in
