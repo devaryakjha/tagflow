@@ -39,6 +39,28 @@ final Map<String, Object?> _nativeJsonDocument = {
       ],
     },
     {
+      'id': 'risk-update.callout',
+      'kind': 'callout',
+      'attributes': {
+        'tone': 'info',
+        'actionId': 'open-risk-desk',
+        'label': 'Risk desk action',
+      },
+      'children': [
+        {
+          'id': 'risk-update.callout.body',
+          'kind': 'paragraph',
+          'children': [
+            {
+              'id': 'risk-update.callout.body.text',
+              'kind': 'text',
+              'text': 'Tap this risk desk note to inspect the native block.',
+            },
+          ],
+        },
+      ],
+    },
+    {
       'id': 'risk-update.actions',
       'kind': 'list',
       'attributes': {'ordered': false},
@@ -46,6 +68,10 @@ final Map<String, Object?> _nativeJsonDocument = {
         {
           'id': 'risk-update.actions.review',
           'kind': 'listItem',
+          'attributes': {
+            'actionId': 'open-checklist',
+            'label': 'Checklist action',
+          },
           'children': [
             {
               'id': 'risk-update.actions.review.body',
@@ -63,6 +89,10 @@ final Map<String, Object?> _nativeJsonDocument = {
         {
           'id': 'risk-update.actions.legacy',
           'kind': 'listItem',
+          'attributes': {
+            'actionId': 'keep-legacy-banner',
+            'label': 'Legacy banner action',
+          },
           'children': [
             {
               'id': 'risk-update.actions.legacy.body',
@@ -127,6 +157,10 @@ final Map<String, Object?> _nativePatchEnvelope = {
         {
           'id': 'risk-update.actions.notify',
           'kind': 'listItem',
+          'attributes': {
+            'actionId': 'notify-support',
+            'label': 'Support action',
+          },
           'children': [
             {
               'id': 'risk-update.actions.notify.body',
@@ -157,6 +191,7 @@ class NativeJsonExample extends StatefulWidget {
 class _NativeJsonExampleState extends State<NativeJsonExample> {
   late TagflowDocument _document;
   late String _revision;
+  String? _selectedNodeSummary;
   bool _patched = false;
 
   @override
@@ -169,6 +204,7 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
     final nativeDocument = _codec.decodeDocument(_nativeJsonDocument);
     _document = _adapter.adapt(nativeDocument);
     _revision = nativeDocument.revision ?? 'unversioned';
+    _selectedNodeSummary = null;
     _patched = false;
   }
 
@@ -179,12 +215,29 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
     setState(() {
       _document = _document.applyPatches(patches);
       _revision = envelope.revision ?? _revision;
+      _selectedNodeSummary = null;
       _patched = true;
     });
   }
 
   void _reset() {
     setState(_resetDocument);
+  }
+
+  void _recordNodeTap(TagflowNodeTapDetails details) {
+    final attributes = _nativeBlockAttributes(details.node);
+    final actionId = attributes['actionId'];
+    final label = attributes['label'];
+    final summary = [
+      if (label is String && label.isNotEmpty) label,
+      details.node.id,
+      details.node.kind.name,
+      if (actionId is String && actionId.isNotEmpty) actionId,
+    ].join(' | ');
+
+    setState(() {
+      _selectedNodeSummary = summary;
+    });
   }
 
   @override
@@ -199,10 +252,18 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
             key: const ValueKey('native-json-revision'),
             style: Theme.of(context).textTheme.labelLarge,
           ),
+          if (_selectedNodeSummary != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Selected block: $_selectedNodeSummary',
+              key: const ValueKey('native-json-selected-node'),
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ],
           const SizedBox(height: 8),
           Text(
             'Data-only JSON decoded with TagflowNativeBlockCodec and rendered '
-            'through Tagflow.document(...).',
+            'through Tagflow.document(...) with view-owned node taps.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),
@@ -222,9 +283,27 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
             ],
           ),
           const Divider(height: 32),
-          Tagflow.document(_document),
+          Tagflow.document(
+            _document,
+            viewOptions: TagflowViewOptions(
+              nodeTapCallback: _recordNodeTap,
+              tapTargetKinds: const {
+                TagflowNodeKind.container,
+                TagflowNodeKind.listItem,
+              },
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+Map<String, Object?> _nativeBlockAttributes(TagflowDocumentNode node) {
+  final attributes = node.metadata['blockAttributes'];
+  if (attributes is Map<String, Object?>) {
+    return attributes;
+  }
+
+  return const {};
 }
