@@ -451,6 +451,23 @@ Recommended patch fields:
 - `revision` or `baseRevision` for coordination when the producer has one
 - `metadata` or `source` when useful for diagnostics
 
+Beta revision decision:
+
+- `baseRevision` and `revision` are producer-owned opaque tokens.
+- The codec validates their shape as optional strings and preserves them on
+  `TagflowNativeBlockPatchEnvelope`.
+- The adapter converts only `operations` into `TagflowDocumentPatch` values.
+- Core `TagflowDocument.applyPatch(...)` and `applyPatches(...)` do not compare
+  document revisions, reject stale envelopes, merge concurrent changes, or
+  update document revision metadata.
+- Apps, CMS clients, or backend protocols own revision matching and conflict
+  handling before they choose to apply adapted patches.
+
+Reopen core revision enforcement only with real-app evidence that multiple
+integrations need the same generic conflict contract and that the contract can
+stay independent of network retry, offline storage, sync queues, and CMS
+protocol semantics.
+
 Flow:
 
 1. remote or app payload arrives as native block document or patch data
@@ -487,9 +504,9 @@ Landed first transport slice:
 
 Explicitly deferred:
 
-- producer conflict handling or revision enforcement beyond the landed narrow
-  patch envelope fields: wire `id` / typed `documentId`, `schemaVersion`,
-  `baseRevision`, and `revision`
+- producer conflict handling or revision enforcement beyond preserving the
+  landed narrow patch envelope fields: wire `id` / typed `documentId`,
+  `schemaVersion`, `baseRevision`, and `revision`
 - cross-patch batch conflict validation against an already-evolving runtime
   document
 - controller or cache APIs layered above immutable document patches

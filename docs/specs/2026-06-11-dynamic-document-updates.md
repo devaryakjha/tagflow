@@ -263,6 +263,13 @@ remote synchronization, routing, controller lifecycle, or CMS protocol
 semantics. Those remain app-owned unless a later SPEC proves a smaller generic
 contract.
 
+Native patch envelope revisions follow the same ownership boundary. A native
+producer may send `baseRevision` and `revision` tokens, but Tagflow preserves
+and exposes them as adapter transport metadata; it does not compare
+`baseRevision` to the current document, reject stale envelopes, or advance a
+document revision after `applyPatches(...)`. Apps own those checks before and
+after applying adapted patches.
+
 No controller should be added in this slice. If later needed, it should be a
 thin notifier around `TagflowDocument.applyPatch(...)`:
 

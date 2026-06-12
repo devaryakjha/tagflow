@@ -227,7 +227,7 @@ Runtime API stability rules for the alpha line:
 
 Transport is adapter-owned.
 
-The alpha.2 native block transport should stay small:
+The beta native block transport should stay small:
 
 - JSON-like maps only;
 - finite numbers only;
@@ -247,6 +247,9 @@ Transport does not promise:
 - network retry, conflict resolution, offline storage, or cache invalidation;
 - compatibility with unknown future block kinds unless that behavior is
   deliberately added and tested.
+- automatic revision conflict checks or document revision advancement; the
+  document and patch revision fields are opaque producer tokens that apps check
+  and update around `applyPatches(...)`.
 
 Schema-version rule:
 

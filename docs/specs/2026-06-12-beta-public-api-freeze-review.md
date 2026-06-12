@@ -317,6 +317,21 @@ before adaptation. Beta should not introduce a placeholder transport,
 evidence. Revision fields are currently producer tokens, not a core
 sync/conflict protocol.
 
+Revision decision for beta:
+
+- `TagflowNativeBlockDocument.revision`,
+  `TagflowNativeBlockPatchEnvelope.baseRevision`, and
+  `TagflowNativeBlockPatchEnvelope.revision` remain opaque producer tokens.
+- The codec round-trips them and the adapter exposes document revision metadata,
+  but patch adaptation consumes only envelope operations.
+- Core runtime patch application does not enforce base-revision matching, merge
+  conflicts, remote synchronization, or document revision advancement.
+- Apps own revision checks before applying patches and own any displayed or
+  stored current revision after applying a producer envelope.
+
+Reopen this only if a real app proves that generic revision enforcement belongs
+in Tagflow rather than in the app/backend protocol.
+
 ### Content Policy
 
 `beta-stable candidate`:
@@ -548,6 +563,10 @@ to republish the extension package.
   image blocks, and preserved policy-rejection placeholders with neutral
   rendering. Future unknown-block compatibility is deferred until real producer
   evidence justifies a versioned compatibility model.
+- Native document and patch revision semantics are documented for beta. Done:
+  `revision` and `baseRevision` are opaque producer tokens, codec-preserved but
+  not enforced by core patch application; app/backend code owns stale-envelope
+  checks, merge policy, and displayed current revision state.
 - `tagflow_table` beta posture is decided and documented. Done: keep it as a
   separate first-party extension through beta, release it in lockstep for
   `beta.0` compatibility validation, and permit independent patch/minor
