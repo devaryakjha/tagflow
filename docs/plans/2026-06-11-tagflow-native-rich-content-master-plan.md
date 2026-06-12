@@ -639,6 +639,8 @@ Master review gate:
 ### Wave 6: Alpha.4 / Pre-Beta Hardening
 
 - Status: active coordination.
+- Current cutline:
+  `docs/plans/2026-06-12-alpha4-prebeta-coordination.md`.
 - The pauseable profile benchmark checkpoint path is implemented. Local macOS
   memory/allocation evidence now includes named hold-open checkpoint exports,
   retained-path samples, and raw heap/class-diff reviews for the scoped

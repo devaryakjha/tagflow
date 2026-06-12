@@ -252,6 +252,9 @@ Acceptance after unblock:
 
 ## Coordinator Recommendation
 
+The current alpha.4 / pre-beta coordination cutline is
+`docs/plans/2026-06-12-alpha4-prebeta-coordination.md`.
+
 Slices 1 and 2 are complete. Slice 3 is currently a no-change reference-path
 confirmation because `examples/tagflow/lib/screens/native_json_example.dart`
 and `examples/tagflow/test/native_json_example_test.dart` already cover document
