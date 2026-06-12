@@ -140,6 +140,21 @@ void main() {
     expect(result.passed, isFalse);
     expect(result.issues, hasLength(1));
     expect(result.issues.single.code, 'required_gate_not_satisfied');
+    expect(result.requiredOpenGates.map((gate) => gate.id), <String>[
+      'real-app-route',
+    ]);
+    expect(
+      result.toJson(),
+      containsPair(
+        'requiredOpenGates',
+        contains(
+          containsPair(
+            'tracker',
+            'https://github.com/devaryakjha/tagflow/issues/73',
+          ),
+        ),
+      ),
+    );
     expect(
       result.issues.single.details,
       containsPair('gateId', 'real-app-route'),
@@ -369,6 +384,19 @@ void main() {
     expect(
       betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
       <String>['real-app-route', 'physical-observed-profile'],
+    );
+    expect(
+      betaPreapprovalResult.requiredOpenGates.map((gate) => gate.id),
+      <String>['real-app-route', 'physical-observed-profile'],
+    );
+    expect(
+      betaPreapprovalResult.requiredOpenGates
+          .expand((gate) => gate.evidence)
+          .map((entry) => entry.value),
+      containsAll(<String>[
+        'docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md',
+        'docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md',
+      ]),
     );
     expect(
       betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),

@@ -336,6 +336,7 @@ final class NativeRuntimeGateStatusCheckResult {
     required this.profile,
     required this.passed,
     required this.issues,
+    required this.requiredOpenGates,
     required this.nonRequiredOpenGates,
   });
 
@@ -354,6 +355,13 @@ final class NativeRuntimeGateStatusCheckResult {
   /// Blocking issues for the selected profile.
   final List<NativeRuntimeGateStatusIssue> issues;
 
+  /// Required gates that are not yet satisfied.
+  ///
+  /// This mirrors required-gate issues with full gate evidence and claim
+  /// boundaries so owner-decision packets can be reviewed from the command
+  /// output without changing pass/fail semantics.
+  final List<NativeRuntimeGate> requiredOpenGates;
+
   /// Non-required gates that are still not satisfied.
   final List<NativeRuntimeGate> nonRequiredOpenGates;
 
@@ -364,6 +372,9 @@ final class NativeRuntimeGateStatusCheckResult {
     'profile': profile.toJson(),
     'passed': passed,
     'issues': issues.map((issue) => issue.toJson()).toList(),
+    'requiredOpenGates': requiredOpenGates
+        .map((gate) => gate.toJson())
+        .toList(),
     'nonRequiredOpenGates': nonRequiredOpenGates
         .map((gate) => gate.toJson())
         .toList(),
@@ -381,6 +392,7 @@ NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
   final requiredGateIds = profile.requiredGateIds.toSet();
   final resolvedEvidenceRoot = evidenceRoot ?? manifestFile.parent;
   final issues = <NativeRuntimeGateStatusIssue>[];
+  final requiredOpenGates = <NativeRuntimeGate>[];
 
   for (final gateId in profile.requiredGateIds) {
     final gate = manifest.gateById(gateId);
@@ -396,6 +408,7 @@ NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
     }
 
     if (gate.status != NativeRuntimeGateStatus.satisfied) {
+      requiredOpenGates.add(gate);
       issues.add(
         NativeRuntimeGateStatusIssue(
           code: 'required_gate_not_satisfied',
@@ -444,6 +457,7 @@ NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
     profile: profile,
     passed: issues.isEmpty,
     issues: issues,
+    requiredOpenGates: requiredOpenGates,
     nonRequiredOpenGates: nonRequiredOpenGates,
   );
 }
