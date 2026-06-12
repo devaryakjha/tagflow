@@ -37,14 +37,59 @@ void main() {
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );
+
+  test(
+    'native runtime gate CLI accepts expected beta-preapproval open gates',
+    () async {
+      final result = await _runGateCli(
+        profile: 'beta-preapproval',
+        expectedOpenGates: <String>[
+          'real-app-route',
+          'physical-observed-profile',
+        ],
+      );
+      final json = _decodeJson(result.stdout);
+
+      expect(result.exitCode, 0);
+      expect(json['passed'], isFalse);
+      expect(json['expectationPassed'], isTrue);
+      expect(json['expectedOpenGateIds'], <String>[
+        'real-app-route',
+        'physical-observed-profile',
+      ]);
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
+
+  test(
+    'native runtime gate CLI rejects mismatched expected open gates',
+    () async {
+      final result = await _runGateCli(
+        profile: 'beta-preapproval',
+        expectedOpenGates: <String>['real-app-route'],
+      );
+      final json = _decodeJson(result.stdout);
+
+      expect(result.exitCode, 1);
+      expect(json['passed'], isFalse);
+      expect(json['expectationPassed'], isFalse);
+      expect(json['expectedOpenGateIds'], <String>['real-app-route']);
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
 }
 
-Future<ProcessResult> _runGateCli({String? profile}) {
+Future<ProcessResult> _runGateCli({
+  String? profile,
+  List<String>? expectedOpenGates,
+}) {
   final packageRoot = resolveBenchmarkPackageRoot();
   return Process.run('dart', <String>[
     'run',
     'bin/check_native_runtime_gates.dart',
     if (profile != null) '--profile=$profile',
+    if (expectedOpenGates != null)
+      '--expect-open-gates=${expectedOpenGates.join(',')}',
   ], workingDirectory: packageRoot.path);
 }
 

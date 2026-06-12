@@ -203,6 +203,7 @@ melos:
         dart run bin/check_native_runtime_gates.dart
         --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
         --profile=${TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE:-pr72-draft}
+        ${TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES:+--expect-open-gates=$TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES}
       description: Check native runtime coordinator gate status
 
     combine-coverage:

@@ -156,6 +156,7 @@ For docs-only alpha.4/pre-beta coordination changes, run:
 git diff --check
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run gate:native-runtime
 TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
+TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES=real-app-route,physical-observed-profile \
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
   dart run melos run gate:native-runtime
 jq empty docs/plans/native-runtime-gate-status.json
@@ -165,9 +166,9 @@ Expected result:
 
 - `git diff --check` passes;
 - `pr72-draft` gate passes;
-- `beta-preapproval` fails only on `real-app-route` and
-  `physical-observed-profile` unless explicit owner decisions have been
-  recorded;
+- `beta-preapproval` reports `expectationPassed=true` for the known open
+  `real-app-route` and `physical-observed-profile` blockers, unless explicit
+  owner decisions have been recorded;
 - the gate manifest remains valid JSON.
 
 Optionally run the beta-candidate profile when release posture changes:
