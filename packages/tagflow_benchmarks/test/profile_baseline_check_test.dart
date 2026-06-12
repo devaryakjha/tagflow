@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+import 'package:tagflow_benchmarks/src/io/package_paths.dart';
 import 'package:tagflow_benchmarks/src/profile/profile_baseline_check.dart';
 
 void main() {
@@ -474,6 +475,131 @@ void main() {
     expect(policy.expectedViewport?.logicalWidth, 800);
     expect(policy.expectedViewport?.logicalHeight, 600);
     expect(policy.expectedViewport?.devicePixelRatio, 2);
+  });
+
+  test('loads the checked native JSON observed-host policy from repo', () {
+    final workspaceRoot = resolveWorkspaceRoot();
+    final policyFile = File(
+      p.join(
+        workspaceRoot.path,
+        'docs',
+        'benchmarks',
+        'policies',
+        'profile-native-json-observed-policy.json',
+      ),
+    );
+    final summaryFile = _writeSummary(
+      totalRuns: 15,
+      successfulRuns: 15,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow_native_json',
+          fixture: 'native_ai_answer',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+        _cellSummary(
+          renderer: 'tagflow_native_json',
+          fixture: 'native_table_dense',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+        _cellSummary(
+          renderer: 'tagflow_native_json',
+          fixture: 'native_large_article',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: policy,
+    );
+
+    expect(policy.id, 'tagflow-alpha-native-json-observed-report-only');
+    expect(policy.matrix?.renderers, <String>{'tagflow_native_json'});
+    expect(policy.matrix?.fixtures, <String>{
+      'native_ai_answer',
+      'native_table_dense',
+      'native_large_article',
+    });
+    expect(policy.minRepeats, 5);
+    expect(policy.viewportMode, ProfileBaselineViewportPolicyMode.observedHost);
+    expect(policy.thresholdMode, 'report_only');
+    expect(policy.expectedViewport?.logicalWidth, 800);
+    expect(policy.expectedViewport?.logicalHeight, 600);
+    expect(policy.expectedViewport?.devicePixelRatio, 2);
+    expect(result.passed, isTrue);
+  });
+
+  test('checked native JSON policy rejects HTML comparison cells', () {
+    final workspaceRoot = resolveWorkspaceRoot();
+    final policyFile = File(
+      p.join(
+        workspaceRoot.path,
+        'docs',
+        'benchmarks',
+        'policies',
+        'profile-native-json-observed-policy.json',
+      ),
+    );
+    final summaryFile = _writeSummary(
+      totalRuns: 5,
+      successfulRuns: 5,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'ai_answer_rich',
+          repeats: 5,
+          viewports: <Map<String, Object?>>[
+            _viewport(
+              logicalWidth: 800,
+              logicalHeight: 600,
+              devicePixelRatio: 2,
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(
+      result.issues.map((issue) => issue.code),
+      contains('cell_outside_policy_matrix'),
+    );
+    final matrixIssue = result.issues.singleWhere(
+      (issue) => issue.code == 'cell_outside_policy_matrix',
+    );
+    expect(matrixIssue.details, containsPair('renderer', 'tagflow'));
+    expect(matrixIssue.details, containsPair('fixture', 'ai_answer_rich'));
   });
 
   test('defaults missing policy viewport mode to observed-host', () {

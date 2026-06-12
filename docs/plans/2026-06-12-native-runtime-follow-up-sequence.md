@@ -6,9 +6,10 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Sequence baseline commit:
-  `cce669a docs(benchmarks): refresh simulator target audit`
+  `c0ea3b5 docs(release): refresh native runtime coordination`
 - Latest coordinator evidence/tooling refresh:
-  `cce669a docs(benchmarks): refresh simulator target audit`, after
+  `c0ea3b5 docs(release): refresh native runtime coordination`, after
+  `cce669a docs(benchmarks): refresh simulator target audit` and
   `fbf2b92 docs(benchmarks): add native json observed policy`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
@@ -20,13 +21,13 @@ runtime expansion.
 Current local gate evidence after the benchmark and route-gate refresh:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for `cce669a`.
+  passed for `c0ea3b5`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for `cce669a` in run
-  `27428753616`.
+- GitHub Actions `CI / Validate` passed on PR #72 for `c0ea3b5` in run
+  `27429052630`.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch

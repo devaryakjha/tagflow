@@ -5,7 +5,7 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Baseline commit: `cce669a`
+- Baseline commit: `c0ea3b5`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: planning and coordination only; no publish, tag, version bump,
   beta/stable wording, package-page claim, public benchmark claim, or PR

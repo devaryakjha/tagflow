@@ -58,8 +58,8 @@ evidence, supported-target profile evidence, and final release-gate approval.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
-- Draft PR status: PR #72 remains draft. The target-audit implementation head
-  `20b7d77` passed local
+- Historical draft PR status snapshot: PR #72 remained draft when the
+  target-audit implementation head `20b7d77` passed local
   `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate` and
   GitHub Actions `CI / Validate` in run `27416659032`, job `81031075309`.
   Later coordinator docs-only refreshes should use the live PR check status as
