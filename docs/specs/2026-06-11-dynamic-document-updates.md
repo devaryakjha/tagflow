@@ -365,13 +365,13 @@ Acceptance for the patch benchmark slice:
 
 - Existing keyed-render widget tests continue to prove state preservation across
   stable-ID reorders.
-- Add a patch-based semantic document streaming benchmark lane that adapts
-  `ai_answer_rich` once, applies document patches for each chunk, and records
-  the same update-latency payload shape as the HTML semantic lane.
+- The patch-based semantic document streaming benchmark lane has landed. It
+  adapts `ai_answer_rich` once, applies document patches for each chunk, and
+  records the same update-latency payload shape as the HTML semantic lane.
 - The lane uses `tagflow_semantic_patch` plus `streaming_ai_patches` so it can
   be measured independently from full-reparse `tagflow_semantic`.
-- Pair it with the landed authored-ID insertion slice and keep both lanes
-  report-only until reviewed baselines exist.
+- The lane is paired with the landed authored-ID insertion slice. Keep both
+  lanes report-only until reviewed baselines exist.
 - Compare timing and GC diagnostics in reviewed notes only. Do not add hard
   thresholds or claim that patch updates are faster than reparsing.
 

@@ -130,6 +130,13 @@ definition.
 Alpha.3 should make alpha.2 usable by real app workers without broadening the
 runtime vision.
 
+Current-state note: the coordinator branch has moved beyond this original
+alpha.3 target. Adapter metadata inspectors, view-owned node taps, render error
+fallbacks, description-list semantics, equivalent HTML/native fixtures, and the
+DPR feasibility audit have landed. Remaining release movement should use
+`docs/plans/2026-06-12-native-runtime-follow-up-sequence.md` for current
+sequencing.
+
 Required outcomes:
 
 - document the hosted alpha native transport integration path after publish;

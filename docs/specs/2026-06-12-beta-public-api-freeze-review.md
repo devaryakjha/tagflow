@@ -512,6 +512,10 @@ to republish the extension package.
   `TagflowViewOptions.nodeTapCallback`, and `tapTargetKinds`, with legacy
   `TagflowOptions` mirroring. Long press and broader gesture/action semantics
   remain follow-up work rather than beta blockers for the first node-tap slice.
+- Adapter metadata inspection is public and app-safe. Done with native block
+  document/node metadata helpers and HTML node metadata helpers exported from
+  `package:tagflow/tagflow.dart`, with routing and revision enforcement still
+  explicitly outside Tagflow.
 - `Tagflow.html(..., registry: ...)` has focused package widget coverage for
   semantic overrides, legacy-converter precedence, and registry-only rebuilds
   without reparsing. Hosted widget-test validation is done in Kite commit
@@ -548,6 +552,11 @@ to republish the extension package.
   tests remain green.
 - Benchmark docs remain report-only unless a stable reference environment and
   threshold policy are approved.
+- Equivalent HTML/native fixture evidence remains report-only. The first
+  repeat-5 local equivalent fixture run completed, but current benchmark docs
+  keep DPR as observed-and-qualified metadata; a rerun should wait for a
+  reviewed `2.0x` reference target, physical target, or explicit synthetic
+  viewport design.
 - Memory evidence remains report-only. The authored-insertion pair,
   `large_article`, and `table_stress` now have required non-device HTML raw
   heap/class-diff exports plus bounded retained-path samples, but public memory

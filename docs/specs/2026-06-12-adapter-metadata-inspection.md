@@ -1,11 +1,17 @@
 # Tagflow Adapter Metadata Inspection SPEC
 
-**Status:** Proposed narrow integration slice
+**Status:** Implemented narrow integration slice
 **Last Updated:** 2026-06-12
 **Target Release Line:** post-`1.0.0-alpha.3` stabilization
 **Primary Audience:** Tagflow runtime, adapter, docs, and example-app workers
 
 ## 1. Problem Statement
+
+**Current-state note:** this slice has landed. The public metadata inspectors
+are exported from `package:tagflow/tagflow.dart`, covered by adapter and public
+API tests, documented in the migration guide, and used by the native JSON
+example. The original problem statement below remains useful as the ownership
+boundary for future app-integration work.
 
 The current native rich-content path is already good at rendering and patching:
 
@@ -17,9 +23,10 @@ The current native rich-content path is already good at rendering and patching:
 
 The remaining app-integration friction is not rendering. It is inspection.
 Real apps still need to route actions, log diagnostics, and migrate controlled
-HTML toward native content, but today they do that by reaching into raw
-metadata maps with private string keys such as `blockAttributes`, `blockKind`,
-`htmlAttributes`, and `policyDecisionReason`.
+HTML toward native content. Before this slice landed, they had to do that by
+reaching into raw metadata maps with private string keys such as
+`blockAttributes`, `blockKind`, `htmlAttributes`, and
+`policyDecisionReason`.
 
 That is the wrong next abstraction to freeze:
 
@@ -69,14 +76,14 @@ Controlled HTML already has the right migration path:
 - `TagflowHtmlNodeIdStrategy.attribute(...)` for fail-fast identity
 - node taps attached at the view level
 
-What is missing is a public helper for reading sanitized HTML attributes and
-original HTML tags from the adapted runtime node.
+The public helper for reading sanitized HTML attributes and original HTML tags
+from the adapted runtime node has landed.
 
 ## 3. Decision
 
-Add adapter-scoped metadata inspectors as the smallest next integration slice.
+Adapter-scoped metadata inspectors are the landed integration slice.
 
-This slice should expose read-only helpers for:
+This slice exposes read-only helpers for:
 
 - native document schema/revision metadata
 - native node block kind and block attributes
@@ -96,7 +103,7 @@ selection UX, and fallback presentation outside the core runtime API.
 
 ## 5. Public API Shape
 
-Illustrative shape:
+Landed public shape:
 
 ```dart
 extension TagflowNativeBlockDocumentMetadata on TagflowDocument {
@@ -127,11 +134,11 @@ Constraints:
 
 ## 6. Acceptance Checks
 
-- The native JSON example routes taps using `nativeBlockAttributes` rather than
+- [x] The native JSON example routes taps using `nativeBlockAttributes` rather than
   raw metadata key strings.
-- Public API tests compile these helpers from `package:tagflow/tagflow.dart`.
-- HTML adapter tests cover `htmlTag` / `htmlAttributes`.
-- Native block adapter tests cover schema revision, original block kind, block
+- [x] Public API tests compile these helpers from `package:tagflow/tagflow.dart`.
+- [x] HTML adapter tests cover `htmlTag` / `htmlAttributes`.
+- [x] Native block adapter tests cover schema revision, original block kind, block
   attributes, and policy diagnostics.
-- Docs state explicitly that routing and revision enforcement remain outside
+- [x] Docs state explicitly that routing and revision enforcement remain outside
   Tagflow.
