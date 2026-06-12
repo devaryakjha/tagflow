@@ -37,10 +37,10 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
-  `fe28a17 docs(benchmarks): record memory manifest smoke`,
-  `e147dff docs(release): record pub discovery posture`,
-  `4773dd8 docs(plan): record kite beta test cleanup`, and
-  `a650c09 docs(plan): record kite content migration branch`.
+  `6ad9895 docs(benchmarks): refresh kite profile blocker`,
+  `fbd53eb docs(benchmarks): review authored insertion memory growth`,
+  `25ff39e docs(benchmarks): refresh physical target availability`, and
+  `0267505 docs(benchmarks): record authored insertion memory evidence`.
 - Latest integrated implementation commits include
   `3eb7b9b feat(benchmarks): emit memory evidence checkpoints`,
   `a4861dd refactor(table): narrow public table exports`,
@@ -102,19 +102,23 @@ evidence, supported-target profile evidence, and final release-gate approval.
   or speed claims until the reference-runner qualification gates in
   `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
   and a separate threshold/comparison policy is reviewed.
-- Follow-up benchmark commits `5d803b4`, `0e256cd`, `3eb7b9b`, and `fe28a17`
-  clarify the current memory/allocation boundary. The repeated profile runner
+- Follow-up benchmark commits through `0267505`, `fbd53eb`, and the earlier
+  memory-manifest/exporter work clarify the current memory/allocation boundary.
+  The repeated profile runner
   can now request per-cell `--profile-memory` artifacts with
   `TAGFLOW_PROFILE_MEMORY=true`, record VM service URIs, replay named
   checkpoint holds for DevTools attachment, and emit a
   `memory-evidence-manifest.json` checklist with expected manual export paths.
   `benchmark:memory-evidence:export` can now connect to a live hold-open VM
   service URI and write `getAllocationProfile(gc: true)` JSON plus a compact
-  class-level heap snapshot summary. The first live smoke exported real JSON
-  artifacts for `tagflow:large_article`. This is still report-only review
-  input. The remaining memory gate is reviewed checkpoint evidence, including
-  retained-object interpretation and raw DevTools exports when class-level
-  summaries are not sufficient.
+  class-level heap snapshot summary. The authored-insertion control/patch pair
+  now has named-checkpoint VM-service allocation-profile and class-level heap
+  summary exports, plus a report-only class-growth review. That review found no
+  same-process patch aggregate growth from `before_first_patch` to
+  `after_scroll`, with package-level Tagflow growth limited to one
+  `TagflowDocumentNode` and one `TagflowDocument`. This is still report-only
+  class-growth evidence: retained-object paths, raw DevTools heap/diff exports,
+  and public memory/allocation claims remain blocked.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
   profile evidence, and review of memory/allocation artifacts. Threshold policy
@@ -765,10 +769,12 @@ Master review gate:
 ### Physical Profile Qualification
 
 - Status: blocked by current target state, not by missing Tagflow harness code.
-- Latest evidence: `12a77f1 docs(benchmarks): refresh physical ios blocker`
-  records that the iPhone still appears as wireless/offline or with a
-  disconnected CoreDevice tunnel/DDI unavailable, and no Android target is
-  attached.
+- Latest evidence:
+  `25ff39e docs(benchmarks): refresh physical target availability` records that
+  the iPhone 17 appears only in Flutter's wireless bucket while CoreDevice
+  reports a paired local-network session with a disconnected tunnel and DDI
+  unavailable; `xctrace` still lists physical devices offline, and Android
+  tooling reports no attached target.
 - Next action: rerun the bounded one-repeat physical profile probe only after
   Flutter and Apple tooling agree on a normal connected physical target, or
   after an attached Android profile target is available.
