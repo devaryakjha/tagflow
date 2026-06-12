@@ -90,6 +90,14 @@ permission. It should include:
 - README/package-page wording diff;
 - explicit owner decision text.
 
+Current draft packet:
+
+- `docs/plans/2026-06-12-beta-preapproval-packet-draft.md`
+
+The draft packet is for owner review only. Do not add it to
+`release-approval` evidence or use it to mark any gate satisfied until the
+required owner decisions are recorded.
+
 Suggested owner decision text:
 
 ```text
