@@ -7,10 +7,9 @@
 - Classification: design candidate for review
 - Related gate: #74 qualified native runtime benchmark evidence
 - Current posture: Slice 1 observed-host metadata, Slice 2 synthetic override
-  plumbing, Slice 3 checker-policy mode, and Slice 4 one-repeat synthetic
-  probe qualification are implemented on the PR branch. Repeat-5 synthetic
-  collection is not implemented. No benchmark evidence is promoted by this
-  document.
+  plumbing, Slice 3 checker-policy mode, Slice 4 one-repeat synthetic probe
+  qualification, and Slice 5 repeat-5 synthetic collection are implemented on
+  the PR branch. No benchmark evidence is promoted by this document.
 
 ## Purpose
 
@@ -254,6 +253,8 @@ Acceptance:
 - The tracked note records this as synthetic harness smoke only.
 
 ### Slice 5: Repeat-5 Synthetic Collection
+
+Implementation status: completed on the PR branch.
 
 Commands:
 
