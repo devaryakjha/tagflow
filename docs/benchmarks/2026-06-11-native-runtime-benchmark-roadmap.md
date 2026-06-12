@@ -517,11 +517,11 @@ Blocked until a future threshold review:
 
 ## Recommended Next Implementation Threads
 
-1. Decide the allowed wording for the reviewed HTML memory evidence scope.
-   Current raw heap/class-diff collection covers authored-insertion
-   control/patch, `large_article`, and `table_stress`, but remains one-repeat
-   local macOS report-only input rather than leak-free, allocation, or public
-   memory proof.
+1. Keep memory wording limited to the reviewed report-only scope:
+   "required non-device HTML raw heap/class-diff evidence has been collected
+   and reviewed as local macOS report-only input." Do not describe it as
+   leak-free proof, allocation proof, bounded production memory, or a public
+   benchmark result.
 2. Re-run physical-device qualification only after a USB iOS target appears as a
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update
