@@ -53,10 +53,12 @@ Current owner-review packet:
 That packet is not gate evidence until the owner decisions it names are
 recorded.
 
-Latest live PR/tracker state is summarized in
-`docs/plans/2026-06-13-pr72-live-state-refresh.md`: PR #72 is still draft/open
-at head `1f9813b`, hosted `CI / Validate` passed in run `27436837906`, and
-#73/#75 remain open for the same owner/target reasons recorded below.
+Latest point-in-time PR/tracker state is summarized in
+`docs/plans/2026-06-13-pr72-live-state-refresh.md`. That note records a
+captured PR #72 draft/open state, a passing hosted `CI / Validate` run, and
+#73/#75 remaining open for the same owner/target reasons recorded below. Use
+live PR checks, not the captured commit in that note, for the current branch
+head.
 
 ## Alpha.4 / Pre-Beta Scope
 

@@ -86,7 +86,7 @@ result=passed
 run=https://github.com/devaryakjha/tagflow/actions/runs/27436534000
 ```
 
-Latest live PR/tracker refresh:
+Latest point-in-time PR/tracker refresh:
 
 ```text
 commit=1f9813b
@@ -134,8 +134,8 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at PR head `01149ac`, and refreshed at
-live PR head `1f9813b`:
+GitHub state checked for this packet at PR head `01149ac`, and refreshed in
+the point-in-time note at captured PR head `1f9813b`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable

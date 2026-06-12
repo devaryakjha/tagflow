@@ -5,7 +5,8 @@
 - Date: 2026-06-13 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Live PR head checked: `1f9813bce480662c13f7b7f1117e90edc5d679e4`
+- Captured PR head at refresh time:
+  `1f9813bce480662c13f7b7f1117e90edc5d679e4`
 - Posture: live coordinator refresh only; not gate evidence and not release
   approval
 
@@ -30,9 +31,8 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 
 - PR #72 is open and draft.
 - Hosted `CI / Validate` passed for run `27436837906`, job `81100840642`.
-- The PR body now names current head
-  `1f9813bce480662c13f7b7f1117e90edc5d679e4`, the hosted CI run, and the
-  focused gate-status regression command.
+- The PR body was updated during this refresh to name the captured PR head, the
+  hosted CI run, and the focused gate-status regression command.
 - Issue #73 is open. The `real-app-route` gate remains open because no owner
   acceptance of the Kite non-GitLab review packet has been recorded, and no
   normal source-control or approved equivalent real-app route evidence has
@@ -55,6 +55,9 @@ tagging, version changes, beta/stable wording, package-page claim changes,
 PR #72 undraft or merge, frame-budget claims, memory claims, public benchmark
 claims, or comparative performance claims.
 
+This is a point-in-time refresh. Do not use its captured commit as the current
+branch head after later commits land.
+
 Do not add this note to `docs/plans/native-runtime-gate-status.json` as gate
-evidence. Use the gate manifest, tracker decisions, and current PR checks for
-readiness state.
+evidence. Use the gate manifest, tracker decisions, and live PR checks for the
+current readiness state.
