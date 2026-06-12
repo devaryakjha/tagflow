@@ -2,9 +2,9 @@
 
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
-**Reviewed Baseline:** current coordinator `HEAD` `0e256cd` after published
+**Reviewed Baseline:** current coordinator `HEAD` `2d41960` after published
 `tagflow-v1.0.0-alpha.3`; this includes post-publish public API follow-ups in
-`packages/tagflow`, not only benchmark/docs evidence
+`packages/tagflow`, `packages/tagflow_table`, and benchmark/docs evidence
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -16,8 +16,10 @@ claim is made.
 
 The conclusion is conservative: Tagflow is not beta-ready yet. The runtime
 direction is correct, but beta should wait until hosted alpha app integration
-covers the production and native-transport paths, unsupported-content behavior
-is fully frozen, and table extension release ownership is decided.
+covers a pushed and merged production route, supported-target profile evidence
+exists, memory/allocation evidence is reviewed, and release gates are approved.
+The reviewed style and table public-surface blockers have been resolved on the
+coordinator branch.
 
 This document does not authorize publishing, tagging, package-version changes,
 or beta release copy.

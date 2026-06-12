@@ -464,13 +464,20 @@ Blocked until a future threshold review:
 
 ## Recommended Next Implementation Threads
 
-1. Collect playbook-complete memory/allocation baseline notes for
-   `large_article`, `table_stress`, and dynamic patch lanes using the playbook in
-   `2026-06-12-memory-allocation-evidence-playbook.md`.
-2. Re-run physical-device qualification with a USB iOS target or attached
-   Android target until at least one `continue-on-failure` probe installs,
-   launches, emits integration JSON, and passes `TAGFLOW_PROFILE_MIN_REPEATS=1`.
-3. Record real-app profile-mode evidence for the hosted-alpha production
-   surface, separate from debug probes and converter-free test harnesses.
-4. Add a threshold proposal document only after a stable reference environment
-   is selected and a fresh repeat-5 matrix is reviewed.
+1. Capture the first playbook-complete DevTools memory/allocation note from a
+   hold-open run, starting with the authored-insertion control/patch pair in
+   `2026-06-12-memory-allocation-snapshot-blocker.md`. Do not substitute another
+   bounded `--profile-memory` sample for the missing snapshot/diff evidence.
+2. Re-run physical-device qualification only after a USB iOS target appears as a
+   normal connected target to Flutter and Apple tooling, or after an attached
+   Android target is available. Stop after the first bounded failure and update
+   the physical-target note.
+3. Push, merge, and real-route validate the Kite
+   `codex/ipo-tagflow-registry-content` branch before treating it as production
+   surface evidence.
+4. Record real-app profile-mode evidence for the hosted-alpha production
+   surface after the production route is merged, separate from debug probes and
+   converter-free widget tests.
+5. Add or promote threshold policy only after a stable reference environment is
+   selected and a fresh repeat-5 matrix plus memory/allocation review are
+   complete.

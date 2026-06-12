@@ -573,8 +573,9 @@ Work:
   separate first-party package through beta, lockstep `beta.0`, then
   compatible independent patch/minor prereleases only with green registry API
   tests;
-- decide whether low-level `tagflow_table` render-object exports are
-  intentionally public beta surface or should be narrowed before freeze.
+- low-level `tagflow_table` render-object exports are narrowed before freeze;
+  the public barrel now centers on `tagflowTableComponents(...)`,
+  `TagflowTableBorder`, and legacy compatibility converters.
 
 Acceptance:
 
@@ -584,19 +585,21 @@ Acceptance:
 
 ## 14. Recommended Next Threads
 
-1. `docs(spec): align alpha.2 runtime specs`
-   - docs-only cleanup of stale alpha.1 wording and native block deferred
-     sections.
-2. `test(kite): validate hosted tagflow alpha3`
-   - completed as evidence commit `be97da15` and adopted locally as Kite
-     commit `80160401`; use it as hosted-package app evidence, not as
-     production profile evidence.
-3. `feat(adapter): define native transport version policy`
-   - small code and test slice for unknown kind and schema-version behavior.
-4. `test(app): migrate one production content surface to the registry path`
-   - prepared as Kite branch `codex/ipo-tagflow-registry-content` commit
-     `e26a14e6`, with follow-up test cleanup `6d0d29f8`; keep it separate
-     from profile evidence until the app branch is pushed, merged, and
-     validated through a real route on a supported target.
-5. `docs(api): prepare beta public surface review`
-   - export and compatibility classification before any beta.0 version work.
+1. `bench(memory): capture devtools allocation evidence`
+   - run the hold-open benchmark path from
+     `docs/benchmarks/baselines/2026-06-12-memory-allocation-snapshot-blocker.md`
+     with a human reviewer attached to DevTools; commit only the reviewed
+     baseline note, not raw `build/` exports.
+2. `test(kite): land ipo registry content branch`
+   - push and merge Kite branch `codex/ipo-tagflow-registry-content` after
+     `gitlab.zerodha.tech` DNS is available, then validate the real route.
+3. `bench(device): qualify one physical profile target`
+   - rerun the bounded one-repeat physical probe only after Flutter and Apple
+     tooling agree on a normal connected iOS target, or after a physical
+     Android target is attached.
+4. `bench(app): profile the hosted-alpha production surface`
+   - collect profile-mode evidence for the pushed Kite production route,
+     separate from widget tests and debug VM timeline probes.
+5. `docs(release): prepare alpha.4 or beta gate review`
+   - only after the evidence above is reviewed; do not change versions or add
+     beta/stable wording as a discovery workaround.
