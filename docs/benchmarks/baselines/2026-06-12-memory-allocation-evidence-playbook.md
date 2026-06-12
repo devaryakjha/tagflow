@@ -3,8 +3,8 @@
 This note is a practical capture guide for Tagflow benchmark qualification.
 It is intentionally report-only: the profile harness can already summarize GC
 counts and frame timings, but memory allocation claims still need manual
-DevTools evidence and a reviewed baseline note before they can be used for any
-public claim.
+DevTools evidence or equivalent VM-service heap evidence, plus a reviewed
+baseline note, before they can be used for any public claim.
 
 ## What The Current Summaries Record
 
@@ -329,10 +329,10 @@ each checkpoint listed in `memory-evidence-manifest.json`. The resulting JSON
 files stay under ignored `build/` output; commit only a reviewed baseline note
 with filenames, command, and interpretation.
 
-### Interactive Memory snapshots
+### Interactive Memory Snapshots
 
-Use the browser UI when you need a before/after snapshot or a class allocation
-diff:
+Use the browser UI when you need an interactive before/after snapshot or class
+allocation diff beyond the automated VM-service exporter:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart devtools
@@ -367,7 +367,8 @@ Use the VM service URI recorded in stdout and in
 `profile-baseline-manifest.json` to connect DevTools to the live session while
 that checkpoint is held open.
 
-Manual exports still required from DevTools:
+Before promotion, the reviewed note must point to either automated VM-service
+exports or interactive DevTools exports for:
 
 - raw heap snapshots for each required checkpoint, when class-level summaries
   are not sufficient
@@ -375,7 +376,8 @@ Manual exports still required from DevTools:
 - retained-object review notes for any suspicious class growth or old-gen GC
 
 The hold-open mode does not export these artifacts for you. It only keeps the
-session alive long enough to capture them.
+session alive long enough to capture them manually or through the VM-service
+exporter.
 
 ## Lane-Specific Capture Notes
 

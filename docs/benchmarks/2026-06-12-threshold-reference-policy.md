@@ -125,8 +125,11 @@ launch markers, and relative differences remain report-only.
   evidence exists, but production IPO profile-mode evidence remains blocked.
 - The reference environment is not claim-grade because current local evidence
   was collected on prerelease Flutter and prerelease macOS.
-- Memory/allocation evidence is not claim-grade. Bounded memory samples exist,
-  but heap snapshots, allocation diffs, and retained-object review are pending.
+- Memory/allocation evidence is not claim-grade. Required non-device HTML raw
+  heap snapshots, class diffs, and retained-path samples now exist as
+  one-repeat local macOS report-only input, but physical-target evidence,
+  real-app profile capture, repeat policy, stable reference environment, and
+  approved interpretation language are still pending.
 - Native JSON and HTML lanes are not a direct speed comparison. They currently
   exercise different input paths.
 - Dynamic patch lanes still have diagnostic GC/raster and missed-frame findings

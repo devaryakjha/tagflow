@@ -43,7 +43,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Memory evidence manifest smoke | [`baselines/2026-06-12-memory-evidence-manifest-smoke.md`](baselines/2026-06-12-memory-evidence-manifest-smoke.md) | A real one-repeat local macOS `tagflow:large_article` hold-open run wrote `memory-evidence-manifest.json`, linked it from the profile manifest, recorded expected DevTools export paths, and passed summary/check after the summary was generated. | Harness smoke only; manual heap snapshots, allocation diffs, and retained-object review still pending. |
 | VM-service memory export helper | [`baselines/2026-06-12-memory-vm-service-exporter-smoke.md`](baselines/2026-06-12-memory-vm-service-exporter-smoke.md) plus retained-path and raw-snapshot exporter support added after it | A live hold-open VM service URI can now be used to export `getAllocationProfile(gc: true)` JSON, a class-level heap summary, optional raw VM-service heap snapshot chunks, optional bounded `getRetainingPath` samples for selected classes, and class-level before/after diffs from exported summaries or raw snapshots. Generated manifests include per-checkpoint helper command metadata and raw heap output paths, and the first live smoke exported real JSON artifacts from a local `tagflow:large_article` run before retained-path/raw-snapshot support was added. | Report-only review input; retained-path exports are proven on the authored-insertion control and patch lanes, but raw heap/diff artifacts still need to be collected for that pair before the memory gate can advance. |
 | Streamed profile output smoke | [`baselines/2026-06-12-streamed-profile-output-smoke.md`](baselines/2026-06-12-streamed-profile-output-smoke.md) | The profile baseline runner now streams child `benchmark:profile` output while preserving manifest/log capture. A one-repeat `tagflow:large_article` hold-open smoke showed the VM service URI and checkpoint markers before the runner returned. | Harness smoke only; enables named-checkpoint exporter use without process-table discovery. |
-| Authored insertion checkpoint memory exports | [`baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md`](baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md) | A one-repeat local macOS authored-insertion control/patch profile pass exported VM-service allocation profiles and class-level heap summaries for all named control and patch checkpoints, with one supplemental control-only run used for the missed control `after_scroll` export. | Report-only allocation review input; retained-object interpretation and raw DevTools heap/diff exports remain pending. |
+| Authored insertion checkpoint memory exports | [`baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md`](baselines/2026-06-12-authored-insertion-checkpoint-memory-evidence.md) | A one-repeat local macOS authored-insertion control/patch profile pass exported VM-service allocation profiles and class-level heap summaries for all named control and patch checkpoints, with one supplemental control-only run used for the missed control `after_scroll` export. | Historical report-only allocation review input; later authored-insertion raw heap/diff notes below supersede this row's original collection gap. |
 | Authored insertion patch retained paths | [`baselines/2026-06-12-authored-insertion-patch-after-scroll-retained-paths.md`](baselines/2026-06-12-authored-insertion-patch-after-scroll-retained-paths.md) | A one-repeat local macOS patch-only hold-open run exported a live `getRetainingPath` sample at patch `after_scroll` for `TagflowDocumentNode` and `TagflowDocument`. The sampled paths flowed through the live `Tagflow` widget and Flutter widget tree rather than showing a detached orphan object in isolation. | Superseded for patch-lane checkpoint coverage by the multi-checkpoint retained-path note; still report-only. |
 | Authored insertion patch multi-checkpoint retained paths | [`baselines/2026-06-12-authored-insertion-patch-multi-checkpoint-retained-paths.md`](baselines/2026-06-12-authored-insertion-patch-multi-checkpoint-retained-paths.md) | A one-repeat local macOS patch-only hold-open run used a streamed-output watcher to export retained-path JSON for `TagflowDocumentNode` and `TagflowDocument` at `before_first_patch`, `after_first_patch`, `after_final_patch`, and `after_scroll` from the same live process. Path shape stayed rooted through the live `Tagflow` widget and Flutter keep-alive wrappers across all four checkpoints. | Report-only retained-object review input; raw DevTools heap/diff review still remains pending. |
 | Authored insertion control multi-checkpoint retained paths | [`baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md`](baselines/2026-06-12-authored-insertion-control-multi-checkpoint-retained-paths.md) | A one-repeat local macOS control-only hold-open run used a streamed-output watcher to export retained-path JSON for `TagflowDocumentNode` and `TagflowDocument` at `before_first_update`, `after_first_update`, `after_final_update`, and `after_scroll` from the same live process. Path shape stayed rooted through the live `Tagflow` widget and active Flutter scroll tree across all four checkpoints. | Report-only retained-object review input; raw DevTools heap/diff review for the paired control/patch lane still remains pending. |
@@ -51,6 +51,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Authored insertion raw heap snapshot/diff evidence | [`baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md`](baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md) | A one-repeat local macOS ordered control/patch hold-open run exported raw VM-service heap snapshots, heap summaries, allocation profiles, and retained-path JSON at all eight authored-insertion checkpoints, then generated complete class-level diffs from raw snapshots for `before_first_update -> after_final_update`, `before_first_update -> after_scroll`, `before_first_patch -> after_final_patch`, and `before_first_patch -> after_scroll`. | Report-only raw heap review input; this closes the authored-insertion raw heap/diff collection gap, but broader memory wording still depends on reviewed interpretation and remaining required lanes. |
 | Large article raw heap snapshot/diff evidence | [`baselines/2026-06-12-large-article-raw-heap-diff-evidence.md`](baselines/2026-06-12-large-article-raw-heap-diff-evidence.md) | A one-repeat local macOS `tagflow:large_article` hold-open run exported raw VM-service heap snapshots, heap summaries, allocation profiles, and retained-path JSON at `before_first_render`, `after_first_render`, and `after_scroll`, then generated complete class-level diffs from raw snapshots for `before_first_render -> after_first_render` and `before_first_render -> after_scroll`. | Report-only raw heap review input; this closes the `large_article` raw heap/diff collection gap, but broader memory wording still depends on `tagflow:table_stress` and reviewed interpretation. |
 | Table stress raw heap snapshot/diff evidence | [`baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md`](baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md) | A one-repeat local macOS `tagflow:table_stress` hold-open run exported raw VM-service heap snapshots, heap summaries, allocation profiles, and retained-path JSON at `before_first_render`, `after_first_render`, and `after_scroll`, then generated complete class-level diffs from raw snapshots for `before_first_render -> after_first_render` and `before_first_render -> after_scroll`. | Report-only raw heap review input; this closes the `table_stress` raw heap/diff collection gap, but broader memory wording still depends on reviewed interpretation scope. |
+| HTML memory interpretation scope | [`baselines/2026-06-12-html-memory-evidence-interpretation-scope.md`](baselines/2026-06-12-html-memory-evidence-interpretation-scope.md) | The three required non-device HTML raw heap/class-diff evidence notes were reviewed together. Collection coverage exists for the authored-insertion control/patch pair, `large_article`, and `table_stress`; retained-path samples are compatible with live-widget residency rather than detached orphan proof; the one-repeat local macOS evidence remains report-only review input. | Public or beta-facing memory/allocation wording remains blocked by physical targets, real-app profile capture, stable reference environment, repeat policy, and approved interpretation language. |
 | Physical target probe | [`baselines/2026-06-12-physical-target-current-tool-state.md`](baselines/2026-06-12-physical-target-current-tool-state.md), superseding the earlier [`baselines/2026-06-12-physical-target-availability-refresh.md`](baselines/2026-06-12-physical-target-availability-refresh.md) and [`baselines/2026-06-12-physical-target-usb-probe-stalled.md`](baselines/2026-06-12-physical-target-usb-probe-stalled.md) notes | Current discovery still sees the iPhone 17 and iPad only in Flutter's wireless bucket while `xctrace` lists the same UDIDs offline. CoreDevice still reports both devices as `available (paired)`. The exact `adb devices -l` command now fails because `adb` is not on `PATH`. | Negative qualification evidence; physical baseline still pending. |
 | Kite profile probe | [`baselines/2026-06-11-kite-ipo-debug-profile-probe.md`](baselines/2026-06-11-kite-ipo-debug-profile-probe.md) | Real-app attribution probing exists, but the documented run is debug/probe evidence rather than a supported profile benchmark. | Diagnostic only. |
 | Kite hosted-alpha app evidence | Kite evidence commit `be97da15`, adopted locally on `feat/dashboard` as `80160401` (`test(ipo): validate hosted tagflow alpha3`) | A focused Kite widget test consumes hosted `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`, renders checked-in IPO HTML fixture content through `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, and validates native block document/patch decode-adapt-apply. The local adoption commit is not pushed while `gitlab.zerodha.tech` DNS is unavailable. | App-integration evidence only; not profile evidence. |
@@ -505,8 +506,8 @@ Recommended:
 
 - at least one successful physical-device qualification probe with
   `continue-on-failure`
-- playbook-complete DevTools memory review for large article, table stress, and
-  patch update paths
+- report-only raw heap/diff interpretation review for large article, table
+  stress, and patch update paths
 
 Blocked until a future threshold review:
 
@@ -516,31 +517,21 @@ Blocked until a future threshold review:
 
 ## Recommended Next Implementation Threads
 
-1. Capture the first playbook-complete DevTools memory/allocation note from a
-   hold-open run, starting with the authored-insertion control/patch pair in
-   `2026-06-12-memory-allocation-snapshot-blocker.md`. Include
-   `TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES=TagflowDocumentNode,TagflowDocument`
-   on the patch `after_scroll` checkpoint so the exporter records bounded
-   retained-path samples for the classes surfaced by the class-growth review.
-   Set `TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP=true`, generate the paired
-   `<checkpoint>-heap-snapshot.json` artifacts, and create
-   `<checkpoint>-allocation-diff.json` from those raw snapshots. Do not
-   substitute another bounded `--profile-memory` sample for the missing
-   snapshot/diff evidence.
-2. Run the authored-insertion control/patch pair with checkpoint holds and use
-   the streamed VM service URI plus `memory-evidence-manifest.json` command
-   metadata to export VM-service evidence at each named checkpoint, including
-   retained-path samples for the reviewed Tagflow classes where requested.
-3. Re-run physical-device qualification only after a USB iOS target appears as a
+1. Decide the allowed wording for the reviewed HTML memory evidence scope.
+   Current raw heap/class-diff collection covers authored-insertion
+   control/patch, `large_article`, and `table_stress`, but remains one-repeat
+   local macOS report-only input rather than leak-free, allocation, or public
+   memory proof.
+2. Re-run physical-device qualification only after a USB iOS target appears as a
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update
    the physical-target note.
-4. Push, merge, and real-route validate the Kite
+3. Push, merge, and real-route validate the Kite
    `codex/ipo-tagflow-registry-content` branch before treating it as production
    surface evidence.
-5. Record real-app profile-mode evidence for the hosted-alpha production
+4. Record real-app profile-mode evidence for the hosted-alpha production
    surface after the production route is merged, separate from debug probes and
    converter-free widget tests.
-6. Add or promote threshold policy only after a stable reference environment is
+5. Add or promote threshold policy only after a stable reference environment is
    selected and a fresh repeat-5 matrix plus memory/allocation review are
    complete.

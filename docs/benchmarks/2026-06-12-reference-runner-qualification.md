@@ -75,8 +75,11 @@ reviewed evidence:
 6. Memory/allocation policy
    - GC counts in profile summaries are reviewed, but they are not enough by
      themselves for allocation claims.
-   - Manual DevTools Memory captures or equivalent allocation evidence exist
-     for `large_article`, `table_stress`, and the dynamic patch lane.
+   - Raw heap snapshot/class-diff evidence now exists for `large_article`,
+     `table_stress`, and the dynamic patch lane, but it is one-repeat local
+     macOS report-only input.
+   - Retained-path samples are compatible with live-widget residency rather
+     than detached orphan proof or leak-free proof.
    - Use the reviewed baseline playbook in
      [`docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md`](baselines/2026-06-12-memory-allocation-evidence-playbook.md)
      before promoting any memory or allocation wording.
