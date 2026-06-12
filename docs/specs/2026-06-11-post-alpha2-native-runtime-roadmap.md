@@ -508,13 +508,13 @@ Acceptance:
 
 ### Slice 3: native unknown-kind and schema-version decision
 
-Status: completed for the alpha strict policy. Unknown producer block kinds
-and unsupported schema versions fail during codec decode; rejected native image
+Status: completed for the beta strict policy. Unknown producer block kinds and
+unsupported schema versions fail during codec decode; rejected native image
 blocks drop by default or preserve a runtime `unsupported` placeholder when
 `TagflowContentPolicy.unsupportedBehavior` requests it; rejected native links
 degrade to neutral containers that preserve child content with policy metadata.
-A future unknown-block compatibility model remains a beta vocabulary decision,
-not an alpha placeholder behavior.
+Future unknown-block compatibility remains deferred until real producer
+evidence justifies a versioned compatibility model.
 
 Files:
 
@@ -524,9 +524,9 @@ Files:
 
 Work:
 
-- keep unknown producer kinds failing in the codec until beta explicitly
-  introduces a versioned unknown-block representation;
-- keep schema versions other than `1` failing strictly in alpha.3;
+- keep unknown producer kinds failing in the codec until a later
+  producer-driven SPEC introduces a versioned unknown-block representation;
+- keep schema versions other than `1` failing strictly through beta;
 - keep tests covering the chosen document and patch payload behavior;
 - document the behavior in the adapter SPEC and release-facing docs.
 

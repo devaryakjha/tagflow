@@ -299,20 +299,23 @@ Current native block vocabulary additions:
 - They do not introduce executable behavior into native JSON; node taps remain
   view-owned through `TagflowViewOptions`.
 
-`alpha-only review required`:
+`beta decision`:
 
 - native block kind vocabulary
-- future unknown-block compatibility behavior
 - transport revision semantics
 - patch envelope revision semantics
+- unknown producer block and future schema-version compatibility
 
-Rationale: strict `schemaVersion == 1` is now the right alpha contract. The
-hosted-package real-app evidence exists for document and patch transport, and
-the alpha transport keeps unknown future block kinds strict at codec decode
-time. That strict alpha policy is tested and documented. Beta must decide
-whether to keep the strict policy, introduce placeholders through an explicit
-unknown-block model, or require versioned codecs. Revision fields are currently
-producer tokens, not a core sync/conflict protocol.
+Rationale: strict `schemaVersion == 1` is now the right alpha and beta
+contract. The hosted-package real-app evidence exists for document and patch
+transport, and the alpha transport keeps unknown future block kinds strict at
+codec decode time. That strict policy is tested and documented and should
+remain the beta contract. Unknown producer block kinds, unknown patch
+operations, and document or patch `schemaVersion` values other than `1` fail
+before adaptation. Beta should not introduce a placeholder transport,
+`TagflowNativeUnknownBlock`, or schema negotiation without real producer
+evidence. Revision fields are currently producer tokens, not a core
+sync/conflict protocol.
 
 ### Content Policy
 
@@ -345,10 +348,10 @@ Current native block policy matrix:
   rather than renderer fallback nodes.
 
 Rationale: the beta line can freeze the current per-kind policy semantics for
-known native URL-bearing blocks. This does not freeze a future unknown-block
-compatibility vocabulary; unknown native JSON producer kinds remain strict
-codec failures until beta explicitly introduces a versioned unknown-block
-model.
+known native URL-bearing blocks. Unknown native JSON producer kinds are not the
+same class of problem as policy-rejected known blocks; they remain strict codec
+failures through beta unless a later producer-driven SPEC introduces a
+versioned unknown-block model.
 
 ### Style and Theme Surface
 
@@ -539,12 +542,12 @@ to republish the extension package.
 - Native block `schemaVersion == 1` policy is documented in release-facing
   adapter docs. Done in the migration guide and package README.
 - Unknown native block kind and unsupported-content behavior are tested and
-  documented for the alpha strict policy. Done for strict unknown-kind decode
+  documented for the beta strict policy. Done for strict unknown-kind decode
   failures with pathful errors, strict schema-version failures, policy-rejected
   links degrading to neutral containers, default drop behavior for rejected
   image blocks, and preserved policy-rejection placeholders with neutral
-  rendering; future unknown-block compatibility remains a beta vocabulary
-  decision.
+  rendering. Future unknown-block compatibility is deferred until real producer
+  evidence justifies a versioned compatibility model.
 - `tagflow_table` beta posture is decided and documented. Done: keep it as a
   separate first-party extension through beta, release it in lockstep for
   `beta.0` compatibility validation, and permit independent patch/minor

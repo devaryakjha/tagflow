@@ -297,8 +297,11 @@ Architecture open decisions:
   patch adaptation into `TagflowDocumentPatch`. The adapter-side
   `TagflowNativeBlockCodec` and `TagflowNativeBlockPatchEnvelope` transport
   slice has also landed for data-only JSON documents and ordered patch payloads.
-  Broader storage/sync protocol decisions and any future dedicated runtime
-  callout renderer contract remain tracked in
+  Unknown producer block kinds, unknown patch operations, and future schema
+  versions remain strict codec failures through beta; placeholders are only for
+  reviewed policy rejections on known blocks. Broader storage/sync protocol
+  decisions and any future dedicated runtime callout renderer contract remain
+  tracked in
   `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction

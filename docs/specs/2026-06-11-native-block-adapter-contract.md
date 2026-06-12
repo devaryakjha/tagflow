@@ -66,12 +66,13 @@ The first compileable adapter foundation landed in `packages/tagflow` on
 - Node tap behavior remains view-owned through `TagflowViewOptions`; native
   block documents, block attributes, native JSON payloads, and patch envelopes
   must remain data-only and must not encode executable handlers.
-- Native JSON transport currently accepts only `schemaVersion: 1` for document
-  envelopes and patch envelopes. Future schema versions must fail during codec
-  decode until a reviewed compatibility policy exists.
+- Native JSON transport accepts only `schemaVersion: 1` for document envelopes
+  and patch envelopes through the beta freeze. Future schema versions must fail
+  during codec decode until producer evidence justifies a reviewed
+  compatibility policy.
 - Unknown block kinds and unknown patch operation names fail during codec
-  decode with pathful `FormatException`s. The alpha transport does not yet
-  include an explicit unknown-block representation.
+  decode with pathful `FormatException`s through the beta freeze. The beta
+  transport does not include an explicit unknown-block representation.
 - Source round-tripping is intentionally limited to the existing
   `TagflowSourceInfo` fields: `kind`, `adapter`, `uri`, `line`, `column`, and
   JSON-like metadata. Unknown source kinds fail instead of being silently
@@ -408,6 +409,23 @@ Rules:
 - producers must not rely on policy-rejected known blocks and unknown future
   `kind` values sharing the same fallback behavior
 
+Beta decision:
+
+- Keep unknown producer block kinds as strict codec failures through the beta
+  line.
+- Keep unsupported document and patch envelope schema versions as strict codec
+  failures through the beta line.
+- Do not add `TagflowNativeUnknownBlock`, an unknown-kind placeholder transport,
+  or schema negotiation for beta.
+- Preserve placeholders only for reviewed, policy-rejected known blocks where
+  `TagflowContentPolicy.unsupportedBehavior` requests it.
+
+Reopen this decision only with concrete producer evidence: a trusted CMS or app
+producer shipping ahead of the package vocabulary, a real migration that needs
+old clients to retain unknown blocks losslessly, or a reviewed schema
+negotiation design that can preserve data without silently rendering unreviewed
+content.
+
 ## 8. Dynamic Updates
 
 Dynamic update transport should align with the existing document-patch runtime
@@ -582,8 +600,6 @@ Rules for sequencing:
 The following decisions should stay open until implementation evidence exists:
 
 - whether the public adapter surface is Dart-model-first, JSON-first, or both
-- whether a future adapter `schemaVersion` should support negotiated
-  compatibility beyond strict integer version `1`
 - whether native block policy extends `TagflowContentPolicy` directly or wraps
   it with a semantic-kind policy layer
 - whether `callout` deserves a first-class runtime node kind or should stay a
@@ -596,3 +612,7 @@ The following decisions should stay open until implementation evidence exists:
   policy defaults or become adapter-specific
 - how much serializer surface should be public in the first release versus kept
   internal until multiple producers need it
+
+Closed for beta: future `schemaVersion` negotiation and unknown producer block
+preservation remain deferred. Beta keeps the strict `schemaVersion == 1` and
+known-kind codec contract.
