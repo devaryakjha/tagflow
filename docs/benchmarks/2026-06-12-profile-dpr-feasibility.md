@@ -88,7 +88,8 @@ Short term:
 If explicit DPR pinning is still wanted later:
 
 - design a separate harness mode that records both requested test overrides and
-  observed host viewport metadata;
+  observed host viewport metadata. The proposed design is now tracked in
+  [`2026-06-12-synthetic-viewport-profile-design.md`](2026-06-12-synthetic-viewport-profile-design.md);
 - decide whether reference-runner policy is meant to qualify a real display
   target or an emulated test viewport;
 - only then add CLI/env plumbing for DPR and physical/logical size.
