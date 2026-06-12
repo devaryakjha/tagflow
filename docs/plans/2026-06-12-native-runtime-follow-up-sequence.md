@@ -25,6 +25,13 @@ Current local gate evidence after the README and `tagflow_table` docs cleanup:
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 
+External gate trackers:
+
+- Real-app route evidence is tracked in
+  https://github.com/devaryakjha/tagflow/issues/73.
+- Qualified benchmark/device evidence is tracked in
+  https://github.com/devaryakjha/tagflow/issues/74.
+
 ## Current Read
 
 The native runtime direction is structurally in place:
