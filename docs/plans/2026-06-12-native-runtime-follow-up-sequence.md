@@ -5,12 +5,11 @@
 - Date: 2026-06-12
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Sequence baseline evidence commit:
-  `c0ea3b5 docs(release): refresh native runtime coordination`
-- Latest anchored coordinator evidence before benchmark-gate hardening:
-  `c0ea3b5 docs(release): refresh native runtime coordination`, after
-  `cce669a docs(benchmarks): refresh simulator target audit` and
-  `fbf2b92 docs(benchmarks): add native json observed policy`
+- Current reviewed PR head:
+  `8b7e714 test(benchmarks): record coredevice target signals`
+- Latest anchored coordinator evidence:
+  `8b7e714 test(benchmarks): record coredevice target signals`, after
+  `85df994 docs(release): track physical profile gate`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -18,28 +17,30 @@ This note is the current coordinator sequence. It does not authorize publishing,
 tagging, package-version changes, beta wording, benchmark claims, or broad
 runtime expansion.
 
-Anchored gate evidence before the benchmark-gate hardening slice:
+Current anchored gate evidence:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for `c0ea3b5`.
+  passed for `8b7e714`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for `c0ea3b5` in run
-  `27429052630`.
+- GitHub Actions `CI / Validate` passed on PR #72 for `8b7e714` in run
+  `27430745763`.
 - Use PR #72 checks, not this historical anchor, for the current branch-head
   validation state.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch
   because Flutter rejects iOS Simulator profile/release builds.
-- The latest target-audit refresh after force-quitting and relaunching
-  Simulator returned `canRunPhysicalProfileProbe=false` for run
-  `2026-06-12-current-machine-r3`: one iOS Simulator signal, two wireless iOS
+- The latest target-audit refresh after CoreDevice summary parsing hardening
+  returned `canRunPhysicalProfileProbe=false` for run
+  `2026-06-12-current-machine-r4`: one iOS Simulator signal, two wireless iOS
   signals, no connected physical iOS target in Flutter, no xctrace-online
-  physical iOS target, and no attached Android device. Raw JSON remains under
-  ignored `build/benchmarks/target-availability/`.
+  physical iOS target, seven xctrace-offline physical iOS targets, two
+  CoreDevice available-paired summary signals, seven CoreDevice blocking ids,
+  and no attached Android device. Raw JSON remains under ignored
+  `build/benchmarks/target-availability/`.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 
@@ -225,17 +226,18 @@ for PR #72, but repeating the observed-host command on the current `1.0x`
 display is still not expected to satisfy the `2.0x` observed-host policy.
 
 The latest target-availability refresh is
-`docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`.
-It found no credible physical profile target after force-quitting and
-relaunching Simulator: one iOS Simulator signal, two wireless iOS signals, zero
-connected physical iOS devices in Flutter, zero xctrace-online physical iOS
-devices, seven xctrace-offline physical iOS devices, seven CoreDevice blocking
-ids, and zero ADB-attached Android devices.
+`docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md`.
+It found no credible physical profile target after CoreDevice summary parsing
+hardening: one iOS Simulator signal, two wireless iOS signals, zero connected
+physical iOS devices in Flutter, zero xctrace-online physical iOS devices,
+seven xctrace-offline physical iOS devices, two CoreDevice available-paired
+summary signals, seven CoreDevice blocking ids, and zero ADB-attached Android
+devices.
 
 The repeatable target-audit preflight is now documented in
 `docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md`.
 Its current machine run
-`2026-06-12-current-machine-r3` wrote ignored raw JSON under
+`2026-06-12-current-machine-r4` wrote ignored raw JSON under
 `build/benchmarks/target-availability/` and returned
 `canRunPhysicalProfileProbe=false`.
 

@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Evidence baseline commit: `c0ea3b5` before benchmark-gate hardening
+- Current reviewed PR head: `8b7e714`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -71,17 +71,17 @@ issues=[
 ]
 ```
 
-Latest anchored coordinator validation evidence before benchmark-gate hardening:
+Latest anchored coordinator validation evidence:
 
 ```text
-commit=c0ea3b5
+commit=8b7e714
 
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27429052630
+run=https://github.com/devaryakjha/tagflow/actions/runs/27430745763
 ```
 
 ## Evidence Already Satisfied
@@ -115,7 +115,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at baseline `c0ea3b5`:
+GitHub state checked for this packet at PR head `8b7e714`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable
@@ -151,8 +151,8 @@ Decision request:
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 - latest simulator recovery note:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
-- latest target-audit refresh after Simulator relaunch:
-  `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`
+- latest target-audit refresh after CoreDevice summary parsing hardening:
+  `docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Native JSON observed-host policy:
@@ -163,12 +163,15 @@ Current evidence summary:
 ```text
 physical target audit:
   canRunPhysicalProfileProbe=false
-  runId=2026-06-12-current-machine-r3
+  runId=2026-06-12-current-machine-r4
   credibleProfileTargets=0
   flutterIosSimulators=1
   flutterWirelessIos=2
   flutterConnectedPhysicalIos=0
   xctraceOnlinePhysicalIos=0
+  xctraceOfflinePhysicalIos=7
+  coreDeviceAvailableIos=2
+  coreDeviceBlockingIds=7
   adbAttachedAndroid=0
 
 observed-host repeat-5 native JSON run:

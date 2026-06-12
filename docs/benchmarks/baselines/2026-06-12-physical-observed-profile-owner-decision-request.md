@@ -21,9 +21,10 @@ claims, numeric frame-budget claims, memory claims, or package publishing.
 
 ## Current Evidence
 
-Latest physical target audit after Simulator relaunch:
+Latest physical target audit after CoreDevice summary parsing hardening:
 
 ```text
+runId=2026-06-12-current-machine-r4
 canRunPhysicalProfileProbe=false
 summary=No credible physical profile target is available.
 flutterIosSimulators=1
@@ -31,7 +32,7 @@ flutterWirelessIos=2
 flutterConnectedPhysicalIos=0
 xctraceOnlinePhysicalIos=0
 xctraceOfflinePhysicalIos=7
-coreDeviceAvailableIos=0
+coreDeviceAvailableIos=2
 coreDeviceBlockingIds=7
 adbAttachedAndroid=0
 ```
@@ -41,6 +42,7 @@ Supporting docs:
 - `docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md`
 - `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md`
 - `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`
+- `docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md`
 
 Observed-host repeat-5 native JSON run:
 
@@ -94,7 +96,10 @@ checks should use
 the same `800x600 @ 2.0x` observed-host guard.
 
 The physical target audit also says no physical iOS or Android target is
-credible for profile-mode collection on this machine.
+credible for profile-mode collection on this machine. CoreDevice summary sees
+available paired devices, but Flutter reports the relevant iOS devices as
+wireless-only, `xcrun xctrace list devices` has no online physical iOS target,
+and CoreDevice verbose state still contributes blocking IDs.
 
 ## Owner Decision Options
 
