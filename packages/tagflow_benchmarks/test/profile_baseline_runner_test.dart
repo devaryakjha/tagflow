@@ -547,6 +547,12 @@ void main() {
         'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
         'repeat-01-before_first_patch-allocation-profile.json',
       );
+      expect(
+        automatedExport['heapSnapshotPath'],
+        'build/benchmarks/profile/2026-06-12T12-20-00Z/devtools/'
+        'tagflow_semantic_patch-streaming_ai_authored_insertion_patches-'
+        'repeat-01-before_first_patch-heap-snapshot.json',
+      );
       expect(automatedExport['command'], <Object?>[
         'dart',
         'run',
@@ -560,6 +566,10 @@ void main() {
           'TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI',
           'http://127.0.0.1:54321/xyz=/',
         ),
+      );
+      expect(
+        automatedExport['environment'],
+        containsPair('TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP', 'true'),
       );
     },
   );

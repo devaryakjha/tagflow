@@ -768,13 +768,14 @@ Map<String, Object?> _memoryEvidenceRunJson({
         devtoolsPath,
         '$automatedCheckpoint-allocation-profile.json',
       );
+      final heapSnapshotPath = p.join(
+        devtoolsPath,
+        '$automatedCheckpoint-heap-snapshot.json',
+      );
       return <String, Object?>{
         'checkpoint': checkpoint,
         'status': 'manualExportRequired',
-        'heapSnapshotPath': p.join(
-          devtoolsPath,
-          '$laneId-$repeatId-$checkpoint-heap-snapshot.json',
-        ),
+        'heapSnapshotPath': heapSnapshotPath,
         'allocationDiffPath': p.join(
           devtoolsPath,
           '$laneId-$repeatId-$checkpoint-allocation-diff.json',
@@ -789,10 +790,12 @@ Map<String, Object?> _memoryEvidenceRunJson({
                 'checkpoint': automatedCheckpoint,
                 'heapSummaryPath': heapSummaryPath,
                 'allocationProfilePath': allocationProfilePath,
+                'heapSnapshotPath': heapSnapshotPath,
                 'environment': <String, String>{
                   'TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI': vmServiceUri,
                   'TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT': automatedCheckpoint,
                   'TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR': devtoolsPath,
+                  'TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP': 'true',
                 },
                 'command': [
                   'dart',

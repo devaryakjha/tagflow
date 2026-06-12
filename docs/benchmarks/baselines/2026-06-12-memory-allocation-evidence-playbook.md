@@ -273,12 +273,35 @@ It writes:
 
 - `<checkpoint>-allocation-profile.json`
 - `<checkpoint>-heap-summary.json`
+- `<checkpoint>-heap-snapshot.json`, when
+  `TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP=true` or
+  `--write-raw-heap-snapshot=true` is set
 - `<checkpoint>-retaining-paths.json`, when retained-path class targets are
   requested
 
-The heap file is a compact class-level summary, not a raw DevTools heap export.
-It is useful for before/after class growth review, but it still needs reviewer
-interpretation before any memory wording can be promoted.
+The heap summary file is a compact class-level summary. The raw heap snapshot
+file stores VM-service `HeapSnapshotGraph.toChunks()` output as base64 JSON so
+it can be parsed later by the benchmark helper. It is not a DevTools UI export,
+but it preserves the VM-service heap graph captured from the live checkpoint.
+Both forms still need reviewer interpretation before any memory wording can be
+promoted.
+
+The same helper can build a class-level diff from two exported heap summaries
+or raw heap snapshots:
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+dart run melos run benchmark:memory-evidence:export -- \
+  --diff-base=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools/<before>-heap-snapshot.json \
+  --diff-head=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools/<after>-heap-snapshot.json \
+  --diff-output=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools/<after>-allocation-diff.json \
+  --diff-classes=TagflowDocumentNode,TagflowDocument
+```
+
+Diffs from heap-summary inputs are marked partial because they only include
+embedded `topClasses` rows. Diffs from raw heap snapshot artifacts are complete
+for class-count and shallow-size comparison, but they are still report-only
+review inputs.
 
 When the class-level review identifies specific live Tagflow classes, pass
 `TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES` to collect bounded
@@ -294,6 +317,7 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI=http://127.0.0.1:52010/2Vu4UM2pM9g=/ \
 TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT=after_first_patch \
 TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR=build/benchmarks/profile-memory-evidence/$RUN_ID/devtools \
+TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP=true \
 TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES=TagflowDocumentNode,TagflowDocument \
 TAGFLOW_MEMORY_EVIDENCE_RETAINING_SAMPLE_LIMIT=1 \
 TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT=20 \

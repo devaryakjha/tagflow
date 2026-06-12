@@ -13,7 +13,28 @@ Future<void> main(List<String> arguments) async {
 
   try {
     final workspaceRoot = resolveWorkspaceRoot();
-    final options = _parseOptions(arguments, workspaceRoot: workspaceRoot);
+    final values = _argumentValues(arguments);
+    if (_isDiffMode(values)) {
+      final diffOptions = _parseDiffOptions(
+        values,
+        workspaceRoot: workspaceRoot,
+      );
+      final diff = await diffMemoryEvidenceArtifacts(
+        baseArtifactPath: diffOptions.baseArtifactPath,
+        headArtifactPath: diffOptions.headArtifactPath,
+        classTargets: diffOptions.classTargets,
+        topClasses: diffOptions.topClasses,
+      );
+      final output = File(diffOptions.outputPath);
+      output.parent.createSync(recursive: true);
+      output.writeAsStringSync(
+        '${const JsonEncoder.withIndent('  ').convert(diff)}\n',
+      );
+      stdout.writeln(diffOptions.outputPath);
+      return;
+    }
+
+    final options = _parseOptions(values, workspaceRoot: workspaceRoot);
     final result = await exportMemoryEvidence(options);
     stdout.writeln(const JsonEncoder.withIndent('  ').convert(result.toJson()));
   } on FormatException catch (error) {
@@ -27,23 +48,9 @@ Future<void> main(List<String> arguments) async {
 }
 
 MemoryEvidenceExportOptions _parseOptions(
-  List<String> arguments, {
+  Map<String, String> values, {
   required Directory workspaceRoot,
 }) {
-  final values = <String, String>{};
-  for (final argument in arguments) {
-    if (!argument.startsWith('--')) {
-      throw FormatException('Unknown positional argument: $argument');
-    }
-    final separator = argument.indexOf('=');
-    if (separator == -1) {
-      throw FormatException('Expected --name=value, got: $argument');
-    }
-    values[argument.substring(2, separator)] = argument.substring(
-      separator + 1,
-    );
-  }
-
   final vmServiceUri = values['vm-service-uri'];
   if (vmServiceUri == null || vmServiceUri.trim().isEmpty) {
     throw const FormatException('Provide --vm-service-uri=<uri>.');
@@ -102,7 +109,84 @@ MemoryEvidenceExportOptions _parseOptions(
     ]),
     retainingPathSampleLimit: retainingPathSampleLimit,
     retainingPathLimit: retainingPathLimit,
+    writeRawHeapSnapshot: _parseBool(
+      values['write-raw-heap-snapshot'] ??
+          Platform.environment['TAGFLOW_MEMORY_EVIDENCE_WRITE_RAW_HEAP'] ??
+          'false',
+      optionName: '--write-raw-heap-snapshot',
+    ),
   );
+}
+
+Map<String, String> _argumentValues(List<String> arguments) {
+  final values = <String, String>{};
+  for (final argument in arguments) {
+    if (!argument.startsWith('--')) {
+      throw FormatException('Unknown positional argument: $argument');
+    }
+    final separator = argument.indexOf('=');
+    if (separator == -1) {
+      throw FormatException('Expected --name=value, got: $argument');
+    }
+    values[argument.substring(2, separator)] = argument.substring(
+      separator + 1,
+    );
+  }
+  return values;
+}
+
+bool _isDiffMode(Map<String, String> values) {
+  return values.containsKey('diff-base') ||
+      values.containsKey('diff-head') ||
+      values.containsKey('diff-output') ||
+      Platform.environment.containsKey('TAGFLOW_MEMORY_EVIDENCE_DIFF_BASE') ||
+      Platform.environment.containsKey('TAGFLOW_MEMORY_EVIDENCE_DIFF_HEAD');
+}
+
+_DiffOptions _parseDiffOptions(
+  Map<String, String> values, {
+  required Directory workspaceRoot,
+}) {
+  final base =
+      values['diff-base'] ??
+      Platform.environment['TAGFLOW_MEMORY_EVIDENCE_DIFF_BASE'];
+  final head =
+      values['diff-head'] ??
+      Platform.environment['TAGFLOW_MEMORY_EVIDENCE_DIFF_HEAD'];
+  final output =
+      values['diff-output'] ??
+      Platform.environment['TAGFLOW_MEMORY_EVIDENCE_DIFF_OUTPUT'];
+  if (base == null || base.trim().isEmpty) {
+    throw const FormatException('Provide --diff-base=<path>.');
+  }
+  if (head == null || head.trim().isEmpty) {
+    throw const FormatException('Provide --diff-head=<path>.');
+  }
+  if (output == null || output.trim().isEmpty) {
+    throw const FormatException('Provide --diff-output=<path>.');
+  }
+
+  final topClasses = int.tryParse(values['top-classes'] ?? '30');
+  if (topClasses == null || topClasses < 1) {
+    throw const FormatException('--top-classes must be an integer >= 1.');
+  }
+
+  return _DiffOptions(
+    baseArtifactPath: _resolvePath(workspaceRoot, base),
+    headArtifactPath: _resolvePath(workspaceRoot, head),
+    outputPath: _resolvePath(workspaceRoot, output),
+    topClasses: topClasses,
+    classTargets: normalizeRetainingPathClassTargets([
+      if (values['diff-classes'] != null) values['diff-classes']!,
+      if (Platform.environment['TAGFLOW_MEMORY_EVIDENCE_DIFF_CLASSES']
+          case final diffClasses?)
+        diffClasses,
+    ]),
+  );
+}
+
+String _resolvePath(Directory workspaceRoot, String path) {
+  return p.isAbsolute(path) ? path : p.join(workspaceRoot.path, path);
 }
 
 bool _parseBool(String value, {required String optionName}) {
@@ -133,7 +217,15 @@ Usage:
     [--gc=true|false] \
     [--retaining-path-classes=<ClassName[,OtherClass]>] \
     [--retaining-path-sample-limit=<n>] \
-    [--retaining-path-limit=<n>]
+    [--retaining-path-limit=<n>] \
+    [--write-raw-heap-snapshot=true|false]
+
+  dart run bin/export_memory_evidence.dart \
+    --diff-base=<before-heap-summary-or-snapshot.json> \
+    --diff-head=<after-heap-summary-or-snapshot.json> \
+    --diff-output=<allocation-diff.json> \
+    [--diff-classes=<ClassName[,OtherClass]>] \
+    [--top-classes=<n>]
 
 The target VM service must still be live. Use this against a profile hold-open
 run and one checkpoint listed in memory-evidence-manifest.json.
@@ -141,9 +233,27 @@ run and one checkpoint listed in memory-evidence-manifest.json.
 Outputs:
   <checkpoint>-allocation-profile.json
   <checkpoint>-heap-summary.json
+  <checkpoint>-heap-snapshot.json, when raw heap snapshot output is requested
   <checkpoint>-retaining-paths.json, when retained-path classes are requested
+  <checkpoint>-allocation-diff.json, when diff mode is used
 
 These files are review inputs. They do not replace human retained-object
 interpretation, and they should stay under ignored build/ output.
 ''');
+}
+
+final class _DiffOptions {
+  const _DiffOptions({
+    required this.baseArtifactPath,
+    required this.headArtifactPath,
+    required this.outputPath,
+    required this.classTargets,
+    required this.topClasses,
+  });
+
+  final String baseArtifactPath;
+  final String headArtifactPath;
+  final String outputPath;
+  final List<String> classTargets;
+  final int topClasses;
 }
