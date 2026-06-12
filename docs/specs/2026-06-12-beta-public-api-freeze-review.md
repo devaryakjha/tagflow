@@ -346,6 +346,15 @@ Native adapter surface decisions for beta:
   `TagflowNodeKind.container` with native metadata and presentation hints.
   Dedicated callout widgets should be app-owned registry components until real
   integration proves a first-class runtime kind is necessary.
+- Keep native table normalization minimal: table, row, and cell map to runtime
+  nodes; `header`, `rowSpan`, and `colSpan` are promoted runtime fields; caption
+  and other producer-specific table hints stay metadata until renderer evidence
+  proves a generic field is needed.
+- Do not add richer media-group vocabulary for beta. `image` remains the
+  reviewed native media path, and unknown media producer kinds fail at codec
+  decode.
+- Keep unsupported behavior on the shared `TagflowContentPolicy` defaults. No
+  adapter-specific unsupported fallback defaults are added for beta.
 
 ### Content Policy
 
@@ -586,6 +595,10 @@ to republish the extension package.
   native models plus `TagflowNativeBlockCodec`, avoid a broader serializer
   framework, reuse `TagflowContentPolicy`, and keep callouts normalized to
   containers with metadata/presentation hints.
+- Native table/media normalization is documented for beta. Done: preserve the
+  minimal semantic table shape, keep captions and extra table hints in
+  metadata, keep image as the only reviewed native media kind, and defer richer
+  media groups.
 - `tagflow_table` beta posture is decided and documented. Done: keep it as a
   separate first-party extension through beta, release it in lockstep for
   `beta.0` compatibility validation, and permit independent patch/minor

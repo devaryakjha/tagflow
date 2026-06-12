@@ -612,14 +612,11 @@ Rules for sequencing:
 - use focused tests for schema validation, policy enforcement, normalization,
   unsupported behavior, and patch adaptation before broad integration work
 
-## 13. Open Decisions
+## 13. Beta Decision Summary
 
-The following decisions should stay open until implementation evidence exists:
-
-- how table captions, sections, and richer media groups normalize in the first
-  adapter slice
-- whether unsupported behavior eventually needs adapter-specific defaults
-  instead of the current shared runtime policy defaults
+No beta-blocking adapter contract decisions remain open in this SPEC. Richer
+producer vocabulary can reopen specific sections later when real app evidence
+exists.
 
 Closed for beta: future `schemaVersion` negotiation and unknown producer block
 preservation remain deferred. Beta keeps the strict `schemaVersion == 1` and
@@ -648,3 +645,20 @@ Closed for beta: patch transport includes optional producer revision tokens as
 part of the first public contract, but those tokens are not core conflict
 semantics. Tagflow preserves them on envelopes and metadata while apps own
 revision checks and state updates.
+
+Closed for beta: native table normalization stays minimal and semantic.
+`table`, `tableRow`, and `tableCell` normalize to the matching runtime nodes;
+cell `header`, `rowSpan`, and `colSpan` become runtime fields; other
+producer-specific table attributes such as `caption`, `alignment`, `scope`, or
+future section hints remain preserved as native block metadata until a renderer
+or first-party table extension needs a promoted runtime field.
+
+Closed for beta: richer media groups are not part of the native block
+vocabulary. The reviewed media path is the current known `image` block with URL
+policy checks. Unknown media kinds such as `video` fail during codec decode
+like any other unknown producer kind.
+
+Closed for beta: unsupported behavior uses the shared
+`TagflowContentPolicy.unsupportedBehavior` default and semantics. Do not add
+adapter-specific unsupported defaults unless real app evidence shows native
+producer payloads need a distinct policy from HTML and other runtime adapters.

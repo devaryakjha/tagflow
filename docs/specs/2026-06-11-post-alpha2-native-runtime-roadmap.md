@@ -254,6 +254,9 @@ Transport does not promise:
 - a native-specific semantic-kind policy layer before real app evidence;
 - a first-class runtime callout node before container normalization plus
   registry overrides prove insufficient.
+- promoted runtime fields for native table captions, sections, or richer media
+  groups before renderer or app evidence needs them; beta keeps table extras in
+  metadata and supports only the reviewed `image` media kind.
 
 Schema-version rule:
 

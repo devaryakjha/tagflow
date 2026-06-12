@@ -290,6 +290,14 @@ URL policy rejects the source is dropped by default. When
 content" placeholder without exposing the rejected source payload. No other
 current native block kind has a URL-bearing field consumed by the adapter.
 
+Native table payloads use the same minimal semantic table model as the runtime:
+`table`, `tableRow`, and `tableCell` nodes, with `header`, `rowSpan`, and
+`colSpan` promoted on cells. Captions and other producer-specific table hints
+are preserved as native block metadata until a renderer or app integration
+needs a generic field. `image` is the reviewed native media kind for beta;
+video, audio, or media-group producer kinds should not be emitted until a
+future SPEC adds them.
+
 Patch envelopes decode into `TagflowNativeBlockPatchEnvelope` values containing
 ordered native operations. Apps should adapt those operations and then use the
 runtime document patch API:

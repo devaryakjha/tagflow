@@ -298,8 +298,10 @@ Architecture open decisions:
   versions remain strict codec failures through beta; placeholders are only for
   reviewed policy rejections on known blocks. Native adapter beta surface is
   typed-model plus explicit JSON codec, policy reuses `TagflowContentPolicy`,
-  and callouts stay container-normalized until app evidence proves otherwise.
-  Broader storage/sync protocol decisions remain tracked in
+  callouts stay container-normalized, native tables keep captions and extra
+  hints as metadata, and `image` is the only reviewed native media kind until
+  app evidence proves otherwise. Broader storage/sync protocol decisions remain
+  tracked in
   `docs/specs/2026-06-11-native-block-adapter-contract.md`.
 
 ## Release and Docs Direction
