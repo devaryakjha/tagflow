@@ -28,27 +28,26 @@ separate first-party extension at `1.0.0-alpha.1`.
 
 Next coordination target: `1.0.0-alpha.4` or a pre-beta planning slice, not
 `1.0.0-beta.0` yet. The alpha.3 release proved the hosted package line can be
-consumed downstream, but beta still needs reviewed memory/allocation evidence,
-an up-to-date public API freeze review, and a clearer downstream native-runtime
-path that does not rely on the legacy converter bridge for production behavior.
+consumed downstream, and the current coordinator branch has resolved the
+reviewed style and table public-surface blockers. Beta still needs reviewed
+memory/allocation evidence, pushed and merged downstream production-route
+evidence, supported-target profile evidence, and final release-gate approval.
 
 ## Coordinator Snapshot
 
 - Branch: `codex/tagflow-native-runtime-master`
-- Latest integrated coordinator commits before this status refresh include
-  `241bcdd docs(release): record alpha3 publish result`,
-  `7f5d3ae docs(release): align alpha3 disclosure handoff`,
-  `4d1aeca fix(runtime): keep disclosure summaries inline`,
-  `c2053a5 feat(runtime): render html disclosure nodes`, and
-  `9b6a5a9 docs(release): add alpha3 handoff`.
-- Latest integrated implementation commits include `d0494f8 docs(benchmarks):
-  record semantic streaming pair baseline`, `34ea827 feat(bench): add
-  opt-in viewport gate`, `3df1b5a bench(profile): detect flutter version in
-  manifests`, `c137a7b bench(profile): support custom baseline output dirs`,
-  `74a9c9c bench(profile): record viewport metadata`, and `8ed0686 fix(table):
-  preserve HTML table captions`. Recent native-runtime stabilization commits
-  include `5d8b8ed feat(benchmarks): attribute update frames to chunks` and
-  `185e9bd feat(adapter): support native table and callout blocks`.
+- Latest integrated coordinator commits include
+  `e147dff docs(release): record pub discovery posture`,
+  `4773dd8 docs(plan): record kite beta test cleanup`,
+  `12a77f1 docs(benchmarks): refresh physical ios blocker`,
+  `b545d98 docs(api): mark beta api blockers resolved`, and
+  `a650c09 docs(plan): record kite content migration branch`.
+- Latest integrated implementation commits include
+  `a4861dd refactor(table): narrow public table exports`,
+  `42e6c7a refactor(api): promote shared style primitives`,
+  `ffbb9bd feat(benchmarks): add profile checkpoint hold mode`,
+  `4d1aeca fix(runtime): keep disclosure summaries inline`, and
+  `c2053a5 feat(runtime): render html disclosure nodes`.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
@@ -107,15 +106,16 @@ path that does not rely on the legacy converter bridge for production behavior.
   memory/allocation boundary. The repeated profile runner can now request
   per-cell `--profile-memory` artifacts with `TAGFLOW_PROFILE_MEMORY=true` and
   record VM service URIs, but this is still bounded sample evidence only. The
-  remaining memory gate is DevTools checkpoint snapshots, class allocation
+  checkpoint hold harness is now available for DevTools attachment. The
+  remaining memory gate is exported checkpoint snapshots, class allocation
   diffs, or retained-object review against a still-live benchmark session.
-- Post-alpha stabilization in progress: remaining table styling parity beyond
-  normalized uniform table and horizontal-alignment hints, stable
-  reference-environment selection, numeric regression threshold policy for
-  benchmark claims, review of supported real-app profile-mode evidence, and
-  promotion of any benchmark claim to a stable reference-runner policy. The
-  attribution-enabled authored-ID ordered-insertion repeat-5 rerun completed
-  with no report-only outliers and remains bounded report-only evidence.
+- Post-alpha stabilization in progress: stable reference-environment selection,
+  physical iOS or Android profile qualification, real-app production-route
+  profile evidence, and review of memory/allocation artifacts. Threshold policy
+  is documented, but no benchmark claim should be promoted until the reference
+  environment and evidence gates are satisfied together. The attribution-enabled
+  authored-ID ordered-insertion repeat-5 rerun completed with no report-only
+  outliers and remains bounded report-only evidence.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
@@ -159,15 +159,17 @@ path that does not rely on the legacy converter bridge for production behavior.
   `lib/component/tagflow_details_converter.dart`, and
   `test/ipos/tagflow_hosted_alpha3_test.dart`; both passed. No new Kite patch
   was made.
-- The next production-safe Kite migration candidate is intentionally narrow:
-  move only the real `store.ipoInfo.content` render in
-  `lib/screens/ipos/ipo_instrument_sheet.dart` from legacy `Tagflow(...)`
-  converters to `Tagflow.html(..., registry: ...)` with
-  `tagflowTableComponents(...)`, while keeping `store.ipoInfo.excerpt` on the
-  legacy path for now. Preserve the current mobile-only HTML boundary crop and
-  link callback, and add one focused widget test using existing
-  `docs/ipo-info.md` content; do not add local fixtures, diagnostics UI, or a
-  broad production migration.
+- The production-safe Kite migration candidate has been prepared locally as
+  isolated branch `codex/ipo-tagflow-registry-content`. Commit `e26a14e6`
+  moves only the real `store.ipoInfo.content` render in
+  `lib/screens/ipos/ipo_instrument_sheet.dart` to
+  `Tagflow.html(..., registry: ...)` with `tagflowTableComponents(...)`, while
+  keeping `store.ipoInfo.excerpt` on the legacy path. Follow-up commit
+  `6d0d29f8` keeps the focused test aligned with the beta table public barrel by
+  asserting rendered table content instead of low-level table widget exports.
+  This branch remains local while GitLab DNS is unavailable and is not profile
+  evidence until pushed, merged, and validated through a real route on a
+  supported target.
 - The example app now includes a `Native JSON Transport` screen that decodes
   trusted app-controlled JSON through `TagflowNativeBlockCodec`, renders via
   `Tagflow.document(...)`, and applies a four-operation patch envelope through
@@ -178,10 +180,11 @@ path that does not rely on the legacy converter bridge for production behavior.
 - Repo is a Melos 7-managed Flutter monorepo with workspace and Melos
   configuration declared in the root `pubspec.yaml`.
 - Root SDK constraint is `>=3.9.0 <4.0.0`.
-- There is no `docs/` convention yet, so master coordination uses
-  `docs/specs/` and `docs/plans/`.
-- Existing public exports are broad; the alpha line must either preserve them
-  deliberately or clearly mark new public API boundaries.
+- Master coordination uses `docs/specs/`, `docs/plans/`, and
+  `docs/benchmarks/` as the current source-of-truth locations.
+- Current public exports have an alpha/beta posture review in
+  `docs/specs/2026-06-12-beta-public-api-freeze-review.md`; broad legacy
+  compatibility remains deliberate rather than accidental.
 - Current tests exist for parser, converter, style, table, options, and widgets.
 - CI and publish workflows exist under `.github/workflows/`.
 - Existing local change in `.vscode/settings.json` is treated as user-owned.
@@ -558,8 +561,9 @@ Master review gate:
 ### Wave 5: Release Hardening
 
 - Status: alpha.3 published, pre-beta hardening active, not stable-ready.
-- `dart run melos run validate` and `dart run melos run publish:dry-run` have
-  passed on the coordinator branch.
+- `dart run melos run validate` has passed on the coordinator branch after the
+  post-alpha3 API and benchmark documentation updates. `publish:dry-run` passed
+  for the alpha3 release handoff before publication.
 - Local benchmark baselines and repeat-5 profile summaries exist.
 - Do not treat profile timings, bounded memory files, or local desktop runs as
   release claims until reference-runner baselines, memory snapshot review, and
@@ -568,13 +572,15 @@ Master review gate:
 ### Wave 6: Alpha.4 / Pre-Beta Hardening
 
 - Status: active coordination.
-- Implement a pauseable profile benchmark checkpoint path so DevTools can
-  attach to a still-live VM service and export heap snapshots or allocation
-  diffs. This is the next credible memory/allocation evidence slice after the
-  bounded `--profile-memory` artifact plumbing.
-- Refresh the beta public API freeze review against the actual current exports
-  from `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and the
-  first-party `tagflow_table` extension.
+- The pauseable profile benchmark checkpoint path is implemented. The next
+  credible memory/allocation evidence slice is an interactive DevTools export
+  from a hold-open run, producing reviewed heap snapshots, allocation diffs, or
+  retained-object notes without committing raw `build/` artifacts.
+- The beta public API freeze review is refreshed against the current
+  coordinator exports from `package:tagflow/tagflow.dart`,
+  `package:tagflow/legacy.dart`, and the first-party `tagflow_table`
+  extension. The reviewed style and table export blockers are resolved; live
+  production-route and supported-target evidence remain open.
 - Keep Kite hosted-alpha validation as downstream evidence, but do not count
   the current local Kite commit as pushed or release-grade profile evidence
   while GitLab DNS/network and physical-device profile blockers remain open.
@@ -678,10 +684,13 @@ Master review gate:
 - Status: integrated as `697f5b2 docs(spec): refresh beta api freeze review`;
   archived after handoff.
 - Result: beta review now distinguishes published alpha.3 from coordinator
-  `HEAD`, keeps hosted Kite evidence as widget-test evidence only, and names
-  two unresolved beta blockers: primary-barrel style APIs still expose
-  `legacy.dart` CSS value types, and low-level `tagflow_table` render-object
-  exports need an explicit keep-or-hide decision before freeze.
+  `HEAD`, keeps hosted Kite evidence as widget-test evidence only, and
+  initially named two public-surface blockers. Follow-up commits
+  `42e6c7a refactor(api): promote shared style primitives` and
+  `a4861dd refactor(table): narrow public table exports` resolve those blockers
+  by promoting shared style primitives through the primary style surface and
+  narrowing the `tagflow_table` barrel to the semantic extension surface,
+  `TagflowTableBorder`, and legacy compatibility converters.
 - Constraints: no beta release language, tags, package-version changes, or
   performance claims.
 
@@ -697,6 +706,40 @@ Master review gate:
 - Constraints: no local Tagflow path overrides, diagnostics screens, broad Kite
   rewrites, or release-grade profile claims while network and physical-device
   blockers remain open.
+
+### Kite IPO Registry Content Branch
+
+- Branch: `codex/ipo-tagflow-registry-content`
+- Status: local branch tip `6d0d29f8 test(ipo): avoid tagflow table internals`;
+  not pushed while `gitlab.zerodha.tech` DNS resolution is unavailable.
+- Result: `e26a14e6 feat(ipo): render ipo content through tagflow registry`
+  prepares the content-only production migration to
+  `Tagflow.html(..., registry: ...)`; `6d0d29f8` keeps downstream test coverage
+  on public behavior and public `tagflowTableComponents(...)` instead of
+  low-level table widget exports.
+- Constraints: not profile evidence until pushed, merged, opened through a real
+  app route, and profiled on a supported physical or approved reference target.
+
+### Physical Profile Qualification
+
+- Status: blocked by current target state, not by missing Tagflow harness code.
+- Latest evidence: `12a77f1 docs(benchmarks): refresh physical ios blocker`
+  records that the iPhone still appears as wireless/offline or with a
+  disconnected CoreDevice tunnel/DDI unavailable, and no Android target is
+  attached.
+- Next action: rerun the bounded one-repeat physical profile probe only after
+  Flutter and Apple tooling agree on a normal connected physical target, or
+  after an attached Android profile target is available.
+
+### Package Discovery Surface
+
+- Status: documented as `e147dff docs(release): record pub discovery posture`.
+- Result: pub.dev default discovery still points at stable `tagflow` `0.0.8`
+  and `tagflow_table` `0.0.4+5`, so search/default package-page metadata can
+  look HTML-first while the native runtime line is prerelease-only.
+- Constraint: downstream validation must explicitly depend on
+  `tagflow: ^1.0.0-alpha.3` and `tagflow_table: ^1.0.0-alpha.1`; do not promote
+  beta or stable just to fix discovery.
 
 ## Alpha Decisions
 
