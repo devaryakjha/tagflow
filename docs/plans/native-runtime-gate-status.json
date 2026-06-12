@@ -172,6 +172,10 @@
         },
         {
           "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md"
+        },
+        {
+          "type": "localPath",
           "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-probe.md"
         },
         {
@@ -209,6 +213,10 @@
         {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r4; CoreDevice summary sees available paired devices, but Flutter reports wireless only and xctrace reports no online physical iOS target"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-13-current-machine-r1; latest target audit still reports no connected Flutter physical iOS, no xctrace-online physical iOS, and no attached Android target"
         },
         {
           "type": "note",

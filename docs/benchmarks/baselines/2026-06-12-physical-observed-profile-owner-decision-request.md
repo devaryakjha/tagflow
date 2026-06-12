@@ -21,15 +21,16 @@ claims, numeric frame-budget claims, memory claims, or package publishing.
 
 ## Current Evidence
 
-Latest physical target audit after CoreDevice summary parsing hardening:
+Latest physical target audit:
 
 ```text
-runId=2026-06-12-current-machine-r4
+runId=2026-06-13-current-machine-r1
 canRunPhysicalProfileProbe=false
 summary=No credible physical profile target is available.
 flutterIosSimulators=1
 flutterWirelessIos=2
 flutterConnectedPhysicalIos=0
+flutterConnectedAndroid=0
 xctraceOnlinePhysicalIos=0
 xctraceOfflinePhysicalIos=7
 coreDeviceAvailableIos=2
@@ -43,6 +44,7 @@ Supporting docs:
 - `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md`
 - `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`
 - `docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md`
+- `docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md`
 
 Observed-host repeat-5 native JSON run:
 

@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Recorded CI-validated PR anchor: `79d859d`
+- Recorded CI-validated PR anchor: `a1ecfdd`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -74,14 +74,14 @@ issues=[
 Recorded anchored coordinator validation evidence:
 
 ```text
-commit=79d859d
+commit=a1ecfdd
 
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27434881040
+run=https://github.com/devaryakjha/tagflow/actions/runs/27435288870
 ```
 
 ## Evidence Already Satisfied
@@ -118,7 +118,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at PR head `79d859d`:
+GitHub state checked for this packet at PR head `a1ecfdd`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable
@@ -154,8 +154,8 @@ Decision request:
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 - latest simulator recovery note:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
-- latest target-audit refresh after CoreDevice summary parsing hardening:
-  `docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md`
+- latest target-audit refresh:
+  `docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Native JSON observed-host policy:
@@ -166,11 +166,12 @@ Current evidence summary:
 ```text
 physical target audit:
   canRunPhysicalProfileProbe=false
-  runId=2026-06-12-current-machine-r4
+  runId=2026-06-13-current-machine-r1
   credibleProfileTargets=0
   flutterIosSimulators=1
   flutterWirelessIos=2
   flutterConnectedPhysicalIos=0
+  flutterConnectedAndroid=0
   xctraceOnlinePhysicalIos=0
   xctraceOfflinePhysicalIos=7
   coreDeviceAvailableIos=2
