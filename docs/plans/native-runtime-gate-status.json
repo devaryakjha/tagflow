@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "native-runtime-pr72-gates",
+  "description": "Machine-readable coordinator gate status for the Tagflow native rich-content runtime draft PR.",
+  "profiles": [
+    {
+      "id": "pr72-draft",
+      "description": "Draft PR can continue collecting coordinated native-runtime work.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate"
+      ]
+    },
+    {
+      "id": "pr72-ready",
+      "description": "Draft PR can be considered for ready review or merge.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "real-app-route"
+      ]
+    },
+    {
+      "id": "beta-candidate",
+      "description": "Native runtime line can be considered for beta promotion.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "real-app-route",
+        "physical-observed-profile",
+        "memory-allocation-review",
+        "release-approval"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "runtime-surface",
+      "status": "satisfied",
+      "summary": "Canonical native runtime surface is implemented and documented.",
+      "evidence": [
+        "TagflowDocument canonical runtime input",
+        "Tagflow.document(...) and semantic Tagflow.html(...) paths",
+        "strict native block JSON document and patch transport",
+        "view-owned node taps and public adapter metadata inspectors"
+      ]
+    },
+    {
+      "id": "coordinator-validation",
+      "status": "satisfied",
+      "summary": "Coordinator branch validates locally and in PR #72 CI.",
+      "evidence": [
+        "PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate",
+        "PR #72 CI / Validate latest pushed branch status"
+      ]
+    },
+    {
+      "id": "pr72-benchmark-gate",
+      "status": "satisfied",
+      "summary": "PR #72 benchmark gate is satisfied by internal synthetic report-only evidence.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/74",
+      "evidence": [
+        "docs/benchmarks/2026-06-12-benchmark-gate-decision.md",
+        "docs/benchmarks/baselines/2026-06-12-synthetic-viewport-repeat5.md",
+        "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+      ]
+    },
+    {
+      "id": "real-app-route",
+      "status": "open",
+      "summary": "A hosted native-runtime route must be pushed or otherwise reviewable through an approved real Flutter app path.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/73",
+      "evidence": [
+        "docs/plans/2026-06-12-real-app-route-qualification.md",
+        "docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md",
+        "docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md"
+      ]
+    },
+    {
+      "id": "physical-observed-profile",
+      "status": "open",
+      "summary": "Physical or observed-host profile evidence remains future work and is not required for PR #72 draft continuation.",
+      "evidence": [
+        "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md",
+        "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
+      ]
+    },
+    {
+      "id": "memory-allocation-review",
+      "status": "open",
+      "summary": "Existing memory/allocation exports are report-only and do not support beta/stable memory claims.",
+      "evidence": [
+        "docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md",
+        "docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md"
+      ]
+    },
+    {
+      "id": "release-approval",
+      "status": "deferred",
+      "summary": "Beta/stable approval is intentionally deferred until real-app and benchmark evidence gates are satisfied."
+    }
+  ]
+}

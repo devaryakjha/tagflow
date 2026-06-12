@@ -56,6 +56,11 @@ External gate trackers:
   `docs/benchmarks/2026-06-12-benchmark-gate-decision.md`; physical,
   observed-host, memory, frame-budget, beta/stable, and comparative
   performance gates remain separate future work.
+- Machine-readable coordinator status is tracked in
+  `docs/plans/native-runtime-gate-status.json`. The default
+  `gate:native-runtime` Melos script checks the `pr72-draft` profile; set
+  `TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=pr72-ready` to prove the stricter
+  ready-to-undraft gate, which currently fails while #73 remains open.
 
 ## Current Read
 

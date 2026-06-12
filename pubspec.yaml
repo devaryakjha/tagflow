@@ -197,6 +197,14 @@ melos:
         ${TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT:+--retaining-path-limit=$TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT}
       description: Export report-only memory evidence from a live VM service
 
+    gate:native-runtime:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/check_native_runtime_gates.dart
+        --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
+        --profile=${TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE:-pr72-draft}
+      description: Check native runtime coordinator gate status
+
     combine-coverage:
       run: |
         mkdir -p coverage &&
