@@ -93,3 +93,34 @@ The next credible profile attempt should:
 
 This blocker narrows the real-app performance evidence gap. It does not replace
 the older debug probe, and it does not support any public performance claim.
+
+## Coordinator Recheck
+
+After the coordinator branch reached `ee32ef5`, the master thread rechecked the
+current local Kite and external gate state.
+
+Current Kite state is no longer the stale dependency state from the original
+audit:
+
+- `/Users/arya/projects/kite` is on `feat/dashboard` at local commit
+  `80160401 test(ipo): validate hosted tagflow alpha3`, one commit ahead of
+  `origin/feat/dashboard`.
+- Local branch `codex/ipo-tagflow-registry-content` points at
+  `6d0d29f8 test(ipo): avoid tagflow table internals` and contains
+  `e26a14e6 feat(ipo): render ipo content through tagflow registry`.
+- That branch is still local-only. `gitlab.zerodha.tech` DNS resolution still
+  fails with `gaierror: [Errno 8] nodename nor servname provided, or not known`.
+
+Current profile blockers remain:
+
+- The registry content branch is not pushed, merged, or validated through a
+  real route.
+- Physical iOS tooling still lists physical devices under `Devices Offline`,
+  and `Arya's Iphone 17` still appears through CoreDevice as local-network with
+  a disconnected tunnel and unavailable DDI services.
+- No physical Android target is attached.
+
+Therefore the next credible Kite profile run is still gated on GitLab access,
+real-route validation of the registry-content branch, and a supported profile
+target. Widget-test evidence and local branch preparation are not production
+profile evidence.
