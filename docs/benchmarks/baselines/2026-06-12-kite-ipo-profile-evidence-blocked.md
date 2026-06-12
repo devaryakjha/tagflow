@@ -124,3 +124,56 @@ Therefore the next credible Kite profile run is still gated on GitLab access,
 real-route validation of the registry-content branch, and a supported profile
 target. Widget-test evidence and local branch preparation are not production
 profile evidence.
+
+## Worker Refresh
+
+A follow-up worker refresh from Tagflow worktree
+`/Users/arya/.codex/worktrees/bbd4/tagflow` rechecked the local Kite state on
+2026-06-12. The blocker remains current.
+
+Current Kite dependency and branch state:
+
+- `/Users/arya/projects/kite` is still on `feat/dashboard` at
+  `80160401 test(ipo): validate hosted tagflow alpha3`, one commit ahead of
+  `origin/feat/dashboard`.
+- The working tree is clean.
+- `pubspec.yaml` declares hosted `tagflow: ^1.0.0-alpha.3` and
+  `tagflow_table: ^1.0.0-alpha.1`; `pubspec.lock` resolves hosted
+  `tagflow 1.0.0-alpha.3` and hosted `tagflow_table 1.0.0-alpha.1`.
+- `test/ipos/tagflow_hosted_alpha3_test.dart` exists and covers the hosted
+  widget-test path for `Tagflow.html(..., registry: ...)` and native block
+  document/patch transport.
+- `lib/screens/ipos/ipo_instrument_sheet.dart` still imports
+  `package:tagflow/legacy.dart`; production `store.ipoInfo.excerpt` and
+  `store.ipoInfo.content` still render through the legacy converter bridge on
+  the current `feat/dashboard` branch.
+- Local branch `codex/ipo-tagflow-registry-content` still points at
+  `6d0d29f8 test(ipo): avoid tagflow table internals`, with production content
+  migration commit `e26a14e6 feat(ipo): render ipo content through tagflow
+  registry`. The diff from `feat/dashboard` remains limited to
+  `lib/screens/ipos/ipo_instrument_sheet.dart` and
+  `test/ipos/tagflow_hosted_alpha3_test.dart`.
+
+Current external and target blockers:
+
+- `git ls-remote --heads origin feat/dashboard` still fails before Git
+  authentication with `Could not resolve hostname gitlab.zerodha.tech`, and a
+  direct DNS probe reports `gaierror: [Errno 8] nodename nor servname provided,
+  or not known`.
+- `fvm flutter devices -v` reports the physical iPhone 17 and iPad only under
+  `Found 2 wirelessly connected devices`; the attached devices list contains
+  only a booted simulator, macOS, and Chrome.
+- `xcrun xctrace list devices` lists the physical iPhone 17 and iPad under
+  `Devices Offline`.
+- `xcrun devicectl list devices --json-output ...` reports both
+  `Arya's Iphone 17` and `Aryakumar Jha's iPad` with
+  `transportType: localNetwork`, `tunnelState: disconnected`, and
+  `ddiServicesAvailable: false`.
+- `/Users/arya/Library/Android/sdk/platform-tools/adb devices -l` reports no
+  attached Android devices.
+
+No Kite tests or profile commands were run during this refresh because the
+current production profile route is still not credible without GitLab access,
+a merged or reviewed real-route content migration, and a supported physical
+profile target. A simulator run or widget-test rerun would not close the
+production profile evidence gap.
