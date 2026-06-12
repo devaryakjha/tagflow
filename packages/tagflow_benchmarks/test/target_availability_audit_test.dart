@@ -37,7 +37,9 @@ Arya's Mac (18.5) (00000000-0000-0000-0000-000000000000)
 Aryakumar Jha's iPad (27.0) (00008120-0006395208E14032)
 ''',
           'xcrun devicectl list devices': '''
-Aryakumar Jha's iPad 00008120-0006395208E14032 available (paired)
+Name                   Hostname                               Identifier                             State                Model
+--------------------   ------------------------------------   ------------------------------------   ------------------   ---------------------
+Aryakumar Jha's iPad   Aryakumar-Jhas-iPad.coredevice.local   5E2FA346-EC1D-5545-B13A-0DE33C5F2EA0   available (paired)   iPad (A16) (iPad15,7)
 Arya's Iphone 17 00008150-00110C960186401C unavailable
 ''',
           'xcrun devicectl list devices --verbose': '''
@@ -63,6 +65,15 @@ developerModeStatus: enabled
       );
       expect(result.signals.flutterWirelessIos, hasLength(1));
       expect(result.signals.xctraceOfflinePhysicalIos, hasLength(1));
+      expect(result.signals.coreDeviceAvailableIos, hasLength(1));
+      expect(
+        result.signals.coreDeviceAvailableIos.single.id,
+        '5E2FA346-EC1D-5545-B13A-0DE33C5F2EA0',
+      );
+      expect(
+        result.signals.coreDeviceAvailableIos.single.name,
+        "Aryakumar Jha's iPad",
+      );
       expect(
         result.signals.coreDeviceBlockingIds,
         contains('00008120-0006395208E14032'),

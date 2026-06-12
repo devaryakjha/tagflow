@@ -608,7 +608,9 @@ List<TargetCandidate> _parseCoreDeviceAvailable(String output) {
       continue;
     }
 
-    final id = _physicalIosIdPattern.firstMatch(line)?.group(1);
+    final id =
+        _coreDeviceIdPattern.firstMatch(line)?.group(1) ??
+        _physicalIosIdPattern.firstMatch(line)?.group(1);
     if (id == null) {
       continue;
     }
@@ -616,7 +618,7 @@ List<TargetCandidate> _parseCoreDeviceAvailable(String output) {
     candidates.add(
       TargetCandidate(
         id: id,
-        name: _nameBeforeId(line, id),
+        name: _coreDeviceNameBeforeId(line, id),
         platform: 'ios',
         source: 'coredevice',
       ),
@@ -725,9 +727,24 @@ final RegExp _physicalIosIdPattern = RegExp(
   r'\b([0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}|[0-9A-Fa-f]{24,40})\b',
 );
 
+final RegExp _coreDeviceIdPattern = RegExp(
+  r'\b([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-'
+  r'[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\b',
+);
+
 String _nameBeforeId(String line, String id) {
   final prefix = line.substring(0, line.indexOf(id)).trim();
   return prefix.replaceAll(RegExp(r'\s+'), ' ');
+}
+
+String _coreDeviceNameBeforeId(String line, String id) {
+  final prefix = line.substring(0, line.indexOf(id)).trimRight();
+  final columns = prefix.split(RegExp(r'\s{2,}'));
+  if (columns.isNotEmpty && columns.first.trim().isNotEmpty) {
+    return columns.first.trim();
+  }
+
+  return _nameBeforeId(line, id);
 }
 
 List<TargetCandidate> _uniqueCandidates(List<TargetCandidate> candidates) {
