@@ -154,6 +154,10 @@
           "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-probe.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-repeat5-stalled.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
         },
@@ -164,6 +168,10 @@
         {
           "type": "note",
           "value": "observed-host native JSON probe passed loose minRepeats=1 but failed reference policy because current host is 800x600 @ 1.0x, not 2.0x"
+        },
+        {
+          "type": "note",
+          "value": "observed-host native JSON repeat5 attempt stalled after driver connection and produced no artifacts"
         }
       ]
     },
