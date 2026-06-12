@@ -468,20 +468,24 @@ Blocked until a future threshold review:
 
 ## Recommended Next Implementation Threads
 
-1. Capture the first playbook-complete DevTools memory/allocation note from a
+1. Fix the profile manifest self-consistency bug where top-level `gitCommit`
+   can be `null` while `environment.gitCommit` is populated. This should be a
+   narrow harness/test change before more reviewed profile artifacts are
+   produced from the same manifest schema.
+2. Capture the first playbook-complete DevTools memory/allocation note from a
    hold-open run, starting with the authored-insertion control/patch pair in
    `2026-06-12-memory-allocation-snapshot-blocker.md`. Do not substitute another
    bounded `--profile-memory` sample for the missing snapshot/diff evidence.
-2. Re-run physical-device qualification only after a USB iOS target appears as a
+3. Re-run physical-device qualification only after a USB iOS target appears as a
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update
    the physical-target note.
-3. Push, merge, and real-route validate the Kite
+4. Push, merge, and real-route validate the Kite
    `codex/ipo-tagflow-registry-content` branch before treating it as production
    surface evidence.
-4. Record real-app profile-mode evidence for the hosted-alpha production
+5. Record real-app profile-mode evidence for the hosted-alpha production
    surface after the production route is merged, separate from debug probes and
    converter-free widget tests.
-5. Add or promote threshold policy only after a stable reference environment is
+6. Add or promote threshold policy only after a stable reference environment is
    selected and a fresh repeat-5 matrix plus memory/allocation review are
    complete.

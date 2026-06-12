@@ -2,7 +2,8 @@
 
 **Status:** Draft review for `1.0.0-beta.0` readiness  
 **Date:** 2026-06-12  
-**Reviewed Baseline:** current coordinator `HEAD` `2d41960` after published
+**Reviewed Baseline:** current coordinator branch through
+`fe28a17 docs(benchmarks): record memory manifest smoke` after published
 `tagflow-v1.0.0-alpha.3`; this includes post-publish public API follow-ups in
 `packages/tagflow`, `packages/tagflow_table`, and benchmark/docs evidence
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and

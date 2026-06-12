@@ -37,12 +37,12 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
+  `fe28a17 docs(benchmarks): record memory manifest smoke`,
   `e147dff docs(release): record pub discovery posture`,
-  `4773dd8 docs(plan): record kite beta test cleanup`,
-  `12a77f1 docs(benchmarks): refresh physical ios blocker`,
-  `b545d98 docs(api): mark beta api blockers resolved`, and
+  `4773dd8 docs(plan): record kite beta test cleanup`, and
   `a650c09 docs(plan): record kite content migration branch`.
 - Latest integrated implementation commits include
+  `3eb7b9b feat(benchmarks): emit memory evidence checkpoints`,
   `a4861dd refactor(table): narrow public table exports`,
   `42e6c7a refactor(api): promote shared style primitives`,
   `ffbb9bd feat(benchmarks): add profile checkpoint hold mode`,
@@ -102,13 +102,15 @@ evidence, supported-target profile evidence, and final release-gate approval.
   or speed claims until the reference-runner qualification gates in
   `docs/benchmarks/2026-06-12-reference-runner-qualification.md` are satisfied
   and a separate threshold/comparison policy is reviewed.
-- Follow-up benchmark commits `5d803b4` and `0e256cd` clarify the current
-  memory/allocation boundary. The repeated profile runner can now request
-  per-cell `--profile-memory` artifacts with `TAGFLOW_PROFILE_MEMORY=true` and
-  record VM service URIs, but this is still bounded sample evidence only. The
-  checkpoint hold harness is now available for DevTools attachment. The
-  remaining memory gate is exported checkpoint snapshots, class allocation
-  diffs, or retained-object review against a still-live benchmark session.
+- Follow-up benchmark commits `5d803b4`, `0e256cd`, `3eb7b9b`, and `fe28a17`
+  clarify the current memory/allocation boundary. The repeated profile runner
+  can now request per-cell `--profile-memory` artifacts with
+  `TAGFLOW_PROFILE_MEMORY=true`, record VM service URIs, replay named
+  checkpoint holds for DevTools attachment, and emit a
+  `memory-evidence-manifest.json` checklist with expected manual export paths.
+  This is still harness and bounded-sample evidence only. The remaining memory
+  gate is exported checkpoint snapshots, class allocation diffs, or
+  retained-object review against a still-live benchmark session.
 - Post-alpha stabilization in progress: stable reference-environment selection,
   physical iOS or Android profile qualification, real-app production-route
   profile evidence, and review of memory/allocation artifacts. Threshold policy
@@ -676,6 +678,30 @@ Master review gate:
   allocation-diff export.
 - Constraints: default profile benchmark behavior must remain unchanged; output
   stays under ignored `build/`; all interpretation remains report-only.
+
+### Memory Evidence Manifest Automation
+
+- Status: integrated as
+  `3eb7b9b feat(benchmarks): emit memory evidence checkpoints`, with the
+  real-harness smoke recorded as
+  `fe28a17 docs(benchmarks): record memory manifest smoke`.
+- Result: hold-open profile runs now write
+  `memory-evidence-manifest.json` and link it from the profile manifest as
+  `memoryEvidenceManifestPath`. The manifest records VM service URIs, bounded
+  memory sample status, headless DevTools memory-profile command targets, named
+  checkpoints, and expected manual export filenames for heap snapshots,
+  allocation diffs, and retained-object notes.
+- Latest smoke: `2026-06-12-memory-manifest-smoke` ran
+  `tagflow:large_article` once on local macOS with
+  `TAGFLOW_PROFILE_MEMORY=true`, `TAGFLOW_PROFILE_HOLD_OPEN=true`, and
+  `TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=1`. Summary generation and the sequential
+  `TAGFLOW_PROFILE_MIN_REPEATS=1` check passed. The checker still emitted the
+  expected report-only `memory_allocation_evidence_required` finding.
+- Constraint: the generated manifest is a capture checklist, not memory
+  evidence. Heap snapshots, allocation diffs, and retained-object review remain
+  manual exports under ignored `build/`.
+- Follow-up: fix the profile manifest schema mismatch where the top-level
+  `gitCommit` field can be `null` while `environment.gitCommit` is populated.
 
 ### Beta API Freeze Delta Review
 
