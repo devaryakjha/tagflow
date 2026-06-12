@@ -31,6 +31,10 @@ Current local gate evidence after the benchmark and route-gate refresh:
 - The latest physical-target availability refresh found no connected physical
   iOS target in Flutter, all physical iOS devices offline in `xctrace`, only a
   disconnected local-network CoreDevice iPad, and no attached Android device.
+- The new `benchmark:profile:target-audit` preflight also returned
+  `canRunPhysicalProfileProbe=false` for run
+  `2026-06-12-current-machine-r1`, with raw JSON under ignored
+  `build/benchmarks/target-availability/`.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 
@@ -212,6 +216,16 @@ offline in `xctrace`, only a disconnected local-network CoreDevice iPad, and no
 attached Android device. No profile probe was run because the selected target
 state did not meet the minimum availability bar.
 
+The repeatable target-audit preflight is now documented in
+`docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md`.
+Its current machine run
+`2026-06-12-current-machine-r1` wrote ignored raw JSON under
+`build/benchmarks/target-availability/` and returned
+`canRunPhysicalProfileProbe=false`: one wireless iOS device in Flutter, zero
+connected physical iOS devices in Flutter, zero online physical iOS devices in
+`xctrace`, seven offline physical iOS devices in `xctrace`, seven CoreDevice
+blocking ids, and zero ADB-attached Android devices.
+
 Future physical/observed-host work is blocked until one of these is true:
 
 - a reviewed macOS target produces the expected observed `800x600 @ 2.0x`
@@ -237,9 +251,11 @@ and public metadata helper tap summaries.
 Do not start another repeat-5 profile rerun until the target qualification
 blocker changes, unless a future PR explicitly targets a different benchmark
 policy. The next useful physical/observed-host benchmark move is first
-qualifying a connected physical iOS target across Flutter and Apple tooling,
-then fixing signing for `dev.aryak.tagflow` if that remains the blocker; or
-attaching a real Android profile target. Rerun the same one-repeat native JSON
-pair before collecting any larger physical/observed-host baseline. The current
-Simulator route smoke is useful for app-path confidence but cannot replace that
-physical/profile qualification gate.
+running `benchmark:profile:target-audit` until it reports
+`canRunPhysicalProfileProbe=true`, then qualifying a connected physical iOS
+target across Flutter and Apple tooling, fixing signing for `dev.aryak.tagflow`
+if that remains the blocker, or attaching a real Android profile target. Rerun
+the same one-repeat native JSON pair before collecting any larger
+physical/observed-host baseline. The current Simulator route smoke is useful
+for app-path confidence but cannot replace that physical/profile qualification
+gate.

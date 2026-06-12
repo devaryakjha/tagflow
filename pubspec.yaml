@@ -153,6 +153,15 @@ melos:
         --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
       description: Run a repeated profile benchmark matrix and persist JSON
 
+    benchmark:profile:target-audit:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/audit_profile_targets.dart
+        --output-dir=${TAGFLOW_TARGET_AUDIT_OUTPUT_DIR:-build/benchmarks/target-availability}
+        ${TAGFLOW_TARGET_AUDIT_RUN_ID:+--run-id=$TAGFLOW_TARGET_AUDIT_RUN_ID}
+        ${TAGFLOW_TARGET_AUDIT_REQUIRE_CREDIBLE_TARGET:+--require-credible-target=$TAGFLOW_TARGET_AUDIT_REQUIRE_CREDIBLE_TARGET}
+      description: Audit physical profile target availability before profiling
+
     benchmark:profile:summarize:
       run: >
         cd packages/tagflow_benchmarks &&

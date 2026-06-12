@@ -70,6 +70,15 @@ Unsupported-target probe:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
+TAGFLOW_TARGET_AUDIT_RUN_ID=<target-audit-run-id> \
+dart run melos run benchmark:profile:target-audit
+```
+
+Only continue to the profile probe when the target audit reports
+`canRunPhysicalProfileProbe=true`.
+
+```bash
+PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 TAGFLOW_PROFILE_DEVICE=<physical-device-id> \
 TAGFLOW_PROFILE_REPEAT=1 \
 TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true \
@@ -80,6 +89,9 @@ Use `TAGFLOW_PROFILE_CONTINUE_ON_FAILURE=true` when validating a new physical
 device, simulator, or CI runner. The runner will keep a manifest entry for
 failed or missing-artifact cells instead of losing the failure as terminal
 output.
+
+Use `TAGFLOW_TARGET_AUDIT_REQUIRE_CREDIBLE_TARGET=true` when a workflow should
+fail fast before profile collection if no physical target is available.
 
 The Melos command delegates each cell to the existing profile harness:
 
@@ -364,6 +376,8 @@ Until those conditions are met, benchmark copy must use cautious language:
 ## Remaining Work Before Publishing Claims
 
 - choose and document the physical reference machine
+- run `benchmark:profile:target-audit` and require
+  `canRunPhysicalProfileProbe=true` before any physical-device profile probe
 - pin the Flutter channel and record `flutter --version`
 - repeat the default matrix with at least five repeats per cell on the chosen
   stable reference machine

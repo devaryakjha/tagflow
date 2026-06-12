@@ -169,7 +169,11 @@ evidence, supported-target profile evidence, and final release-gate approval.
   still found no credible device profile target: Flutter exposed no connected
   physical iOS device, `xctrace` listed physical iOS devices offline,
   CoreDevice showed only a disconnected local-network iPad, and ADB had no
-  attached Android device.
+  attached Android device. The new `benchmark:profile:target-audit` preflight
+  makes that stop condition repeatable and machine-readable; current run
+  `2026-06-12-current-machine-r1` also returned
+  `canRunPhysicalProfileProbe=false`, with raw artifacts under ignored
+  `build/benchmarks/target-availability/`.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
   native `TagflowDocument` path and controlled HTML adapter policy inside Kite.
