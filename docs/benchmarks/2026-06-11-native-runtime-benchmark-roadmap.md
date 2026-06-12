@@ -36,6 +36,7 @@ Threshold promotion and reference-environment rules are centralized in
 | Authored insertion patch pair | [`baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md`](baselines/2026-06-11-authored-insertion-ordered-repeat5-attribution.md) | Authored-ID insertion and ordered patch paths complete five repeats with update-frame attribution. | Report-only. |
 | Native JSON transport smoke | [`baselines/2026-06-11-native-transport-smoke.md`](baselines/2026-06-11-native-transport-smoke.md) | Native block JSON decode, adapt, patch decode, patch adapt, patch apply, and total transport phases are recorded for the alpha.2 candidate fixture. | Report-only smoke. |
 | Native JSON profile lane | [`baselines/2026-06-12-native-json-repeat5-local-baseline.md`](baselines/2026-06-12-native-json-repeat5-local-baseline.md) | The example-app profile harness collected `15 / 15` native JSON cells for `native_ai_answer`, `native_table_dense`, and `native_large_article` with five repeats. Static summaries include `coldInitialRender`, `warmRebuild`, `warmScroll`, and macOS local-runner launch attribution. | Local stabilization evidence, not a timing threshold. |
+| iOS Simulator native JSON smoke | [`baselines/2026-06-12-ios-simulator-smoke.md`](baselines/2026-06-12-ios-simulator-smoke.md) | The booted iPhone 17 Simulator can launch, render, and scroll `tagflow_native_json:native_ai_answer` in debug mode after the Simulator app is restarted. The matching profile-mode probe failed before launch because Flutter rejects iOS Simulator profile/release builds. | Debug route smoke only; not physical-device, profile, or reference-runner qualification. |
 | Memory evidence probe | [`baselines/2026-06-12-memory-allocation-evidence-probe.md`](baselines/2026-06-12-memory-allocation-evidence-probe.md) | `flutter drive --profile-memory` produced bounded DevTools memory JSON for `tagflow_native_json:native_large_article` and `tagflow_semantic_patch:streaming_ai_authored_insertion_patches`. | Feasibility evidence only. |
 | Memory repeat-5 local status | [`baselines/2026-06-12-memory-allocation-repeat5-local-status.md`](baselines/2026-06-12-memory-allocation-repeat5-local-status.md) | Required macOS repeat-5 profile baselines now exist for `tagflow:large_article`, `tagflow:table_stress`, and the authored-insertion control/patch pair, with bounded `--profile-memory` JSON captured for those lanes plus optional `tagflow_native_json:native_large_article`. | Historical report-only repeat baseline; later raw heap/class-diff rows supersede this row's original snapshot/diff gap. |
 | Memory snapshot blocker | [`baselines/2026-06-12-memory-allocation-snapshot-blocker.md`](baselines/2026-06-12-memory-allocation-snapshot-blocker.md) | The repeated profile runner can now request per-cell bounded `--profile-memory` files, record any VM service URI printed by Flutter, and optionally replay named hold-open checkpoints for DevTools attachment. | Historical blocker note; later exporter support and raw heap/class-diff rows supersede this row's collection gap. |
@@ -138,10 +139,11 @@ Until this tier exists, allowed wording is limited to internal evidence such as
 - Device matrix: no supported physical iOS or Android profile baseline is
   qualified yet. The latest physical refresh still saw the iPhone 17 and iPad
   only in Flutter's wireless bucket while `xctrace` listed those same UDIDs
-  offline, even though CoreDevice reported them as `available (paired)`. The
-  exact `adb devices -l` command also failed because `adb` was not on `PATH`.
-  Simulator profile mode has known limitations and should not be promoted
-  without a fresh tooling check.
+  offline, even though CoreDevice reported them as `available (paired)`. Android
+  tooling has not exposed an attached physical Android target in the current
+  evidence set. Simulator debug smoke passed for the native JSON route, but
+  profile-mode collection failed before launch because Flutter rejects iOS
+  Simulator profile/release builds.
 - Real-app profile: hosted-alpha widget evidence exists in Kite, including
   hosted `Tagflow.html(..., registry: ...)`, `tagflow_table` registry
   extension, and native block document/patch transport coverage. No credible
@@ -527,9 +529,11 @@ Blocked until a future threshold review:
    normal connected target to Flutter and Apple tooling, or after an attached
    Android target is available. Stop after the first bounded failure and update
    the physical-target note.
-3. Push, merge, and real-route validate the Kite
-   `codex/ipo-tagflow-registry-content` branch before treating it as production
-   surface evidence.
+3. If Kite remains the selected real-app route, push, merge, and real-route
+   validate the Kite `codex/ipo-tagflow-registry-content` branch before treating
+   it as production surface evidence. If Kite remains blocked by GitLab
+   DNS/access, name an approved equivalent Flutter app route and collect the
+   same hosted-runtime, intended-path, real-data evidence there.
 4. Record real-app profile-mode evidence for the hosted-alpha production
    surface after the production route is merged, separate from debug probes and
    converter-free widget tests.

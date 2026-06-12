@@ -461,10 +461,17 @@ New guidance:
 - Should patch helpers stay extension-only through beta, or should they move to
   instance methods before stable?
 - What exact real-app evidence would justify reopening deferred
-  `TagflowDocumentPatchResult` metadata before stable?
-- Should duplicate-ID validation happen eagerly in `TagflowDocument` creation,
-  only in patch APIs, or both?
-- Should benchmark fixtures add a native document fixture alongside HTML and
-  Markdown sources?
-- Should the authored-ID insertion benchmark live as a distinct fixture or as a
-  parameterized variant of the current semantic streaming fixtures?
+  `TagflowDocumentPatchResult` metadata before stable? Current beta posture:
+  defer result metadata unless a real app needs applied counts, changed IDs, or
+  non-fatal warning data without retaining its authored patch envelope.
+- Should plain `TagflowDocument(...)` construction remain permissive through
+  stable, or should the stricter `TagflowDocument.validated(...)` path become
+  the default? Current beta posture: keep plain construction permissive, and
+  require explicit validation in adapter parsing, patch application, and app
+  flows that need duplicate-ID guarantees.
+- Native document benchmark fixtures now exist for the native JSON lane. Future
+  fixture work should focus on equivalence policy and real-app content shape
+  rather than adding a second generic native fixture set.
+- Authored-ID insertion currently lives as a distinct benchmark pair so control
+  and patch lanes stay reviewable from one run id. Revisit parametrization only
+  if fixture setup duplication starts hiding measurement intent.

@@ -6,8 +6,8 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Baseline commit: `9491aa5 docs(benchmarks): document profile dpr qualification`
-- Latest coordinator validation refresh: `b9a8906 docs(readme): align melos
-  common tasks`
+- Latest coordinator evidence refresh:
+  `0203f66 docs(benchmarks): record ios simulator smoke`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -15,13 +15,19 @@ This note is the current coordinator sequence. It does not authorize publishing,
 tagging, package-version changes, beta wording, benchmark claims, or broad
 runtime expansion.
 
-Current local gate evidence after the README and `tagflow_table` docs cleanup:
+Current local gate evidence after the README, `tagflow_table` docs cleanup, and
+simulator smoke refresh:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
   passed on the coordinator branch at `b9a8906`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   exited 0 and reported no unpublished packages, so no publishable package
   payload changed after the docs-only cleanup.
+- GitHub Actions `CI / Validate` passed on PR #72 at head `0203f66`.
+- iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
+  debug route smoke for `tagflow_native_json:native_ai_answer`.
+- `benchmark:profile:baselines` on that same Simulator failed before launch
+  because Flutter rejects iOS Simulator profile/release builds.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
 
@@ -50,9 +56,12 @@ gates:
   policy on this `1.0x` display;
 - a silent DPR override would change benchmark semantics, so the profile lane
   must wait for a reviewed target or an explicit synthetic-viewport design;
-- Kite production-route evidence still depends on GitLab/DNS or route access;
+- Kite production-route evidence still depends on Kite GitLab/DNS or an
+  approved equivalent real Flutter app route;
 - physical-device profile evidence still depends on a normal connected iOS or
-  Android target.
+  Android target;
+- Simulator evidence is useful only as debug route smoke unless Flutter tooling
+  proves profile-mode support for the selected simulator/runtime.
 
 ## Next Slices
 
@@ -134,7 +143,8 @@ Acceptance:
 ### 4. Land Real-App Route Evidence When External Access Is Available
 
 Type: real-app evidence slice
-Status: blocked by external state
+Status: blocked by external state for Kite; replaceable by an approved
+equivalent real Flutter app route
 
 The beta-readiness docs already identify Kite as the live-app evidence path.
 Widget-test evidence exists, but production-route push/merge/profile evidence
@@ -156,7 +166,8 @@ Acceptance after unblock:
 
 Type: benchmark/device/reference-target slice
 Status: blocked by target qualification; one-repeat physical iOS probe now
-blocked at signing/provisioning
+blocked at signing/provisioning. Simulator debug smoke is available, but
+Simulator profile mode is not.
 
 The equivalent answer-detail repeat-5 run is useful local evidence, but it is
 not claim-ready. Repeating the same command on the current `1.0x` display is
@@ -187,6 +198,9 @@ decode/render, patch envelope apply, revision updates, removal/reset behavior,
 and public metadata helper tap summaries.
 
 Do not start another repeat-5 profile rerun until the target qualification
-blocker changes. The next useful benchmark move is fixing iOS signing for
-`dev.aryak.tagflow` on a physical device, then rerunning the same one-repeat
-native JSON pair before collecting any larger baseline.
+blocker changes. The next useful benchmark move is first qualifying a connected
+physical iOS target across Flutter and Apple tooling, then fixing signing for
+`dev.aryak.tagflow` if that remains the blocker; or attaching a real Android
+profile target. Rerun the same one-repeat native JSON pair before collecting any
+larger baseline. The current Simulator route smoke is useful for app-path
+confidence but cannot replace that physical/profile qualification gate.

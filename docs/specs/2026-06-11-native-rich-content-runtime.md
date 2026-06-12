@@ -175,8 +175,10 @@ Rules:
   `Tagflow.document`.
 - `Tagflow.html(..., registry: ...)` is part of the implemented semantic
   runtime path for HTML-origin content.
-- The current default constructor `Tagflow({required html, ...})` may remain in
-  alpha as a deprecated alias, but new docs should prefer named constructors.
+- The current default constructor `Tagflow({required html, ...})` remains a
+  legacy compatibility surface through beta. New docs should prefer named
+  constructors. Decide before stable whether to add a Dart `@Deprecated`
+  annotation or keep the constructor as a long-term compatibility alias.
 
 ### Legacy API posture
 

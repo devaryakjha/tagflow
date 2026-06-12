@@ -3,7 +3,8 @@
 ## Status
 
 - Date: 2026-06-12 Asia/Kolkata
-- Commit: `006c3936504fbea4f4d47698729f04a77ee89ec1`
+- Collection commit: `006c3936504fbea4f4d47698729f04a77ee89ec1`
+- Reviewed note commit: `0203f661bdb164febde86651516bf97790f44bc5`
 - Branch context: `codex/tagflow-native-runtime-master`
 - Posture: route smoke only, not profile benchmark qualification
 

@@ -37,6 +37,8 @@ evidence, supported-target profile evidence, and final release-gate approval.
 
 - Branch: `codex/tagflow-native-runtime-master`
 - Latest integrated coordinator commits include
+  `0203f66 docs(benchmarks): record ios simulator smoke`,
+  `006c393 docs(plans): link native runtime gate trackers`,
   `de2d9ec docs(benchmarks): record ios physical signing blocker`,
   `246e33a docs(specs): decide patch result semantics`,
   `fb9e20e docs(specs): reconcile native runtime current state`,
@@ -143,13 +145,19 @@ evidence, supported-target profile evidence, and final release-gate approval.
   until the reference environment and evidence gates are satisfied together. The
   attribution-enabled authored-ID ordered-insertion repeat-5 rerun completed
   with no report-only outliers and remains bounded report-only evidence.
-- Latest gate refresh: `ssh -T git@gitlab.zerodha.tech` still fails DNS
-  resolution, `flutter devices` still lists physical iOS candidates only in
-  the wireless bucket, `xctrace` still lists those same UDIDs under
-  `Devices Offline`, and `adb devices -l` with platform-tools on `PATH` reports
-  no attached Android devices. The bounded one-repeat iOS native JSON probe
-  reached Xcode signing and produced a failed manifest, but no install,
-  launch, integration artifact, or runtime metrics; see
+- Latest gate refresh: GitLab DNS/access remains a Kite-specific blocker, not
+  a Tagflow-wide requirement. Real-app route evidence is tracked in
+  https://github.com/devaryakjha/tagflow/issues/73 and can use Kite or an
+  approved equivalent Flutter app route. Benchmark/device evidence is tracked
+  in https://github.com/devaryakjha/tagflow/issues/74. The iOS Simulator
+  restart path is healthy enough for debug route smoke, and the native JSON
+  `native_ai_answer` smoke passed there, but Flutter rejects iOS Simulator
+  profile/release builds; see
+  `docs/benchmarks/baselines/2026-06-12-ios-simulator-smoke.md`. Physical
+  targets remain unqualified: previous discovery saw physical iOS candidates in
+  wireless/offline state, Android had no attached target, and the bounded
+  one-repeat iOS native JSON probe reached Xcode signing but produced no
+  install, launch, integration artifact, or runtime metrics; see
   `docs/benchmarks/baselines/2026-06-12-ios-physical-signing-blocked.md`.
 - Kite validation evidence now covers both the proof-only local override path
   and the clean hosted-alpha dependency path. The proof run demonstrated the
@@ -624,7 +632,9 @@ Master review gate:
   production-route and supported-target evidence remain open.
 - Keep Kite hosted-alpha validation as downstream evidence, but do not count
   the current local Kite commit as pushed or release-grade profile evidence
-  while GitLab DNS/network and physical-device profile blockers remain open.
+  while Kite GitLab DNS/network and physical-device profile blockers remain
+  open. If Kite remains unavailable, an approved equivalent real Flutter app
+  route can replace the Kite-specific evidence path.
 - Keep physical-device profile work to one-repeat qualification probes until a
   target can be signed, installed, launched, and shown to produce the copied
   integration artifact. The latest iOS probe is a signing blocker, not a
@@ -813,16 +823,22 @@ Master review gate:
   `tagflow_native_json:native_ai_answer`; the runner wrote a failed manifest,
   but Xcode could not sign `dev.aryak.tagflow` for team `7573STCA2W`, no
   `Runner.app` was produced, and no integration artifact or runtime metric was
-  collected.
+  collected. `0203f66 docs(benchmarks): record ios simulator smoke` then proved
+  that the iOS Simulator can launch the native JSON route in debug mode after a
+  Simulator restart, while also recording that Flutter rejects profile/release
+  builds for iOS Simulator.
 - Current gate refresh:
   `flutter devices` still lists the iPhone 17 and iPad only as wireless
   targets, `xctrace` still lists those physical UDIDs offline, and
   `adb devices -l` reports no attached Android devices when platform-tools is
   placed on `PATH`.
-- Next action: fix iOS signing/provisioning for `dev.aryak.tagflow` or attach a
-  real Android profile target, then rerun the same bounded one-repeat native
-  JSON probe. Do not run repeat-5 until the one-repeat probe installs, launches,
-  and produces the copied integration artifact.
+- Next action: first qualify a connected physical iOS target across Flutter and
+  Apple tooling, then fix signing/provisioning for `dev.aryak.tagflow` if that
+  remains the blocker. Alternatively, attach a real Android profile target.
+  Rerun the same bounded one-repeat native JSON probe before any repeat-5 run.
+  Do not run repeat-5 until the one-repeat probe installs, launches, and
+  produces the copied integration artifact. Do not use Simulator smoke as a
+  substitute for physical/profile qualification.
 
 ### Package Discovery Surface
 
