@@ -177,9 +177,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   authored-insertion control/patch pair, and one optional native-support lane.
   Reviewed repeat-5 baselines also exist for those lanes. Raw heap snapshots,
   allocation diffs, and retained-path samples are now recorded for the required
-  non-device HTML lanes listed below, but retained-object interpretation and
-  promotion from report-only samples to reviewed allocation evidence remain
-  follow-up work. The harness can now
+  non-device HTML lanes listed below, but promotion from report-only samples to
+  public or beta-facing memory/allocation wording remains follow-up work. The
+  harness can now
   replay named hold-open checkpoints for DevTools attachment, generate a
   `memory-evidence-manifest.json` checklist, and export report-only
   VM-service allocation profiles, class-level heap summaries, optional raw
@@ -222,9 +222,9 @@ Until this tier exists, allowed wording is limited to internal evidence such as
   The `tagflow:table_stress` lane now has same-process raw VM-service heap
   snapshot/class-diff evidence recorded in
   [`docs/benchmarks/baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md`](baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md).
-  Public memory/allocation wording still remains blocked for broader Tagflow
-  claims until the reviewed interpretation scope is decided for the required
-  HTML memory lanes.
+  Public memory/allocation wording remains blocked by the target, repeat,
+  real-app, reference-environment, and wording-policy gates recorded in the
+  HTML memory interpretation note.
 - Frame attribution: update-frame attribution exists for streaming updates, and
   static first-render, warm-rebuild, and warm-scroll phases are split. macOS
   local-runner launch markers are recorded separately as `launchAttribution`,
