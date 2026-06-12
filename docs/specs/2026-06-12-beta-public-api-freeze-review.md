@@ -5,7 +5,7 @@
 **Reviewed Baseline:** current coordinator branch after published
 `tagflow-v1.0.0-alpha.3`, including public API follow-ups in
 `packages/tagflow` and `packages/tagflow_table` plus benchmark evidence through
-`11c644a fix(benchmarks): dedupe retained path class targets`
+`19e0fc4 docs(benchmarks): record multi-checkpoint retained paths`
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
 
@@ -19,10 +19,11 @@ The conclusion is conservative: Tagflow is not beta-ready yet. The runtime
 direction is correct, but beta should wait until hosted alpha app integration
 covers a pushed and merged production route, supported-target profile evidence
 exists, broader memory/allocation evidence is reviewed, and release gates are
-approved. The authored-insertion patch lane now has one live `after_scroll`
-retained-path evidence slice, but beta still needs the wider raw heap/diff and
-multi-checkpoint retained-object review called out in the benchmark roadmap.
-The reviewed style and table public-surface blockers have been resolved on the
+approved. The authored-insertion patch lane now has live retained-path evidence
+at `after_scroll` plus same-process retained-path exports across all patch
+checkpoints, but beta still needs wider raw heap/diff review and paired
+control-lane retained-path attribution called out in the benchmark roadmap. The
+reviewed style and table public-surface blockers have been resolved on the
 coordinator branch.
 
 This review assumes one breaking native-runtime `1.0.0` prerelease line. A
