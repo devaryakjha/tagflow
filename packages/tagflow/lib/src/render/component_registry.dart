@@ -295,11 +295,15 @@ Widget _renderList(TagflowComponentContext context, TagflowDocumentNode node) {
   for (var index = 0; index < node.children.length; index++) {
     final child = node.children[index];
     if (child.kind == TagflowNodeKind.listItem) {
+      final row = _renderListRow(
+        context,
+        child,
+        marker: (node.ordered ?? false) ? '${startIndex + index}.' : '•',
+      );
       children.add(
-        _renderListRow(
-          context,
-          child,
-          marker: (node.ordered ?? false) ? '${startIndex + index}.' : '•',
+        KeyedSubtree(
+          key: ValueKey<String>(child.id),
+          child: _wrapNodeTapTarget(context.buildContext, child, row),
         ),
       );
       continue;

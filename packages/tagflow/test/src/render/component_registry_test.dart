@@ -404,6 +404,57 @@ void main() {
       );
     });
 
+    testWidgets('applies node tap callbacks to list items rendered by lists', (
+      tester,
+    ) async {
+      TagflowDocumentNode? tappedNode;
+      final document = TagflowDocument(
+        id: 'doc-list-item-tap',
+        children: [
+          TagflowDocumentNode.list(
+            id: 'actions',
+            ordered: false,
+            children: [
+              TagflowDocumentNode.listItem(
+                id: 'actions.review',
+                children: [
+                  TagflowDocumentNode.paragraph(
+                    id: 'actions.review.body',
+                    children: [
+                      TagflowDocumentNode.text(
+                        id: 'actions.review.body.text',
+                        text: 'Review checklist',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            viewOptions: TagflowViewOptions(
+              nodeTapCallback: (details) {
+                tappedNode = details.node;
+              },
+              tapTargetKinds: const {TagflowNodeKind.listItem},
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Review checklist'));
+      await tester.pump();
+
+      expect(tappedNode?.id, 'actions.review');
+      expect(tappedNode?.kind, TagflowNodeKind.listItem);
+    });
+
     testWidgets('renders ordered and unordered list markers semantically', (
       tester,
     ) async {
