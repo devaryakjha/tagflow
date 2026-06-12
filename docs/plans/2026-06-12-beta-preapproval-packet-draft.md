@@ -4,7 +4,7 @@
 
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Recorded CI-validated PR anchor: `0035b58`
+- Recorded CI-validated PR anchor: `79d859d`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -74,14 +74,14 @@ issues=[
 Recorded anchored coordinator validation evidence:
 
 ```text
-commit=0035b58
+commit=79d859d
 
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
 result=passed locally
 
 GitHub CI / Validate
 result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27434363274
+run=https://github.com/devaryakjha/tagflow/actions/runs/27434881040
 ```
 
 ## Evidence Already Satisfied
@@ -93,7 +93,8 @@ These gates are already satisfied in
   `Tagflow.document(...)`, semantic `Tagflow.html(...)`, strict native block
   JSON document and patch transport, node taps with first button-like semantics
   plus semantics-action coverage on opted-in non-link document and
-  HTML-adapted targets, and adapter metadata helpers;
+  HTML-adapted targets, example-app native block activation coverage, and
+  adapter metadata helpers;
 - `coordinator-validation`: local validation and PR #72 CI evidence;
 - `pr72-benchmark-gate`: internal synthetic report-only benchmark gate for
   PR #72, tracked separately from physical, observed-host, memory,
@@ -117,7 +118,7 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at PR head `0035b58`:
+GitHub state checked for this packet at PR head `79d859d`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable

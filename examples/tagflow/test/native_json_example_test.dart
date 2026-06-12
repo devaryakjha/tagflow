@@ -78,4 +78,43 @@ void main() {
     );
     expect(find.text('Keep the legacy banner enabled.'), findsOneWidget);
   });
+
+  testWidgets('activates app-authored native blocks through semantics', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+
+    try {
+      await tester.pumpWidget(const MaterialApp(home: NativeJsonExample()));
+      await tester.pump();
+
+      expect(
+        tester.getSemantics(
+          find.text('Tap this risk desk note to inspect the native block.'),
+        ),
+        matchesSemantics(
+          label: 'Tap this risk desk note to inspect the native block.',
+          hasTapAction: true,
+          isButton: true,
+        ),
+      );
+
+      tester.semantics.tap(
+        find.semantics.byLabel(
+          'Tap this risk desk note to inspect the native block.',
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Selected block: Risk desk action | risk-update.callout | '
+          'callout | open-risk-desk',
+        ),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
 }

@@ -32,6 +32,9 @@ The first node-tap slice landed on the coordinator branch in
 - The roadmap item `Custom tap handlers per element type` is checked. Long
   press, broader gesture recognition, selection, copy/paste, and a unified
   action disposition model remain open.
+- The example app's `Native JSON Transport` screen demonstrates view-owned taps
+  on app-authored native blocks, including semantics activation for the callout
+  action.
 
 ## 1. Problem Statement
 
@@ -211,5 +214,3 @@ Do not check long press, gesture recognition, selection, or copy/paste.
 - Whether link taps and node taps should compose through a unified action model.
 - Broader accessibility review beyond the first button-like role/label and
   semantics-tap coverage on app-defined tap targets.
-- Example-app plugin showcase demonstrating node taps on app-authored native
-  blocks.
