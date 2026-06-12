@@ -414,6 +414,53 @@ void main() {
       }
     });
 
+    testWidgets('dispatches node tap callbacks from semantics tap actions', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      TagflowDocumentNode? tappedNode;
+      final document = TagflowDocument(
+        id: 'doc-node-tap-semantics-action',
+        children: [
+          TagflowDocumentNode.container(
+            id: 'card',
+            children: [
+              TagflowDocumentNode.paragraph(
+                id: 'card.body',
+                children: [
+                  TagflowDocumentNode.text(id: 'card.text', text: 'Open card'),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Tagflow.document(
+              document,
+              viewOptions: TagflowViewOptions(
+                nodeTapCallback: (details) {
+                  tappedNode = details.node;
+                },
+                tapTargetKinds: const {TagflowNodeKind.container},
+              ),
+            ),
+          ),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Open card'));
+        await tester.pump();
+
+        expect(tappedNode?.id, 'card');
+        expect(tappedNode?.kind, TagflowNodeKind.container);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('applies node tap callbacks to opted-in HTML nodes', (
       tester,
     ) async {

@@ -5,11 +5,12 @@
 - Date: 2026-06-12
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Current reviewed PR head:
-  `f044844 feat(runtime): add node tap semantics`
-- Latest anchored coordinator evidence:
-  `f044844 feat(runtime): add node tap semantics`, after
-  gate-tooling updates in `8897929` and `b4ff260`
+- Recorded CI-validated PR anchor:
+  `f4df58f test(example): include example app in validation`
+- Recorded anchored coordinator evidence:
+  `f4df58f test(example): include example app in validation`, after
+  native JSON route coverage in `f6ce373`, node-tap semantics in `f044844`,
+  and gate-tooling updates in `8897929` and `b4ff260`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
@@ -20,13 +21,13 @@ runtime expansion.
 Current anchored gate evidence:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed for `f044844`.
+  passed for `f4df58f`.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 for `f044844` in run
-  `27432722965`.
+- GitHub Actions `CI / Validate` passed on PR #72 for `f4df58f` in run
+  `27433735873`.
 - Use PR #72 checks, not this historical anchor, for the current branch-head
   validation state.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
@@ -74,7 +75,8 @@ The native runtime direction is structurally in place:
   semantic runtime unless legacy custom converters are explicitly supplied.
 - Native block JSON document and patch transport are strict and data-only.
 - View-owned node taps, first button-like semantics for opted-in non-link tap
-  targets, and adapter metadata inspectors exist.
+  targets, semantics-action activation coverage, and adapter metadata
+  inspectors exist.
 - The first equivalent HTML/native fixture family has repeat-5 local evidence.
 
 The remaining blocking evidence gap is now the real-app route gate:

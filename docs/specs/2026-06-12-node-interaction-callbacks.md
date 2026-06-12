@@ -22,11 +22,13 @@ The first node-tap slice landed on the coordinator branch in
 - `TagflowNodeKind.link` preserves the existing `linkTapCallback` path and
   does not fire both link and node callbacks in this first slice.
 - Opted-in non-link node tap targets expose button-like semantics while
-  preserving child labels and tap actions.
+  preserving child labels and dispatching semantics tap actions through the
+  same view-owned callback.
 - Focused tests cover default inert non-link nodes, opted-in
-  `Tagflow.document(...)` nodes, opted-in `Tagflow.html(...)` nodes with
-  authored IDs and metadata, link behavior preservation, legacy option
-  conversion, and public export reachability.
+  `Tagflow.document(...)` nodes, semantics-action activation for opted-in
+  document nodes, opted-in `Tagflow.html(...)` nodes with authored IDs and
+  metadata, link behavior preservation, legacy option conversion, and public
+  export reachability.
 - The roadmap item `Custom tap handlers per element type` is checked. Long
   press, broader gesture recognition, selection, copy/paste, and a unified
   action disposition model remain open.
@@ -152,7 +154,8 @@ Recommended wrapper behavior:
 - use `HitTestBehavior.translucent`
 - add `MouseRegion(cursor: SystemMouseCursors.click)` for pointer platforms
 - add basic button-like semantics when doing so does not destroy child
-  semantics
+  semantics; widget tests must prove the resulting semantics tap action reaches
+  the same `TagflowNodeTapCallback`
 
 ## 7. Adapter Semantics
 
@@ -184,6 +187,8 @@ The first implementation slice must include focused tests proving:
 - default `TagflowViewOptions` do not make non-link nodes tappable
 - `Tagflow.document(...)` invokes `nodeTapCallback` for an opted-in semantic
   node kind and passes the tapped node
+- semantics tap actions on opted-in non-link tap targets invoke
+  `nodeTapCallback` with the same tapped node
 - `Tagflow.html(...)` can tap an HTML-adapted node by semantic kind while
   preserving stable node ID and metadata for the callback
 - `linkTapCallback` still handles links as before
@@ -204,7 +209,7 @@ Do not check long press, gesture recognition, selection, or copy/paste.
 - Long press callback shape.
 - Whether a future callback should return a handled/ignored disposition.
 - Whether link taps and node taps should compose through a unified action model.
-- Broader accessibility review beyond the first button-like role/label
-  semantics on app-defined tap targets.
+- Broader accessibility review beyond the first button-like role/label and
+  semantics-tap coverage on app-defined tap targets.
 - Example-app plugin showcase demonstrating node taps on app-authored native
   blocks.

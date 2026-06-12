@@ -5,7 +5,7 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Current reviewed PR head: `f044844`
+- Recorded CI-validated PR anchor: `f4df58f`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: planning and coordination only; no publish, tag, version bump,
   beta/stable wording, package-page claim, public benchmark claim, or PR
@@ -72,8 +72,8 @@ SPECs, or gate manifest.
 The native JSON example and current reference path should stay as-is unless
 new real-app evidence shows a contract gap. The node-tap semantics follow-up
 now has a focused package slice: opted-in non-link tap targets expose
-button-like semantics while preserving child labels and the view-owned callback
-model.
+button-like semantics while preserving child labels and semantics-action
+activation through the view-owned callback model.
 
 ## Open Decisions
 
