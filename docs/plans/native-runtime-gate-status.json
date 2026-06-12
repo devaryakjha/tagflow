@@ -159,6 +159,10 @@
         },
         {
           "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md"
+        },
+        {
+          "type": "localPath",
           "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-probe.md"
         },
         {
@@ -188,6 +192,10 @@
         {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r2; simulator recorded separately"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r3 after Simulator relaunch; simulator remains debug-smoke only"
         },
         {
           "type": "note",

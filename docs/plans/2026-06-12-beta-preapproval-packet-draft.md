@@ -202,10 +202,10 @@ Owner option B waives the gate for beta preapproval only:
 I waive physical-observed-profile for beta preapproval only. I accept the
 current local observed-host repeat-5 native JSON run
 2026-06-12-observed-host-native-json-repeat5-timeout-r1 as local stabilization
-evidence, despite the reference-runner viewport mismatch and lack of physical
-device evidence. This waiver does not approve public benchmark claims,
-frame-budget claims, memory claims, comparative performance wording, stable
-release wording, or package publishing.
+evidence, despite the native JSON observed-host policy viewport mismatch and
+lack of physical device evidence. This waiver does not approve public
+benchmark claims, frame-budget claims, memory claims, comparative performance
+wording, stable release wording, or package publishing.
 ```
 
 Unless option A evidence exists or option B waiver text is recorded, keep

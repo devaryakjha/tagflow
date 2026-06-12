@@ -21,16 +21,17 @@ claims, numeric frame-budget claims, memory claims, or package publishing.
 
 ## Current Evidence
 
-Physical target audit:
+Latest physical target audit after Simulator relaunch:
 
 ```text
 canRunPhysicalProfileProbe=false
 summary=No credible physical profile target is available.
 flutterIosSimulators=1
-flutterWirelessIos=1
+flutterWirelessIos=2
 flutterConnectedPhysicalIos=0
 xctraceOnlinePhysicalIos=0
 xctraceOfflinePhysicalIos=7
+coreDeviceAvailableIos=0
 coreDeviceBlockingIds=7
 adbAttachedAndroid=0
 ```
@@ -39,6 +40,7 @@ Supporting docs:
 
 - `docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md`
 - `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md`
+- `docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md`
 
 Observed-host repeat-5 native JSON run:
 
@@ -57,7 +59,7 @@ Supporting doc:
 
 ## Why The Gate Remains Open
 
-The current reference-runner policy expects:
+The current native JSON observed-host policy expects:
 
 ```json
 {
@@ -132,10 +134,10 @@ Waiver text:
 I waive physical-observed-profile for beta preapproval only. I accept the
 current local observed-host repeat-5 native JSON run
 2026-06-12-observed-host-native-json-repeat5-timeout-r1 as local stabilization
-evidence, despite the reference-runner viewport mismatch and lack of physical
-device evidence. This waiver does not approve public benchmark claims,
-frame-budget claims, memory claims, comparative performance wording, stable
-release wording, or package publishing.
+evidence, despite the native JSON observed-host policy viewport mismatch and
+lack of physical device evidence. This waiver does not approve public
+benchmark claims, frame-budget claims, memory claims, comparative performance
+wording, stable release wording, or package publishing.
 ```
 
 If this waiver is recorded, keep `physical-observed-profile.status=open` unless
@@ -149,7 +151,7 @@ Do not mark `physical-observed-profile` satisfied if any of these remain true
 without explicit owner acceptance:
 
 - no credible physical iOS or Android profile target is available;
-- observed-host evidence fails the configured reference-runner policy;
+- observed-host evidence fails the configured native JSON observed-host policy;
 - the decision only says local stabilization evidence is useful, not that it is
   accepted for beta preapproval;
 - public benchmark, frame-budget, memory, or faster/slower wording would depend
