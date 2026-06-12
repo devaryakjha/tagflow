@@ -23,13 +23,15 @@ support the decision, but they do not close the gate by themselves.
 
 ## Current Read
 
-Latest coordinator audit found no local route satisfying #73 as-is.
+Latest coordinator audit found no route satisfying #73 as-is.
 
 - Kite is the strongest candidate. It depends on hosted
-  `tagflow ^1.0.0-alpha.3` and `tagflow_table ^1.0.0-alpha.1`, but the
-  production IPO sheet still imports `package:tagflow/legacy.dart` and renders
-  through `Tagflow(html: ...)` with legacy converters. Its intended GitLab
-  review path is also not reachable from this machine because
+  `tagflow ^1.0.0-alpha.3` and `tagflow_table ^1.0.0-alpha.1`. A local
+  supporting branch now migrates the production IPO sheet file off
+  `package:tagflow/legacy.dart` and onto `Tagflow.html(..., registry: ...)`,
+  but that branch is not pushed or reviewable through Kite's intended
+  source-control path. Its intended GitLab review path is not reachable from
+  this machine because
   `gitlab.zerodha.tech` DNS fails.
 - Varsity has real rich-content routes, but it is still on old
   `tagflow ^0.0.7`, so it does not validate the current hosted native runtime.
@@ -40,6 +42,10 @@ The Kite hosted-alpha widget/native-transport tests are useful supporting
 evidence, but they are not route qualification. They prove the hosted packages
 can decode and render targeted fixtures in a harness; #73 requires an approved
 real app path.
+
+The local Kite production-file migration is recorded in
+`docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`. It is
+supporting code evidence only and does not close #73.
 
 ## Qualification Contract
 
@@ -67,10 +73,14 @@ If Kite is approved, keep the integration slice focused on the IPO sheet.
 
 Implementation scope:
 
-- create a Kite branch through the normal source-control path;
-- remove `package:tagflow/legacy.dart` from the production IPO content route;
-- migrate the IPO rich-content body to hosted
-  `Tagflow.html(..., registry: ...)` or a `TagflowDocument` path using
+- use the local Kite branch `codex/tagflow-ipo-native-route` and commit
+  `355c79d6` as the starting point;
+- push or recreate that focused change through Kite's normal source-control
+  path;
+- keep the production IPO sheet off `package:tagflow/legacy.dart`;
+- keep the IPO rich-content body on hosted
+  `Tagflow.html(..., registry: ...)` or an equivalent `TagflowDocument` path
+  using
   `tagflowTableComponents(...)` where table behavior is required;
 - preserve the existing app-owned link handling, theme constraints, loading
   states, and unsupported-content policy unless a behavior delta is accepted;
