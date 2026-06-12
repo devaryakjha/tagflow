@@ -110,6 +110,19 @@ void main() {
     expect(options.profileHoldOpenSeconds, 120);
   });
 
+  test('parses profile run timeout from cli and environment', () {
+    final cliOptions = ProfileBaselineCliOptions.parse(const [
+      '--run-timeout-seconds=180',
+    ], environment: const {});
+    final envOptions = ProfileBaselineCliOptions.parse(
+      const [],
+      environment: const {'TAGFLOW_PROFILE_RUN_TIMEOUT_SECONDS': '240'},
+    );
+
+    expect(cliOptions.runTimeout, const Duration(seconds: 180));
+    expect(envOptions.runTimeout, const Duration(seconds: 240));
+  });
+
   test('defaults to observed-host viewport mode', () {
     final options = ProfileBaselineCliOptions.parse(
       const [],
@@ -150,6 +163,15 @@ void main() {
     expect(
       () => ProfileBaselineCliOptions.parse(const [
         '--profile-hold-open-seconds=0',
+      ], environment: const {}),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects non-positive profile run timeout seconds', () {
+    expect(
+      () => ProfileBaselineCliOptions.parse(const [
+        '--run-timeout-seconds=0',
       ], environment: const {}),
       throwsFormatException,
     );

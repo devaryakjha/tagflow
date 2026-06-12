@@ -33,6 +33,7 @@ Future<void> main(List<String> arguments) async {
     profileMemory: options.profileMemory,
     profileHoldOpen: options.profileHoldOpen,
     profileHoldOpenSeconds: options.profileHoldOpenSeconds,
+    runTimeout: options.runTimeout,
     profileViewportConfiguration: options.profileViewportConfiguration,
   );
 
@@ -72,6 +73,10 @@ Options:
   --profile-hold-open-seconds=<count>
                     Hold each checkpoint open for the given number of seconds.
                     Also accepts TAGFLOW_PROFILE_HOLD_OPEN_SECONDS.
+  --run-timeout-seconds=<count>
+                    Optional wall-clock timeout for each profile repeat.
+                    Timed-out repeats exit 124 and are recorded as timedOut.
+                    Also accepts TAGFLOW_PROFILE_RUN_TIMEOUT_SECONDS.
   --profile-viewport-mode=<mode>
                     Viewport mode: observed_host or synthetic.
                     Also accepts TAGFLOW_PROFILE_VIEWPORT_MODE.

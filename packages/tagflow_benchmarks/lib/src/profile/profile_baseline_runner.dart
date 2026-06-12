@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -20,6 +21,9 @@ const List<String> defaultProfileBaselineFixtures = [
 
 /// Default checkpoint hold-open duration for DevTools attachment.
 const int defaultProfileHoldOpenSeconds = 120;
+
+/// Exit code used when the profile runner terminates a timed-out process.
+const int profileRunTimeoutExitCode = 124;
 
 /// Profile benchmark viewport mode.
 enum ProfileBaselineViewportMode {
@@ -126,6 +130,7 @@ final class ProfileProcessOptions {
   const ProfileProcessOptions({
     required this.workingDirectory,
     required this.environment,
+    this.timeout,
     this.stdoutSink,
     this.stderrSink,
   });
@@ -135,6 +140,9 @@ final class ProfileProcessOptions {
 
   /// Environment overrides for the spawned process.
   final Map<String, String> environment;
+
+  /// Optional wall-clock timeout for the spawned process.
+  final Duration? timeout;
 
   /// Optional sink for live stdout chunks from the spawned process.
   final void Function(String chunk)? stdoutSink;
@@ -172,6 +180,7 @@ final class ProfileBaselineManifest {
     required this.profileMemory,
     required this.profileHoldOpen,
     required this.profileHoldOpenSeconds,
+    required this.runTimeoutSeconds,
     required this.profileViewportConfiguration,
     required this.renderers,
     required this.fixtures,
@@ -211,6 +220,9 @@ final class ProfileBaselineManifest {
 
   /// Hold-open duration for checkpoint replay, when enabled.
   final int? profileHoldOpenSeconds;
+
+  /// Per-repeat process timeout in seconds, when configured.
+  final int? runTimeoutSeconds;
 
   /// Viewport mode requested for this profile run.
   final ProfileBaselineViewportConfiguration profileViewportConfiguration;
@@ -256,6 +268,7 @@ final class ProfileBaselineManifest {
     'profileMemory': profileMemory,
     'profileHoldOpen': profileHoldOpen,
     'profileHoldOpenSeconds': profileHoldOpenSeconds,
+    'runTimeoutSeconds': runTimeoutSeconds,
     'profileViewportConfiguration': profileViewportConfiguration.toJson(),
     'renderers': renderers,
     'fixtures': fixtures,
@@ -398,6 +411,7 @@ final class ProfileBaselineRunner {
     this.profileMemory = false,
     bool profileHoldOpen = false,
     int? profileHoldOpenSeconds,
+    this.runTimeout,
     this.profileViewportConfiguration =
         const ProfileBaselineViewportConfiguration.observedHost(),
     this.pairs,
@@ -491,6 +505,9 @@ final class ProfileBaselineRunner {
   /// Hold-open duration for checkpoint replay, when enabled.
   final int? profileHoldOpenSeconds;
 
+  /// Per-repeat wall-clock timeout, when configured.
+  final Duration? runTimeout;
+
   /// Viewport mode requested for this profile run.
   final ProfileBaselineViewportConfiguration profileViewportConfiguration;
 
@@ -557,6 +574,7 @@ final class ProfileBaselineRunner {
           ProfileProcessOptions(
             workingDirectory: workspaceRoot.path,
             environment: processEnvironment,
+            timeout: runTimeout,
             stdoutSink: stdout.write,
             stderrSink: stderr.write,
           ),
@@ -578,6 +596,7 @@ final class ProfileBaselineRunner {
           vmServiceUri: vmServiceUri,
           profileHoldOpen: profileHoldOpen,
           profileHoldOpenSeconds: profileHoldOpenSeconds,
+          runTimeoutSeconds: runTimeout?.inSeconds,
           startedAt: startedAt,
           finishedAt: finishedAt,
         );
@@ -589,7 +608,7 @@ final class ProfileBaselineRunner {
               renderer: renderer,
               fixture: fixture,
               repeat: repeat,
-              status: 'failed',
+              status: _failureStatus(result),
               exitCode: result.exitCode,
               artifactPath: null,
               memoryProfilePath: memoryProfilePath,
@@ -716,6 +735,7 @@ final class ProfileBaselineRunner {
       profileMemory: profileMemory,
       profileHoldOpen: profileHoldOpen,
       profileHoldOpenSeconds: profileHoldOpenSeconds,
+      runTimeoutSeconds: runTimeout?.inSeconds,
       profileViewportConfiguration: profileViewportConfiguration,
       renderers: List<String>.unmodifiable(renderers),
       fixtures: List<String>.unmodifiable(fixtures),
@@ -954,6 +974,7 @@ void _writeRunLog({
   required String? vmServiceUri,
   required bool profileHoldOpen,
   required int? profileHoldOpenSeconds,
+  required int? runTimeoutSeconds,
   required DateTime startedAt,
   required DateTime finishedAt,
 }) {
@@ -968,6 +989,7 @@ void _writeRunLog({
       'vmServiceUri': vmServiceUri,
       'profileHoldOpen': profileHoldOpen,
       'profileHoldOpenSeconds': profileHoldOpenSeconds,
+      'runTimeoutSeconds': runTimeoutSeconds,
       'startedAt': startedAt.toUtc().toIso8601String(),
       'finishedAt': finishedAt.toUtc().toIso8601String(),
       'exitCode': result.exitCode,
@@ -982,6 +1004,10 @@ String _memoryProfileStatus(File? memoryProfile) {
     return 'notRequested';
   }
   return memoryProfile.existsSync() ? 'captured' : 'missing';
+}
+
+String _failureStatus(ProcessResult result) {
+  return result.exitCode == profileRunTimeoutExitCode ? 'timedOut' : 'failed';
 }
 
 String? _extractVmServiceUri(ProcessResult result) {
@@ -1103,7 +1129,12 @@ Future<ProcessResult> _defaultProcessRunner(
     options.stderrSink?.call(chunk);
   }).asFuture<void>();
 
-  final exitCode = await process.exitCode;
+  final exitCode = await _waitForProcessExit(
+    process,
+    timeout: options.timeout,
+    stderrBuffer: stderrBuffer,
+    stderrSink: options.stderrSink,
+  );
   await Future.wait<void>([stdoutDone, stderrDone]);
 
   return ProcessResult(
@@ -1112,6 +1143,35 @@ Future<ProcessResult> _defaultProcessRunner(
     stdoutBuffer.toString(),
     stderrBuffer.toString(),
   );
+}
+
+Future<int> _waitForProcessExit(
+  Process process, {
+  required Duration? timeout,
+  required StringBuffer stderrBuffer,
+  required void Function(String chunk)? stderrSink,
+}) async {
+  if (timeout == null) {
+    return process.exitCode;
+  }
+
+  try {
+    return await process.exitCode.timeout(timeout);
+  } on TimeoutException {
+    final message =
+        'Profile benchmark process timed out after '
+        '${timeout.inSeconds} seconds.\n';
+    stderrBuffer.write(message);
+    stderrSink?.call(message);
+    process.kill();
+    try {
+      await process.exitCode.timeout(const Duration(seconds: 5));
+    } on TimeoutException {
+      process.kill(ProcessSignal.sigkill);
+      await process.exitCode;
+    }
+    return profileRunTimeoutExitCode;
+  }
 }
 
 ProcessResult _defaultEnvironmentProcessRunner(

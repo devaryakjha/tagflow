@@ -777,6 +777,104 @@ void main() {
     expect(runs.first, containsPair('artifactPath', null));
   });
 
+  test('can continue through timed-out profile runs and write logs', () async {
+    final workspaceRoot = Directory.systemTemp.createTempSync(
+      'tagflow_profile_runner_timeout_test_',
+    );
+    addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+    final integrationOutput = File(
+      p.join(
+        workspaceRoot.path,
+        'examples',
+        'tagflow',
+        'build',
+        'integration_response_data.json',
+      ),
+    )..parent.createSync(recursive: true);
+
+    final timeouts = <Duration?>[];
+    var commandCount = 0;
+    final runner = ProfileBaselineRunner(
+      workspaceRoot: workspaceRoot,
+      outputDirectory: Directory(
+        p.join(workspaceRoot.path, 'build', 'benchmarks', 'profile'),
+      ),
+      renderers: const ['tagflow', 'flutter_html'],
+      fixtures: const ['ai_answer_rich'],
+      repeatCount: 1,
+      runId: '2026-06-12T13-00-00Z',
+      failFast: false,
+      runTimeout: const Duration(seconds: 180),
+      processRunner: (executable, arguments, options) async {
+        commandCount += 1;
+        timeouts.add(options.timeout);
+        if (commandCount == 1) {
+          return ProcessResult(
+            901,
+            profileRunTimeoutExitCode,
+            '',
+            'Profile benchmark process timed out after 180 seconds.',
+          );
+        }
+
+        integrationOutput.writeAsStringSync(
+          jsonEncode(<String, Object?>{
+            'run': commandCount,
+            'results': <String, Object?>{},
+          }),
+        );
+        return ProcessResult(902, 0, 'ok', '');
+      },
+    );
+
+    final manifest = await runner.run();
+
+    expect(timeouts, <Duration?>[
+      const Duration(seconds: 180),
+      const Duration(seconds: 180),
+    ]);
+    expect(manifest.runTimeoutSeconds, 180);
+    expect(manifest.runs, hasLength(2));
+    expect(manifest.runs.first.status, 'timedOut');
+    expect(manifest.runs.first.exitCode, profileRunTimeoutExitCode);
+    expect(manifest.runs.first.artifactPath, isNull);
+    expect(manifest.runs.last.status, 'passed');
+    expect(manifest.runs.last.artifactPath, isNotNull);
+
+    final timedOutLog = File(
+      p.join(workspaceRoot.path, manifest.runs.first.logPath),
+    );
+    expect(timedOutLog.existsSync(), isTrue);
+    final logJson =
+        jsonDecode(timedOutLog.readAsStringSync()) as Map<String, Object?>;
+    expect(logJson['runTimeoutSeconds'], 180);
+    expect(logJson['exitCode'], profileRunTimeoutExitCode);
+    expect(
+      logJson['stderr'],
+      contains('Profile benchmark process timed out after 180 seconds.'),
+    );
+
+    final manifestJson =
+        jsonDecode(
+              File(
+                p.join(
+                  workspaceRoot.path,
+                  'build',
+                  'benchmarks',
+                  'profile',
+                  '2026-06-12T13-00-00Z',
+                  'profile-baseline-manifest.json',
+                ),
+              ).readAsStringSync(),
+            )
+            as Map<String, Object?>;
+    expect(manifestJson['runTimeoutSeconds'], 180);
+    final runs = manifestJson['runs']! as List<Object?>;
+    expect(runs.first, containsPair('status', 'timedOut'));
+    expect(runs.first, containsPair('exitCode', profileRunTimeoutExitCode));
+  });
+
   test('records flutter version from flutter version machine output', () async {
     final workspaceRoot = Directory.systemTemp.createTempSync(
       'tagflow_profile_runner_flutter_version_test_',

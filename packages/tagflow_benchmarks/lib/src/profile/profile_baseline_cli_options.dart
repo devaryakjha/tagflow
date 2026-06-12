@@ -16,6 +16,7 @@ final class ProfileBaselineCliOptions {
     required this.profileMemory,
     required this.profileHoldOpen,
     required this.profileHoldOpenSeconds,
+    required this.runTimeout,
     required this.profileViewportConfiguration,
     this.pairs,
     this.runId,
@@ -56,6 +57,10 @@ final class ProfileBaselineCliOptions {
           values['profile-hold-open'] ?? env['TAGFLOW_PROFILE_HOLD_OPEN'],
         ) ||
         profileHoldOpenSeconds != null;
+    final runTimeoutSeconds = _optionalPositiveInt(
+      values['run-timeout-seconds'] ??
+          env['TAGFLOW_PROFILE_RUN_TIMEOUT_SECONDS'],
+    );
     final profileViewportConfiguration = _profileViewportConfiguration(
       modeValue:
           values['profile-viewport-mode'] ??
@@ -101,6 +106,9 @@ final class ProfileBaselineCliOptions {
       profileHoldOpenSeconds: profileHoldOpen
           ? profileHoldOpenSeconds ?? defaultProfileHoldOpenSeconds
           : null,
+      runTimeout: runTimeoutSeconds == null
+          ? null
+          : Duration(seconds: runTimeoutSeconds),
       profileViewportConfiguration: profileViewportConfiguration,
       pairs: pairs,
       runId: values['run-id'] ?? env['TAGFLOW_PROFILE_RUN_ID'],
@@ -136,6 +144,9 @@ final class ProfileBaselineCliOptions {
 
   /// Hold-open duration in seconds, when checkpoint replay is enabled.
   final int? profileHoldOpenSeconds;
+
+  /// Per-repeat process timeout, when configured.
+  final Duration? runTimeout;
 
   /// Viewport mode requested for this profile run.
   final ProfileBaselineViewportConfiguration profileViewportConfiguration;
