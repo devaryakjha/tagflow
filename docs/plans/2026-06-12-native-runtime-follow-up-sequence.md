@@ -39,8 +39,8 @@ gates:
 ### 1. Reconcile Stale Planning Docs With Landed Runtime Surface
 
 Type: example/docs slice
-Status: unblocked
-Recommended first: yes
+Status: completed in `fb9e20e docs(specs): reconcile native runtime current state`
+Recommended first: completed
 
 Some planning docs still describe work as planned even though it has landed.
 The most visible drift is the adapter metadata inspection SPEC, which still
@@ -64,7 +64,7 @@ Acceptance:
 ### 2. Audit Dynamic Patch Result Semantics Before Adding More APIs
 
 Type: package runtime/API code slice
-Status: unblocked for audit; code change requires a narrow SPEC decision
+Status: completed in `246e33a docs(specs): decide patch result semantics`
 
 `docs/specs/2026-06-11-dynamic-document-updates.md` still leaves open whether
 patch application should expose a `TagflowDocumentPatchResult` with changed
@@ -90,7 +90,7 @@ Acceptance:
 ### 3. Harden The Native JSON Example As The App-Integration Reference
 
 Type: example/docs slice
-Status: unblocked
+Status: no-change; current example and tests already cover the reference path
 
 The example app should demonstrate the intended app boundary: native JSON is
 data-only, patch revision/conflict handling is app-owned, and routing actions
@@ -135,7 +135,8 @@ Acceptance after unblock:
 ### 5. Refresh Equivalent Profile Evidence Only On A Qualified Target
 
 Type: benchmark/device/reference-target slice
-Status: blocked by target qualification
+Status: blocked by target qualification; one-repeat physical iOS probe now
+blocked at signing/provisioning
 
 The equivalent answer-detail repeat-5 run is useful local evidence, but it is
 not claim-ready. Repeating the same command on the current `1.0x` display is
@@ -145,7 +146,8 @@ Blocked until one of these is true:
 
 - a reviewed macOS target produces the expected observed `800x600 @ 2.0x`
   metadata; or
-- a physical iOS/Android profile target is connected and qualified; or
+- a physical iOS/Android profile target is connected, signed, installed, and
+  qualified; or
 - a synthetic viewport mode is explicitly designed with separate requested and
   observed viewport metadata.
 
@@ -158,9 +160,13 @@ Acceptance after unblock:
 
 ## Coordinator Recommendation
 
-Execute Slice 1 first. It is unblocked, prevents stale plans from sending future
-workers into already-landed work, and keeps the release/API review aligned with
-the actual package surface.
+Slices 1 and 2 are complete. Slice 3 is currently a no-change reference-path
+confirmation because `examples/tagflow/lib/screens/native_json_example.dart`
+and `examples/tagflow/test/native_json_example_test.dart` already cover document
+decode/render, patch envelope apply, revision updates, removal/reset behavior,
+and public metadata helper tap summaries.
 
-After Slice 1, delegate Slice 2 as the next package-runtime decision. Do not
-start another profile rerun until the target qualification blocker changes.
+Do not start another repeat-5 profile rerun until the target qualification
+blocker changes. The next useful benchmark move is fixing iOS signing for
+`dev.aryak.tagflow` on a physical device, then rerunning the same one-repeat
+native JSON pair before collecting any larger baseline.
