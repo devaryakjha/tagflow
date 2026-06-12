@@ -5,12 +5,24 @@
 - Date: 2026-06-12
 - Branch: `codex/tagflow-native-runtime-master`
 - Baseline commit: `9491aa5 docs(benchmarks): document profile dpr qualification`
+- Latest coordinator validation refresh: `b9a8906 docs(readme): align melos
+  common tasks`
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
 This note is the current coordinator sequence. It does not authorize publishing,
 tagging, package-version changes, beta wording, benchmark claims, or broad
 runtime expansion.
+
+Current local gate evidence after the README and `tagflow_table` docs cleanup:
+
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
+  passed on the coordinator branch at `b9a8906`.
+- `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
+  exited 0 and reported no unpublished packages, so no publishable package
+  payload changed after the docs-only cleanup.
+- The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
+  changes that are not part of this coordinator sequence.
 
 ## Current Read
 
