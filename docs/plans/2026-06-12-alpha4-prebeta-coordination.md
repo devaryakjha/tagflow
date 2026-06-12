@@ -6,6 +6,8 @@
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Recorded CI-validated PR anchor: `01149ac`
+- Latest live-state refresh:
+  `docs/plans/2026-06-13-pr72-live-state-refresh.md`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: planning and coordination only; no publish, tag, version bump,
   beta/stable wording, package-page claim, public benchmark claim, or PR
@@ -50,6 +52,11 @@ Current owner-review packet:
 
 That packet is not gate evidence until the owner decisions it names are
 recorded.
+
+Latest live PR/tracker state is summarized in
+`docs/plans/2026-06-13-pr72-live-state-refresh.md`: PR #72 is still draft/open
+at head `1f9813b`, hosted `CI / Validate` passed in run `27436837906`, and
+#73/#75 remain open for the same owner/target reasons recorded below.
 
 ## Alpha.4 / Pre-Beta Scope
 

@@ -5,6 +5,8 @@
 - Date: 2026-06-12 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Recorded CI-validated PR anchor: `01149ac`
+- Latest live-state refresh:
+  `docs/plans/2026-06-13-pr72-live-state-refresh.md`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -84,6 +86,20 @@ result=passed
 run=https://github.com/devaryakjha/tagflow/actions/runs/27436534000
 ```
 
+Latest live PR/tracker refresh:
+
+```text
+commit=1f9813b
+
+GitHub CI / Validate
+result=passed
+run=https://github.com/devaryakjha/tagflow/actions/runs/27436837906
+
+PR #72 state=draft/open
+issue #73 state=open
+issue #75 state=open
+```
+
 ## Evidence Already Satisfied
 
 These gates are already satisfied in
@@ -118,7 +134,8 @@ The unresolved decision is whether the owner accepts the non-GitLab packet as
 the review artifact for the Kite route while Kite's normal GitLab remote is not
 reachable from this machine.
 
-GitHub state checked for this packet at PR head `01149ac`:
+GitHub state checked for this packet at PR head `01149ac`, and refreshed at
+live PR head `1f9813b`:
 
 - issue #73 remains open;
 - issue #73 body now records the non-GitLab Kite packet as an acceptable
