@@ -9,6 +9,7 @@ void main() {
         containsAll(<String>[
           'smoke_short_html',
           'ai_answer_rich',
+          'answer_detail_equivalent_v1',
           'table_dense',
           'table_stress',
           'large_article',
@@ -45,10 +46,28 @@ void main() {
     test('returns fixtures by id', () {
       expect(() => fixtureById('table_dense'), returnsNormally);
       expect(() => fixtureById('table_stress'), returnsNormally);
+      expect(() => fixtureById('answer_detail_equivalent_v1'), returnsNormally);
       expect(
         () => fixtureById('missing_fixture'),
         throwsA(isA<ArgumentError>()),
       );
     });
+
+    test(
+      'keeps the equivalent answer-detail fixture deterministic and local-only',
+      () {
+        final fixture = fixtureById('answer_detail_equivalent_v1');
+
+        expect(fixture.html, contains('Answer detail equivalence fixture'));
+        expect(
+          fixture.html,
+          contains('href="/benchmarks/answer-detail-equivalent-v1"'),
+        );
+        expect(fixture.html, contains('report-only benchmark caveat text'));
+        expect(fixture.html, isNot(contains('http://')));
+        expect(fixture.html, isNot(contains('https://')));
+        expect(fixture.computeHtmlSha256(), fixture.htmlSha256);
+      },
+    );
   });
 }

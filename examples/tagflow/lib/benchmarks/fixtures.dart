@@ -1,8 +1,10 @@
 /// Fixture ids used by the profile-mode benchmark scaffold.
 const List<String> profileBenchmarkFixtureIds = [
   'ai_answer_rich',
+  'answer_detail_equivalent_v1',
   'ai_answer_rich_md',
   nativeJsonBenchmarkFixtureId,
+  equivalentNativeJsonBenchmarkFixtureId,
   nativeJsonTableBenchmarkFixtureId,
   nativeJsonLargeArticleBenchmarkFixtureId,
   'table_dense',
@@ -19,6 +21,10 @@ const String defaultProfileBenchmarkFixtureId = 'ai_answer_rich';
 
 /// Fixture id for native block JSON rendered as a TagflowDocument.
 const String nativeJsonBenchmarkFixtureId = 'native_ai_answer';
+
+/// Fixture id for the equivalent native block JSON benchmark slice.
+const String equivalentNativeJsonBenchmarkFixtureId =
+    'answer_detail_equivalent_v1_native';
 
 /// Fixture id for native dense table JSON rendered as a TagflowDocument.
 const String nativeJsonTableBenchmarkFixtureId = 'native_table_dense';
@@ -101,6 +107,15 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
           'packages/tagflow_benchmarks/fixtures/html/ai_answer_rich.html',
     ),
   ),
+  'answer_detail_equivalent_v1': const ProfileBenchmarkFixture(
+    id: 'answer_detail_equivalent_v1',
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.html,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/html/'
+          'answer_detail_equivalent_v1.html',
+    ),
+  ),
   'ai_answer_rich_md': const ProfileBenchmarkFixture(
     id: 'ai_answer_rich_md',
     source: BenchmarkFixtureSource(
@@ -115,6 +130,16 @@ final Map<String, ProfileBenchmarkFixture> _profileBenchmarkFixtures = {
       type: BenchmarkSourceType.nativeJson,
       assetPath:
           'packages/tagflow_benchmarks/fixtures/native/native_ai_answer.json',
+    ),
+    rendererIds: {nativeJsonBenchmarkRendererId},
+  ),
+  equivalentNativeJsonBenchmarkFixtureId: const ProfileBenchmarkFixture(
+    id: equivalentNativeJsonBenchmarkFixtureId,
+    source: BenchmarkFixtureSource(
+      type: BenchmarkSourceType.nativeJson,
+      assetPath:
+          'packages/tagflow_benchmarks/fixtures/native/'
+          'answer_detail_equivalent_v1_native.json',
     ),
     rendererIds: {nativeJsonBenchmarkRendererId},
   ),

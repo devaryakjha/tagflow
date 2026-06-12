@@ -16,6 +16,28 @@ void main() {
       expect(markdownFixture.source.assetPath, endsWith('ai_answer_rich.md'));
     });
 
+    test('resolves the equivalent answer-detail HTML fixture id', () {
+      final fixture = profileBenchmarkFixtureById(
+        'answer_detail_equivalent_v1',
+      );
+
+      expect(fixture.source.type, BenchmarkSourceType.html);
+      expect(
+        fixture.source.assetPath,
+        endsWith('answer_detail_equivalent_v1.html'),
+      );
+      expect(fixture.scenario, BenchmarkScenario.staticDocument);
+      expect(fixture.supportsRendererId(defaultBenchmarkRendererId), true);
+      expect(fixture.supportsRendererId('tagflow_semantic'), true);
+      expect(
+        benchmarkRendererSupportsFixture(
+          benchmarkRendererById(nativeJsonBenchmarkRendererId),
+          fixture,
+        ),
+        false,
+      );
+    });
+
     test('resolves streaming fixture as an HTML chunk scenario', () {
       final fixture = profileBenchmarkFixtureById('streaming_ai_chunks');
 
@@ -44,6 +66,7 @@ void main() {
         nativeJsonBenchmarkFixtureId,
         nativeJsonTableBenchmarkFixtureId,
         nativeJsonLargeArticleBenchmarkFixtureId,
+        'answer_detail_equivalent_v1_native',
       ]) {
         final fixture = profileBenchmarkFixtureById(fixtureId);
 
@@ -58,9 +81,11 @@ void main() {
       expect(
         profileBenchmarkFixtureIds,
         containsAll(<String>[
+          'answer_detail_equivalent_v1',
           nativeJsonBenchmarkFixtureId,
           nativeJsonTableBenchmarkFixtureId,
           nativeJsonLargeArticleBenchmarkFixtureId,
+          'answer_detail_equivalent_v1_native',
         ]),
       );
     });

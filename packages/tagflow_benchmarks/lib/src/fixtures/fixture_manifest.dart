@@ -23,6 +23,12 @@ final List<BenchmarkFixture> benchmarkFixtures =
             '11c5dd5b3d250aed3ead99e6d4ec5ec9528ae79371a5cc62ad2b92c4b706e5e3',
       ),
       const BenchmarkFixture(
+        id: 'answer_detail_equivalent_v1',
+        htmlRelativePath: 'fixtures/html/answer_detail_equivalent_v1.html',
+        htmlSha256:
+            'e71ea1485533639a0e33b53b17255abe45d77c941e59b7f88fe4cc634c9ce8b5',
+      ),
+      const BenchmarkFixture(
         id: 'table_dense',
         htmlRelativePath: 'fixtures/html/table_dense.html',
         htmlSha256:

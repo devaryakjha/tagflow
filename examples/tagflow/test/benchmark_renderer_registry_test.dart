@@ -87,6 +87,23 @@ void main() {
     ]);
   });
 
+  test(
+    'returns compat and semantic HTML renderers for the equivalent fixture',
+    () {
+      final fixture = profileBenchmarkFixtureById(
+        'answer_detail_equivalent_v1',
+      );
+      final htmlRenderers = benchmarkRenderersForFixture(fixture);
+
+      expect(htmlRenderers.map((renderer) => renderer.id), [
+        'tagflow',
+        'tagflow_semantic',
+        'flutter_html',
+        'flutter_widget_from_html',
+      ]);
+    },
+  );
+
   test('returns only native JSON renderers for native JSON fixtures', () {
     final nativeJsonRenderers = benchmarkRenderersForSourceType(
       BenchmarkSourceType.nativeJson,
@@ -108,6 +125,7 @@ void main() {
       nativeJsonBenchmarkFixtureId,
       nativeJsonTableBenchmarkFixtureId,
       nativeJsonLargeArticleBenchmarkFixtureId,
+      'answer_detail_equivalent_v1_native',
     ]) {
       final fixture = profileBenchmarkFixtureById(fixtureId);
       final renderers = benchmarkRenderersForFixture(fixture);
