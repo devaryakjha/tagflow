@@ -60,9 +60,12 @@ The remaining blocking evidence gap is now the real-app route gate:
 
 - Kite production-route evidence still depends on Kite GitLab/DNS or an
   approved equivalent real Flutter app route. A local Kite supporting branch
-  exists at `codex/tagflow-ipo-native-route` with commits `355c79d6` and
-  `e9a86803`, but it is not pushed/reviewable through Kite's intended
-  source-control path and therefore does not close #73;
+  exists at `codex/tagflow-ipo-native-route` with commits `355c79d6`,
+  `e9a86803`, and `50bee7ce`. The latest local simulator smoke opens the real
+  Bids -> IPO -> AFCONS -> `IPOInstrumentSheet` path against Kite's debug
+  `main_local.dart` fixture and captures visible Tagflow-rendered IPO tables,
+  but it is not pushed/reviewable through Kite's intended source-control path
+  and uses local fixture/auth constraints, so it does not close #73;
 - the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
   while physical-device, observed-host, frame-budget, memory, beta/stable, and
   comparative performance evidence remain future benchmark work;
@@ -150,14 +153,18 @@ Acceptance:
 
 Type: real-app evidence slice
 Status: local Kite production-file migration and production-sheet widget
-evidence prepared; still blocked by source-control/review and real app-route
-evidence for Kite; replaceable by an approved equivalent real Flutter app route
+evidence prepared; local debug simulator route smoke captured; still blocked
+by source-control/review and approved real app-route evidence for Kite;
+replaceable by an approved equivalent real Flutter app route
 
 The beta-readiness docs already identify Kite as the live-app evidence path.
 Widget-test evidence exists, and a local Kite branch now migrates the IPO
 production sheet file to `Tagflow.html(..., registry: ...)` with a
 production-sheet harness that pumps `IPOInstrumentSheet` using real IPO fixture
-content, but push/merge and real app-route evidence are still not complete.
+content. A local `main_local.dart` fixture now also supports a simulator smoke
+through Bids -> IPO -> AFCONS -> `IPOInstrumentSheet`, including the
+Tagflow-rendered table section. Push/merge and approved real app-route evidence
+are still not complete.
 
 The current route qualification plan is
 `docs/plans/2026-06-12-real-app-route-qualification.md`.

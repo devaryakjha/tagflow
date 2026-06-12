@@ -30,20 +30,24 @@ Latest coordinator audit found no route satisfying #73 as-is.
   supporting branch now migrates the production IPO sheet file off
   `package:tagflow/legacy.dart` and onto `Tagflow.html(..., registry: ...)`,
   with a supporting production-sheet widget test that pumps
-  `IPOInstrumentSheet` using real IPO fixture content. That branch is still not
-  pushed or reviewable through Kite's intended source-control path. Its
-  intended GitLab review path is not reachable from this machine because
-  `gitlab.zerodha.tech` DNS fails.
+  `IPOInstrumentSheet` using real IPO fixture content. A further local
+  `main_local.dart` fixture commit now supports a simulator route smoke through
+  Bids -> IPO -> AFCONS -> `IPOInstrumentSheet`, including a successful
+  `/ipo/afcons?format=json` fetch and visible Tagflow-rendered table content.
+  That branch is still not pushed or reviewable through Kite's intended
+  source-control path. Its intended GitLab review path is not reachable from
+  this machine because `gitlab.zerodha.tech` DNS fails.
 - Varsity has real rich-content routes, but it is still on old
   `tagflow ^0.0.7`, so it does not validate the current hosted native runtime.
 - Seisei provides package-adapter evidence, not a real downstream app route
   with an intended user path.
 
-The Kite hosted-alpha widget/native-transport tests are useful supporting
-evidence, including the production-sheet widget harness. They prove the hosted
-packages can decode and render targeted fixtures and that the migrated sheet
-code can render seeded real IPO content in a harness; #73 requires an approved
-real app path.
+The Kite hosted-alpha widget/native-transport tests and local simulator smoke
+are useful supporting evidence. They prove the hosted packages can decode and
+render targeted fixtures, that the migrated sheet code can render seeded real
+IPO content in a harness, and that Kite's debug route can navigate into the
+migrated production sheet with a local fixture. #73 still requires an approved
+real app path and reviewable source-control trail.
 
 The local Kite production-file migration is recorded in
 `docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`. It is
@@ -76,7 +80,7 @@ If Kite is approved, keep the integration slice focused on the IPO sheet.
 Implementation scope:
 
 - use the local Kite branch `codex/tagflow-ipo-native-route` and commits
-  `355c79d6` plus `e9a86803` as the starting point;
+  `355c79d6`, `e9a86803`, and `50bee7ce` as the starting point;
 - push or recreate that focused change through Kite's normal source-control
   path;
 - keep the production IPO sheet off `package:tagflow/legacy.dart`;
@@ -88,6 +92,8 @@ Implementation scope:
   states, and unsupported-content policy unless a behavior delta is accepted;
 - keep the current hosted-alpha widget/native-transport tests as supporting
   evidence, not as the route gate itself;
+- reuse the `main_local.dart` AFCONS fixture for debug-route repros if needed,
+  but do not present that local fixture as live auth/data evidence;
 - verify the lockfile resolves hosted `tagflow 1.0.0-alpha.3` and
   `tagflow_table 1.0.0-alpha.1` without local overrides.
 
