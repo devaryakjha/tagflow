@@ -257,6 +257,7 @@ void main() {
     ) async {
       String? tappedUrl;
       LinkedHashMap<String, String>? tappedAttributes;
+      TagflowDocumentNode? tappedNode;
       final document = const TagflowHtmlAdapter().parse(
         '<p><a href="https://example.com/story" title="Story">Open</a></p>',
       );
@@ -270,6 +271,10 @@ void main() {
                 tappedUrl = url;
                 tappedAttributes = attributes;
               },
+              nodeTapCallback: (details) {
+                tappedNode = details.node;
+              },
+              tapTargetKinds: const {TagflowNodeKind.link},
             ),
           ),
         ),
@@ -281,6 +286,122 @@ void main() {
       expect(tappedUrl, 'https://example.com/story');
       expect(tappedAttributes?['href'], 'https://example.com/story');
       expect(tappedAttributes?['title'], 'Story');
+      expect(tappedNode, isNull);
+    });
+
+    testWidgets('does not make non-link nodes tappable by default', (
+      tester,
+    ) async {
+      TagflowDocumentNode? tappedNode;
+      final document = TagflowDocument(
+        id: 'doc-default-node-tap',
+        children: [
+          TagflowDocumentNode.paragraph(
+            id: 'paragraph',
+            children: [TagflowDocumentNode.text(id: 'text', text: 'Read')],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            viewOptions: TagflowViewOptions(
+              nodeTapCallback: (details) {
+                tappedNode = details.node;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Read'));
+      await tester.pump();
+
+      expect(tappedNode, isNull);
+    });
+
+    testWidgets('applies node tap callbacks to opted-in document nodes', (
+      tester,
+    ) async {
+      BuildContext? tappedContext;
+      TagflowDocumentNode? tappedNode;
+      final document = TagflowDocument(
+        id: 'doc-node-tap',
+        children: [
+          TagflowDocumentNode.container(
+            id: 'card',
+            children: [
+              TagflowDocumentNode.paragraph(
+                id: 'card.body',
+                children: [
+                  TagflowDocumentNode.text(id: 'card.text', text: 'Open card'),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.document(
+            document,
+            viewOptions: TagflowViewOptions(
+              nodeTapCallback: (details) {
+                tappedContext = details.context;
+                tappedNode = details.node;
+              },
+              tapTargetKinds: const {TagflowNodeKind.container},
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open card'));
+      await tester.pump();
+
+      expect(tappedContext, isNotNull);
+      expect(tappedNode?.id, 'card');
+      expect(tappedNode?.kind, TagflowNodeKind.container);
+    });
+
+    testWidgets('applies node tap callbacks to opted-in HTML nodes', (
+      tester,
+    ) async {
+      TagflowDocumentNode? tappedNode;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Tagflow.html(
+            html:
+                '<section data-tagflow-id="summary" data-action="open"> '
+                '<p>Open summary</p> '
+                '</section>',
+            adapter: const TagflowHtmlAdapter(
+              nodeIdStrategy: TagflowHtmlNodeIdStrategy.attribute(),
+            ),
+            viewOptions: TagflowViewOptions(
+              nodeTapCallback: (details) {
+                tappedNode = details.node;
+              },
+              tapTargetKinds: const {TagflowNodeKind.container},
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open summary'));
+      await tester.pump();
+
+      expect(tappedNode?.id, 'summary');
+      expect(tappedNode?.kind, TagflowNodeKind.container);
+      expect(tappedNode?.metadata['htmlTag'], 'section');
+      expect(
+        tappedNode?.metadata['htmlAttributes'],
+        containsPair('data-action', 'open'),
+      );
     });
 
     testWidgets('renders ordered and unordered list markers semantically', (

@@ -103,14 +103,42 @@ final class TagflowComponentRegistry {
       );
     }
 
+    final child = builder(
+      TagflowComponentContext._(buildContext: context, registry: this),
+      node,
+    );
+
     return KeyedSubtree(
       key: ValueKey<String>(node.id),
-      child: builder(
-        TagflowComponentContext._(buildContext: context, registry: this),
-        node,
-      ),
+      child: _wrapNodeTapTarget(context, node, child),
     );
   }
+}
+
+Widget _wrapNodeTapTarget(
+  BuildContext context,
+  TagflowDocumentNode node,
+  Widget child,
+) {
+  final options = TagflowViewOptions.maybeOf(context);
+  final callback = options?.nodeTapCallback;
+  if (callback == null ||
+      options == null ||
+      node.kind == TagflowNodeKind.link ||
+      !options.tapTargetKinds.contains(node.kind)) {
+    return child;
+  }
+
+  return MouseRegion(
+    cursor: SystemMouseCursors.click,
+    child: GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        callback(TagflowNodeTapDetails(context: context, node: node));
+      },
+      child: child,
+    ),
+  );
 }
 
 final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {

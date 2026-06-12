@@ -5,14 +5,30 @@ import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/core/models/img_element.dart';
+import 'package:tagflow/src/runtime/document_node.dart';
 
 /// Callback for handling link taps
 typedef TagflowLinkTapCallback =
     void Function(String url, LinkedHashMap<String, String>? attributes);
 
+/// Callback for handling taps on opted-in semantic document nodes.
+typedef TagflowNodeTapCallback = void Function(TagflowNodeTapDetails details);
+
 /// Error widget builder for handling parsing and rendering failures.
 typedef TagflowErrorWidgetBuilder =
     Widget Function(BuildContext context, Object? error);
+
+/// Details passed to [TagflowNodeTapCallback].
+final class TagflowNodeTapDetails {
+  /// Creates tap details for a semantic document node.
+  const TagflowNodeTapDetails({required this.context, required this.node});
+
+  /// Build context from the current render pass.
+  final BuildContext context;
+
+  /// Runtime node that was tapped.
+  final TagflowDocumentNode node;
+}
 
 /// Behavior for selecting images
 enum TagflowImageSelectionBehavior {
@@ -111,6 +127,8 @@ final class TagflowViewOptions extends Equatable {
   const TagflowViewOptions({
     this.debug = false,
     this.linkTapCallback,
+    this.nodeTapCallback,
+    this.tapTargetKinds = const {},
     this.selectable = const TagflowSelectableOptions(),
     this.imageLoadingBuilder,
     this.imageErrorBuilder,
@@ -125,6 +143,12 @@ final class TagflowViewOptions extends Equatable {
 
   /// Callback for handling link taps
   final TagflowLinkTapCallback? linkTapCallback;
+
+  /// Callback for taps on opted-in semantic node kinds.
+  final TagflowNodeTapCallback? nodeTapCallback;
+
+  /// Semantic node kinds that should be wrapped as tap targets.
+  final Set<TagflowNodeKind> tapTargetKinds;
 
   /// Options for configuring the selectable behavior
   final TagflowSelectableOptions selectable;
@@ -151,6 +175,8 @@ final class TagflowViewOptions extends Equatable {
   TagflowViewOptions copyWith({
     bool? debug,
     TagflowLinkTapCallback? linkTapCallback,
+    TagflowNodeTapCallback? nodeTapCallback,
+    Set<TagflowNodeKind>? tapTargetKinds,
     TagflowSelectableOptions? selectable,
     ImageLoadingBuilder? imageLoadingBuilder,
     ImageErrorWidgetBuilder? imageErrorBuilder,
@@ -162,6 +188,8 @@ final class TagflowViewOptions extends Equatable {
     return TagflowViewOptions(
       debug: debug ?? this.debug,
       linkTapCallback: linkTapCallback ?? this.linkTapCallback,
+      nodeTapCallback: nodeTapCallback ?? this.nodeTapCallback,
+      tapTargetKinds: tapTargetKinds ?? this.tapTargetKinds,
       selectable: selectable ?? this.selectable,
       imageLoadingBuilder: imageLoadingBuilder ?? this.imageLoadingBuilder,
       imageErrorBuilder: imageErrorBuilder ?? this.imageErrorBuilder,
@@ -192,6 +220,8 @@ final class TagflowViewOptions extends Equatable {
   List<Object?> get props => [
     debug,
     linkTapCallback,
+    nodeTapCallback,
+    tapTargetKinds,
     selectable,
     imageLoadingBuilder,
     imageErrorBuilder,
@@ -213,6 +243,8 @@ final class TagflowOptions extends Equatable {
   const TagflowOptions({
     this.debug = false,
     this.linkTapCallback,
+    this.nodeTapCallback,
+    this.tapTargetKinds = const {},
     this.selectable = const TagflowSelectableOptions(),
     this.imageLoadingBuilder,
     this.imageErrorBuilder,
@@ -231,6 +263,8 @@ final class TagflowOptions extends Equatable {
     return TagflowOptions(
       debug: options.debug,
       linkTapCallback: options.linkTapCallback,
+      nodeTapCallback: options.nodeTapCallback,
+      tapTargetKinds: options.tapTargetKinds,
       selectable: options.selectable,
       imageLoadingBuilder: options.imageLoadingBuilder,
       imageErrorBuilder: options.imageErrorBuilder,
@@ -247,6 +281,12 @@ final class TagflowOptions extends Equatable {
 
   /// Callback for handling link taps
   final TagflowLinkTapCallback? linkTapCallback;
+
+  /// Callback for taps on opted-in semantic node kinds.
+  final TagflowNodeTapCallback? nodeTapCallback;
+
+  /// Semantic node kinds that should be wrapped as tap targets.
+  final Set<TagflowNodeKind> tapTargetKinds;
 
   /// Options for configuring the selectable behavior
   final TagflowSelectableOptions selectable;
@@ -277,6 +317,8 @@ final class TagflowOptions extends Equatable {
     return TagflowViewOptions(
       debug: debug,
       linkTapCallback: linkTapCallback,
+      nodeTapCallback: nodeTapCallback,
+      tapTargetKinds: tapTargetKinds,
       selectable: selectable,
       imageLoadingBuilder: imageLoadingBuilder,
       imageErrorBuilder: imageErrorBuilder,
@@ -291,6 +333,8 @@ final class TagflowOptions extends Equatable {
   TagflowOptions copyWith({
     bool? debug,
     TagflowLinkTapCallback? linkTapCallback,
+    TagflowNodeTapCallback? nodeTapCallback,
+    Set<TagflowNodeKind>? tapTargetKinds,
     TagflowSelectableOptions? selectable,
     ImageLoadingBuilder? imageLoadingBuilder,
     ImageErrorWidgetBuilder? imageErrorBuilder,
@@ -303,6 +347,8 @@ final class TagflowOptions extends Equatable {
     return TagflowOptions(
       debug: debug ?? this.debug,
       linkTapCallback: linkTapCallback ?? this.linkTapCallback,
+      nodeTapCallback: nodeTapCallback ?? this.nodeTapCallback,
+      tapTargetKinds: tapTargetKinds ?? this.tapTargetKinds,
       selectable: selectable ?? this.selectable,
       imageLoadingBuilder: imageLoadingBuilder ?? this.imageLoadingBuilder,
       imageErrorBuilder: imageErrorBuilder ?? this.imageErrorBuilder,
@@ -334,6 +380,8 @@ final class TagflowOptions extends Equatable {
   List<Object?> get props => [
     debug,
     linkTapCallback,
+    nodeTapCallback,
+    tapTargetKinds,
     selectable,
     imageLoadingBuilder,
     imageErrorBuilder,

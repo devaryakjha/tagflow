@@ -79,6 +79,12 @@ void main() {
         },
       },
     );
+    final viewOptions = api.TagflowViewOptions(
+      nodeTapCallback: (details) {},
+      tapTargetKinds: const {api.TagflowNodeKind.container},
+    );
+    void nodeTapCallback(api.TagflowNodeTapDetails details) {}
+    final legacyOptions = api.TagflowOptions.fromViewOptions(viewOptions);
     const theme = api.TagflowTheme.raw(
       styles: {},
       defaultStyle: api.TagflowStyle.empty,
@@ -133,6 +139,16 @@ void main() {
     expect(registry.hasComponent(api.TagflowNodeKind.paragraph), isTrue);
     expect(theme.defaultStyle, api.TagflowStyle.empty);
     expect(api.TagflowViewOptions.defaults, isA<api.TagflowViewOptions>());
+    expect(viewOptions.nodeTapCallback, isNotNull);
+    expect(viewOptions.tapTargetKinds, contains(api.TagflowNodeKind.container));
+    expect(legacyOptions.nodeTapCallback, same(viewOptions.nodeTapCallback));
+    expect(legacyOptions.tapTargetKinds, viewOptions.tapTargetKinds);
+    expect(legacyOptions.toViewOptions().nodeTapCallback, isNotNull);
+    expect(
+      legacyOptions.toViewOptions().tapTargetKinds,
+      contains(api.TagflowNodeKind.container),
+    );
+    expect(nodeTapCallback, isA<api.TagflowNodeTapCallback>());
     expect(api.Display.block, api.Display.block);
     expect(const api.SizeValue(12).value, 12);
     expect(api.StyleParser.parseDisplay('flex'), api.Display.flex);

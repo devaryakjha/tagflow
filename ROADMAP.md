@@ -103,7 +103,7 @@
 
 - [x] Basic link handling
 - [ ] Advanced Interaction
-  - [ ] Custom tap handlers per element type
+  - [x] Custom tap handlers per element type
   - [ ] Long press actions
   - [ ] Gesture recognition
   - [ ] Selection support
