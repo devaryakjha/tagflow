@@ -20,13 +20,15 @@ runtime expansion.
 Current local gate evidence after the benchmark and route-gate refresh:
 
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate`
-  passed on the coordinator branch at `20b7d77`.
+  passed for the target-audit implementation head `20b7d77`; later docs-only
+  refresh commits should be checked through the live PR status.
 - `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run publish:dry-run`
   previously exited 0 at `94008de` and reported no unpublished packages; later
   work added benchmark-only target-audit tooling and docs, not a package
   release payload.
-- GitHub Actions `CI / Validate` passed on PR #72 at head `20b7d77`
-  in run `27416659032`, job `81031075309`.
+- GitHub Actions `CI / Validate` passed on PR #72 for target-audit
+  implementation head `20b7d77` in run `27416659032`, job `81031075309`.
+  The current pushed-branch check status belongs to PR #72.
 - iOS Simulator `3BA9E377-4B6F-49A7-83FA-F640060D6442` passed the native JSON
   debug route smoke for `tagflow_native_json:native_ai_answer`.
 - `benchmark:profile:baselines` on that same Simulator failed before launch

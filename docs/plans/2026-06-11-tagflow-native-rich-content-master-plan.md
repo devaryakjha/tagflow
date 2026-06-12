@@ -58,10 +58,12 @@ evidence, supported-target profile evidence, and final release-gate approval.
 - Alpha acceptance status: all `1.0.0-alpha.1` runtime criteria in
   `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` are marked
   done.
-- Draft PR status: PR #72 remains draft at head `20b7d77`; local
-  `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate` passed,
-  and GitHub Actions `CI / Validate` passed in run `27416659032`, job
-  `81031075309`.
+- Draft PR status: PR #72 remains draft. The target-audit implementation head
+  `20b7d77` passed local
+  `PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate` and
+  GitHub Actions `CI / Validate` in run `27416659032`, job `81031075309`.
+  Later coordinator docs-only refreshes should use the live PR check status as
+  the source of truth instead of treating this snapshot as the current head.
 - Release posture: `tagflow` is published as `1.0.0-alpha.3` from tag
   `tagflow-v1.0.0-alpha.3`, and `tagflow_table` remains published at
   `1.0.0-alpha.1`. Package descriptions, changelogs, READMEs, roadmap, and the
