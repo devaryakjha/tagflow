@@ -57,8 +57,36 @@ void main() {
     );
 
     expect(result.passed, isFalse);
-    expect(result.issues.single.code, 'required_gate_evidence_path_missing');
+    expect(result.issues.single.code, 'gate_evidence_path_missing');
     expect(result.issues.single.details, containsPair('path', 'missing.md'));
+  });
+
+  test('fails when non-required localPath evidence is missing', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface'],
+      gates: <Map<String, Object?>>[
+        _gate('runtime-surface', 'satisfied'),
+        _gate(
+          'future-route',
+          'open',
+          evidence: <Object?>[_evidence('localPath', 'missing-future.md')],
+        ),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    final result = checkNativeRuntimeGateStatus(
+      manifestFile: manifestFile,
+      profileId: 'draft',
+      evidenceRoot: manifestFile.parent,
+    );
+
+    expect(result.passed, isFalse);
+    expect(result.issues.single.code, 'gate_evidence_path_missing');
+    expect(
+      result.issues.single.details,
+      containsPair('gateId', 'future-route'),
+    );
   });
 
   test('accepts existing required localPath evidence', () {
@@ -184,6 +212,28 @@ void main() {
         'type': 'localPath',
         'value': '../outside.md',
       }),
+      throwsFormatException,
+    );
+  });
+
+  test('rejects non-https tracker URLs', () {
+    final manifestFile = _writeManifest(
+      requiredGateIds: <String>['runtime-surface'],
+      gates: <Map<String, Object?>>[
+        _gate(
+          'runtime-surface',
+          'satisfied',
+          tracker: 'http://github.com/devaryakjha/tagflow/issues/73',
+        ),
+      ],
+    );
+    addTearDown(() => manifestFile.parent.deleteSync(recursive: true));
+
+    expect(
+      () => checkNativeRuntimeGateStatus(
+        manifestFile: manifestFile,
+        profileId: 'draft',
+      ),
       throwsFormatException,
     );
   });

@@ -137,7 +137,7 @@ final class NativeRuntimeGate {
       id: _readNonEmptyString(json, 'id'),
       status: _readGateStatus(json['status']),
       summary: _readNonEmptyString(json, 'summary'),
-      tracker: _readOptionalString(json, 'tracker'),
+      tracker: _readOptionalHttpsUrl(json, 'tracker'),
       evidence: _readEvidenceList(json, 'evidence'),
     );
   }
@@ -384,25 +384,22 @@ NativeRuntimeGateStatusCheckResult checkNativeRuntimeGateStatus({
       );
     }
 
-    for (final evidence in gate.evidence.where(
-      (entry) => entry.type == NativeRuntimeGateEvidenceType.localPath,
+    for (final issue in _checkLocalEvidencePaths(
+      gate: gate,
+      evidenceRoot: resolvedEvidenceRoot,
     )) {
-      final evidencePath = p.join(resolvedEvidenceRoot.path, evidence.value);
-      if (!File(evidencePath).existsSync() &&
-          !Directory(evidencePath).existsSync()) {
-        issues.add(
-          NativeRuntimeGateStatusIssue(
-            code: 'required_gate_evidence_path_missing',
-            message:
-                'Required gate "${gate.id}" references missing evidence path.',
-            details: <String, Object?>{
-              'gateId': gate.id,
-              'path': evidence.value,
-              'resolvedPath': evidencePath,
-            },
-          ),
-        );
-      }
+      issues.add(issue);
+    }
+  }
+
+  for (final gate in manifest.gates.where(
+    (gate) => !requiredGateIds.contains(gate.id),
+  )) {
+    for (final issue in _checkLocalEvidencePaths(
+      gate: gate,
+      evidenceRoot: resolvedEvidenceRoot,
+    )) {
+      issues.add(issue);
     }
   }
 
@@ -440,6 +437,15 @@ String? _readOptionalString(Map<String, Object?> json, String key) {
   if (value is! String || value.trim().isEmpty) {
     throw FormatException('$key must be a non-empty string when provided.');
   }
+  return value;
+}
+
+String? _readOptionalHttpsUrl(Map<String, Object?> json, String key) {
+  final value = _readOptionalString(json, key);
+  if (value == null) {
+    return null;
+  }
+  _validateHttpsUrl(value, label: key);
   return value;
 }
 
@@ -544,15 +550,44 @@ void _validateEvidenceValue({
         );
       }
     case NativeRuntimeGateEvidenceType.url:
-      final uri = Uri.tryParse(value);
-      if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
-        throw const FormatException(
-          'Native runtime gate url evidence must be an https URL.',
-        );
-      }
+      _validateHttpsUrl(value, label: 'url evidence');
     case NativeRuntimeGateEvidenceType.command:
     case NativeRuntimeGateEvidenceType.note:
       break;
+  }
+}
+
+List<NativeRuntimeGateStatusIssue> _checkLocalEvidencePaths({
+  required NativeRuntimeGate gate,
+  required Directory evidenceRoot,
+}) {
+  final issues = <NativeRuntimeGateStatusIssue>[];
+  for (final evidence in gate.evidence.where(
+    (entry) => entry.type == NativeRuntimeGateEvidenceType.localPath,
+  )) {
+    final evidencePath = p.join(evidenceRoot.path, evidence.value);
+    if (!File(evidencePath).existsSync() &&
+        !Directory(evidencePath).existsSync()) {
+      issues.add(
+        NativeRuntimeGateStatusIssue(
+          code: 'gate_evidence_path_missing',
+          message: 'Gate "${gate.id}" references missing evidence path.',
+          details: <String, Object?>{
+            'gateId': gate.id,
+            'path': evidence.value,
+            'resolvedPath': evidencePath,
+          },
+        ),
+      );
+    }
+  }
+  return issues;
+}
+
+void _validateHttpsUrl(String value, {required String label}) {
+  final uri = Uri.tryParse(value);
+  if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+    throw FormatException('Native runtime gate $label must be an https URL.');
   }
 }
 
