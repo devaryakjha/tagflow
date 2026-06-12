@@ -460,12 +460,14 @@ void main() {
   });
 
   test('loads a report-only check policy from JSON', () {
-    final policyFile = _writePolicy();
+    final policyFile = _writePolicy(includeMatrix: true);
     addTearDown(() => policyFile.parent.deleteSync(recursive: true));
 
     final policy = ProfileBaselineCheckPolicy.fromFile(policyFile);
 
     expect(policy.id, 'tagflow-alpha-macos-reference-report-only');
+    expect(policy.matrix?.renderers, <String>{'tagflow'});
+    expect(policy.matrix?.fixtures, <String>{'ai_answer_rich'});
     expect(policy.minRepeats, 5);
     expect(policy.viewportMode, ProfileBaselineViewportPolicyMode.observedHost);
     expect(policy.thresholdMode, 'report_only');
@@ -528,6 +530,47 @@ void main() {
     expect(result.passed, isTrue);
     expect(result.minRepeats, 5);
     expect(result.toJson(), containsPair('policy', policy.toJson()));
+  });
+
+  test('policy matrix rejects undeclared renderer fixture cells', () {
+    final policyFile = _writePolicy(
+      includeMatrix: true,
+      viewportMode: 'synthetic',
+      minRepeats: 1,
+    );
+    final summaryFile = _writeSummary(
+      totalRuns: 1,
+      successfulRuns: 1,
+      cellSummaries: <Map<String, Object?>>[
+        _cellSummary(
+          renderer: 'tagflow',
+          fixture: 'table_stress',
+          repeats: 1,
+          viewportModes: <Map<String, Object?>>[_syntheticViewportMode()],
+        ),
+      ],
+    );
+    addTearDown(() => policyFile.parent.deleteSync(recursive: true));
+    addTearDown(() => summaryFile.parent.deleteSync(recursive: true));
+
+    final result = checkProfileBaselineSummary(
+      summaryFile: summaryFile,
+      policy: ProfileBaselineCheckPolicy.fromFile(policyFile),
+    );
+
+    expect(result.passed, isFalse);
+    expect(
+      result.issues.map((issue) => issue.code),
+      contains('cell_outside_policy_matrix'),
+    );
+    final matrixIssue = result.issues.singleWhere(
+      (issue) => issue.code == 'cell_outside_policy_matrix',
+    );
+    expect(matrixIssue.details, containsPair('fixture', 'table_stress'));
+    expect(
+      matrixIssue.details['policyMatrix'],
+      containsPair('fixtures', <String>['ai_answer_rich']),
+    );
   });
 
   test('observed-host policy rejects synthetic viewport metadata', () {
@@ -934,6 +977,7 @@ File _writePolicy({
   String thresholdMode = 'report_only',
   String viewportMode = 'observed_host',
   int minRepeats = 5,
+  bool includeMatrix = false,
   bool includeViewportMode = true,
   bool includeExpectedViewport = true,
 }) {
@@ -944,6 +988,11 @@ File _writePolicy({
     jsonEncode(<String, Object?>{
       'schemaVersion': 1,
       'id': 'tagflow-alpha-macos-reference-report-only',
+      if (includeMatrix)
+        'matrix': <String, Object?>{
+          'renderers': <String>['tagflow'],
+          'fixtures': <String>['ai_answer_rich'],
+        },
       'check': <String, Object?>{
         'minRepeats': minRepeats,
         if (includeViewportMode) 'viewportMode': viewportMode,

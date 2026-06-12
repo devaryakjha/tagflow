@@ -171,6 +171,10 @@
         },
         {
           "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md"
+        },
+        {
+          "type": "localPath",
           "value": "docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md"
         },
         {

@@ -50,6 +50,48 @@ final class ProfileBaselineExpectedViewport {
   }
 }
 
+/// Renderer/fixture allowlist declared by a profile baseline policy.
+final class ProfileBaselinePolicyMatrix {
+  /// Creates a profile baseline policy matrix.
+  const ProfileBaselinePolicyMatrix({
+    required this.renderers,
+    required this.fixtures,
+  });
+
+  /// Reads a policy matrix from machine-readable JSON.
+  factory ProfileBaselinePolicyMatrix.fromJson(Map<String, Object?> json) {
+    final matrix = ProfileBaselinePolicyMatrix(
+      renderers: _readStringSet(json, 'renderers'),
+      fixtures: _readStringSet(json, 'fixtures'),
+    );
+    if (matrix.renderers.isEmpty || matrix.fixtures.isEmpty) {
+      throw const FormatException(
+        'Profile baseline policy matrix renderers and fixtures must not be '
+        'empty.',
+      );
+    }
+    return matrix;
+  }
+
+  /// Renderer ids accepted by this policy.
+  final Set<String> renderers;
+
+  /// Fixture ids accepted by this policy.
+  final Set<String> fixtures;
+
+  /// Converts this policy matrix to machine-readable JSON.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'renderers': renderers.toList(growable: false),
+    'fixtures': fixtures.toList(growable: false),
+  };
+
+  /// Returns whether [cell] belongs to this policy matrix.
+  bool containsCell(Map<String, Object?> cell) {
+    return renderers.contains(cell['renderer']) &&
+        fixtures.contains(cell['fixture']);
+  }
+}
+
 /// Viewport metadata policy for a profile baseline check.
 enum ProfileBaselineViewportPolicyMode {
   /// Require a real observed-host viewport and reject synthetic metadata.
@@ -64,6 +106,7 @@ final class ProfileBaselineCheckPolicy {
   /// Creates a profile baseline check policy.
   const ProfileBaselineCheckPolicy({
     required this.id,
+    required this.matrix,
     required this.minRepeats,
     required this.viewportMode,
     required this.expectedViewport,
@@ -101,6 +144,18 @@ final class ProfileBaselineCheckPolicy {
     if (check is! Map<String, Object?>) {
       throw const FormatException(
         'Profile baseline policy check must be a map.',
+      );
+    }
+
+    final rawMatrix = json['matrix'];
+    final ProfileBaselinePolicyMatrix? matrix;
+    if (rawMatrix == null) {
+      matrix = null;
+    } else if (rawMatrix is Map<String, Object?>) {
+      matrix = ProfileBaselinePolicyMatrix.fromJson(rawMatrix);
+    } else {
+      throw const FormatException(
+        'Profile baseline policy matrix must be a map.',
       );
     }
 
@@ -150,6 +205,7 @@ final class ProfileBaselineCheckPolicy {
 
     return ProfileBaselineCheckPolicy(
       id: id,
+      matrix: matrix,
       minRepeats: minRepeats,
       viewportMode: viewportMode,
       expectedViewport: expectedViewport,
@@ -159,6 +215,9 @@ final class ProfileBaselineCheckPolicy {
 
   /// Stable policy id.
   final String id;
+
+  /// Optional renderer/fixture matrix this policy is allowed to qualify.
+  final ProfileBaselinePolicyMatrix? matrix;
 
   /// Minimum successful repeat count per renderer/fixture cell.
   final int minRepeats;
@@ -178,6 +237,7 @@ final class ProfileBaselineCheckPolicy {
   /// Converts this policy to machine-readable JSON.
   Map<String, Object?> toJson() => <String, Object?>{
     'id': id,
+    if (matrix != null) 'matrix': matrix!.toJson(),
     'minRepeats': minRepeats,
     'viewportMode': _viewportPolicyModeValue(viewportMode),
     'expectedViewport': expectedViewport?.toJson(),
@@ -322,6 +382,22 @@ ProfileBaselineCheckResult checkProfileBaselineSummary({
   }
 
   for (final cell in cellSummaries) {
+    final matrix = policy?.matrix;
+    if (matrix != null && !matrix.containsCell(cell)) {
+      issues.add(
+        ProfileBaselineCheckIssue(
+          code: 'cell_outside_policy_matrix',
+          message:
+              'A renderer/fixture cell is outside the profile policy matrix.',
+          details: <String, Object?>{
+            'renderer': cell['renderer'],
+            'fixture': cell['fixture'],
+            'policyMatrix': matrix.toJson(),
+          },
+        ),
+      );
+    }
+
     final observedRepeats = cell['observedRepeats']! as int;
     if (observedRepeats < effectiveMinRepeats) {
       issues.add(
@@ -667,6 +743,26 @@ double _readDouble(Map<String, Object?> map, String key) {
   }
 
   throw FormatException('Expected numeric "$key" in viewport metadata.');
+}
+
+Set<String> _readStringSet(Map<String, Object?> map, String key) {
+  final value = map[key];
+  if (value is! List<Object?>) {
+    throw FormatException(
+      'Profile baseline policy matrix.$key must be a list.',
+    );
+  }
+
+  final values = <String>{};
+  for (final item in value) {
+    if (item is! String || item.trim().isEmpty) {
+      throw FormatException(
+        'Profile baseline policy matrix.$key must contain non-empty strings.',
+      );
+    }
+    values.add(item);
+  }
+  return values;
 }
 
 ProfileBaselineViewportPolicyMode _readViewportPolicyMode(Object? value) {
