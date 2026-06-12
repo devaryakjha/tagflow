@@ -40,10 +40,13 @@ Latest coordinator audit found no route satisfying #73 as-is.
   Kite's intended source-control path. Its intended GitLab review path is not
   reachable from this machine because `gitlab.zerodha.tech` DNS fails.
 - Varsity has real rich-content routes and is the strongest non-Kite technical
-  fallback, especially `/blog/:id` -> `BlogScreen`, but it is still on hosted
-  `tagflow ^0.0.7`, uses the legacy `Tagflow(html: ...)` constructor, and its
-  intended remote is also `gitlab.zerodha.tech`. It does not validate the
-  current hosted native runtime or avoid the current GitLab review blocker.
+  fallback. The clearest surfaces are `/blog/:id` -> `BlogScreen` and module
+  topic cards entered through
+  `/modules/overview/:id/:level/topic/:topicId` -> `CardPage`, but it is still
+  on hosted `tagflow ^0.0.7`, uses the legacy `Tagflow(html: ...)` /
+  `Tagflow(...)` constructor shape, and its intended remote is also
+  `gitlab.zerodha.tech`. It does not validate the current hosted native
+  runtime or avoid the current GitLab review blocker.
 - Seisei provides package-adapter evidence, not a real downstream app route
   with an intended user path.
 - Pulse is a real app with news content, but the current local repo has no
@@ -165,8 +168,9 @@ unsupported block if the production surface uses those features.
 
 Current fallback read:
 
-- Varsity `/blog/:id` is the strongest non-Kite route candidate, but only after
-  a hosted-alpha Tagflow migration and GitLab-review unblock.
+- Varsity `/blog/:id` and module-topic `CardPage` are the strongest non-Kite
+  route candidates, but only after a hosted-alpha Tagflow migration and
+  GitLab-review unblock.
 - Seisei is source-control ready on GitHub, but it would need a real app/product
   route before it can satisfy the gate; package adapters and examples are not
   enough.

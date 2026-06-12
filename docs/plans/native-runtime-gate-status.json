@@ -138,12 +138,20 @@
           "value": "docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-probe.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
         },
         {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r2; simulator recorded separately"
+        },
+        {
+          "type": "note",
+          "value": "observed-host native JSON probe passed loose minRepeats=1 but failed reference policy because current host is 800x600 @ 1.0x, not 2.0x"
         }
       ]
     },

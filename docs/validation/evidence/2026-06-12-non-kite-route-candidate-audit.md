@@ -99,3 +99,35 @@ GitLab review access.
 If GitLab remains unavailable, the coordinator should ask for an approved
 GitHub-hosted real Flutter app route rather than treating Kite or Varsity
 GitLab access as a Tagflow package blocker.
+
+## Sidecar Refresh
+
+Later on 2026-06-12, a delegated read-only sidecar audit rechecked local
+candidate repositories and found the same gate result: no non-Kite local route
+qualifies for #73 today.
+
+Additional details from that refresh:
+
+- Kite remains the strongest technical route. Its local branch
+  `codex/tagflow-ipo-native-route` resolves hosted `tagflow 1.0.0-alpha.3` and
+  `tagflow_table 1.0.0-alpha.1`, renders `IPOInstrumentSheet` through
+  `Tagflow.html(..., registry: tagflowRegistry())`, and has focused tests. It
+  still needs Kite reviewability or explicit owner acceptance of the non-GitLab
+  packet.
+- Varsity has two plausible real rich-content surfaces:
+  `BlogScreen`, which renders `blog.htmlContent`, and module topic card pages,
+  where `CardPage` renders `card.cardContent` from the route entered through
+  `Routes.moduleTopic` at `/modules/overview/:id/:level/topic/:topicId`.
+  Varsity remains on hosted `tagflow ^0.0.7` / lockfile `0.0.7`, uses the
+  legacy `Tagflow(...)` constructor, and uses the same GitLab review path as
+  Kite.
+- Seisei remains reviewable GitHub adapter evidence only. Its
+  `seisei_tagflow` package maps data into `TagflowDocument`, but no real app
+  route renders it.
+- Pulse remains a non-candidate because it has no Tagflow dependency and its
+  news flow opens external article URLs instead of rendering a Tagflow route.
+
+Smallest next action if Kite stays unavailable: get owner approval for a
+reviewable real Flutter app route. If Varsity is approved and GitLab access
+returns, the smallest technical migration candidate is either `BlogScreen` or
+`CardPage` on hosted `tagflow ^1.0.0-alpha.3`, without local path overrides.
