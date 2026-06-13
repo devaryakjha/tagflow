@@ -207,7 +207,7 @@ Examples:
   dart run bin/check_native_runtime_gates.dart --profile=pr72-ready
   dart run bin/check_native_runtime_gates.dart \\
     --profile=beta-preapproval \\
-    --expect-open-gates=real-app-route,physical-observed-profile
+    --expect-profile-open-gates=true
 ''');
 }
 

@@ -105,8 +105,8 @@ private downstream app path for #73.
 
 ## Physical/Observed Profile Decision
 
-Current best profile evidence is local stabilization evidence, not qualified
-physical or observed-host evidence.
+Current #75 profile evidence is the repeat-5 physical iPhone Time Profiler
+collection. Local observed-host runs remain stabilization evidence only.
 
 Decision request:
 
@@ -191,11 +191,11 @@ PR head:
 For Tagflow PR #72 at commit <candidate-sha>, I accept the public reference app
 route at examples/tagflow -> /reference-app-route as the #73 review artifact.
 
-For physical-observed-profile, I choose <option A: require qualifying evidence
-before beta preapproval | option B: waive for beta preapproval only using the
-local stabilization evidence>. This decision does not approve public benchmark
-claims, frame-budget claims, memory claims, comparative performance wording,
-stable release wording, publishing, tagging, or package-version changes.
+For physical-observed-profile, I accept the repeat-5 physical iPhone Time
+Profiler evidence as the #75 review artifact. This decision does not approve
+public benchmark claims, frame-budget claims, memory claims, comparative
+performance wording, stable release wording, publishing, tagging, or
+package-version changes.
 ```
 
 This consolidated block is not a publish approval. Publishing still requires a

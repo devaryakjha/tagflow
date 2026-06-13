@@ -22,8 +22,8 @@ keeps HTML as a first-party adapter through `TagflowHtmlAdapter` and
 
 The native-runtime line is intentionally breaking and prerelease-only. Do not
 promote it to beta or stable until the public API freeze review, benchmark
-evidence gates, and at least one hosted real-app validation path are credible
-and approved.
+evidence gates, package-owned route evidence, and release approval are
+reviewed and explicitly accepted.
 
 ## 📦 Packages
 

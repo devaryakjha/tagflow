@@ -17,9 +17,11 @@
 - Scope: coordinator sequencing after native-runtime API, adapter metadata,
   equivalent fixture, and DPR feasibility work
 
-This note is the current coordinator sequence. It does not authorize publishing,
-tagging, package-version changes, beta wording, benchmark claims, or broad
-runtime expansion.
+This note records coordinator sequencing history plus the current handoff
+checks. Use `docs/plans/native-runtime-gate-status.json`, PR #72 hosted checks,
+and live tracker state for the current branch-head readiness decision. It does
+not authorize publishing, tagging, package-version changes, beta wording,
+benchmark claims, or broad runtime expansion.
 
 Current anchored gate evidence:
 
@@ -48,15 +50,15 @@ Current anchored gate evidence:
   `build/benchmarks/target-availability/`.
 - The worktree still has unrelated local `.vscode/settings.json` and `.codex/`
   changes that are not part of this coordinator sequence.
-- `packages/tagflow_benchmarks/test/native_runtime_gate_status_test.dart` now
-  pins the current #73 Kite non-GitLab packet evidence and the latest #75
-  target-availability evidence so those manifest references cannot be silently
-  dropped while the gates remain open.
+- `packages/tagflow_benchmarks/test/native_runtime_gate_status_test.dart` keeps
+  gate-manifest regressions around #73/#75 evidence, including stale-open
+  expectation checks now that both trackers are closed.
 
 External gate trackers:
 
-- Real-app route evidence is tracked in
-  https://github.com/devaryakjha/tagflow/issues/73.
+- Real-app route evidence was tracked in
+  https://github.com/devaryakjha/tagflow/issues/73, now closed via the public
+  package-owned reference app route.
   Qualification rules and candidate-route stop rules are recorded in
   `docs/plans/2026-06-12-real-app-route-qualification.md`.
 - The PR #72 synthetic benchmark decision is recorded in
@@ -64,15 +66,16 @@ External gate trackers:
   The PR #72 benchmark gate is satisfied by the accepted synthetic
   report-only path recorded in
   `docs/benchmarks/2026-06-12-benchmark-gate-decision.md`; #74 is closed for
-  that scoped decision. Physical, observed-host, memory, frame-budget,
-  beta/stable, and comparative performance gates remain separate future work
-  tracked by `physical-observed-profile`, release approval, and any future
-  reviewed benchmark policy.
+  that scoped decision. The #75 `physical-observed-profile` tracker is now
+  closed by the iPhone 17 repeat-5 Xcode Time Profiler evidence, and public
+  frame-budget, beta/stable, comparative performance, or package-page benchmark
+  claims remain out of scope unless a future reviewed policy explicitly
+  authorizes them.
 - Machine-readable coordinator status is tracked in
   `docs/plans/native-runtime-gate-status.json`. The default
   `gate:native-runtime` Melos script checks the `pr72-draft` profile; set
   `TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=pr72-ready` to prove the stricter
-  ready-to-undraft gate, which currently fails while #73 remains open.
+  ready-to-undraft gate.
 
 ## Current Read
 
@@ -88,25 +91,18 @@ The native runtime direction is structurally in place:
   inspectors exist.
 - The first equivalent HTML/native fixture family has repeat-5 local evidence.
 
-The remaining beta-preapproval evidence gaps are the real-app route and the
-physical/observed profile gates:
+No non-owner beta-preapproval evidence gaps remain in the gate manifest:
 
-- Kite production-route evidence still depends on Kite GitLab/DNS or an
-  approved equivalent real Flutter app route. A local Kite supporting branch
-  exists at `codex/tagflow-ipo-native-route` with commits `355c79d6`,
-  `e9a86803`, and `50bee7ce`. The latest local simulator smoke opens the real
-  Bids -> IPO -> AFCONS -> `IPOInstrumentSheet` path against Kite's debug
-  `main_local.dart` fixture and captures visible Tagflow-rendered IPO tables,
-  with hosted `tagflow 1.0.0-alpha.3` and `tagflow_table 1.0.0-alpha.1`
-  resolved from pub.dev. It is still not pushed/reviewable through Kite's
-  intended source-control path and uses local fixture/auth constraints. The
-  #73 body now records that the existing non-GitLab packet can substitute only
-  after explicit owner acceptance of that packet and those constraints;
-- the PR #72 benchmark gate is satisfied by synthetic report-only evidence,
-  while physical-device, observed-host, frame-budget, memory, beta/stable, and
-  comparative performance evidence remain future benchmark work;
-- Simulator evidence remains useful only as debug route smoke unless Flutter
-  tooling proves profile-mode support for the selected simulator/runtime.
+- #73 is closed by the public package-owned reference app route recorded in
+  `docs/validation/evidence/2026-06-13-reference-app-route.md`.
+- #75 is closed by the iPhone 17 repeat-5 Xcode Time Profiler evidence recorded
+  in
+  `docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md`.
+- The PR #72 benchmark gate is satisfied by synthetic report-only evidence, and
+  memory-allocation review is satisfied as local report-only evidence.
+- Release approval remains deferred. Do not interpret satisfied evidence gates
+  as beta/stable release approval, package publishing approval, frame-budget
+  approval, public benchmark approval, or comparative performance approval.
 
 ## Next Slices
 

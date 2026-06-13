@@ -89,5 +89,5 @@ Those require a separate policy, target qualification, collection, and review.
 ## PR Impact
 
 PR #72 can treat #74 as closed for benchmark coordination, while keeping all
-benchmark language report-only. PR #72 should remain draft until the separate
-real-app route gate in #73 is satisfied.
+benchmark language report-only. This benchmark decision does not authorize
+PR #72 undraft or merge by itself.

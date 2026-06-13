@@ -231,7 +231,7 @@
         },
         {
           "type": "note",
-          "value": "physical-observed-profile requires a qualifying target or explicit owner waiver for beta preapproval"
+          "value": "physical-observed-profile previously required a qualifying target or explicit owner waiver for beta preapproval before the repeat-5 Time Profiler evidence was collected"
         },
         {
           "type": "note",
@@ -286,7 +286,7 @@
     {
       "id": "release-approval",
       "status": "deferred",
-      "summary": "Beta/stable approval is intentionally deferred until real-app and benchmark evidence gates are satisfied.",
+      "summary": "Beta/stable approval is intentionally deferred until the owner reviews and explicitly accepts the release approval packet.",
       "claimBoundary": "This gate is an owner approval gate. It does not authorize publishing, tagging, beta/stable wording, or package-page claim changes until the approval packet is reviewed and explicitly accepted.",
       "evidence": [
         {

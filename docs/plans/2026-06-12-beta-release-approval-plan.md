@@ -25,16 +25,15 @@ The `1.0.0-alpha.3` core package is already published as a prerelease. PR #72
 continues as a draft coordinator branch for native-runtime hardening and gate
 tracking.
 
-The beta-candidate gate still fails on:
+The beta-preapproval profile is expected to pass with the current non-owner
+gates satisfied. The beta-candidate gate still fails on:
 
-- `real-app-route`;
-- `physical-observed-profile`;
 - `release-approval`.
 
 The `beta-preapproval` profile exists to check all non-owner-approval beta
-gates without requiring `release-approval` itself. It must pass, or every
-remaining non-approval failure must have an explicit owner waiver, before the
-approval packet can satisfy `release-approval`.
+gates without requiring `release-approval` itself. It must continue to pass,
+or every remaining non-approval failure must have an explicit owner waiver,
+before the approval packet can satisfy `release-approval`.
 
 The release approval gate must remain deferred until the evidence packet below
 is complete and explicitly accepted by the owner.

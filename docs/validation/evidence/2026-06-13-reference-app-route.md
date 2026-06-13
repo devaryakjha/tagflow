@@ -62,6 +62,6 @@ This evidence is sufficient for #73 because the owner rejected using
 proprietary downstream app changes as public review evidence and directed the
 package to provide a detailed example app route instead.
 
-This evidence does not close #75 and does not authorize public performance
-claims, package publishing, beta/stable wording, or PR #72 undraft/merge by
-itself.
+This route evidence is not #75 profile evidence and does not authorize public
+performance claims, package publishing, beta/stable wording, or PR #72
+undraft/merge by itself.
