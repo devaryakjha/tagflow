@@ -33,14 +33,12 @@ beta-preapproval:
   result=failed as expected
   expectationPassed=true through gate:native-runtime:beta-preapproval-known-open
   blockers=[
-    real-app-route,
     physical-observed-profile
   ]
 
 beta-candidate:
   result=failed as expected
   blockers=[
-    real-app-route,
     physical-observed-profile,
     release-approval
   ]
@@ -55,10 +53,8 @@ recorded.
 
 A point-in-time PR/tracker state is summarized in
 `docs/plans/2026-06-13-pr72-live-state-refresh.md`. That note records a
-captured PR #72 draft/open state, a passing hosted `CI / Validate` run, and
-#73/#75 remaining open for the same owner/target reasons recorded below. Use
-live PR checks, not the captured commit in that note, for the current branch
-head.
+captured PR #72 draft/open state before the reference-app-route pivot. Use live
+PR checks, not the captured commit in that note, for the current branch head.
 
 ## Alpha.4 / Pre-Beta Scope
 
@@ -67,8 +63,7 @@ Alpha.4 or pre-beta work should stay focused on:
 - coordinating owner decisions for the remaining beta-preapproval blockers;
 - preserving a clear difference between alpha stabilization evidence and
   beta/stable release evidence;
-- unblocking real-app route review through Kite or an approved equivalent real
-  Flutter app route;
+- preserving the public reference-app route as the #73 reviewable Flutter route;
 - unblocking physical or qualified observed-host profile evidence when target
   state changes;
 - maintaining docs and tests that keep the current native-runtime API shape
@@ -88,24 +83,20 @@ block activation through that same view-owned model.
 
 ## Open Decisions
 
-### Real-App Route
+### Reference App Route
 
-The `real-app-route` gate remains open.
+The `real-app-route` gate is satisfied by a public package-owned route.
 
-Owner decision request:
+Current evidence:
 
-- `docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md`
+- `docs/plans/2026-06-12-real-app-route-qualification.md`
+- `docs/validation/evidence/2026-06-13-reference-app-route.md`
+- `examples/tagflow/lib/screens/reference_app_route_screen.dart`
+- `examples/tagflow/test/reference_app_route_test.dart`
 
-Acceptable close paths:
-
-- the owner accepts the Kite non-GitLab review packet as the #73 source-review
-  artifact for the `IPOInstrumentSheet` route;
-- Kite GitLab/source-control access returns and the route is pushed or
-  otherwise reviewed through the intended app path;
-- the owner approves a different qualifying real Flutter app route.
-
-Until one of those decisions is recorded, keep #73 open and keep
-`real-app-route.status=open`.
+The owner clarified that proprietary downstream app changes should not be the
+public Tagflow gate artifact. Keep #73 tied to the package-owned example route
+unless the owner explicitly approves a different sanitized public route.
 
 ### Physical/Observed Profile
 
@@ -149,7 +140,7 @@ and no attached Android device.
   before any repeat-5 collection.
 - Refresh docs when PR #72 head, CI, gate output, or owner decisions change.
 - Use `gate:native-runtime:beta-preapproval-known-open` for the current
-  expected-open beta-preapproval check while #73 and #75 remain open.
+  expected-open beta-preapproval check while #75 remains open.
 - Keep `tagflow_example` inside the root `melos run test` coverage lane because
   it hosts the routed native JSON example and benchmark-control widgets.
 - Keep raw benchmark artifacts under ignored `build/benchmarks/`.
@@ -184,8 +175,8 @@ Expected result:
 - `git diff --check` passes;
 - `pr72-draft` gate passes;
 - `beta-preapproval` reports `expectationPassed=true` for the known open
-  `real-app-route` and `physical-observed-profile` blockers, unless explicit
-  owner decisions have been recorded;
+  `physical-observed-profile` blocker, unless explicit owner decisions have
+  been recorded;
 - the gate manifest remains valid JSON.
 
 Optionally run the beta-candidate profile when release posture changes:
@@ -203,8 +194,8 @@ Until owner approval exists, it should continue to fail on
 
 Do not add this note to `native-runtime-gate-status.json` as gate evidence.
 
-Do not mark `real-app-route` satisfied without explicit owner acceptance,
-normal source-review evidence, or an approved equivalent real app route.
+Do not replace the public reference-app route with proprietary downstream app
+evidence unless the owner explicitly approves a sanitized public artifact.
 
 Do not mark `physical-observed-profile` satisfied from local stabilization
 evidence, Simulator smoke, or an observed host that fails the native JSON
@@ -215,8 +206,8 @@ or `docs/benchmarks/policies/profile-native-json-observed-policy.json` to match
 this machine without an owner-approved target decision and fresh repeat-5
 evidence.
 
-Do not remove `real-app-route` or `physical-observed-profile` from the
-`beta-preapproval` profile to make the gate pass.
+Do not remove `physical-observed-profile` from the `beta-preapproval` profile
+to make the gate pass.
 
 Do not publish, tag, bump versions, undraft PR #72, or add beta/stable package
 copy from this coordination note.

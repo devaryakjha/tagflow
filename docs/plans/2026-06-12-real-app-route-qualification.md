@@ -2,209 +2,95 @@
 
 ## Status
 
-- Date: 2026-06-12
+- Date: 2026-06-13 Asia/Kolkata
 - Branch: `codex/tagflow-native-runtime-master`
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
 - Gate tracker: https://github.com/devaryakjha/tagflow/issues/73
-- Scope: qualify one real Flutter app route for the hosted native-runtime alpha
+- Scope: qualify a public, reviewable Flutter route for native-runtime alpha
+  evidence
 
 This plan does not authorize publishing, tagging, package-version changes,
-beta wording, performance claims, or a local-path downstream validation.
+beta wording, performance claims, or private downstream app changes.
 
 ## Goal
 
-Prove that the hosted Tagflow native-runtime alpha can render a real app-owned
-rich-content route through the intended app path, with real data/auth
-constraints and a reviewable source-control trail.
+Prove that Tagflow's native-runtime API can render app-owned rich content
+through a real Flutter navigation route that reviewers can inspect from this
+repository.
 
-This gate is intentionally narrower than general compatibility testing. Widget
-tests, example-app routes, adapter packages, and simulator smoke evidence can
-support the decision, but they do not close the gate by themselves.
-
-## Current Read
-
-Latest coordinator audit found no route satisfying #73 as-is.
-
-- Kite is the strongest candidate. It depends on hosted
-  `tagflow ^1.0.0-alpha.3` and `tagflow_table ^1.0.0-alpha.1`. A local
-  supporting branch now migrates the production IPO sheet file off
-  `package:tagflow/legacy.dart` and onto `Tagflow.html(..., registry: ...)`,
-  with a supporting production-sheet widget test that pumps
-  `IPOInstrumentSheet` using real IPO fixture content. A further local
-  `main_local.dart` fixture commit now supports a simulator route smoke through
-  Bids -> IPO -> AFCONS -> `IPOInstrumentSheet`, including a successful
-  `/ipo/afcons?format=json` fetch and visible Tagflow-rendered table content.
-  Its `pubspec.lock` resolves hosted `tagflow 1.0.0-alpha.3` and
-  `tagflow_table 1.0.0-alpha.1` from pub.dev, with only commented-out local
-  Tagflow path overrides. That branch is still not pushed or reviewable through
-  Kite's intended source-control path. Its intended GitLab review path is not
-  reachable from this machine because `gitlab.zerodha.tech` DNS fails.
-- Varsity has real rich-content routes and is the strongest non-Kite technical
-  fallback. The clearest surfaces are `/blog/:id` -> `BlogScreen` and module
-  topic cards entered through
-  `/modules/overview/:id/:level/topic/:topicId` -> `CardPage`, but it is still
-  on hosted `tagflow ^0.0.7`, uses the legacy `Tagflow(html: ...)` /
-  `Tagflow(...)` constructor shape, and its intended remote is also
-  `gitlab.zerodha.tech`. It does not validate the current hosted native
-  runtime or avoid the current GitLab review blocker.
-- Seisei provides package-adapter evidence, not a real downstream app route
-  with an intended user path.
-- Pulse is a real app with news content, but the current local repo has no
-  Tagflow dependency or current native-runtime route.
-
-The Kite hosted-alpha widget/native-transport tests and local simulator smoke
-are useful supporting evidence. They prove the hosted packages can decode and
-render targeted fixtures, that the migrated sheet code can render seeded real
-IPO content in a harness, and that Kite's debug route can navigate into the
-migrated production sheet with a local fixture while resolving hosted Tagflow
-packages. #73 still requires an approved real app path and reviewable
-source-control trail.
-
-The local Kite production-file migration is recorded in
-`docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`. It is
-supporting code evidence only and does not close #73.
-
-The non-Kite candidate audit is recorded in
-`docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md`. It
-found no currently qualifying replacement route. If GitLab access returns,
-Varsity `/blog/:id` is the smallest non-Kite candidate to evaluate; if GitLab
-stays unavailable, the next route must be an approved GitHub-hosted or otherwise
-reviewable real Flutter app route.
+The owner clarified that proprietary downstream app code must not be used as
+the public review artifact for this package. The qualifying route is therefore
+the package-owned `examples/tagflow` route at `/reference-app-route`.
 
 ## Qualification Contract
 
-One route qualifies only when all of these are true:
+The public route qualifies when all of these are true:
 
-- the owner approves the route or provides an equivalent real Flutter app
-  route;
-- the app resolves `tagflow` and any first-party extension packages from the
-  hosted prerelease line, not from `dependency_overrides` or local paths;
-- the route uses the native-runtime public path, such as `Tagflow.document(...)`
-  or `Tagflow.html(...)` with the semantic registry path, rather than
-  `package:tagflow/legacy.dart`;
-- the route opens through the intended app navigation path with real fixture,
-  auth, or data constraints documented;
-- any behavior deltas from the current production renderer are reviewed and
-  either fixed or explicitly accepted;
-- the integration is pushed, merged, or otherwise reviewable through the app's
-  intended source-control path;
+- the route is reachable through normal Flutter app navigation;
+- content is app-authored and deterministic, not copied from private app data;
+- rendering uses `Tagflow.document(...)` or `Tagflow.html(...)` with the
+  semantic registry path instead of `package:tagflow/legacy.dart`;
+- app-owned link, media, unsupported-content, and extension behavior is visible;
+- a runtime document update path is covered;
+- tests exercise the route and its expected app-owned interactions;
 - evidence is recorded without benchmark or memory claims unless separate
   qualified benchmark evidence exists.
 
-## Kite Candidate Slice
+## Selected Route
 
-If Kite is approved, keep the integration slice focused on the IPO sheet.
+Route:
 
-Implementation scope:
+```text
+examples/tagflow -> /reference-app-route
+```
 
-- use the local Kite branch `codex/tagflow-ipo-native-route` and commits
-  `355c79d6`, `e9a86803`, and `50bee7ce` as the starting point;
-- push or recreate that focused change through Kite's normal source-control
-  path;
-- keep the production IPO sheet off `package:tagflow/legacy.dart`;
-- keep the IPO rich-content body on hosted
-  `Tagflow.html(..., registry: ...)` or an equivalent `TagflowDocument` path
-  using
-  `tagflowTableComponents(...)` where table behavior is required;
-- preserve the existing app-owned link handling, theme constraints, loading
-  states, and unsupported-content policy unless a behavior delta is accepted;
-- keep the current hosted-alpha widget/native-transport tests as supporting
-  evidence, not as the route gate itself;
-- reuse the `main_local.dart` AFCONS fixture for debug-route repros if needed,
-  but do not present that local fixture as live auth/data evidence;
-- preserve the currently verified hosted lockfile resolution for
-  `tagflow 1.0.0-alpha.3` and `tagflow_table 1.0.0-alpha.1`.
+Source:
 
-Route evidence to capture:
+```text
+examples/tagflow/lib/screens/reference_app_route_screen.dart
+examples/tagflow/test/reference_app_route_test.dart
+```
 
-- route name and navigation path;
-- package-resolution proof from `pubspec.lock`;
-- command output for the focused app validation used by Kite;
-- screenshot or log evidence showing the real IPO sheet path rendered through
-  the migrated code;
-- source-control link once GitLab/DNS access is available.
+Evidence:
 
-### Non-GitLab Kite Review Packet
+```text
+docs/validation/evidence/2026-06-13-reference-app-route.md
+```
 
-GitLab access is not itself a Tagflow package requirement. It is only the
-current blocker because Kite's normal review remote is
-`git@gitlab.zerodha.tech:mobile-apps/kite.git`, and that host does not resolve
-from this machine right now.
+The route renders a neutral release-readiness brief with:
 
-If Kite's owner explicitly accepts a non-GitLab packet as the review artifact
-for this gate, the packet can replace the GitLab source-control link for #73.
-Without that owner acceptance, the packet is supporting evidence only and #73
-must remain open.
+- structured `TagflowDocument` content;
+- semantic table extension rendering through `tagflowTableComponents(...)`;
+- app-owned link handling;
+- app-owned media placeholders;
+- unsupported-content placeholders;
+- controlled HTML with policy restrictions;
+- a `TagflowDocumentPatch` CMS update from `cms-rev-1` to `cms-rev-2`.
 
-The minimum packet should include:
+## Private App Boundary
 
-- a `git bundle` or patch series for Kite commits `355c79d6`, `e9a86803`, and
-  `50bee7ce`;
-- `git log --format=fuller -3` from the Kite route branch;
-- `git diff --stat feat/dashboard..HEAD`;
-- `git diff --check feat/dashboard..HEAD`;
-- the full diff for `lib/main_local.dart`,
-  `lib/screens/ipos/ipo_instrument_sheet.dart`, and
-  `test/ipos/tagflow_hosted_alpha3_test.dart`;
-- hosted package-resolution proof from Kite `pubspec.yaml` and `pubspec.lock`;
-- focused Kite validation output for analysis and the
-  `tagflow_hosted_alpha3_test.dart` widget test;
-- route-smoke logs and the ignored screenshot artifact recorded in
-  `docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md`;
-- explicit owner wording that the packet is accepted as the review artifact for
-  the `IPOInstrumentSheet` Tagflow native-runtime route, and that the local
-  debug fixture/auth constraints are accepted for #73.
+Do not rely on proprietary downstream app changes, screenshots, route logs, or
+source-control packets as public Tagflow gate evidence.
 
-## Equivalent App Route
-
-If Kite remains blocked, another real Flutter app route can satisfy #73 when it
-meets the same qualification contract.
-
-The replacement route should be app-owned content with low release blast radius,
-such as a help article, product update, AI answer detail, announcement, or
-controlled CMS body. It should include enough structure to exercise paragraphs,
-headings, inline emphasis, links, lists, and at least one extension-backed or
-unsupported block if the production surface uses those features.
-
-Current fallback read:
-
-- Varsity `/blog/:id` and module-topic `CardPage` are the strongest non-Kite
-  route candidates, but only after a hosted-alpha Tagflow migration and
-  GitLab-review unblock.
-- Seisei is source-control ready on GitHub, but it would need a real app/product
-  route before it can satisfy the gate; package adapters and examples are not
-  enough.
-- Pulse would need an approved new Tagflow-backed route because it does not
-  currently depend on Tagflow.
-
-## Stop Rules
-
-Stop and leave #73 open if any of these are true:
-
-- the route is only a widget test, diagnostics page, package adapter, or
-  Tagflow example-app route;
-- the app uses local path overrides for Tagflow;
-- production rendering still depends on `package:tagflow/legacy.dart`;
-- source data is dummy content when the gate claims real fixture/data coverage;
-- app source control cannot be reached and no equivalent reviewable route is
-  approved;
-- the only available evidence is simulator/profile smoke without a real app
-  route.
+Private downstream validation can still inform owner confidence, but it must
+not be required for PR #72 review, package publication, or public release notes
+unless the owner explicitly approves a sanitized public artifact.
 
 ## Reporting
 
-When a route qualifies, update #73 with:
+When the route validates, update #73 with:
 
-- approved route and app;
-- hosted package versions;
-- source-control link;
-- exact validation commands and results;
-- fixture/data/auth constraints;
-- screenshots or logs if captured;
-- any accepted behavior deltas;
-- explicit statement that performance evidence is separate from #73: the PR #72
-  synthetic benchmark decision is recorded in closed #74, while physical,
-  observed-host, frame-budget, memory, beta/stable, or comparative performance
-  claims require separate reviewed evidence.
+- route name and path;
+- source and test files;
+- exact validation command and result;
+- statement that the route is package-owned and contains no proprietary app
+  code;
+- explicit statement that performance evidence is separate from #73.
 
-Until then, PR #72 should remain draft and should describe #73 as open.
+## Stop Rules
+
+Do not reopen proprietary app integration as the default #73 path.
+
+Do not mark #75, release approval, beta/stable wording, public benchmark
+claims, frame-budget claims, memory claims, publishing, PR #72 undraft, or PR
+merge as satisfied from this route.

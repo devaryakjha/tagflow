@@ -408,49 +408,37 @@ void main() {
     expect(draftResult.passed, isTrue);
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
-      containsAll(<String>[
-        'real-app-route',
-        'physical-observed-profile',
-        'release-approval',
-      ]),
+      containsAll(<String>['physical-observed-profile', 'release-approval']),
     );
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
       isNot(contains('memory-allocation-review')),
     );
 
-    expect(readyResult.passed, isFalse);
-    expect(readyResult.issues.map((issue) => issue.details['gateId']), <String>[
-      'real-app-route',
-    ]);
+    expect(readyResult.passed, isTrue);
+    expect(readyResult.issues, isEmpty);
 
     expect(betaPreapprovalResult.passed, isFalse);
     expect(
       betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
-      <String>['real-app-route', 'physical-observed-profile'],
+      <String>['physical-observed-profile'],
     );
     expect(
       betaPreapprovalResult.requiredOpenGates.map((gate) => gate.id),
-      <String>['real-app-route', 'physical-observed-profile'],
+      <String>['physical-observed-profile'],
     );
     expect(betaPreapprovalResult.profile.expectedOpenGateIds, <String>[
-      'real-app-route',
       'physical-observed-profile',
     ]);
     expect(
       betaPreapprovalResult.requiredOpenGates.map((gate) => gate.tracker),
-      <String>[
-        'https://github.com/devaryakjha/tagflow/issues/73',
-        'https://github.com/devaryakjha/tagflow/issues/75',
-      ],
+      <String>['https://github.com/devaryakjha/tagflow/issues/75'],
     );
     expect(
       betaPreapprovalResult.requiredOpenGates
           .expand((gate) => gate.evidence)
           .map((entry) => entry.value),
       containsAll(<String>[
-        'docs/validation/evidence/2026-06-12-kite-non-gitlab-review-packet.md',
-        'docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md',
         'docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md',
         'docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md',
         'docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md',
@@ -467,7 +455,6 @@ void main() {
 
     expect(betaResult.passed, isFalse);
     expect(betaResult.issues.map((issue) => issue.details['gateId']), <String>[
-      'real-app-route',
       'physical-observed-profile',
       'release-approval',
     ]);

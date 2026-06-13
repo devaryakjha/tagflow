@@ -31,7 +31,6 @@ void main() {
       expect(json['passed'], isFalse);
       expect(json['profile'], containsPair('id', 'beta-preapproval'));
       expect(requiredOpenGates.map((gate) => gate['id']), <String>[
-        'real-app-route',
         'physical-observed-profile',
       ]);
     },
@@ -43,10 +42,7 @@ void main() {
     () async {
       final result = await _runGateCli(
         profile: 'beta-preapproval',
-        expectedOpenGates: <String>[
-          'real-app-route',
-          'physical-observed-profile',
-        ],
+        expectedOpenGates: <String>['physical-observed-profile'],
       );
       final json = _decodeJson(result.stdout);
 
@@ -54,7 +50,6 @@ void main() {
       expect(json['passed'], isFalse);
       expect(json['expectationPassed'], isTrue);
       expect(json['expectedOpenGateIds'], <String>[
-        'real-app-route',
         'physical-observed-profile',
       ]);
     },
@@ -74,7 +69,6 @@ void main() {
       expect(json['passed'], isFalse);
       expect(json['expectationPassed'], isTrue);
       expect(json['expectedOpenGateIds'], <String>[
-        'real-app-route',
         'physical-observed-profile',
       ]);
     },

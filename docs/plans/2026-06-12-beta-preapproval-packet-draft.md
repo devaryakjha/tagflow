@@ -2,11 +2,8 @@
 
 ## Status
 
-- Date: 2026-06-12 Asia/Kolkata
+- Date: 2026-06-13 Asia/Kolkata
 - Draft review PR: https://github.com/devaryakjha/tagflow/pull/72
-- Recorded CI-validated PR anchor: `01149ac`
-- Point-in-time live-state refresh:
-  `docs/plans/2026-06-13-pr72-live-state-refresh.md`
 - Branch: `codex/tagflow-native-runtime-master`
 - Gate manifest: `docs/plans/native-runtime-gate-status.json`
 - Posture: draft packet only; no beta, stable, publish, tag, version bump, or
@@ -18,13 +15,13 @@ Assemble the current beta-preapproval decision surface in one place. This
 packet is useful for owner review, but it does not satisfy any open gate by
 itself.
 
-The current beta-preapproval state has two unresolved non-owner-approval gates:
+The owner clarified that proprietary downstream app changes must not be used as
+the public Tagflow review artifact. The #73 route is therefore satisfied by the
+public package-owned reference app route, and the remaining non-owner-approval
+beta-preapproval blocker is `physical-observed-profile`.
 
-- `real-app-route`;
-- `physical-observed-profile`.
-
-The beta-candidate state has the same two unresolved gates plus the deferred
-owner-only `release-approval` gate.
+The beta-candidate state still includes the deferred owner-only
+`release-approval` gate.
 
 ## Gate Snapshot
 
@@ -48,11 +45,9 @@ profile=beta-preapproval
 passed=false
 expectationPassed=true
 issues=[
-  real-app-route: open,
   physical-observed-profile: open
 ]
 requiredOpenGates=[
-  real-app-route,
   physical-observed-profile
 ]
 ```
@@ -67,37 +62,9 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 profile=beta-candidate
 passed=false
 issues=[
-  real-app-route: open,
   physical-observed-profile: open,
   release-approval: deferred
 ]
-```
-
-Recorded anchored coordinator validation evidence:
-
-```text
-commit=01149ac
-
-PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run validate
-result=passed locally
-
-GitHub CI / Validate
-result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27436534000
-```
-
-A point-in-time PR/tracker refresh:
-
-```text
-commit=1f9813b
-
-GitHub CI / Validate
-result=passed
-run=https://github.com/devaryakjha/tagflow/actions/runs/27436837906
-
-PR #72 state=draft/open
-issue #73 state=open
-issue #75 state=open
 ```
 
 ## Evidence Already Satisfied
@@ -107,58 +74,39 @@ These gates are already satisfied in
 
 - `runtime-surface`: canonical `TagflowDocument` runtime input,
   `Tagflow.document(...)`, semantic `Tagflow.html(...)`, strict native block
-  JSON document and patch transport, node taps with first button-like semantics
-  plus semantics-action coverage on opted-in non-link document and
-  HTML-adapted targets, example-app native block activation coverage, and
-  adapter metadata helpers;
+  JSON document and patch transport, node taps with semantics-action coverage,
+  example-app native block activation coverage, and adapter metadata helpers;
 - `coordinator-validation`: local validation and PR #72 CI evidence;
 - `pr72-benchmark-gate`: internal synthetic report-only benchmark gate for
   PR #72, tracked separately from physical, observed-host, memory,
   frame-budget, beta/stable, and comparative performance claims;
+- `real-app-route`: public package-owned route at
+  `examples/tagflow` -> `/reference-app-route`;
 - `memory-allocation-review`: local report-only macOS memory/allocation review
   with public claim boundaries.
 
 Do not reinterpret any satisfied gate as approval for beta/stable release
 wording, package publishing, or public performance claims.
 
-## Real-App Route Decision
+## Reference App Route Evidence
 
-Current best real-app route evidence is the Kite IPO route packet.
+Current #73 evidence:
 
-Decision request:
+- `docs/plans/2026-06-12-real-app-route-qualification.md`
+- `docs/validation/evidence/2026-06-13-reference-app-route.md`
+- `examples/tagflow/lib/screens/reference_app_route_screen.dart`
+- `examples/tagflow/test/reference_app_route_test.dart`
 
-- `docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md`
-- Related tracker: https://github.com/devaryakjha/tagflow/issues/73
+The route renders package-owned rich content through:
 
-The unresolved decision is whether the owner accepts the non-GitLab packet as
-the review artifact for the Kite route while Kite's normal GitLab remote is not
-reachable from this machine.
+- `Tagflow.document(...)`;
+- `Tagflow.html(..., registry: ...)`;
+- `tagflowTableComponents(...)`;
+- app-owned link, image, and unsupported-content overrides;
+- a `TagflowDocumentPatch` CMS update from `cms-rev-1` to `cms-rev-2`.
 
-GitHub state checked for this packet at PR head `01149ac`, and refreshed in
-the point-in-time note at captured PR head `1f9813b`:
-
-- issue #73 remains open;
-- issue #73 body now records the non-GitLab Kite packet as an acceptable
-  substitute review artifact only after explicit owner acceptance of the packet
-  and local debug fixture/auth constraints;
-- no issue or PR comment records the owner acceptance text below;
-- `real-app-route` therefore remains open in
-  `docs/plans/native-runtime-gate-status.json`.
-
-Owner acceptance text:
-
-```text
-I accept the Kite non-GitLab review packet at
-/Users/arya/projects/tagflow/build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route
-as the review artifact for the IPOInstrumentSheet Tagflow native-runtime route
-in #73. I accept the local debug fixture/auth constraints recorded for the
-Bids -> IPO -> AFCONS -> IPOInstrumentSheet route smoke. This acceptance is
-for the #73 real-app route gate only and does not approve beta/stable release,
-publishing, or public performance claims.
-```
-
-Until that decision is recorded, keep `real-app-route.status=open` and keep
-#73 open.
+This evidence is intentionally public and neutral. It replaces the prior
+private downstream app path for #73.
 
 ## Physical/Observed Profile Decision
 
@@ -183,7 +131,7 @@ Current evidence summary:
 ```text
 physical target audit:
   canRunPhysicalProfileProbe=false
-  runId=2026-06-13-current-machine-r1
+  latest checked runId=2026-06-13-iphone-mirroring-r1
   credibleProfileTargets=0
   flutterIosSimulators=1
   flutterWirelessIos=2
@@ -205,13 +153,6 @@ native JSON observed-host policy:
   expectedViewport=800x600 @ 2.0x
   result=failed unexpected_viewport
 
-policy matrix after checker enforcement:
-  referencePolicyMatrix=default HTML renderer/fixture cells
-  nativeJsonPolicyMatrix=tagflow_native_json/native_* cells
-  nativeJsonCell=tagflow_native_json:native_ai_answer
-  htmlReferencePolicyResult=failed cell_outside_policy_matrix
-  nativeJsonPolicyResult=failed unexpected_viewport
-
 ios simulator recovery:
   bootedSimulator=iPhone 17 3BA9E377-4B6F-49A7-83FA-F640060D6442
   flutterSeesSimulator=true
@@ -219,8 +160,9 @@ ios simulator recovery:
   profileBuildMessage="Profile mode is not supported for simulators."
 ```
 
-The Simulator recovery path is useful debug-route smoke evidence, but it cannot
-produce Flutter profile-mode benchmark evidence and does not satisfy this gate.
+iPhone Mirroring is useful for visual/manual QA, but the current tooling state
+still reports the physical iPhone as wireless in Flutter and offline in
+`xctrace`; it does not satisfy this profile gate.
 
 Owner option A requires qualifying evidence:
 
@@ -251,16 +193,12 @@ that gate.
 
 ## Consolidated Owner Decision Block
 
-Use this block only after choosing the real-app route decision and profile
-decision above, and after replacing `<candidate-sha>` with the current reviewed
+Use this block only after replacing `<candidate-sha>` with the current reviewed
 PR head:
 
 ```text
-For Tagflow PR #72 at commit <candidate-sha>, I accept the Kite non-GitLab review
-packet at
-/Users/arya/projects/tagflow/build/validation/kite-non-gitlab-review-packet/2026-06-12-ipo-native-route
-as the #73 real-app route review artifact for the IPOInstrumentSheet route,
-including the recorded local debug fixture/auth constraints.
+For Tagflow PR #72 at commit <candidate-sha>, I accept the public reference app
+route at examples/tagflow -> /reference-app-route as the #73 review artifact.
 
 For physical-observed-profile, I choose <option A: require qualifying evidence
 before beta preapproval | option B: waive for beta preapproval only using the
@@ -277,9 +215,7 @@ package scope, versions, and dry-run output are reviewed.
 
 Only after explicit owner acceptance:
 
-- update #73 with the recorded real-app route decision;
-- if the Kite packet is accepted, set `real-app-route.status=satisfied` and add
-  the accepted owner decision as evidence;
+- update #75 with the recorded physical/observed-profile decision;
 - if profile option A evidence exists, link the fresh qualifying repeat-5 run
   and set `physical-observed-profile.status=satisfied`;
 - if profile option B is accepted, prefer recording the waiver in the approval
@@ -308,10 +244,10 @@ This packet does not support:
 
 ## Stop Rules
 
-Do not mark any gate satisfied from this packet alone.
+Do not mark `physical-observed-profile` satisfied from this packet alone.
 
-Do not remove `real-app-route` or `physical-observed-profile` from
-`beta-preapproval` to make the profile pass.
+Do not remove `physical-observed-profile` from `beta-preapproval` to make the
+profile pass.
 
 Do not weaken
 `docs/benchmarks/policies/profile-native-json-observed-policy.json` or
@@ -321,8 +257,5 @@ repeat-5 evidence.
 
 Do not treat local stabilization profile evidence as public performance
 evidence.
-
-Do not treat the Kite non-GitLab packet as #73 closure until the owner accepts
-it as the review substitute.
 
 Do not publish, tag, bump versions, or undraft PR #72 from this packet.

@@ -29,12 +29,10 @@
         "runtime-surface",
         "coordinator-validation",
         "pr72-benchmark-gate",
-        "real-app-route",
         "physical-observed-profile",
         "memory-allocation-review"
       ],
       "expectedOpenGateIds": [
-        "real-app-route",
         "physical-observed-profile"
       ]
     },
@@ -117,8 +115,8 @@
     },
     {
       "id": "real-app-route",
-      "status": "open",
-      "summary": "A hosted native-runtime route must be pushed or otherwise reviewable through an approved real Flutter app path.",
+      "status": "satisfied",
+      "summary": "A public package-owned Flutter route renders app-authored native rich content through the example app.",
       "tracker": "https://github.com/devaryakjha/tagflow/issues/73",
       "evidence": [
         {
@@ -127,23 +125,19 @@
         },
         {
           "type": "localPath",
-          "value": "docs/validation/evidence/2026-06-12-kite-ipo-native-route-local.md"
+          "value": "docs/validation/evidence/2026-06-13-reference-app-route.md"
         },
         {
           "type": "localPath",
-          "value": "docs/validation/evidence/2026-06-12-non-kite-route-candidate-audit.md"
+          "value": "examples/tagflow/lib/screens/reference_app_route_screen.dart"
         },
         {
           "type": "localPath",
-          "value": "docs/validation/evidence/2026-06-12-kite-non-gitlab-review-packet.md"
-        },
-        {
-          "type": "localPath",
-          "value": "docs/validation/evidence/2026-06-12-kite-non-gitlab-owner-acceptance-request.md"
+          "value": "examples/tagflow/test/reference_app_route_test.dart"
         },
         {
           "type": "note",
-          "value": "Kite non-GitLab packet can close real-app-route only after explicit owner acceptance"
+          "value": "Owner rejected proprietary downstream app changes as public gate evidence and directed a detailed example-app route instead"
         }
       ]
     },

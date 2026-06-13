@@ -33,19 +33,18 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 - Hosted `CI / Validate` passed for run `27436837906`, job `81100840642`.
 - The PR body was updated during this refresh to name the captured PR head, the
   hosted CI run, and the focused gate-status regression command.
-- Issue #73 is open. The `real-app-route` gate remains open because no owner
-  acceptance of the Kite non-GitLab review packet has been recorded, and no
-  normal source-control or approved equivalent real-app route evidence has
-  replaced it.
+- Issue #73 was open at this point-in-time refresh. Later coordinator work
+  replaced the private downstream route path with a public package-owned
+  reference app route.
 - Issue #75 is open. The `physical-observed-profile` gate remains open because
   the target audit captured for this refresh has no credible physical profile
   target, the observed-host evidence remains `800x600 @ 1.0x` local
   stabilization evidence, and no beta-preapproval-only owner waiver has been
   recorded.
 - `gate:native-runtime` passed for the `pr72-draft` profile.
-- `gate:native-runtime:beta-preapproval-known-open` exited 0 only because
-  `real-app-route` and `physical-observed-profile` are the manifest-owned
-  expected open gates.
+- `gate:native-runtime:beta-preapproval-known-open` exited 0 at this refresh
+  because `real-app-route` and `physical-observed-profile` were then the
+  manifest-owned expected open gates.
 - `flutter test packages/tagflow_benchmarks/test/native_runtime_gate_status_test.dart`
   passed.
 

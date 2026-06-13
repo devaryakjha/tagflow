@@ -5,6 +5,7 @@ import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/internal_app_validation_screen.dart';
 import 'package:tagflow_example/screens/native_json_example.dart';
+import 'package:tagflow_example/screens/reference_app_route_screen.dart';
 import 'package:tagflow_example/screens/table_example.dart';
 import 'package:tagflow_example/screens/typography_example.dart';
 
@@ -104,6 +105,13 @@ final allExamples = <Example>[
     path: '/benchmarks',
     builder: (context) => const BenchmarkScreen(),
     icon: Icons.speed,
+  ),
+  Example(
+    title: 'Reference App Route',
+    description: 'A reviewable route for app-authored rich content',
+    path: '/reference-app-route',
+    builder: (context) => const ReferenceAppRouteScreen(),
+    icon: Icons.dynamic_feed,
   ),
   Example(
     title: 'Internal App Validation',
