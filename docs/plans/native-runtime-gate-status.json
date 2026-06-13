@@ -193,6 +193,10 @@
           "value": "docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
         },
@@ -227,6 +231,10 @@
         {
           "type": "note",
           "value": "physical-observed-profile requires a qualifying target or explicit owner waiver for beta preapproval"
+        },
+        {
+          "type": "note",
+          "value": "direct iPhone 17 profile build selected the physical device but failed before install on missing Xcode account/provisioning for dev.aryak.tagflow"
         }
       ]
     },

@@ -121,6 +121,8 @@ Decision request:
   `docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md`
 - latest target-audit refresh:
   `docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md`
+- direct iPhone profile probe:
+  `docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Native JSON observed-host policy:
@@ -163,6 +165,11 @@ ios simulator recovery:
 iPhone Mirroring is useful for visual/manual QA, but the current tooling state
 still reports the physical iPhone as wireless in Flutter and offline in
 `xctrace`; it does not satisfy this profile gate.
+
+A direct `flutter run --profile --no-resident` probe against the iPhone 17
+did select the physical device and begin an Xcode profile build, but it failed
+before installation because this Mac lacks an Xcode account/provisioning
+profile for team `7573STCA2W` and bundle id `dev.aryak.tagflow`.
 
 Owner option A requires qualifying evidence:
 
