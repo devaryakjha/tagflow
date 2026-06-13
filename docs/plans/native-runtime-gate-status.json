@@ -31,9 +31,6 @@
         "pr72-benchmark-gate",
         "physical-observed-profile",
         "memory-allocation-review"
-      ],
-      "expectedOpenGateIds": [
-        "physical-observed-profile"
       ]
     },
     {
@@ -143,10 +140,10 @@
     },
     {
       "id": "physical-observed-profile",
-      "status": "open",
-      "summary": "Physical or observed-host profile evidence remains future work and is not required for PR #72 draft continuation.",
+      "status": "satisfied",
+      "summary": "Physical iPhone 17 profile collection completed with repeat-5 Xcode Time Profiler traces after UIScene and Xcode 27 host updates.",
       "tracker": "https://github.com/devaryakjha/tagflow/issues/75",
-      "claimBoundary": "Simulator/debug-smoke evidence does not satisfy physical iOS/Android profile, frame-budget, memory, beta/stable, public benchmark, or faster/slower claims.",
+      "claimBoundary": "Local physical-device collection evidence only; does not support frame-budget, memory, beta/stable, public benchmark, faster/slower, ranking, or package-page performance claims.",
       "evidence": [
         {
           "type": "localPath",
@@ -197,6 +194,10 @@
           "value": "docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md"
+        },
+        {
           "type": "note",
           "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
         },
@@ -239,6 +240,18 @@
         {
           "type": "note",
           "value": "2026-06-13 wired refresh: Flutter/CoreDevice report iPhone 17 00008150-00110C960186401C as USB/wired and available, while xctrace still lists the same UDID offline"
+        },
+        {
+          "type": "note",
+          "value": "UIScene migration removed the Xcode 27 UIKit lifecycle breakpoint during profile launch"
+        },
+        {
+          "type": "note",
+          "value": "repeat-5 Time Profiler traces collected on physical iPhone 17 through Xcode-beta; raw traces are under ignored build/benchmarks"
+        },
+        {
+          "type": "note",
+          "value": "Flutter driver VM-service attach remains locally blocked by x86_64-only bundled iproxy without Rosetta, but direct Xcode profile collection succeeded"
         }
       ]
     },

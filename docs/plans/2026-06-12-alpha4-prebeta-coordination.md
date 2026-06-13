@@ -30,16 +30,11 @@ pr72-draft:
   result=passed
 
 beta-preapproval:
-  result=failed as expected
-  expectationPassed=true through gate:native-runtime:beta-preapproval-known-open
-  blockers=[
-    physical-observed-profile
-  ]
+  result=passed
 
 beta-candidate:
   result=failed as expected
   blockers=[
-    physical-observed-profile,
     release-approval
   ]
 ```
@@ -60,12 +55,11 @@ PR checks, not the captured commit in that note, for the current branch head.
 
 Alpha.4 or pre-beta work should stay focused on:
 
-- coordinating owner decisions for the remaining beta-preapproval blockers;
+- coordinating owner decisions for release approval;
 - preserving a clear difference between alpha stabilization evidence and
   beta/stable release evidence;
 - preserving the public reference-app route as the #73 reviewable Flutter route;
-- unblocking physical or qualified observed-host profile evidence when target
-  state changes;
+- preserving the iPhone 17 physical profile evidence boundaries;
 - maintaining docs and tests that keep the current native-runtime API shape
   auditable.
 
@@ -100,26 +94,16 @@ unless the owner explicitly approves a different sanitized public route.
 
 ### Physical/Observed Profile
 
-The `physical-observed-profile` gate remains open.
+The `physical-observed-profile` gate is satisfied.
 
 Owner decision request:
 
 - Tracker: https://github.com/devaryakjha/tagflow/issues/75
 - `docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md`
 
-Acceptable pre-beta paths:
+Current physical evidence:
 
-- collect fresh repeat-5 evidence on a credible physical iOS or Android target
-  that passes target audit and profile collection;
-- collect fresh repeat-5 evidence on an owner-approved observed-host target
-  that passes the native JSON observed-host policy;
-- record an explicit beta-preapproval-only waiver while keeping public
-  benchmark, frame-budget, memory, comparative, stable, publishing, and package
-  claim boundaries blocked.
-
-The current observed-host repeat-5 run is local stabilization evidence only:
-it passed repeat completeness but reported `800x600 @ 1.0x`, while the current
-native JSON observed-host policy expects `800x600 @ 2.0x`.
+- `docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md`
 
 The historical target-audit refresh reported
 `canRunPhysicalProfileProbe=false` for
@@ -136,18 +120,24 @@ selected that device, then failed before installation because this Mac lacks an
 Xcode account/provisioning profile for team `7573STCA2W` and bundle id
 `dev.aryak.tagflow`.
 
+The owner then disabled iPhone Mirroring, installed Xcode-beta, and fixed the
+example-app signing team. With Xcode-beta selected, Flutter, CoreDevice, and
+`xctrace` all saw the wired iPhone 17. The example app also needed the current
+Flutter UIScene host migration and iOS deployment target `15.0` for Xcode 27.
+After those fixes, repeat-5 Time Profiler traces were collected through
+Instruments on the physical device.
+
 ## Allowed Next Actions
 
-- Prepare owner-review wording and packet updates without marking gates
-  satisfied.
+- Prepare owner-review wording and packet updates without expanding public
+  benchmark claims.
 - Rerun `benchmark:profile:target-audit` only when target state changes.
-- Qualify one physical iOS/Android target, or an approved observed host, before
-  collecting any new repeat-5 physical/observed-host profile baseline.
-- If a credible target appears, run a bounded one-repeat native JSON probe
-  before any repeat-5 collection.
+- Keep the current physical profile evidence tied to local collection only; do
+  not convert it into frame-budget, memory, comparative, beta/stable, package,
+  or public performance claims.
 - Refresh docs when PR #72 head, CI, gate output, or owner decisions change.
-- Use `gate:native-runtime:beta-preapproval-known-open` for the current
-  expected-open beta-preapproval check while #75 remains open.
+- Use `gate:native-runtime` with `TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval`
+  for the current beta-preapproval check.
 - Keep `tagflow_example` inside the root `melos run test` coverage lane because
   it hosts the routed native JSON example and benchmark-control widgets.
 - Keep raw benchmark artifacts under ignored `build/benchmarks/`.
@@ -173,7 +163,8 @@ For docs-only alpha.4/pre-beta coordination changes, run:
 git diff --check
 PATH=/Users/arya/fvm/cache.git/bin:$PATH dart run melos run gate:native-runtime
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-  dart run melos run gate:native-runtime:beta-preapproval-known-open
+TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
+  dart run melos run gate:native-runtime
 jq empty docs/plans/native-runtime-gate-status.json
 ```
 
@@ -181,9 +172,7 @@ Expected result:
 
 - `git diff --check` passes;
 - `pr72-draft` gate passes;
-- `beta-preapproval` reports `expectationPassed=true` for the known open
-  `physical-observed-profile` blocker, unless explicit owner decisions have
-  been recorded;
+- `beta-preapproval` gate passes;
 - the gate manifest remains valid JSON.
 
 Optionally run the beta-candidate profile when release posture changes:

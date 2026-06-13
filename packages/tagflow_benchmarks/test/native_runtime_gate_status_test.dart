@@ -408,7 +408,11 @@ void main() {
     expect(draftResult.passed, isTrue);
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
-      containsAll(<String>['physical-observed-profile', 'release-approval']),
+      contains('release-approval'),
+    );
+    expect(
+      draftResult.nonRequiredOpenGates.map((gate) => gate.id),
+      isNot(contains('physical-observed-profile')),
     );
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
@@ -418,44 +422,13 @@ void main() {
     expect(readyResult.passed, isTrue);
     expect(readyResult.issues, isEmpty);
 
-    expect(betaPreapprovalResult.passed, isFalse);
-    expect(
-      betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
-      <String>['physical-observed-profile'],
-    );
-    expect(
-      betaPreapprovalResult.requiredOpenGates.map((gate) => gate.id),
-      <String>['physical-observed-profile'],
-    );
-    expect(betaPreapprovalResult.profile.expectedOpenGateIds, <String>[
-      'physical-observed-profile',
-    ]);
-    expect(
-      betaPreapprovalResult.requiredOpenGates.map((gate) => gate.tracker),
-      <String>['https://github.com/devaryakjha/tagflow/issues/75'],
-    );
-    expect(
-      betaPreapprovalResult.requiredOpenGates
-          .expand((gate) => gate.evidence)
-          .map((entry) => entry.value),
-      containsAll(<String>[
-        'docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md',
-        'docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md',
-        'docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md',
-      ]),
-    );
-    expect(
-      betaPreapprovalResult.issues.map((issue) => issue.details['gateId']),
-      isNot(contains('release-approval')),
-    );
-    expect(
-      betaPreapprovalResult.issues.map((issue) => issue.details['tracker']),
-      contains('https://github.com/devaryakjha/tagflow/issues/75'),
-    );
+    expect(betaPreapprovalResult.passed, isTrue);
+    expect(betaPreapprovalResult.issues, isEmpty);
+    expect(betaPreapprovalResult.requiredOpenGates, isEmpty);
+    expect(betaPreapprovalResult.profile.expectedOpenGateIds, isEmpty);
 
     expect(betaResult.passed, isFalse);
     expect(betaResult.issues.map((issue) => issue.details['gateId']), <String>[
-      'physical-observed-profile',
       'release-approval',
     ]);
     expect(
@@ -474,6 +447,22 @@ void main() {
         'docs/benchmarks/baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md',
         'docs/benchmarks/baselines/2026-06-12-large-article-raw-heap-diff-evidence.md',
         'docs/benchmarks/baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md',
+      ]),
+    );
+
+    final physicalGate = manifest.gateById('physical-observed-profile');
+
+    expect(physicalGate?.status, NativeRuntimeGateStatus.satisfied);
+    expect(
+      physicalGate?.tracker,
+      'https://github.com/devaryakjha/tagflow/issues/75',
+    );
+    expect(physicalGate?.claimBoundary, contains('Local physical-device'));
+    expect(
+      physicalGate?.evidence.map((entry) => entry.value),
+      containsAll(<String>[
+        'docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md',
+        'docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md',
       ]),
     );
   });

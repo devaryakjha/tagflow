@@ -17,8 +17,8 @@ itself.
 
 The owner clarified that proprietary downstream app changes must not be used as
 the public Tagflow review artifact. The #73 route is therefore satisfied by the
-public package-owned reference app route, and the remaining non-owner-approval
-beta-preapproval blocker is `physical-observed-profile`.
+public package-owned reference app route. The #75 physical profile gate is now
+satisfied by repeat-5 Time Profiler traces on the wired iPhone 17.
 
 The beta-candidate state still includes the deferred owner-only
 `release-approval` gate.
@@ -39,17 +39,13 @@ Current beta preapproval gate:
 
 ```text
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-  dart run melos run gate:native-runtime:beta-preapproval-known-open
+TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
+  dart run melos run gate:native-runtime
 
 profile=beta-preapproval
-passed=false
-expectationPassed=true
-issues=[
-  physical-observed-profile: open
-]
-requiredOpenGates=[
-  physical-observed-profile
-]
+passed=true
+issues=[]
+requiredOpenGates=[]
 ```
 
 Current beta candidate gate:
@@ -62,7 +58,6 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
 profile=beta-candidate
 passed=false
 issues=[
-  physical-observed-profile: open,
   release-approval: deferred
 ]
 ```
@@ -123,6 +118,8 @@ Decision request:
   `docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md`
 - direct iPhone profile probe:
   `docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md`
+- repeat-5 physical iPhone profile:
+  `docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md`
 - latest policy-matrix enforcement note:
   `docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md`
 - Native JSON observed-host policy:
@@ -161,50 +158,29 @@ ios simulator recovery:
   profileBuildResult=failed
   profileBuildMessage="Profile mode is not supported for simulators."
 
-current wired iPhone 17 check:
+qualified wired iPhone 17 check:
   device=00008150-00110C960186401C
   flutterDevice="Arya's Iphone 17"
   flutterInterface=usb
   coreDeviceTransport=wired
-  coreDeviceAvailability=available paired
-  xctraceState=offline
+  coreDeviceAvailability=connected
+  xctraceState=online
+
+physical iPhone Time Profiler repeat-5:
+  traceRuns=5/5
+  process=Tagflow
+  template=Time Profiler
+  timeLimit=10 seconds
+  endReason="Time limit reached"
 ```
 
-The current local tooling state can see the physical iPhone 17 over USB/wired
-through Flutter and CoreDevice. `xctrace` still reports the same UDID offline,
-so this device is not yet collection-qualified for the profile gate.
-
-A direct `flutter run --profile --no-resident` probe against the iPhone 17
-did select the physical device and begin an Xcode profile build, but it failed
-before installation because this Mac lacks an Xcode account/provisioning
-profile for team `7573STCA2W` and bundle id `dev.aryak.tagflow`.
-
-Owner option A requires qualifying evidence:
-
-```text
-I do not waive physical-observed-profile. Beta preapproval requires a fresh
-repeat-5 profile run on a credible physical device or on the approved observed
-host described by
-docs/benchmarks/policies/profile-native-json-observed-policy.json. Do not mark
-physical-observed-profile satisfied until that run passes the collection-quality
-and policy checks.
-```
-
-Owner option B waives the gate for beta preapproval only:
-
-```text
-I waive physical-observed-profile for beta preapproval only. I accept the
-current local observed-host repeat-5 native JSON run
-2026-06-12-observed-host-native-json-repeat5-timeout-r1 as local stabilization
-evidence, despite the native JSON observed-host policy viewport mismatch and
-lack of physical device evidence. This waiver does not approve public
-benchmark claims, frame-budget claims, memory claims, comparative performance
-wording, stable release wording, or package publishing.
-```
-
-Unless option A evidence exists or option B waiver text is recorded, keep
-`physical-observed-profile.status=open` and keep beta preapproval failing on
-that gate.
+The physical iPhone path required Xcode-beta, iOS deployment target `15.0`,
+Flutter's UIScene host migration, and the owner's signing team configuration.
+After those changes, the app builds, signs, installs, launches, and records
+repeat-5 Time Profiler traces. Flutter's VM-service attach path still fails on
+this Mac because the checked-out Flutter SDK bundles an x86_64-only `iproxy`
+and Rosetta is not installed; direct Xcode Instruments collection is therefore
+the physical profile evidence for #75.
 
 ## Consolidated Owner Decision Block
 
@@ -230,12 +206,10 @@ package scope, versions, and dry-run output are reviewed.
 
 Only after explicit owner acceptance:
 
-- update #75 with the recorded physical/observed-profile decision;
-- if profile option A evidence exists, link the fresh qualifying repeat-5 run
-  and set `physical-observed-profile.status=satisfied`;
-- if profile option B is accepted, prefer recording the waiver in the approval
-  packet while keeping `physical-observed-profile.status=open`, unless the
-  owner explicitly instructs a release-profile-specific status change;
+- keep #75 linked to
+  `docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md`;
+- keep `physical-observed-profile.status=satisfied` unless new evidence
+  invalidates the physical-device collection;
 - keep `release-approval.status=deferred` until the full release approval
   packet is reviewed and accepted.
 
@@ -259,16 +233,13 @@ This packet does not support:
 
 ## Stop Rules
 
-Do not mark `physical-observed-profile` satisfied from this packet alone.
-
-Do not remove `physical-observed-profile` from `beta-preapproval` to make the
-profile pass.
+Do not reinterpret the satisfied `physical-observed-profile` gate as a public
+performance claim, frame-budget claim, memory claim, or release approval.
 
 Do not weaken
 `docs/benchmarks/policies/profile-native-json-observed-policy.json` or
-`docs/benchmarks/policies/profile-reference-runner-policy.json` to match this
-machine without an owner-approved observed-host target decision and fresh
-repeat-5 evidence.
+`docs/benchmarks/policies/profile-reference-runner-policy.json` to fit this
+machine or the local Flutter `iproxy` state.
 
 Do not treat local stabilization profile evidence as public performance
 evidence.

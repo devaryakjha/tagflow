@@ -20,25 +20,21 @@ void main() {
   );
 
   test(
-    'native runtime gate CLI fails beta-preapproval on open owner gates',
+    'native runtime gate CLI passes beta-preapproval',
     () async {
       final result = await _runGateCli(profile: 'beta-preapproval');
       final json = _decodeJson(result.stdout);
-      final requiredOpenGates = (json['requiredOpenGates']! as List<Object?>)
-          .cast<Map<String, Object?>>();
 
-      expect(result.exitCode, 1);
-      expect(json['passed'], isFalse);
+      expect(result.exitCode, 0);
+      expect(json['passed'], isTrue);
       expect(json['profile'], containsPair('id', 'beta-preapproval'));
-      expect(requiredOpenGates.map((gate) => gate['id']), <String>[
-        'physical-observed-profile',
-      ]);
+      expect(json['issues'], isEmpty);
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(
-    'native runtime gate CLI accepts expected beta-preapproval open gates',
+    'native runtime gate CLI rejects stale beta-preapproval open gates',
     () async {
       final result = await _runGateCli(
         profile: 'beta-preapproval',
@@ -46,9 +42,9 @@ void main() {
       );
       final json = _decodeJson(result.stdout);
 
-      expect(result.exitCode, 0);
-      expect(json['passed'], isFalse);
-      expect(json['expectationPassed'], isTrue);
+      expect(result.exitCode, 1);
+      expect(json['passed'], isTrue);
+      expect(json['expectationPassed'], isFalse);
       expect(json['expectedOpenGateIds'], <String>[
         'physical-observed-profile',
       ]);
@@ -66,11 +62,9 @@ void main() {
       final json = _decodeJson(result.stdout);
 
       expect(result.exitCode, 0);
-      expect(json['passed'], isFalse);
+      expect(json['passed'], isTrue);
       expect(json['expectationPassed'], isTrue);
-      expect(json['expectedOpenGateIds'], <String>[
-        'physical-observed-profile',
-      ]);
+      expect(json['expectedOpenGateIds'], isEmpty);
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );
@@ -85,7 +79,7 @@ void main() {
       final json = _decodeJson(result.stdout);
 
       expect(result.exitCode, 1);
-      expect(json['passed'], isFalse);
+      expect(json['passed'], isTrue);
       expect(json['expectationPassed'], isFalse);
       expect(json['expectedOpenGateIds'], <String>['real-app-route']);
     },

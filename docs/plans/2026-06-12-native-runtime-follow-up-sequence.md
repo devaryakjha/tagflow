@@ -285,26 +285,20 @@ coverage for button-like semantics and semantics-action activation on opted-in
 non-link document and HTML-adapted tap targets, plus example-app coverage for
 semantics activation on app-authored native blocks.
 
-The current beta-preapproval health check is the manifest-owned known-open
-alias:
+The current beta-preapproval health check is the gate profile itself:
 
 ```bash
 PATH=/Users/arya/fvm/cache.git/bin:$PATH \
-  dart run melos run gate:native-runtime:beta-preapproval-known-open
+TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE=beta-preapproval \
+  dart run melos run gate:native-runtime
 ```
 
-It should pass only because `real-app-route` and
-`physical-observed-profile` are the expected open beta-preapproval gates. Do
-not reinterpret that expected-open pass as beta approval or gate closure.
+It can pass because `real-app-route`, `physical-observed-profile`, and
+`memory-allocation-review` are now satisfied. Do not reinterpret that pass as
+beta approval, package publishing approval, or public performance-claim
+approval; `release-approval` remains the owner approval gate.
 
-Do not start another repeat-5 profile rerun until the target qualification
-blocker changes, unless a future PR explicitly targets a different benchmark
-policy. The next useful physical/observed-host benchmark move is first
-running `benchmark:profile:target-audit` until it reports
-`canRunPhysicalProfileProbe=true`, then qualifying a connected physical iOS
-target across Flutter and Apple tooling, fixing signing for `dev.aryak.tagflow`
-if that remains the blocker, or attaching a real Android profile target. Rerun
-the same one-repeat native JSON pair before collecting any larger
-physical/observed-host baseline. The current Simulator route smoke is useful
-for app-path confidence but cannot replace that physical/profile qualification
-gate.
+Do not start another repeat-5 profile rerun unless a future PR explicitly
+targets a different benchmark policy. The current physical profile evidence is
+the iPhone 17 Xcode Time Profiler repeat-5 run recorded in
+`docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md`.
