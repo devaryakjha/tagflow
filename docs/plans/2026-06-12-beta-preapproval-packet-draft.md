@@ -131,7 +131,7 @@ Decision request:
 Current evidence summary:
 
 ```text
-physical target audit:
+historical physical target audit:
   canRunPhysicalProfileProbe=false
   latest checked runId=2026-06-13-iphone-mirroring-r1
   credibleProfileTargets=0
@@ -160,11 +160,19 @@ ios simulator recovery:
   flutterSeesSimulator=true
   profileBuildResult=failed
   profileBuildMessage="Profile mode is not supported for simulators."
+
+current wired iPhone 17 check:
+  device=00008150-00110C960186401C
+  flutterDevice="Arya's Iphone 17"
+  flutterInterface=usb
+  coreDeviceTransport=wired
+  coreDeviceAvailability=available paired
+  xctraceState=offline
 ```
 
-iPhone Mirroring is useful for visual/manual QA, but the current tooling state
-still reports the physical iPhone as wireless in Flutter and offline in
-`xctrace`; it does not satisfy this profile gate.
+The current local tooling state can see the physical iPhone 17 over USB/wired
+through Flutter and CoreDevice. `xctrace` still reports the same UDID offline,
+so this device is not yet collection-qualified for the profile gate.
 
 A direct `flutter run --profile --no-resident` probe against the iPhone 17
 did select the physical device and begin an Xcode profile build, but it failed

@@ -235,6 +235,10 @@
         {
           "type": "note",
           "value": "direct iPhone 17 profile build selected the physical device but failed before install on missing Xcode account/provisioning for dev.aryak.tagflow"
+        },
+        {
+          "type": "note",
+          "value": "2026-06-13 wired refresh: Flutter/CoreDevice report iPhone 17 00008150-00110C960186401C as USB/wired and available, while xctrace still lists the same UDID offline"
         }
       ]
     },

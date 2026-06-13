@@ -41,6 +41,11 @@ PATH=/Users/arya/fvm/cache.git/bin:$PATH \
   target, the observed-host evidence remains `800x600 @ 1.0x` local
   stabilization evidence, and no beta-preapproval-only owner waiver has been
   recorded.
+- Later device checks found the iPhone 17
+  `00008150-00110C960186401C` as USB/wired and available in
+  Flutter/CoreDevice, while `xctrace` still listed the same UDID offline; the
+  direct profile build then failed before installation on Xcode
+  account/provisioning setup for `dev.aryak.tagflow`.
 - `gate:native-runtime` passed for the `pr72-draft` profile.
 - `gate:native-runtime:beta-preapproval-known-open` exited 0 at this refresh
   because `real-app-route` and `physical-observed-profile` were then the

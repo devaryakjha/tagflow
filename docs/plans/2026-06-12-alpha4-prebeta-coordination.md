@@ -121,13 +121,20 @@ The current observed-host repeat-5 run is local stabilization evidence only:
 it passed repeat completeness but reported `800x600 @ 1.0x`, while the current
 native JSON observed-host policy expects `800x600 @ 2.0x`.
 
-The latest target-audit refresh still reports
+The historical target-audit refresh reported
 `canRunPhysicalProfileProbe=false` for
 `2026-06-13-current-machine-r1`: one iOS Simulator signal, two wireless iOS
 signals, no connected physical iOS target in Flutter, no xctrace-online
 physical iOS target, seven xctrace-offline physical iOS targets, two
 CoreDevice available-paired summary signals, seven CoreDevice blocking ids,
 and no attached Android device.
+
+A later explicit wired-device check found the iPhone 17
+`00008150-00110C960186401C` as USB/wired and available in Flutter/CoreDevice,
+while `xctrace` still listed the same UDID offline. A direct profile build
+selected that device, then failed before installation because this Mac lacks an
+Xcode account/provisioning profile for team `7573STCA2W` and bundle id
+`dev.aryak.tagflow`.
 
 ## Allowed Next Actions
 
