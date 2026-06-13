@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "tagflow-alpha-native-json-observed-report-only",
+  "status": "candidate",
+  "description": "Alpha profile baseline policy for observed-host native JSON runtime evidence. Timing metrics remain report-only until a stable reference target, public claim scope, and numeric regression policy are reviewed.",
+  "matrix": {
+    "renderers": [
+      "tagflow_native_json"
+    ],
+    "fixtures": [
+      "native_ai_answer",
+      "native_table_dense",
+      "native_large_article"
+    ]
+  },
+  "check": {
+    "minRepeats": 5,
+    "viewportMode": "observed_host",
+    "expectedViewport": {
+      "logicalWidth": 800,
+      "logicalHeight": 600,
+      "devicePixelRatio": 2
+    }
+  },
+  "thresholdPolicy": {
+    "mode": "report_only",
+    "performanceGates": []
+  },
+  "claims": {
+    "allowed": [
+      "internal native JSON observed-host stabilization evidence",
+      "selected native JSON fixture collection quality"
+    ],
+    "blocked": [
+      "public benchmark ranking",
+      "stable release performance gate",
+      "hosted CI frame-timing gate",
+      "numeric regression threshold",
+      "HTML renderer comparison",
+      "native JSON versus HTML performance comparison"
+    ]
+  }
+}

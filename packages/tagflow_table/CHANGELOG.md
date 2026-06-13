@@ -1,3 +1,16 @@
+## 1.0.0-alpha.1
+
+- Aligns `tagflow_table` with the `tagflow` `1.0.0-alpha.1` prerelease line.
+- Updates the package constraint to require the alpha native rich content
+  runtime package.
+- Keeps the existing first-party table converter and render object available as
+  an alpha compatibility bridge for HTML table rendering.
+- Adds `tagflowTableComponents(...)`, a semantic registry fragment that renders
+  native `TagflowDocument` table nodes through the first-party `TagflowTable`
+  render object.
+- This package remains prerelease. The legacy HTML converter bridge is still
+  available while semantic table extension APIs stabilize.
+
 ## 0.0.4+5
 
  - Graduate package to a stable release. See pre-releases prior to this version for changelog entries.

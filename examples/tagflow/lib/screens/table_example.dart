@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 

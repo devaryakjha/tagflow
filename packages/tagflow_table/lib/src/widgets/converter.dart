@@ -1,8 +1,9 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter/material.dart' as material;
-import 'package:tagflow/tagflow.dart';
-import 'package:tagflow_table/tagflow_table.dart';
+import 'package:tagflow/legacy.dart';
+import 'package:tagflow_table/src/rendering/tagflow_table.dart';
+import 'package:tagflow_table/src/widgets/tagflow_table.dart';
 
 /// Represents a cell in the grid with its ownership and span information
 class _GridCell {

@@ -6,6 +6,7 @@ environment:
 
 workspace:
   - packages/tagflow
+  - packages/tagflow_benchmarks
   - packages/tagflow_table
   - examples/tagflow
 
@@ -30,7 +31,12 @@ melos:
 
     test:
       run: >
-        dart run melos exec --dir-exists=test -c 1 --fail-fast --
+        dart run melos exec
+        --scope=tagflow
+        --scope=tagflow_table
+        --scope=tagflow_benchmarks
+        --scope=tagflow_example
+        -c 1 --fail-fast --
         "flutter test --coverage"
       description: Run tests for all packages that have tests
 
@@ -66,12 +72,16 @@ melos:
       run: dart run melos version --prerelease --preid=dev --yes
       description: Version packages with dev tag
 
+    version:alpha:
+      run: dart run melos version --prerelease --preid=alpha --yes
+      description: Version packages with alpha tag
+
     version:stable:
       run: dart run melos version --graduate --yes
       description: Version packages for stable release
 
     publish:dry-run:
-      run: dart run melos publish --no-private
+      run: dart run melos publish --no-private --yes
       description: Validate publishable packages without publishing
 
     publish:packages:
@@ -86,9 +96,127 @@ melos:
 
     coverage:
       run: >
-        dart run melos exec --dir-exists=test -c 1 --fail-fast --
+        dart run melos exec
+        --scope=tagflow
+        --scope=tagflow_table
+        --scope=tagflow_benchmarks
+        --scope=tagflow_example
+        -c 1 --fail-fast --
         "flutter test --coverage"
       description: Run tests with coverage
+
+    benchmark:fixtures:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "flutter test test/fixture_validity_test.dart"
+      description: Validate benchmark fixtures
+
+    benchmark:micro:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "flutter test test/run_parser_benchmarks_test.dart"
+      description: Run Tagflow parser microbenchmarks
+
+    benchmark:native-transport:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "flutter test test/run_native_transport_benchmarks_test.dart"
+      description: Run Tagflow native transport microbenchmarks
+
+    benchmark:render:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "flutter test test/run_render_benchmarks_test.dart"
+      description: Run Tagflow widget render benchmarks
+
+    benchmark:profile:
+      run: >
+        cd examples/tagflow &&
+        flutter drive
+        --driver=test_driver/perf_driver.dart
+        --target=integration_test/tagflow_perf_test.dart
+        -d ${TAGFLOW_PROFILE_DEVICE:-macos}
+        --profile
+        --dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false
+        --dart-define=TAGFLOW_RENDERER=${TAGFLOW_RENDERER:-tagflow}
+        --dart-define=TAGFLOW_FIXTURE=${TAGFLOW_FIXTURE:-ai_answer_rich}
+        --dart-define=TAGFLOW_PROFILE_HOLD_OPEN=${TAGFLOW_PROFILE_HOLD_OPEN:-false}
+        ${TAGFLOW_PROFILE_HOLD_OPEN_SECONDS:+--dart-define=TAGFLOW_PROFILE_HOLD_OPEN_SECONDS=$TAGFLOW_PROFILE_HOLD_OPEN_SECONDS}
+        --dart-define=TAGFLOW_PROFILE_VIEWPORT_MODE=${TAGFLOW_PROFILE_VIEWPORT_MODE:-observed_host}
+        ${TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE:+--dart-define=TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE=$TAGFLOW_PROFILE_SYNTHETIC_LOGICAL_SIZE}
+        ${TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO:+--dart-define=TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO=$TAGFLOW_PROFILE_SYNTHETIC_DEVICE_PIXEL_RATIO}
+        ${TAGFLOW_PROFILE_MEMORY_FILE:+--profile-memory=$TAGFLOW_PROFILE_MEMORY_FILE}
+      description: Run Tagflow profile-mode frame benchmark
+
+    benchmark:profile:baselines:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/run_profile_baselines.dart
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
+      description: Run a repeated profile benchmark matrix and persist JSON
+
+    benchmark:profile:target-audit:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/audit_profile_targets.dart
+        --output-dir=${TAGFLOW_TARGET_AUDIT_OUTPUT_DIR:-build/benchmarks/target-availability}
+        ${TAGFLOW_TARGET_AUDIT_RUN_ID:+--run-id=$TAGFLOW_TARGET_AUDIT_RUN_ID}
+        ${TAGFLOW_TARGET_AUDIT_REQUIRE_CREDIBLE_TARGET:+--require-credible-target=$TAGFLOW_TARGET_AUDIT_REQUIRE_CREDIBLE_TARGET}
+      description: Audit physical profile target availability before profiling
+
+    benchmark:profile:summarize:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/summarize_profile_baselines.dart
+        --run-id=${TAGFLOW_PROFILE_RUN_ID}
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
+      description: Summarize a persisted profile benchmark baseline run
+
+    benchmark:profile:check:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/check_profile_baseline.dart
+        --run-id=${TAGFLOW_PROFILE_RUN_ID}
+        --output-dir=${TAGFLOW_PROFILE_OUTPUT_DIR:-build/benchmarks/profile}
+        ${TAGFLOW_PROFILE_CHECK_POLICY:+--policy=$TAGFLOW_PROFILE_CHECK_POLICY}
+        ${TAGFLOW_PROFILE_MIN_REPEATS:+--min-repeats=$TAGFLOW_PROFILE_MIN_REPEATS}
+        ${TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE:+--expected-logical-size=$TAGFLOW_PROFILE_EXPECTED_LOGICAL_SIZE}
+        ${TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO:+--expected-device-pixel-ratio=$TAGFLOW_PROFILE_EXPECTED_DEVICE_PIXEL_RATIO}
+      description: Check profile benchmark baseline collection completeness
+
+    benchmark:memory-evidence:export:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/export_memory_evidence.dart
+        --vm-service-uri=${TAGFLOW_MEMORY_EVIDENCE_VM_SERVICE_URI}
+        --checkpoint=${TAGFLOW_MEMORY_EVIDENCE_CHECKPOINT}
+        --output-dir=${TAGFLOW_MEMORY_EVIDENCE_OUTPUT_DIR:-build/benchmarks/profile-memory-evidence/manual}
+        ${TAGFLOW_MEMORY_EVIDENCE_ISOLATE_ID:+--isolate-id=$TAGFLOW_MEMORY_EVIDENCE_ISOLATE_ID}
+        ${TAGFLOW_MEMORY_EVIDENCE_TOP_CLASSES:+--top-classes=$TAGFLOW_MEMORY_EVIDENCE_TOP_CLASSES}
+        ${TAGFLOW_MEMORY_EVIDENCE_GC:+--gc=$TAGFLOW_MEMORY_EVIDENCE_GC}
+        ${TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES:+--retaining-path-classes=$TAGFLOW_MEMORY_EVIDENCE_RETAINING_CLASSES}
+        ${TAGFLOW_MEMORY_EVIDENCE_RETAINING_SAMPLE_LIMIT:+--retaining-path-sample-limit=$TAGFLOW_MEMORY_EVIDENCE_RETAINING_SAMPLE_LIMIT}
+        ${TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT:+--retaining-path-limit=$TAGFLOW_MEMORY_EVIDENCE_RETAINING_PATH_LIMIT}
+      description: Export report-only memory evidence from a live VM service
+
+    gate:native-runtime:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/check_native_runtime_gates.dart
+        --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
+        --profile=${TAGFLOW_NATIVE_RUNTIME_GATE_PROFILE:-pr72-draft}
+        ${TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES:+--expect-open-gates=$TAGFLOW_NATIVE_RUNTIME_EXPECT_OPEN_GATES}
+        ${TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES:+--expect-profile-open-gates=$TAGFLOW_NATIVE_RUNTIME_EXPECT_PROFILE_OPEN_GATES}
+      description: Check native runtime coordinator gate status
+
+    gate:native-runtime:beta-preapproval-known-open:
+      run: >
+        cd packages/tagflow_benchmarks &&
+        dart run bin/check_native_runtime_gates.dart
+        --manifest=${TAGFLOW_NATIVE_RUNTIME_GATE_MANIFEST:-docs/plans/native-runtime-gate-status.json}
+        --profile=beta-preapproval
+        --expect-profile-open-gates=true
+      description: Check beta preapproval against manifest-owned expected open gates
 
     combine-coverage:
       run: |

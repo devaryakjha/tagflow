@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 class TagflowTableElement extends TagflowNode {
   const TagflowTableElement({

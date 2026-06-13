@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "id": "native-runtime-pr72-gates",
+  "description": "Machine-readable coordinator gate status for the Tagflow native rich-content runtime draft PR.",
+  "profiles": [
+    {
+      "id": "pr72-draft",
+      "description": "Draft PR can continue collecting coordinated native-runtime work.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate"
+      ]
+    },
+    {
+      "id": "pr72-ready",
+      "description": "Draft PR can be considered for ready review or merge.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "real-app-route"
+      ]
+    },
+    {
+      "id": "beta-preapproval",
+      "description": "All non-owner-approval beta gates required before assembling the release approval packet.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "physical-observed-profile",
+        "memory-allocation-review"
+      ]
+    },
+    {
+      "id": "beta-candidate",
+      "description": "Native runtime line can be considered for beta promotion.",
+      "requiredGateIds": [
+        "runtime-surface",
+        "coordinator-validation",
+        "pr72-benchmark-gate",
+        "real-app-route",
+        "physical-observed-profile",
+        "memory-allocation-review",
+        "release-approval"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "runtime-surface",
+      "status": "satisfied",
+      "summary": "Canonical native runtime surface is implemented and documented.",
+      "evidence": [
+        {
+          "type": "note",
+          "value": "TagflowDocument canonical runtime input"
+        },
+        {
+          "type": "note",
+          "value": "Tagflow.document(...) and semantic Tagflow.html(...) paths"
+        },
+        {
+          "type": "note",
+          "value": "strict native block JSON document and patch transport"
+        },
+        {
+          "type": "note",
+          "value": "view-owned node taps and public adapter metadata inspectors"
+        }
+      ]
+    },
+    {
+      "id": "coordinator-validation",
+      "status": "satisfied",
+      "summary": "Coordinator branch validates locally and in PR #72 CI.",
+      "evidence": [
+        {
+          "type": "command",
+          "value": "dart run melos run validate",
+          "cwd": ".",
+          "env": {
+            "PATH": "/Users/arya/fvm/cache.git/bin:$PATH"
+          }
+        },
+        {
+          "type": "url",
+          "value": "https://github.com/devaryakjha/tagflow/pull/72"
+        }
+      ]
+    },
+    {
+      "id": "pr72-benchmark-gate",
+      "status": "satisfied",
+      "summary": "PR #72 benchmark gate is satisfied by internal synthetic report-only evidence.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/74",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/2026-06-12-benchmark-gate-decision.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-synthetic-viewport-repeat5.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+        }
+      ]
+    },
+    {
+      "id": "real-app-route",
+      "status": "satisfied",
+      "summary": "A public package-owned Flutter route renders app-authored native rich content through the example app.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/73",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/plans/2026-06-12-real-app-route-qualification.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/validation/evidence/2026-06-13-reference-app-route.md"
+        },
+        {
+          "type": "localPath",
+          "value": "examples/tagflow/lib/screens/reference_app_route_screen.dart"
+        },
+        {
+          "type": "localPath",
+          "value": "examples/tagflow/test/reference_app_route_test.dart"
+        },
+        {
+          "type": "note",
+          "value": "Owner rejected proprietary downstream app changes as public gate evidence and directed a detailed example-app route instead"
+        }
+      ]
+    },
+    {
+      "id": "physical-observed-profile",
+      "status": "satisfied",
+      "summary": "Physical iPhone 17 profile collection completed with repeat-5 Xcode Time Profiler traces after UIScene and Xcode 27 host updates.",
+      "tracker": "https://github.com/devaryakjha/tagflow/issues/75",
+      "claimBoundary": "Local physical-device collection evidence only; does not support frame-budget, memory, beta/stable, public benchmark, faster/slower, ranking, or package-page performance claims.",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-audit-tooling.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-simulator-signal-refresh.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-simulator-relaunch-refresh.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-target-availability-coredevice-refresh.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-target-availability-refresh.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-probe.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-repeat5-stalled.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-observed-host-native-json-repeat5-timeout.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-profile-policy-matrix-enforcement.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-physical-observed-profile-owner-decision-request.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-ios-simulator-profile-continuation.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-iphone17-profile-signing-blocked.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-13-iphone17-time-profiler-repeat5.md"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r1"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r2; simulator recorded separately"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r3 after Simulator relaunch; simulator remains debug-smoke only"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-12-current-machine-r4; CoreDevice summary sees available paired devices, but Flutter reports wireless only and xctrace reports no online physical iOS target"
+        },
+        {
+          "type": "note",
+          "value": "canRunPhysicalProfileProbe=false for 2026-06-13-current-machine-r1; latest target audit still reports no connected Flutter physical iOS, no xctrace-online physical iOS, and no attached Android target"
+        },
+        {
+          "type": "note",
+          "value": "observed-host native JSON probe passed loose minRepeats=1 but failed native JSON observed-host policy because current host is 800x600 @ 1.0x, not 2.0x"
+        },
+        {
+          "type": "note",
+          "value": "observed-host native JSON repeat5 attempt stalled after driver connection and produced no artifacts"
+        },
+        {
+          "type": "note",
+          "value": "timeout-bounded observed-host native JSON repeat5 passed minRepeats=5 but failed native JSON observed-host policy because current host is 800x600 @ 1.0x, not 2.0x"
+        },
+        {
+          "type": "note",
+          "value": "physical-observed-profile previously required a qualifying target or explicit owner waiver for beta preapproval before the repeat-5 Time Profiler evidence was collected"
+        },
+        {
+          "type": "note",
+          "value": "direct iPhone 17 profile build selected the physical device but failed before install on missing Xcode account/provisioning for dev.aryak.tagflow"
+        },
+        {
+          "type": "note",
+          "value": "2026-06-13 wired refresh: Flutter/CoreDevice report iPhone 17 00008150-00110C960186401C as USB/wired and available, while xctrace still lists the same UDID offline"
+        },
+        {
+          "type": "note",
+          "value": "UIScene migration removed the Xcode 27 UIKit lifecycle breakpoint during profile launch"
+        },
+        {
+          "type": "note",
+          "value": "repeat-5 Time Profiler traces collected on physical iPhone 17 through Xcode-beta; raw traces are under ignored build/benchmarks"
+        },
+        {
+          "type": "note",
+          "value": "Flutter driver VM-service attach remains locally blocked by x86_64-only bundled iproxy without Rosetta, but direct Xcode profile collection succeeded"
+        }
+      ]
+    },
+    {
+      "id": "memory-allocation-review",
+      "status": "satisfied",
+      "summary": "Local report-only non-device HTML memory review is complete for the required lanes.",
+      "claimBoundary": "Report-only local macOS evidence: does not support leak-free, lower-memory, allocation, public benchmark, beta/stable wording, ranking, threshold, device, or real-app memory claims.",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-memory-allocation-evidence-playbook.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-html-memory-evidence-interpretation-scope.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-authored-insertion-raw-heap-diff-evidence.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-large-article-raw-heap-diff-evidence.md"
+        },
+        {
+          "type": "localPath",
+          "value": "docs/benchmarks/baselines/2026-06-12-table-stress-raw-heap-diff-evidence.md"
+        }
+      ]
+    },
+    {
+      "id": "release-approval",
+      "status": "deferred",
+      "summary": "Beta/stable approval is intentionally deferred until the owner reviews and explicitly accepts the release approval packet.",
+      "claimBoundary": "This gate is an owner approval gate. It does not authorize publishing, tagging, beta/stable wording, or package-page claim changes until the approval packet is reviewed and explicitly accepted.",
+      "evidence": [
+        {
+          "type": "localPath",
+          "value": "docs/plans/2026-06-12-beta-release-approval-plan.md"
+        },
+        {
+          "type": "note",
+          "value": "release approval remains deferred; no beta/stable publish or tag is authorized"
+        }
+      ]
+    }
+  ]
+}

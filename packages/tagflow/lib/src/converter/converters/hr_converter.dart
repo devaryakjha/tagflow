@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Converter for horizontal rules
 final class HrConverter extends ElementConverter<TagflowElement> {

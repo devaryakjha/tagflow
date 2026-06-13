@@ -6,7 +6,7 @@ import 'dart:developer' show log;
 import 'package:html/dom.dart' as dom;
 import 'package:html/dom_parsing.dart';
 import 'package:html/parser.dart' as html;
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Parses HTML string into TagflowElement
 class TagflowParser {

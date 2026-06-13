@@ -1,4 +1,4 @@
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// A converter for code elements (`code` and `pre` tags)
 final class CodeConverter extends TextConverter {

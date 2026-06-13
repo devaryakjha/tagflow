@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 void main() {
   testWidgets('invokes linkTapCallback when anchor recognizer fires', (
@@ -17,6 +17,7 @@ void main() {
         home: Material(
           child: Tagflow(
             html: '<a href="https://google.com">Google</a>',
+            converters: const [_NoopLegacyCompatibilityConverter()],
             options: TagflowOptions.defaults.copyWith(
               linkTapCallback: (url, attributes) {
                 tappedUrl = url;
@@ -59,4 +60,21 @@ void main() {
     expect(tappedUrl, 'https://google.com');
     expect(tappedAttributes?['href'], 'https://google.com');
   });
+}
+
+final class _NoopLegacyCompatibilityConverter
+    extends ElementConverter<TagflowNode> {
+  const _NoopLegacyCompatibilityConverter();
+
+  @override
+  Set<String> get supportedTags => const {'__never__'};
+
+  @override
+  Widget convert(
+    TagflowNode element,
+    BuildContext context,
+    TagflowConverter converter,
+  ) {
+    return const SizedBox.shrink();
+  }
 }
