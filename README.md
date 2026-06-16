@@ -15,7 +15,7 @@
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
 This is the monorepo for Tagflow, a native rich content runtime for Flutter
-apps. The `1.0.0-alpha.x` prerelease line makes `TagflowDocument` the primary
+apps. The `1.0.0-beta.x` prerelease line makes `TagflowDocument` the primary
 runtime model, renders structured content with native Flutter widgets, and
 keeps HTML as a first-party adapter through `TagflowHtmlAdapter` and
 `Tagflow.html(...)`.
@@ -33,13 +33,13 @@ reviewed and explicitly accepted.
   Tagflow
 - [examples](examples/tagflow) - Example Flutter app showcasing Tagflow features
 
-## Alpha Usage
+## Beta Usage
 
-Install the alpha package:
+Install the beta package:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-alpha.3
+  tagflow: ^1.0.0-beta.0
 ```
 
 Render HTML through the adapter entry point:

@@ -285,17 +285,21 @@
     },
     {
       "id": "release-approval",
-      "status": "deferred",
-      "summary": "Beta/stable approval is intentionally deferred until the owner reviews and explicitly accepts the release approval packet.",
-      "claimBoundary": "This gate is an owner approval gate. It does not authorize publishing, tagging, beta/stable wording, or package-page claim changes until the approval packet is reviewed and explicitly accepted.",
+      "status": "satisfied",
+      "summary": "Owner approved the 1.0.0-beta.0 prerelease lane after PR #72 merged and the pre-native-runtime stable line was preserved on the stable branch.",
+      "claimBoundary": "This approval authorizes beta prerelease publication for tagflow and tagflow_table only. It does not authorize stable release wording or public faster/slower, lower-memory, leak-free, ranking, or frame-budget performance claims.",
       "evidence": [
         {
           "type": "localPath",
           "value": "docs/plans/2026-06-12-beta-release-approval-plan.md"
         },
         {
+          "type": "localPath",
+          "value": "docs/plans/2026-06-16-beta0-release-approval.md"
+        },
+        {
           "type": "note",
-          "value": "release approval remains deferred; no beta/stable publish or tag is authorized"
+          "value": "Owner instruction on 2026-06-16: update stable, merge PR #72 to main, and make pub prerelease up to date as beta / first feature-rich release"
         }
       ]
     }

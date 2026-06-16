@@ -12,19 +12,19 @@
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **Alpha prerelease**: `tagflow_table` `1.0.0-alpha.1` is aligned with
-> the Tagflow native rich content runtime alpha line. APIs may change before
-> the stable `1.0.0` release.
+> ⚠️ **Beta prerelease**: `tagflow_table` `1.0.0-beta.0` is aligned with
+> the Tagflow native rich content runtime beta line. APIs may change before the
+> stable `1.0.0` release.
 
 # tagflow_table
 
-A first-party table rendering extension for Tagflow. The alpha package remains
+A first-party table rendering extension for Tagflow. The beta package remains
 compatible with the HTML adapter and legacy converter bridge while Tagflow moves
 toward a semantic rich content runtime.
 
 ## ✨ Features
 
-- Integration with the `tagflow` `1.0.0-alpha.3` runtime package
+- Integration with the `tagflow` `1.0.0-beta.0` runtime package
 - Semantic registry integration for native `TagflowDocument` table nodes
 - HTML table converter compatibility through `package:tagflow/legacy.dart`
 - Support for complex table structures, headers, and merged cells
@@ -37,8 +37,8 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-alpha.3
-  tagflow_table: ^1.0.0-alpha.1
+  tagflow: ^1.0.0-beta.0
+  tagflow_table: ^1.0.0-beta.0
 ```
 
 ## Beta posture
@@ -56,13 +56,10 @@ Low-level render-object classes such as `TagflowTable`, `TableCell`,
 `RenderTagflowTable`, and `TableCellData` are package internals rather than the
 beta extension contract.
 
-The package's current `tagflow: ^1.0.0-alpha.1` dependency constraint is
-intentionally compatible with the `tagflow` alpha prerelease line while the
-core runtime moves through alpha. Apps should use the latest reviewed core
-alpha, currently `tagflow: ^1.0.0-alpha.3`, with
-`tagflow_table: ^1.0.0-alpha.1`. For `1.0.0-beta.0`, `tagflow_table` should
-release in lockstep
-with `tagflow` to validate the runtime-extension contract together. After
+The package's current `tagflow: ^1.0.0-beta.0` dependency constraint keeps the
+table extension aligned with the first Tagflow beta runtime. Apps should use
+`tagflow: ^1.0.0-beta.0` with `tagflow_table: ^1.0.0-beta.0` to validate the
+runtime-extension contract together. After
 `beta.0`, table-only patch or minor prereleases may move independently only
 when the `tagflow` constraint remains compatible with the current beta runtime
 and semantic registry API tests stay green.
@@ -99,7 +96,7 @@ class NativeTableArticle extends StatelessWidget {
 ```
 
 HTML input should enter through `Tagflow.html(...)`. Existing table-converter
-integrations remain available through the alpha legacy converter bridge:
+integrations remain available through the beta legacy converter bridge:
 
 ```dart
 import 'package:flutter/widgets.dart';

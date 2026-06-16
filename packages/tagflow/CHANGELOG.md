@@ -1,3 +1,16 @@
+## 1.0.0-beta.0 - 2026-06-16
+
+- Promotes the native rich content runtime line to the first beta prerelease.
+- Adds the package-owned reference app route for app-authored structured
+  content, controlled HTML compatibility, semantic tables, media overrides,
+  unsupported-content fallback, and runtime document patch updates.
+- Adds public adapter metadata inspectors and view-owned node tap callbacks.
+- Adds report-only benchmark, profile, memory evidence, and native runtime gate
+  tooling for release qualification without making public performance claims.
+- Keeps HTML support available through the first-party adapter and
+  `Tagflow.html(...)` while `TagflowDocument` remains the canonical runtime
+  input.
+
 ## 1.0.0-alpha.3 - 2026-06-12
 
 - Adds first-class semantic runtime support for HTML `<details>` and

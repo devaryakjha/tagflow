@@ -1,3 +1,12 @@
+## 1.0.0-beta.0 - 2026-06-16
+
+- Promotes the first-party table extension to the Tagflow beta runtime line.
+- Updates the package constraint to require `tagflow` `1.0.0-beta.0`.
+- Keeps `tagflowTableComponents(...)` as the canonical semantic registry
+  extension for native `TagflowDocument` table nodes.
+- Preserves the legacy HTML table converter bridge for compatibility during
+  beta.
+
 ## 1.0.0-alpha.1
 
 - Aligns `tagflow_table` with the `tagflow` `1.0.0-alpha.1` prerelease line.

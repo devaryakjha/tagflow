@@ -1,6 +1,6 @@
 name: tagflow
 description: Native rich content runtime for Flutter apps, with HTML support through a first-party adapter.
-version: 1.0.0-alpha.3
+version: 1.0.0-beta.0
 repository: https://github.com/devaryakjha/tagflow
 homepage: https://docs.arya.run/tagflow
 issue_tracker: https://github.com/devaryakjha/tagflow/issues
