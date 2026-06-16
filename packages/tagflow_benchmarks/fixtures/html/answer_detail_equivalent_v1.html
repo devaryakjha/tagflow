@@ -1,0 +1,48 @@
+<article>
+  <h1>Answer detail equivalence fixture</h1>
+  <p>
+    This compact answer detail keeps a
+    <a href="/benchmarks/answer-detail-equivalent-v1">
+      local benchmark reference
+    </a>
+    in the intro paragraph so the HTML bridge and native JSON path render
+    the same authored structure.
+  </p>
+  <blockquote>
+    <p>
+      Report-only note: this transport-equivalent fixture compares first-party
+      runtime paths without turning the result into a public ranking claim.
+    </p>
+    <footer>Local benchmark equivalence callout</footer>
+  </blockquote>
+  <ol>
+    <li>Keep the authored section order stable across both transports.</li>
+    <li>Limit the shared content to supported heading, list, and table nodes.</li>
+    <li>Record local profile output separately from any public comparison.</li>
+  </ol>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>Input</th>
+        <th>Expectation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Compatibility</td>
+        <td>HTML bridge</td>
+        <td>Render the authored answer detail shape locally.</td>
+      </tr>
+      <tr>
+        <td>Native runtime</td>
+        <td>Trusted block JSON</td>
+        <td>Render the same authored answer detail shape locally.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    report-only benchmark caveat text: this fixture is local-only,
+    transport-equivalent, and not a faster/slower claim.
+  </p>
+</article>

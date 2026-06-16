@@ -1,0 +1,180 @@
+{
+  "id": "native-ai-answer",
+  "schemaVersion": 1,
+  "revision": "rev-1",
+  "metadata": {
+    "surface": "answer_detail",
+    "locale": "en-IN"
+  },
+  "source": {
+    "kind": "json",
+    "adapter": "native_block_v1",
+    "uri": "cms://answers/native-ai-answer"
+  },
+  "blocks": [
+    {
+      "id": "title",
+      "kind": "heading",
+      "attributes": {
+        "level": 2
+      },
+      "children": [
+        {
+          "id": "title.text",
+          "kind": "text",
+          "text": "Native JSON answer"
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "summary.a",
+          "kind": "text",
+          "text": "This fixture renders structured native blocks as a "
+        },
+        {
+          "id": "summary.link",
+          "kind": "link",
+          "attributes": {
+            "url": "https://example.com/native-json-profile"
+          },
+          "children": [
+            {
+              "id": "summary.link.text",
+              "kind": "text",
+              "text": "TagflowDocument"
+            }
+          ]
+        },
+        {
+          "id": "summary.b",
+          "kind": "text",
+          "text": " without using the HTML parser."
+        }
+      ]
+    },
+    {
+      "id": "callout",
+      "kind": "callout",
+      "attributes": {
+        "tone": "info",
+        "variant": "tip"
+      },
+      "children": [
+        {
+          "id": "callout.text",
+          "kind": "paragraph",
+          "children": [
+            {
+              "id": "callout.text.body",
+              "kind": "text",
+              "text": "Numbers from this lane are report-only local evidence."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checks",
+      "kind": "list",
+      "attributes": {
+        "ordered": true
+      },
+      "children": [
+        {
+          "id": "checks.decode",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "checks.decode.text",
+              "kind": "text",
+              "text": "Decode native JSON."
+            }
+          ]
+        },
+        {
+          "id": "checks.render",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "checks.render.text",
+              "kind": "text",
+              "text": "Render through the semantic component registry."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status.table",
+      "kind": "table",
+      "children": [
+        {
+          "id": "status.table.header",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "status.table.header.phase",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "status.table.header.phase.text",
+                  "kind": "text",
+                  "text": "Phase"
+                }
+              ]
+            },
+            {
+              "id": "status.table.header.scope",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "status.table.header.scope.text",
+                  "kind": "text",
+                  "text": "Scope"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "status.table.row.decode",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "status.table.row.decode.phase",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "status.table.row.decode.phase.text",
+                  "kind": "text",
+                  "text": "decode"
+                }
+              ]
+            },
+            {
+              "id": "status.table.row.decode.scope",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "status.table.row.decode.scope.text",
+                  "kind": "text",
+                  "text": "JSON blocks to runtime document"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

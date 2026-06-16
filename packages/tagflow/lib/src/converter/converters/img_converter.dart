@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Converter for img elements
 final class ImgConverter extends ElementConverter<TagflowImgElement> {

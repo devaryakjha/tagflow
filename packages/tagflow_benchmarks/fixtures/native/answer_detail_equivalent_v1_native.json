@@ -1,0 +1,268 @@
+{
+  "id": "answer-detail-equivalent-v1-native",
+  "schemaVersion": 1,
+  "revision": "rev-1",
+  "metadata": {
+    "surface": "answer_detail",
+    "locale": "en-IN",
+    "fixtureFamilyId": "answer_detail_equivalent_v1",
+    "equivalencePosture": "transport_equivalent_report_only"
+  },
+  "source": {
+    "kind": "json",
+    "adapter": "native_block_v1",
+    "uri": "cms://benchmarks/answer-detail-equivalent-v1"
+  },
+  "blocks": [
+    {
+      "id": "title",
+      "kind": "heading",
+      "attributes": {
+        "level": 1
+      },
+      "children": [
+        {
+          "id": "title.text",
+          "kind": "text",
+          "text": "Answer detail equivalence fixture"
+        }
+      ]
+    },
+    {
+      "id": "intro",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "intro.a",
+          "kind": "text",
+          "text": "This compact answer detail keeps a "
+        },
+        {
+          "id": "intro.link",
+          "kind": "link",
+          "attributes": {
+            "url": "/benchmarks/answer-detail-equivalent-v1"
+          },
+          "children": [
+            {
+              "id": "intro.link.text",
+              "kind": "text",
+              "text": "local benchmark reference"
+            }
+          ]
+        },
+        {
+          "id": "intro.b",
+          "kind": "text",
+          "text": " in the intro paragraph so the HTML bridge and native JSON path render the same authored structure."
+        }
+      ]
+    },
+    {
+      "id": "callout",
+      "kind": "callout",
+      "attributes": {
+        "tone": "info",
+        "variant": "tip"
+      },
+      "children": [
+        {
+          "id": "callout.body",
+          "kind": "paragraph",
+          "children": [
+            {
+              "id": "callout.body.text",
+              "kind": "text",
+              "text": "Report-only note: this transport-equivalent fixture compares first-party runtime paths without turning the result into a public ranking claim."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steps",
+      "kind": "list",
+      "attributes": {
+        "ordered": true
+      },
+      "children": [
+        {
+          "id": "steps.1",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "steps.1.text",
+              "kind": "text",
+              "text": "Keep the authored section order stable across both transports."
+            }
+          ]
+        },
+        {
+          "id": "steps.2",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "steps.2.text",
+              "kind": "text",
+              "text": "Limit the shared content to supported heading, list, and table nodes."
+            }
+          ]
+        },
+        {
+          "id": "steps.3",
+          "kind": "listItem",
+          "children": [
+            {
+              "id": "steps.3.text",
+              "kind": "text",
+              "text": "Record local profile output separately from any public comparison."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comparison.table",
+      "kind": "table",
+      "children": [
+        {
+          "id": "comparison.table.header",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "comparison.table.header.stage",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "comparison.table.header.stage.text",
+                  "kind": "text",
+                  "text": "Stage"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.header.input",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "comparison.table.header.input.text",
+                  "kind": "text",
+                  "text": "Input"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.header.expectation",
+              "kind": "tableCell",
+              "attributes": {
+                "header": true
+              },
+              "children": [
+                {
+                  "id": "comparison.table.header.expectation.text",
+                  "kind": "text",
+                  "text": "Expectation"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "comparison.table.row.compatibility",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "comparison.table.row.compatibility.stage",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.compatibility.stage.text",
+                  "kind": "text",
+                  "text": "Compatibility"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.row.compatibility.input",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.compatibility.input.text",
+                  "kind": "text",
+                  "text": "HTML bridge"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.row.compatibility.expectation",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.compatibility.expectation.text",
+                  "kind": "text",
+                  "text": "Render the authored answer detail shape locally."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "comparison.table.row.native",
+          "kind": "tableRow",
+          "children": [
+            {
+              "id": "comparison.table.row.native.stage",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.native.stage.text",
+                  "kind": "text",
+                  "text": "Native runtime"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.row.native.input",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.native.input.text",
+                  "kind": "text",
+                  "text": "Trusted block JSON"
+                }
+              ]
+            },
+            {
+              "id": "comparison.table.row.native.expectation",
+              "kind": "tableCell",
+              "children": [
+                {
+                  "id": "comparison.table.row.native.expectation.text",
+                  "kind": "text",
+                  "text": "Render the same authored answer detail shape locally."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "caveat",
+      "kind": "paragraph",
+      "children": [
+        {
+          "id": "caveat.text",
+          "kind": "text",
+          "text": "report-only benchmark caveat text: this fixture is local-only, transport-equivalent, and not a faster/slower claim."
+        }
+      ]
+    }
+  ]
+}

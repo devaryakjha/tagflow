@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Style-related extensions for TagflowNode
 extension TagflowNodeStyle on TagflowNode {

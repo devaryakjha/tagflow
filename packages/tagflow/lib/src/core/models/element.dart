@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// Represents an HTML element in the tagflow tree.
 class TagflowElement extends TagflowNode {

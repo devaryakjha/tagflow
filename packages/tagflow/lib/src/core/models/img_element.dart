@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 class TagflowImgElement extends TagflowNode {
   const TagflowImgElement({super.tag = 'img', Map<String, String>? attributes})

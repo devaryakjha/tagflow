@@ -1,6 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow_table/tagflow_table.dart';
+import 'package:tagflow_table/src/rendering/tagflow_table.dart';
 
 void main() {
   group('TableCellData', () {

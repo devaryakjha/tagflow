@@ -1,3 +1,82 @@
+## 1.0.0-alpha.3 - 2026-06-12
+
+- Adds first-class semantic runtime support for HTML `<details>` and
+  `<summary>` through the built-in component registry. Disclosure nodes render
+  as native expandable Flutter widgets, preserve the HTML `open` attribute,
+  keep mixed inline summary content inline, and bridge back to legacy
+  `details` / `summary` tags.
+- Removes the unused `TagflowNativeBlockAdapter.strictUnsupportedKinds`
+  constructor option. Unknown native JSON block kinds fail during
+  `TagflowNativeBlockCodec` decode in the alpha transport; placeholder fallback
+  applies only to known blocks rejected by adapter policy.
+- Documents the strict native transport `schemaVersion: 1` policy for document
+  and patch envelope decode.
+- Documents alpha compatibility support windows for `TagflowOptions`,
+  `package:tagflow/legacy.dart`, and the first-party `tagflow_table`
+  extension posture.
+- Records report-only cold/warm native JSON profile smoke evidence and labels
+  benchmark profile phases without making public performance claims.
+
+## 1.0.0-alpha.2 - 2026-06-11
+
+- Adds `TagflowNativeBlockCodec` for decoding and encoding trusted, data-only
+  native JSON document payloads without routing app-controlled content through
+  HTML.
+- Adds `TagflowNativeBlockPatchEnvelope` for ordered native patch payloads,
+  covering decode/adapt/apply flows for replace, append-children,
+  insert-before, and remove operations.
+- Documents the native JSON document path:
+  `TagflowNativeBlockCodec.decodeDocument(...)` ->
+  `TagflowNativeBlockAdapter.adapt(...)` -> `Tagflow.document(...)`.
+- Documents the patch envelope path:
+  `TagflowNativeBlockCodec.decodePatchEnvelope(...)` ->
+  `TagflowNativeBlockAdapter.adaptPatches(...)` ->
+  `TagflowDocument.applyPatches(...)`.
+- Enforces native transport `schemaVersion: 1` for decoded native JSON
+  documents and patch envelopes, with pathful failures for unsupported schema
+  versions and unknown patch operations.
+- Adds the example app `Native JSON Transport` screen for trusted
+  app-controlled JSON documents and patch envelopes.
+- Adds `Tagflow.html(..., registry: ...)` so HTML-origin runtime documents can
+  use the same semantic registry override path as `Tagflow.document(...)` while
+  preserving the legacy custom converter bridge.
+- Adds the report-only native transport benchmark lane,
+  `benchmark:native-transport`, for measuring JSON decode, document
+  adaptation, patch envelope decode, patch adaptation, and runtime patch
+  application overhead.
+- Adds a report-only native JSON profile lane,
+  `TAGFLOW_RENDERER=tagflow_native_json` with
+  `TAGFLOW_FIXTURE=native_ai_answer`, for rendering decoded native block JSON
+  through the example profile harness.
+- This prerelease does not introduce a CMS sync protocol, JavaScript execution,
+  arbitrary webpage rendering, Flutter widget serialization, or public
+  performance claims. Benchmark evidence remains local and report-only.
+
+## 1.0.0-alpha.1
+
+- Introduces the native rich content runtime direction for Tagflow.
+  `TagflowDocument` is now the canonical render input for new runtime usage.
+- Adds `Tagflow.html(...)` as the preferred HTML entry point and
+  `TagflowHtmlAdapter` as the first-party adapter from HTML into the runtime
+  document model.
+- Adds `Tagflow.document(...)` for rendering prebuilt semantic documents.
+- Adds `TagflowContentPolicy` so adapter input can be filtered with explicit
+  rules for unsafe tags, URL schemes, images, and unsupported content.
+- Adds the semantic `TagflowComponentRegistry` extension point for runtime node
+  rendering, including built-in renderer override support.
+- Adds `TagflowViewOptions` for runtime view concerns while keeping
+  `TagflowOptions` as an alpha compatibility wrapper.
+- Keeps render-boundary support for HTML input through `Tagflow.html(...)`,
+  `TagflowHtmlAdapter`, and the legacy options bridge.
+- Curates the main `package:tagflow/tagflow.dart` barrel around alpha runtime
+  APIs and moves parser, converter, selector, and legacy node compatibility
+  APIs to `package:tagflow/legacy.dart`.
+- Adds an alpha benchmark harness for fixtures, parser microbenchmarks, and
+  widget render benchmarks. The harness is intended for local baseline tracking
+  and does not yet support broad production performance claims.
+- This is an alpha prerelease. Browser parity, arbitrary CSS, JavaScript, rich
+  editing, streaming parsing, and stable internals are not promised.
+
 ## 0.0.8
 
  - **FEAT**(parser): add `TagflowRenderBoundary` for optional HTML comment based render ranges.

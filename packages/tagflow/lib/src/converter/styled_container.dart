@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, dead_code
 
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 /// A container that applies TagflowStyle to its child
 class StyledContainer extends StatelessWidget {

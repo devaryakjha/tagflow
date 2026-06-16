@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 final class TableConverter extends ElementConverter<TagflowTableElement> {
   const TableConverter();

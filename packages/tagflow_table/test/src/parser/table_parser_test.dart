@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:html/parser.dart' show parse;
-import 'package:tagflow/tagflow.dart';
+import 'package:tagflow/legacy.dart';
 
 void main() {
   group('TableParser', () {

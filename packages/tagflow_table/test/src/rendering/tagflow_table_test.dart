@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide TableCell;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tagflow_table/tagflow_table.dart';
+import 'package:tagflow_table/src/rendering/tagflow_table.dart';
+import 'package:tagflow_table/src/widgets/tagflow_table.dart';
 
 void main() {
   group('RenderTagflowTable', () {
