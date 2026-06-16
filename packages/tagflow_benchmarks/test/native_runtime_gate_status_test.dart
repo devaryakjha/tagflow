@@ -408,7 +408,7 @@ void main() {
     expect(draftResult.passed, isTrue);
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
-      contains('release-approval'),
+      isNot(contains('release-approval')),
     );
     expect(
       draftResult.nonRequiredOpenGates.map((gate) => gate.id),
@@ -427,10 +427,9 @@ void main() {
     expect(betaPreapprovalResult.requiredOpenGates, isEmpty);
     expect(betaPreapprovalResult.profile.expectedOpenGateIds, isEmpty);
 
-    expect(betaResult.passed, isFalse);
-    expect(betaResult.issues.map((issue) => issue.details['gateId']), <String>[
-      'release-approval',
-    ]);
+    expect(betaResult.passed, isTrue);
+    expect(betaResult.issues, isEmpty);
+    expect(betaResult.requiredOpenGates, isEmpty);
     expect(
       betaResult.issues.map((issue) => issue.details['gateId']),
       isNot(contains('memory-allocation-review')),
@@ -503,7 +502,7 @@ void main() {
     );
   });
 
-  test('keeps coordination drafts out of repo manifest gate evidence', () {
+  test('keeps coordination drafts out of approved repo manifest evidence', () {
     final workspaceRoot = resolveWorkspaceRoot();
     final manifestFile = File(
       p.join(
@@ -519,10 +518,14 @@ void main() {
         .expand((gate) => gate.evidence)
         .map((entry) => entry.value);
 
-    expect(releaseGate?.status, NativeRuntimeGateStatus.deferred);
+    expect(releaseGate?.status, NativeRuntimeGateStatus.satisfied);
     expect(
       releaseGate?.evidence.map((entry) => entry.value),
       contains('docs/plans/2026-06-12-beta-release-approval-plan.md'),
+    );
+    expect(
+      releaseGate?.evidence.map((entry) => entry.value),
+      contains('docs/plans/2026-06-16-beta0-release-approval.md'),
     );
     expect(
       evidenceValues,
