@@ -1,46 +1,65 @@
-<a href="https://zerodha.tech"><img src="https://zerodha.tech/static/images/github-badge.svg" align="right" /></a>
-
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/dark/logo.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/light/logo.svg">
-    <img alt="tagflow" src="assets/dark/logo.svg" width="400">
-  </picture>
+  <img src="assets/dark/icon.svg" alt="Tagflow" width="80" height="80" />
 </p>
 
-# 🌊 Tagflow Monorepo
+<h1 align="center">Tagflow</h1>
 
-[![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
-[![melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
-[![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
+<p align="center">Native rich content runtime for Flutter apps, with HTML support through a first-party adapter.</p>
 
-This is the monorepo for Tagflow, a native rich content runtime for Flutter
-apps. The `1.0.0-beta.x` prerelease line makes `TagflowDocument` the primary
-runtime model, renders structured content with native Flutter widgets, and
-keeps HTML as a first-party adapter through `TagflowHtmlAdapter` and
-`Tagflow.html(...)`.
+<p align="center">
+  <a href="https://docs.arya.run/tagflow">Documentation</a>
+  ·
+  <a href="https://pub.dev/packages/tagflow">tagflow</a>
+  ·
+  <a href="https://pub.dev/packages/tagflow_table">tagflow_table</a>
+</p>
 
-The native-runtime line is intentionally breaking and prerelease-only. Do not
-promote it to beta or stable until the public API freeze review, benchmark
-evidence gates, package-owned route evidence, and release approval are
-reviewed and explicitly accepted.
+<p align="center">
+  <a href="https://zerodha.tech"><img src="https://zerodha.tech/static/images/github-badge.svg" /></a>
+  <br />
+  <a href="https://github.com/devaryakjha/tagflow/actions/workflows/ci.yml"><img src="https://github.com/devaryakjha/tagflow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+</p>
 
-## 📦 Packages
+> **Beta** — `1.0.0-beta.0` is the first feature-rich native runtime prerelease. APIs may still change before `1.0.0`.
 
-- [tagflow](packages/tagflow) - Core runtime, HTML adapter, content policy, and
-  rendering APIs
-- [tagflow_table](packages/tagflow_table) - Table rendering extension for
-  Tagflow
-- [examples](examples/tagflow) - Example Flutter app showcasing Tagflow features
+## What is this?
 
-## Beta Usage
+Tagflow used to be a Flutter HTML renderer. The beta line makes it a native
+rich content runtime.
 
-Install the beta package:
+Instead of forcing every dynamic screen through HTML, apps can render
+structured `TagflowDocument` content directly, accept trusted JSON from a
+backend or AI pipeline, validate it, render native Flutter widgets, and apply
+document patches for live content updates.
+
+HTML still works through `Tagflow.html(...)`, but it is now an adapter into
+the same runtime instead of the whole model.
+
+## Packages
+
+- [`tagflow`](packages/tagflow) - core runtime, HTML adapter, native block
+  transport, content policy, and rendering APIs
+- [`tagflow_table`](packages/tagflow_table) - first-party table extension for
+  semantic `TagflowDocument` table nodes and legacy HTML table compatibility
+- [`examples/tagflow`](examples/tagflow) - example Flutter app and benchmark
+  host
+
+## Install
 
 ```yaml
 dependencies:
   tagflow: ^1.0.0-beta.0
 ```
+
+Add semantic table support when needed:
+
+```yaml
+dependencies:
+  tagflow: ^1.0.0-beta.0
+  tagflow_table: ^1.0.0-beta.0
+```
+
+## Usage
 
 Render HTML through the adapter entry point:
 
@@ -69,8 +88,7 @@ final document = TagflowDocument(
 Tagflow.document(document);
 ```
 
-Trusted app-controlled JSON can use the native block transport instead of
-round-tripping through HTML:
+Use trusted app-controlled JSON without round-tripping through HTML:
 
 ```dart
 const codec = TagflowNativeBlockCodec();
@@ -86,77 +104,49 @@ Patch envelopes decode through the same codec, adapt with
 `TagflowNativeBlockAdapter.adaptPatches(...)`, and apply with
 `TagflowDocument.applyPatches(...)`.
 
-Runtime interactions stay view-owned: use
-`TagflowViewOptions.nodeTapCallback` plus `tapTargetKinds` for tappable
-semantic nodes, while links continue to use `linkTapCallback`.
+## Stable Channel
 
-Parser, converter, selector, and legacy node APIs remain available during the
-alpha transition from `package:tagflow/legacy.dart`.
+`0.0.8` remains the stable HTML-renderer line. The `stable` branch preserves
+that pre-native-runtime version for Git users.
 
-## 🛠️ Development
+`main` carries the native runtime prerelease line.
 
-This project uses [Melos](https://melos.invertase.dev) for managing the monorepo.
-
-### Setup
-
-1. Install Melos:
+## Development
 
 ```bash
-dart pub global activate melos
+dart pub get
+dart run melos bootstrap
+dart run melos run validate
 ```
 
-2. Bootstrap the workspace:
+Common commands:
 
 ```bash
-melos bootstrap
+dart run melos run analyze
+dart run melos run test
+dart run melos run format
+dart run melos run publish:dry-run
 ```
 
-### Common Tasks
+## Project Structure
 
-```bash
-# Run all tests
-melos run test
-
-# Clean build outputs
-melos run build:clean
-
-# Format code
-melos run format
-
-# Analyze code
-melos run analyze
-
-# Generate coverage report
-melos run coverage
+```text
+packages/tagflow/             Core runtime and HTML adapter
+packages/tagflow_table/       First-party table extension
+packages/tagflow_benchmarks/  Benchmark and release-gate tooling
+examples/tagflow/             Example app, routes, and profile host
+docs/                         Specs, migration notes, and release evidence
 ```
 
-### Release Prep
+## Releases
 
-```bash
-# Mutate package versions for the next alpha, then run publish validation
-make release-alpha
+Package publication is handled by GitHub Actions tag workflows:
 
-# Validate the current publishable package metadata without publishing
-make publish-dry-run
-```
+- `tagflow-v*` publishes `packages/tagflow`
+- `tagflow_table-v*` publishes `packages/tagflow_table`
 
-Do not publish from local release-prep branches. Actual package publication is
-handled by the package-specific GitHub Actions tag workflows.
+Run `dart run melos run publish:dry-run` before cutting tags.
 
-## 🧪 Testing
+## License
 
-We maintain high test coverage to ensure reliability:
-
-- Unit tests for core functionality
-- Widget tests for UI components
-- Integration tests for end-to-end flows
-
-View our latest coverage report [here](https://codecov.io/gh/devaryakjha/tagflow).
-
-## 👥 Contributing
-
-Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[MIT](LICENSE)
