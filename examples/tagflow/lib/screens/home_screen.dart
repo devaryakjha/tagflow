@@ -1,25 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tagflow_example/utils/examples.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Tagflow Examples'), centerTitle: false),
-      body: ListView.separated(
-        itemCount: allExamples.length,
-        separatorBuilder: (context, index) => const Divider(),
-        itemBuilder: (context, index) {
-          return ExampleCard(
-            example: allExamples[index],
-            onTap: () {
-              context.push(allExamples[index].path);
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text('Tagflow Examples'),
+        centerTitle: false,
+        actions: const [ThemeModeToggle()],
+      ),
+      body: ListView(
+        children: [
+          for (final section in ExampleSection.values) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text(
+                section.label,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+            for (final example in allExamples)
+              if (example.section == section)
+                ExampleCard(
+                  example: example,
+                  onTap: () => context.push(example.path),
+                ),
+          ],
+        ],
       ),
     );
   }
