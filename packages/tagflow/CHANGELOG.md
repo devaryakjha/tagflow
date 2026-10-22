@@ -1,3 +1,12 @@
+## Unreleased
+
+- Adds `TagflowCodeBlockOptions` on `TagflowViewOptions.codeBlock` with a
+  `TagflowCodeHighlighter` extension point for code block syntax highlighting,
+  an optional copy-to-clipboard button, and an `onCopy` callback. Core keeps no
+  highlighting dependency.
+- HTML `<pre><code class="language-x">` code blocks now carry the language from
+  the nested `<code>` element when `<pre>` has no class.
+
 ## 1.0.0-beta.0 - 2026-06-16
 
 - Promotes the native rich content runtime line to the first beta prerelease.

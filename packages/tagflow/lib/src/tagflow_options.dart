@@ -5,6 +5,7 @@ import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/core/models/img_element.dart';
+import 'package:tagflow/src/render/code_block.dart';
 import 'package:tagflow/src/runtime/document_node.dart';
 
 /// Callback for handling link taps
@@ -136,6 +137,7 @@ final class TagflowViewOptions extends Equatable {
     this.maxImageHeight,
     this.enableImageCache = true,
     this.errorBuilder,
+    this.codeBlock = const TagflowCodeBlockOptions(),
   });
 
   /// Enable debug mode
@@ -171,6 +173,9 @@ final class TagflowViewOptions extends Equatable {
   /// Custom widget builder for unrecoverable parsing or rendering errors.
   final TagflowErrorWidgetBuilder? errorBuilder;
 
+  /// Options for code block highlighting and the copy button.
+  final TagflowCodeBlockOptions codeBlock;
+
   /// Create a copy with some properties replaced
   TagflowViewOptions copyWith({
     bool? debug,
@@ -184,6 +189,7 @@ final class TagflowViewOptions extends Equatable {
     double? maxImageHeight,
     bool? enableImageCache,
     TagflowErrorWidgetBuilder? errorBuilder,
+    TagflowCodeBlockOptions? codeBlock,
   }) {
     return TagflowViewOptions(
       debug: debug ?? this.debug,
@@ -197,6 +203,7 @@ final class TagflowViewOptions extends Equatable {
       maxImageHeight: maxImageHeight ?? this.maxImageHeight,
       enableImageCache: enableImageCache ?? this.enableImageCache,
       errorBuilder: errorBuilder ?? this.errorBuilder,
+      codeBlock: codeBlock ?? this.codeBlock,
     );
   }
 
@@ -229,6 +236,7 @@ final class TagflowViewOptions extends Equatable {
     maxImageHeight,
     enableImageCache,
     errorBuilder,
+    codeBlock,
   ];
 }
 
@@ -252,6 +260,7 @@ final class TagflowOptions extends Equatable {
     this.maxImageHeight,
     this.enableImageCache = true,
     this.errorBuilder,
+    this.codeBlock = const TagflowCodeBlockOptions(),
     this.renderBoundary,
   });
 
@@ -272,6 +281,7 @@ final class TagflowOptions extends Equatable {
       maxImageHeight: options.maxImageHeight,
       enableImageCache: options.enableImageCache,
       errorBuilder: options.errorBuilder,
+      codeBlock: options.codeBlock,
       renderBoundary: renderBoundary,
     );
   }
@@ -309,6 +319,9 @@ final class TagflowOptions extends Equatable {
   /// Custom widget builder for unrecoverable parsing or rendering errors.
   final TagflowErrorWidgetBuilder? errorBuilder;
 
+  /// Options for code block highlighting and the copy button.
+  final TagflowCodeBlockOptions codeBlock;
+
   /// Optional boundary that stops rendering part-way through the HTML tree.
   final TagflowRenderBoundary? renderBoundary;
 
@@ -326,6 +339,7 @@ final class TagflowOptions extends Equatable {
       maxImageHeight: maxImageHeight,
       enableImageCache: enableImageCache,
       errorBuilder: errorBuilder,
+      codeBlock: codeBlock,
     );
   }
 
@@ -342,6 +356,7 @@ final class TagflowOptions extends Equatable {
     double? maxImageHeight,
     bool? enableImageCache,
     TagflowErrorWidgetBuilder? errorBuilder,
+    TagflowCodeBlockOptions? codeBlock,
     TagflowRenderBoundary? renderBoundary,
   }) {
     return TagflowOptions(
@@ -356,6 +371,7 @@ final class TagflowOptions extends Equatable {
       maxImageHeight: maxImageHeight ?? this.maxImageHeight,
       enableImageCache: enableImageCache ?? this.enableImageCache,
       errorBuilder: errorBuilder ?? this.errorBuilder,
+      codeBlock: codeBlock ?? this.codeBlock,
       renderBoundary: renderBoundary ?? this.renderBoundary,
     );
   }
@@ -389,6 +405,7 @@ final class TagflowOptions extends Equatable {
     maxImageHeight,
     enableImageCache,
     errorBuilder,
+    codeBlock,
     renderBoundary,
   ];
 }

@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tagflow/src/render/code_block.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 import 'package:tagflow/src/tagflow_options.dart';
 
@@ -414,6 +417,10 @@ Widget _renderCodeBlock(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final options =
+      TagflowViewOptions.maybeOf(context.buildContext)?.codeBlock ??
+      const TagflowCodeBlockOptions();
+
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: DecoratedBox(
@@ -422,16 +429,7 @@ Widget _renderCodeBlock(
         border: Border.all(color: const Color(0x1F000000)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Text(
-            node.text ?? '',
-            style: const TextStyle(fontFamily: 'monospace'),
-          ),
-        ),
-      ),
+      child: _TagflowCodeBlock(node: node, options: options),
     ),
   );
 }
@@ -813,6 +811,138 @@ final class _TagflowDisclosureState extends State<_TagflowDisclosure> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+const _codeTextStyle = TextStyle(fontFamily: 'monospace');
+
+final class _TagflowCodeBlock extends StatefulWidget {
+  const _TagflowCodeBlock({required this.node, required this.options});
+
+  final TagflowDocumentNode node;
+  final TagflowCodeBlockOptions options;
+
+  @override
+  State<_TagflowCodeBlock> createState() => _TagflowCodeBlockState();
+}
+
+final class _TagflowCodeBlockState extends State<_TagflowCodeBlock> {
+  static const _copiedDuration = Duration(seconds: 2);
+
+  Timer? _copiedTimer;
+  bool _copied = false;
+
+  String get _source => widget.node.text ?? '';
+
+  String? get _language =>
+      TagflowCodeBlockOptions.normalizeLanguage(widget.node.language);
+
+  @override
+  void dispose() {
+    _copiedTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _copy() async {
+    final source = _source;
+    await Clipboard.setData(ClipboardData(text: source));
+    widget.options.onCopy?.call(
+      TagflowCodeCopyDetails(
+        node: widget.node,
+        source: source,
+        language: _language,
+      ),
+    );
+    if (!mounted) return;
+
+    _copiedTimer?.cancel();
+    _copiedTimer = Timer(_copiedDuration, () {
+      if (mounted) setState(() => _copied = false);
+    });
+    setState(() => _copied = true);
+  }
+
+  Widget _buildSource(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style.merge(_codeTextStyle);
+    final highlighted = widget.options.highlighter?.call(
+      context,
+      TagflowCodeHighlightRequest(
+        node: widget.node,
+        source: _source,
+        language: _language,
+        style: style,
+      ),
+    );
+
+    if (highlighted == null) {
+      return Text(_source, style: _codeTextStyle);
+    }
+
+    return Text.rich(TextSpan(style: _codeTextStyle, children: [highlighted]));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final source = Padding(
+      padding: const EdgeInsets.all(12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: _buildSource(context),
+      ),
+    );
+
+    if (!widget.options.showCopyButton) return source;
+
+    return Stack(
+      children: [
+        Padding(padding: const EdgeInsets.only(right: 56), child: source),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: SelectionContainer.disabled(
+            child: _TagflowCodeCopyButton(copied: _copied, onPressed: _copy),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+final class _TagflowCodeCopyButton extends StatelessWidget {
+  const _TagflowCodeCopyButton({required this.copied, required this.onPressed});
+
+  final bool copied;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = copied ? 'Copied' : 'Copy';
+
+    return Semantics(
+      button: true,
+      label: copied ? 'Code copied' : 'Copy code',
+      excludeSemantics: true,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onPressed,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0x0F000000),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: Color(0x99000000)),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
