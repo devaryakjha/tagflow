@@ -79,6 +79,35 @@ final document = adapter.parse(htmlContent);
 Tagflow.document(document);
 ```
 
+### Markdown Adapter
+
+Render Markdown, such as an AI answer, without converting it to HTML first.
+GitHub Flavored Markdown tables, task lists, fenced code, strikethrough and
+autolinks are supported:
+
+```dart
+Tagflow.markdown(markdown: answer);
+```
+
+Markdown adapts into a regular `TagflowDocument`, so content policy, custom
+component registries and `tagflow_table` apply as they do for HTML. Each
+top-level block gets a deterministic ID (`0.0`, `0.1`, ...), so re-adapting a
+longer prefix of the same Markdown keeps earlier IDs stable.
+
+Raw HTML inside Markdown goes through the HTML adapter and content policy by
+default. Drop it, or keep it as literal text, with `rawHtml`:
+
+```dart
+const adapter = TagflowMarkdownAdapter(
+  rawHtml: TagflowMarkdownRawHtmlBehavior.drop,
+);
+
+Tagflow.markdown(markdown: answer, markdownAdapter: adapter);
+
+// Or parse once and render the document.
+Tagflow.document(adapter.parse(answer));
+```
+
 ### Controlled Dynamic HTML
 
 Use authored IDs when your HTML comes from a controlled CMS, AI pipeline, or

@@ -113,6 +113,14 @@ void main() {
       '<section data-action-id="open-sheet">Hello</section>',
     );
     final htmlNode = htmlDocument.children.single;
+    final markdownDocument = const api.TagflowMarkdownAdapter(
+      rawHtml: api.TagflowMarkdownRawHtmlBehavior.drop,
+    ).parse('- [x] Hello');
+    final markdownItem = markdownDocument.children.single.children.single;
+    expect(markdownDocument.source?.kind, api.TagflowSourceKind.markdown);
+    expect(markdownItem.markdownTag, 'li');
+    expect(markdownItem.markdownTaskChecked, isTrue);
+    expect(const api.Tagflow.markdown(markdown: '# Hi').markdown, '# Hi');
     expect(
       nativeDocument.blocks.single.kind,
       api.TagflowNativeBlockKind.callout,

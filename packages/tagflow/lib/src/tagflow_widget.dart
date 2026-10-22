@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tagflow/src/adapters/html_adapter.dart';
+import 'package:tagflow/src/adapters/markdown_adapter.dart';
 import 'package:tagflow/src/converter/converter.dart';
 import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/render/render.dart';
@@ -60,7 +61,9 @@ class Tagflow extends StatefulWidget {
        _renderBoundary = renderBoundary,
        document = null,
        adapter = null,
-       registry = null;
+       registry = null,
+       markdown = null,
+       markdownAdapter = null;
 
   /// Creates a new [Tagflow] widget from HTML.
   const Tagflow.html({
@@ -90,7 +93,32 @@ class Tagflow extends StatefulWidget {
        _viewOptions = viewOptions,
        _legacyOptions = options,
        _renderBoundary = renderBoundary,
-       document = null;
+       document = null,
+       markdown = null,
+       markdownAdapter = null;
+
+  /// Creates a new [Tagflow] widget from GitHub Flavored Markdown.
+  ///
+  /// Markdown is adapted by [markdownAdapter] (or a default
+  /// [TagflowMarkdownAdapter]) into a [TagflowDocument] and rendered through
+  /// [registry], so content policy and component overrides apply as they do
+  /// for [Tagflow.document].
+  const Tagflow.markdown({
+    required String this.markdown,
+    this.markdownAdapter,
+    this.theme,
+    this.registry,
+    this.errorBuilder = _defaultErrorWidget,
+    this.loadingBuilder = _defaultLoadingWidget,
+    TagflowViewOptions? viewOptions,
+    super.key,
+  }) : _viewOptions = viewOptions,
+       _legacyOptions = null,
+       _renderBoundary = null,
+       html = null,
+       document = null,
+       adapter = null,
+       converters = const [];
 
   /// Creates a new [Tagflow] widget from a native runtime document.
   const Tagflow.document(
@@ -119,10 +147,18 @@ class Tagflow extends StatefulWidget {
        _legacyOptions = options,
        _renderBoundary = null,
        html = null,
-       adapter = null;
+       adapter = null,
+       markdown = null,
+       markdownAdapter = null;
 
   /// The HTML content to render.
   final String? html;
+
+  /// The Markdown content to render.
+  final String? markdown;
+
+  /// Adapter used by [Tagflow.markdown] to produce a runtime document.
+  final TagflowMarkdownAdapter? markdownAdapter;
 
   /// The canonical runtime document to render.
   final TagflowDocument? document;
@@ -133,7 +169,7 @@ class Tagflow extends StatefulWidget {
   /// Custom theme for styling HTML elements
   final TagflowTheme? theme;
 
-  /// Semantic component registry used by [Tagflow.document] and [Tagflow.html].
+  /// Semantic component registry used by the runtime entry points.
   final TagflowComponentRegistry? registry;
 
   /// Additional legacy converters to use.
@@ -207,6 +243,8 @@ class _TagflowState extends State<Tagflow> {
     if (oldWidget.html != widget.html ||
         oldWidget.document != widget.document ||
         oldWidget.adapter != widget.adapter ||
+        oldWidget.markdown != widget.markdown ||
+        oldWidget.markdownAdapter != widget.markdownAdapter ||
         oldWidget.viewOptions != widget.viewOptions ||
         oldWidget.renderBoundary != widget.renderBoundary ||
         (convertersChanged && widget.document == null)) {
@@ -224,11 +262,17 @@ class _TagflowState extends State<Tagflow> {
     try {
       _document =
           widget.document ??
-          (widget.adapter ?? const TagflowHtmlAdapter()).parse(
-            widget.html ?? '',
-            viewOptions: widget.viewOptions,
-            renderBoundary: widget.renderBoundary,
-          );
+          switch (widget.markdown) {
+            final markdown? =>
+              (widget.markdownAdapter ?? const TagflowMarkdownAdapter()).parse(
+                markdown,
+              ),
+            null => (widget.adapter ?? const TagflowHtmlAdapter()).parse(
+              widget.html ?? '',
+              viewOptions: widget.viewOptions,
+              renderBoundary: widget.renderBoundary,
+            ),
+          };
       _element = _usesLegacyCompatibilityRenderer
           ? TagflowHtmlDocumentBridge.toLegacyNode(_document!)
           : null;
@@ -308,8 +352,15 @@ class _TagflowState extends State<Tagflow> {
     super.debugFillProperties(properties);
     properties
       ..add(StringProperty('html', widget.html))
+      ..add(StringProperty('markdown', widget.markdown))
       ..add(DiagnosticsProperty<TagflowDocument>('document', _document))
       ..add(DiagnosticsProperty<TagflowHtmlAdapter>('adapter', widget.adapter))
+      ..add(
+        DiagnosticsProperty<TagflowMarkdownAdapter>(
+          'markdownAdapter',
+          widget.markdownAdapter,
+        ),
+      )
       ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
       ..add(
         DiagnosticsProperty<TagflowComponentRegistry>(
