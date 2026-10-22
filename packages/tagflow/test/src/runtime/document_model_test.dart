@@ -399,6 +399,22 @@ void main() {
     });
   });
 
+  group('TagflowMetadata', () {
+    test('should compare nested maps and lists by value', () {
+      // Built at runtime so equal values are not canonicalized to one const.
+      TagflowMetadata build(String gap) => TagflowMetadata(
+        Map.of({
+          'htmlAttributes': Map.of({'style': 'gap: $gap;'}),
+          'classes': List.of(['a', 'b']),
+        }),
+      );
+
+      expect(build('1rem'), build('1rem'));
+      expect(build('1rem').hashCode, build('1rem').hashCode);
+      expect(build('1rem'), isNot(build('2rem')));
+    });
+  });
+
   group('TagflowPresentation', () {
     test('merges typed fields, inline semantics, and hint maps immutably', () {
       final base = TagflowPresentation(

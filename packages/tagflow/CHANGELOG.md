@@ -13,6 +13,15 @@
   literal text.
 - Adds `TagflowMarkdownNodeMetadata` inspectors (`markdownTag`,
   `isMarkdownTaskItem`, `markdownTaskChecked`, `isMarkdownRawHtml`).
+- Adds `TagflowMarkdownStream` and `TagflowMarkdownStreamView` for Markdown
+  that arrives in chunks, such as streamed AI answers. Only the open tail
+  block is re-parsed, closed blocks keep their ids and node instances,
+  partial fences, list markers and table headers are held back until they
+  are complete, and every change is published as `TagflowDocumentPatch`es.
+  Closing the stream yields the same document as a one-shot parse.
+- Adds `TagflowDocumentPatch.appendRootChildren` to append top-level nodes.
+- Compares nested maps and lists in `TagflowMetadata` by value, so equal
+  nodes adapted from raw HTML attributes compare equal.
 - Renders task list items with checkbox markers in the built-in list
   component.
 - Deprecates the legacy converter API for removal in tagflow 2.0. Nothing is
