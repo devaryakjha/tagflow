@@ -549,7 +549,7 @@ Benchmark acceptance:
   lane before making performance claims
 - compare dynamic block updates against the existing authored-ID HTML insertion
   and semantic patch evidence, including
-  `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`
+  `2026-06-11-authored-insertion-ordered-repeat3.md` (removed; see git history)
 - treat benchmark output as reviewed evidence, not as a license to optimize
   around an unstable contract
 
@@ -558,7 +558,7 @@ Internal Flutter app validation:
 - validate one real internal Flutter content surface using either app-authored
   native documents or the narrow native block adapter
 - keep the validation path aligned with
-  `docs/plans/2026-06-11-internal-app-validation-plan.md`
+  `2026-06-11-internal-app-validation-plan.md` (removed; see git history)
 - capture the same kinds of evidence already required there: semantics,
   unsupported behavior, links, media policy, theme fit, and dynamic update
   behavior

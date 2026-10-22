@@ -345,8 +345,8 @@ instead of coupling Tagflow to one imperative update model.
   authored-insertion patch lane now uses `insertBefore(...)` for authored
   sibling insertions instead of replacing the whole parent on every update.
 - Bounded repeat-3 and repeat-5 ordered-insertion review notes are now recorded
-  in `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat3.md`
-  and `docs/benchmarks/baselines/2026-06-11-authored-insertion-ordered-repeat5.md`.
+  in `2026-06-11-authored-insertion-ordered-repeat3.md` (removed; see git history)
+  and `2026-06-11-authored-insertion-ordered-repeat5.md` (removed; see git history).
   They are useful completion evidence, but neither note is a threshold update
   or performance claim.
 - Add optional adapter cache only after the benchmark proves repeated HTML parse
@@ -363,12 +363,9 @@ because it parses HTML into `TagflowDocument` and renders through semantic
 components plus the first-party semantic table extension. The `tagflow`
 renderer remains a compatibility lane that may use legacy converter bridges.
 
-Current validation command:
-
-```bash
-TAGFLOW_RENDERER=tagflow_semantic TAGFLOW_FIXTURE=streaming_ai_chunks \
-  dart run melos run benchmark:profile
-```
+The profile-mode benchmark host that ran this scenario has been removed; see
+git history for the original command. Use `benchmark:render` for in-repo
+render microbenchmarks.
 
 Current authored-insertion evidence:
 

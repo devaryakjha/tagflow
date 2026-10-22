@@ -69,7 +69,7 @@ publish, tag, package-version bump, or source-code implementation by itself.
 - `docs/specs/2026-06-11-dynamic-document-updates.md` matches the implemented
   immutable patch model closely and remains the best source for update
   semantics.
-- `docs/plans/2026-06-11-tagflow-v1-alpha-acceptance-status.md` remains an
+- `2026-06-11-tagflow-v1-alpha-acceptance-status.md` (removed; see git history) remains an
   alpha.1 tracker with an alpha.2 prep section. It should not be treated as a
   beta-readiness gate.
 
@@ -134,7 +134,7 @@ Current-state note: the coordinator branch has moved beyond this original
 alpha.3 target. Adapter metadata inspectors, view-owned node taps, render error
 fallbacks, description-list semantics, equivalent HTML/native fixtures, and the
 DPR feasibility audit have landed. Remaining release movement should use
-`docs/plans/2026-06-12-native-runtime-follow-up-sequence.md` for current
+`2026-06-12-native-runtime-follow-up-sequence.md` (removed; see git history) for current
 sequencing.
 
 Required outcomes:
@@ -467,7 +467,7 @@ Files:
 
 - `docs/specs/2026-06-11-native-rich-content-runtime.md`
 - `docs/specs/2026-06-11-native-block-adapter-contract.md`
-- `docs/plans/2026-06-11-tagflow-native-rich-content-master-plan.md`
+- `2026-06-11-tagflow-native-rich-content-master-plan.md` (removed; see git history)
 
 Work:
 
