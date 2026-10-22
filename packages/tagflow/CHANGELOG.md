@@ -1,3 +1,21 @@
+## Unreleased
+
+- Adds `TagflowMarkdownAdapter` and `Tagflow.markdown(markdown: ...)` for
+  GitHub Flavored Markdown (headings, emphasis, strikethrough, inline and
+  fenced code, lists, task lists, blockquotes, links, autolinks, images,
+  tables, footnotes and horizontal rules), built on `package:markdown`.
+  Markdown adapts into a normal `TagflowDocument`, so content policy, the
+  component registry and `tagflow_table` apply unchanged.
+- Assigns deterministic block-index node IDs to Markdown documents, so
+  re-adapting a longer prefix of the same Markdown keeps earlier IDs stable.
+- Adds `TagflowMarkdownRawHtmlBehavior` to adapt raw HTML in Markdown through
+  the HTML adapter and content policy (default), drop it, or keep it as
+  literal text.
+- Adds `TagflowMarkdownNodeMetadata` inspectors (`markdownTag`,
+  `isMarkdownTaskItem`, `markdownTaskChecked`, `isMarkdownRawHtml`).
+- Renders task list items with checkbox markers in the built-in list
+  component.
+
 ## 1.0.0-beta.0 - 2026-06-16
 
 - Promotes the native rich content runtime line to the first beta prerelease.

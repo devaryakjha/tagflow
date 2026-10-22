@@ -37,8 +37,8 @@ the same runtime instead of the whole model.
 
 ## Packages
 
-- [`tagflow`](packages/tagflow) - core runtime, HTML adapter, native block
-  transport, content policy, and rendering APIs
+- [`tagflow`](packages/tagflow) - core runtime, HTML and Markdown adapters,
+  native block transport, content policy, and rendering APIs
 - [`tagflow_table`](packages/tagflow_table) - first-party table extension for
   semantic `TagflowDocument` table nodes and legacy HTML table compatibility
 - [`examples/tagflow`](examples/tagflow) - example Flutter app and benchmark
@@ -65,6 +65,12 @@ Render HTML through the adapter entry point:
 
 ```dart
 Tagflow.html(html: htmlContent);
+```
+
+Render Markdown, such as an AI answer, through the Markdown adapter:
+
+```dart
+Tagflow.markdown(markdown: answer);
 ```
 
 Render a native document directly:
