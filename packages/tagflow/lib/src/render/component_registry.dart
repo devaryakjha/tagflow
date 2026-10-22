@@ -775,18 +775,31 @@ bool _hasHtmlAttribute(TagflowDocumentNode node, String attribute) {
 bool _isInlineFallbackTag(String? htmlTag) {
   return switch (htmlTag) {
     'a' ||
+    'abbr' ||
     'b' ||
-    'strong' ||
-    'i' ||
-    'em' ||
-    'u' ||
-    'span' ||
-    'small' ||
-    'mark' ||
+    'bdi' ||
+    'bdo' ||
+    'cite' ||
+    'data' ||
     'del' ||
+    'dfn' ||
+    'em' ||
+    'i' ||
     'ins' ||
+    'kbd' ||
+    'label' ||
+    'mark' ||
+    'q' ||
+    's' ||
+    'samp' ||
+    'small' ||
+    'span' ||
+    'strong' ||
     'sub' ||
-    'sup' => true,
+    'sup' ||
+    'time' ||
+    'u' ||
+    'var' => true,
     _ => false,
   };
 }
@@ -794,9 +807,14 @@ bool _isInlineFallbackTag(String? htmlTag) {
 TextStyle? _fallbackTextStyle(String? htmlTag) {
   return switch (htmlTag) {
     'b' || 'strong' => const TextStyle(fontWeight: FontWeight.w700),
-    'i' || 'em' => const TextStyle(fontStyle: FontStyle.italic),
+    'i' ||
+    'em' ||
+    'cite' ||
+    'dfn' ||
+    'var' => const TextStyle(fontStyle: FontStyle.italic),
     'u' || 'ins' => const TextStyle(decoration: TextDecoration.underline),
-    'del' => const TextStyle(decoration: TextDecoration.lineThrough),
+    'del' || 's' => const TextStyle(decoration: TextDecoration.lineThrough),
+    'kbd' || 'samp' => const TextStyle(fontFamily: 'monospace'),
     'small' => const TextStyle(fontSize: 12),
     'sub' => const TextStyle(fontSize: 12),
     'sup' => const TextStyle(fontSize: 12),
