@@ -355,7 +355,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     'pre' => TagflowDocumentNode.codeBlock(
       id: id,
       text: _textContentFor(node),
-      language: node.className,
+      language: _codeBlockLanguageFor(node),
       metadata: metadata,
       presentation: presentation,
       source: source,
@@ -712,6 +712,24 @@ Set<TagflowInlineSemantic> _inlineSemanticsForHtmlTag(String tag) {
     'sup' => const {TagflowInlineSemantic.superscript},
     _ => const {},
   };
+}
+
+String? _codeBlockLanguageFor(TagflowNode node) {
+  final className = node.className;
+  if (className != null && className.trim().isNotEmpty) return className;
+
+  // Markdown renderers emit `<pre><code class="language-x">`, so fall back to
+  // the class of a direct `code` child.
+  for (final child in node.children) {
+    final childClassName = child.className;
+    if (child.tag == 'code' &&
+        childClassName != null &&
+        childClassName.trim().isNotEmpty) {
+      return childClassName;
+    }
+  }
+
+  return null;
 }
 
 String _textContentFor(TagflowNode node) {
