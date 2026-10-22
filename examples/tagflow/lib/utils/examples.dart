@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow_example/screens/article_example.dart';
-import 'package:tagflow_example/screens/benchmark_screen.dart';
 import 'package:tagflow_example/screens/code_example.dart';
 import 'package:tagflow_example/screens/image_example.dart';
 import 'package:tagflow_example/screens/internal_app_validation_screen.dart';
@@ -98,13 +97,6 @@ final allExamples = <Example>[
     path: '/native-json',
     builder: (context) => const NativeJsonExample(),
     icon: Icons.data_object,
-  ),
-  Example(
-    title: 'Benchmarks',
-    description: 'Profile-mode fixtures for native rich content rendering',
-    path: '/benchmarks',
-    builder: (context) => const BenchmarkScreen(),
-    icon: Icons.speed,
   ),
   Example(
     title: 'Reference App Route',
