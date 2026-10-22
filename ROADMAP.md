@@ -33,25 +33,29 @@ every breaking change gets a beta soak before it reaches a stable release.
 
 ## 1.0.0-beta.1: AI answers
 
-- [ ] Markdown adapter: `Tagflow.markdown(...)` and `TagflowMarkdownAdapter`
+Ready to publish; see the
+[changelog](packages/tagflow/CHANGELOG.md).
+
+- [x] Markdown adapter: `Tagflow.markdown(...)` and `TagflowMarkdownAdapter`
       on `package:markdown` (GFM tables, task lists, fenced code), producing a
       normal `TagflowDocument` so the content policy, registry and tables all
       apply.
-- [ ] Streaming helper: a controller that takes appended text chunks,
+- [x] Streaming helper: a controller that takes appended text chunks,
       re-parses only the open tail block, and emits patches with stable ids so
       finished blocks never rebuild.
-- [ ] Code blocks: a registry hook for syntax highlighting and a copy button.
+- [x] Code blocks: a registry hook for syntax highlighting and a copy button.
       Highlighting is an optional add-on so the core stays lean.
-- [ ] Golden tests for every built-in node kind in light and dark themes.
-- [ ] Example app rebuilt as a gallery: HTML, native JSON, Markdown and a
+- [x] Golden tests for every built-in node kind in light and dark themes.
+- [x] Example app rebuilt as a gallery: HTML, native JSON, Markdown and a
       live streaming demo.
 
 ## 1.0.0-beta.2: frozen API
 
 - [ ] Close the review in
       [`docs/specs/2026-06-12-beta-public-api-freeze-review.md`](docs/specs/2026-06-12-beta-public-api-freeze-review.md).
-- [ ] Mark the legacy converter API (`package:tagflow/legacy.dart`,
-      `TagflowOptions` converters) `@Deprecated` with removal in 2.0.
+- [x] Mark the legacy converter API (`package:tagflow/legacy.dart`,
+      `TagflowOptions` converters) `@Deprecated` with removal in 2.0
+      (shipped early in beta.1).
 - [ ] Move `tagflow_table` off the legacy HTML bridge.
 - [ ] Write a `0.0.8` to `1.0` migration guide and refresh
       [docs.arya.run/tagflow](https://docs.arya.run/tagflow).

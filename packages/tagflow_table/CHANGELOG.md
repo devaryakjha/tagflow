@@ -1,17 +1,36 @@
-## Unreleased
+## 1.0.0-beta.1 - 2026-10-22
 
-- Deprecates `TagflowTableConverter` and `TagflowTableCellConverter` for removal
-  in tagflow_table 2.0. They stay available, unchanged, through 1.x as a legacy
-  converter shim. Use
-  `TagflowComponentRegistry(extensions: [tagflowTableComponents()])` with
-  `Tagflow.html(...)` or `Tagflow.document(...)` instead.
-- Note that the semantic registry output differs visually from the legacy shim
-  (for example cell alignment and caption placement), so migrating is an
-  intentional visual change rather than a drop-in swap.
+### Upgrading from 1.0.0-beta.0
+
+- Requires `tagflow` `1.0.0-beta.1`. Upgrade `tagflow` and `tagflow_table`
+  together, and pin exact versions in production apps, since a caret
+  constraint on a prerelease accepts later prereleases.
+- `TagflowTableConverter` and `TagflowTableCellConverter` are now
+  `@Deprecated`. They still work unchanged, but CI that runs
+  `flutter analyze --fatal-infos` will flag their call sites.
+- Cell content picks up the `tagflow` `1.0.0-beta.1` rendering changes:
+  inline content flows as one `Text.rich` and HTML whitespace collapses per
+  CSS. App golden tests and `find.text` widget tests that cover tables may
+  need updating. Table borders keep their existing colors.
+
+### Changed
+
+- Requires `tagflow: ^1.0.0-beta.1`.
 - Moves the example app's table screen and documentation onto
   `tagflowTableComponents(...)`.
 - Adds golden tests pinning the legacy shim output and the semantic registry
   output for the same HTML table.
+
+### Deprecated
+
+- `TagflowTableConverter` and `TagflowTableCellConverter`, for removal in
+  tagflow_table 2.0. They stay available, unchanged, through 1.x as a legacy
+  converter shim. Use
+  `TagflowComponentRegistry(extensions: [tagflowTableComponents()])` with
+  `Tagflow.html(...)` or `Tagflow.document(...)` instead. The semantic
+  registry output differs visually from the legacy shim (for example cell
+  alignment and caption placement), so migrating is an intentional visual
+  change rather than a drop-in swap.
 
 ## 1.0.0-beta.0 - 2026-06-16
 

@@ -12,7 +12,7 @@
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **Beta prerelease**: `tagflow_table` `1.0.0-beta.0` is aligned with
+> ⚠️ **Beta prerelease**: `tagflow_table` `1.0.0-beta.1` is aligned with
 > the Tagflow native rich content runtime beta line. APIs may change before the
 > stable `1.0.0` release.
 
@@ -24,7 +24,7 @@ deprecated shim through 1.x.
 
 ## ✨ Features
 
-- Integration with the `tagflow` `1.0.0-beta.0` runtime package
+- Integration with the `tagflow` `1.0.0-beta.1` runtime package
 - Semantic registry integration for native `TagflowDocument` table nodes
 - Deprecated HTML table converter shim, kept unchanged through 1.x
 - Support for complex table structures, headers, and merged cells
@@ -37,8 +37,8 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-beta.0
-  tagflow_table: ^1.0.0-beta.0
+  tagflow: ^1.0.0-beta.1
+  tagflow_table: ^1.0.0-beta.1
 ```
 
 ## Beta posture
@@ -57,13 +57,12 @@ Low-level render-object classes such as `TagflowTable`, `TableCell`,
 `RenderTagflowTable`, and `TableCellData` are package internals rather than the
 beta extension contract.
 
-The package's current `tagflow: ^1.0.0-beta.0` dependency constraint keeps the
-table extension aligned with the first Tagflow beta runtime. Apps should use
-`tagflow: ^1.0.0-beta.0` with `tagflow_table: ^1.0.0-beta.0` to validate the
-runtime-extension contract together. After
-`beta.0`, table-only patch or minor prereleases may move independently only
-when the `tagflow` constraint remains compatible with the current beta runtime
-and semantic registry API tests stay green.
+The package's `tagflow: ^1.0.0-beta.1` dependency constraint keeps the table
+extension aligned with the current Tagflow beta runtime. Upgrade `tagflow` and
+`tagflow_table` together, and pin exact versions in production apps. Table-only
+prereleases may move independently only when the `tagflow` constraint remains
+compatible with the current beta runtime and semantic registry API tests stay
+green.
 
 ## 🚀 Usage
 

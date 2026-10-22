@@ -19,7 +19,7 @@ Future<void> main() async {
 <p>A block in a language the highlighter does not know stays plain:</p>
 
 <pre><code class="language-yaml">dependencies:
-  tagflow: ^1.0.0-beta.0</code></pre>
+  tagflow: ^1.0.0-beta.1</code></pre>
 
 <p>Inline code such as <code>Tagflow.html(...)</code> is never highlighted.</p>
 ''';
