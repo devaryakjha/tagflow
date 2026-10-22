@@ -1,0 +1,2 @@
+# Test-only fixtures; keep them out of the published package.
+*

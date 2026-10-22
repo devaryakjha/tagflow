@@ -34,6 +34,10 @@ cd packages/tagflow && flutter test
 
 # Run a specific test file
 flutter test test/src/converter/converters/text_converter_test.dart
+
+# Run golden tests / regenerate baselines (Linux + Flutter from .fvmrc)
+melos run goldens
+melos run goldens:update
 ```
 
 ### Code Quality

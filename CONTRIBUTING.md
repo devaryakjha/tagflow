@@ -42,6 +42,35 @@ When adding support for HTML elements and attributes:
 3. Document any deviations from standard HTML behavior
 4. Add appropriate test cases
 
+### Golden Tests
+
+Golden tests (tagged `golden`) render every built-in node kind in light and
+dark themes and compare the result pixel by pixel against PNG baselines:
+
+- `packages/tagflow/test/goldens/` covers the core node kinds.
+- `packages/tagflow_table/test/goldens/` covers `tagflow_table`.
+
+They use bundled fonts from `packages/tagflow/test/goldens/fonts/` so text is
+legible and stable. Baselines are rendered on Linux with the Flutter version in
+`.fvmrc`, which is what CI runs; other platforms anti-alias text differently
+and will report small diffs, so regenerate baselines on Linux (or in a Linux
+container) only.
+
+```bash
+# Run only the golden tests
+dart run melos run goldens
+
+# Regenerate baselines after an intentional visual change
+dart run melos run goldens:update
+
+# Skip goldens locally on macOS or Windows
+flutter test --exclude-tags golden
+```
+
+When a golden fails, Flutter writes the diff images to a `failures/` folder
+next to the test. Review regenerated PNGs in the pull request diff before
+merging.
+
 ### Package Structure
 
 - Keep core functionality in the `tagflow` package
