@@ -5,5 +5,6 @@ export 'src/style/style.dart';
 export 'src/style/style_parser.dart';
 export 'src/style/theme.dart';
 export 'src/style/types.dart';
+export 'src/tagflow_markdown_stream_view.dart';
 export 'src/tagflow_options.dart';
 export 'src/tagflow_widget.dart';

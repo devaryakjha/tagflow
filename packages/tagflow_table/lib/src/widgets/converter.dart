@@ -1,4 +1,6 @@
-// ignore_for_file: lines_longer_than_80_chars
+// ignore_for_file: lines_longer_than_80_chars, deprecated_member_use
+// This file is the deprecated legacy converter shim. It intentionally builds on
+// tagflow's deprecated converter API until both are removed in 2.0.
 
 import 'package:flutter/material.dart' as material;
 import 'package:tagflow/legacy.dart';
@@ -25,8 +27,19 @@ class _GridCell {
   String toString() => '$ownerRow,$ownerCol';
 }
 
+/// Legacy HTML table converter backed by the first-party table render object.
+///
+/// Deprecated shim kept unchanged through 1.x. Compose
+/// `TagflowComponentRegistry(extensions: [tagflowTableComponents()])` with
+/// `Tagflow.html(...)` or `Tagflow.document(...)` instead.
+@Deprecated(
+  'Use tagflowTableComponents(...) with TagflowComponentRegistry instead. '
+  'Will be removed in tagflow_table 2.0.',
+)
 final class TagflowTableConverter
     extends ElementConverter<TagflowTableElement> {
+  /// Creates the legacy table converter.
+  @Deprecated('Use tagflowTableComponents(...) instead. Removed in 2.0.')
   const TagflowTableConverter({
     this.headerBackgroundColor,
     this.treatFirstRowAsHeader = false,
@@ -212,7 +225,17 @@ final class TagflowTableConverter
   }
 }
 
+/// Legacy HTML table cell converter paired with [TagflowTableConverter].
+///
+/// Deprecated shim kept unchanged through 1.x. `tagflowTableComponents(...)`
+/// renders cells itself, so the semantic runtime needs no cell converter.
+@Deprecated(
+  'Use tagflowTableComponents(...) with TagflowComponentRegistry instead. '
+  'Will be removed in tagflow_table 2.0.',
+)
 final class TagflowTableCellConverter extends TextConverter {
+  /// Creates the legacy table cell converter.
+  @Deprecated('Use tagflowTableComponents(...) instead. Removed in 2.0.')
   const TagflowTableCellConverter();
 
   @override

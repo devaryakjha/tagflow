@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   html: ^0.15.5
+  markdown: ^7.3.1
   meta: ^1.15.0
 
 dev_dependencies:

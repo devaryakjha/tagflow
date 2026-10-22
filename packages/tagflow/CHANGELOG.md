@@ -1,5 +1,46 @@
 ## Unreleased
 
+- Adds `TagflowMarkdownAdapter` and `Tagflow.markdown(markdown: ...)` for
+  GitHub Flavored Markdown (headings, emphasis, strikethrough, inline and
+  fenced code, lists, task lists, blockquotes, links, autolinks, images,
+  tables, footnotes and horizontal rules), built on `package:markdown`.
+  Markdown adapts into a normal `TagflowDocument`, so content policy, the
+  component registry and `tagflow_table` apply unchanged.
+- Assigns deterministic block-index node IDs to Markdown documents, so
+  re-adapting a longer prefix of the same Markdown keeps earlier IDs stable.
+- Adds `TagflowMarkdownRawHtmlBehavior` to adapt raw HTML in Markdown through
+  the HTML adapter and content policy (default), drop it, or keep it as
+  literal text.
+- Adds `TagflowMarkdownNodeMetadata` inspectors (`markdownTag`,
+  `isMarkdownTaskItem`, `markdownTaskChecked`, `isMarkdownRawHtml`).
+- Adds `TagflowMarkdownStream` and `TagflowMarkdownStreamView` for Markdown
+  that arrives in chunks, such as streamed AI answers. Only the open tail
+  block is re-parsed, closed blocks keep their ids and node instances,
+  partial fences, list markers and table headers are held back until they
+  are complete, and every change is published as `TagflowDocumentPatch`es.
+  Closing the stream yields the same document as a one-shot parse.
+- Adds `TagflowDocumentPatch.appendRootChildren` to append top-level nodes.
+- Compares nested maps and lists in `TagflowMetadata` by value, so equal
+  nodes adapted from raw HTML attributes compare equal.
+- Renders task list items with checkbox markers in the built-in list
+  component.
+- Deprecates the legacy converter API for removal in tagflow 2.0. Nothing is
+  removed or changed in behavior during 1.x; deprecated APIs only produce
+  analyzer warnings that name their runtime replacement:
+  - `package:tagflow/legacy.dart` (library-level deprecation), including
+    `ElementConverter`, `TagflowConverter`, `TagflowParser`, and
+    `TagflowHtmlDocumentBridge`. Use `TagflowComponentRegistry` with
+    `Tagflow.html(...)` / `Tagflow.document(...)`, and `TagflowHtmlAdapter`.
+  - The `converters:` parameter and field on `Tagflow`. Use `registry:`.
+  - The default `Tagflow(html: ...)` constructor. Use `Tagflow.html(...)`.
+  - `TagflowOptions`, the `options:` parameters on `Tagflow` and
+    `TagflowHtmlAdapter.parse(...)`, `Tagflow.options`, `TagflowScope.options`,
+    and the `TagflowScope(options: ...)` constructor. Use `TagflowViewOptions`
+    (`viewOptions:`) and `renderBoundary:`.
+  - The `ErrorWidgetBuilder` typedef. Use `TagflowErrorWidgetBuilder`.
+- Adds golden tests pinning `Tagflow.html(...)` output for representative HTML,
+  and proving deprecated entry points render pixel-identical output to their
+  replacements.
 - Adds `TagflowCodeBlockOptions` on `TagflowViewOptions.codeBlock` with a
   `TagflowCodeHighlighter` extension point for code block syntax highlighting,
   an optional copy-to-clipboard button, and an `onCopy` callback. Core keeps no

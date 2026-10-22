@@ -240,14 +240,18 @@ final class TagflowViewOptions extends Equatable {
   ];
 }
 
-/// Legacy alpha compatibility wrapper for runtime view options.
+/// Legacy compatibility wrapper for runtime view options.
 ///
-/// Prefer [TagflowViewOptions] for new code. [TagflowRenderBoundary] remains on
-/// this compatibility type so existing HTML-first usage continues to work while
-/// the alpha API moves HTML-only parsing behavior onto `Tagflow.html(...)` and
-/// the HTML adapter.
+/// Prefer [TagflowViewOptions] for new code, and pass [TagflowRenderBoundary]
+/// to `Tagflow.html(renderBoundary: ...)` or the HTML adapter. Kept unchanged
+/// through 1.x and removed in tagflow 2.0.
+@Deprecated(
+  'Use TagflowViewOptions (viewOptions:) and Tagflow.html(renderBoundary: ...) '
+  'instead. Will be removed in tagflow 2.0.',
+)
 final class TagflowOptions extends Equatable {
   /// Creates a new [TagflowOptions] instance.
+  @Deprecated('Use TagflowViewOptions instead. Will be removed in 2.0.')
   const TagflowOptions({
     this.debug = false,
     this.linkTapCallback,
@@ -265,6 +269,7 @@ final class TagflowOptions extends Equatable {
   });
 
   /// Creates legacy options from the new runtime view options.
+  @Deprecated('Use TagflowViewOptions instead. Will be removed in 2.0.')
   factory TagflowOptions.fromViewOptions(
     TagflowViewOptions options, {
     TagflowRenderBoundary? renderBoundary,
@@ -413,6 +418,10 @@ final class TagflowOptions extends Equatable {
 /// Scope for providing options to descendants
 class TagflowScope extends InheritedWidget {
   /// Creates a new legacy compatibility [TagflowScope].
+  @Deprecated(
+    'Use TagflowScope.view(viewOptions: ...) instead. '
+    'Will be removed in tagflow 2.0.',
+  )
   const TagflowScope({
     required TagflowOptions options,
     required super.child,
@@ -436,6 +445,7 @@ class TagflowScope extends InheritedWidget {
       _viewOptions ?? _legacyOptions!.toViewOptions();
 
   /// The legacy compatibility options exposed through [TagflowOptions.of].
+  @Deprecated('Use viewOptions instead. Will be removed in tagflow 2.0.')
   TagflowOptions get options =>
       _legacyOptions ?? TagflowOptions.fromViewOptions(viewOptions);
 

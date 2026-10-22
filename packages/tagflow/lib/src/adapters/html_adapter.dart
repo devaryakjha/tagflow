@@ -82,6 +82,10 @@ final class TagflowHtmlAdapter {
     Uri? uri,
     TagflowMetadata? metadata,
     TagflowViewOptions viewOptions = TagflowViewOptions.defaults,
+    @Deprecated(
+      'Use viewOptions and renderBoundary instead. '
+      'Will be removed in tagflow 2.0.',
+    )
     TagflowOptions? options,
     TagflowRenderBoundary? renderBoundary,
   }) {
@@ -159,8 +163,12 @@ extension TagflowHtmlNodeMetadata on TagflowDocumentNode {
 /// Transitional bridge from runtime documents into the legacy converter tree.
 //
 // This is intentionally kept behind package:tagflow/legacy.dart so existing
-// custom converter integrations can migrate during the beta support window. New
+// custom converter integrations can migrate during the 1.x support window. New
 // extension work should target semantic component registries instead.
+@Deprecated(
+  'Legacy converter bridge. Use TagflowComponentRegistry instead. '
+  'Will be removed in tagflow 2.0.',
+)
 abstract final class TagflowHtmlDocumentBridge {
   /// Converts [document] into the current converter-compatible node tree.
   static TagflowNode toLegacyNode(TagflowDocument document) {

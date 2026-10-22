@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
 final _initialBrief = TagflowDocument(
@@ -232,7 +233,10 @@ class _ReferenceAppRouteScreenState extends State<ReferenceAppRouteScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reference App Route')),
+      appBar: AppBar(
+        title: const Text('Reference App Route'),
+        actions: const [ThemeModeToggle()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

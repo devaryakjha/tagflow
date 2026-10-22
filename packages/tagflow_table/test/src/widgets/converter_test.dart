@@ -1,3 +1,7 @@
+// Exercises the deprecated legacy converter shim, which stays supported
+// through 1.x.
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow/legacy.dart';

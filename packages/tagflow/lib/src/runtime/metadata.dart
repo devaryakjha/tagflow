@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
+// Values may hold nested maps and lists (for example HTML attributes), so
+// compare them deeply.
 const MapEquality<String, Object?> _metadataEquality =
-    MapEquality<String, Object?>();
+    MapEquality<String, Object?>(values: DeepCollectionEquality());
 
 /// Immutable metadata attached to documents, nodes, or source records.
 @immutable

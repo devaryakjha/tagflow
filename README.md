@@ -37,12 +37,28 @@ the same runtime instead of the whole model.
 
 ## Packages
 
-- [`tagflow`](packages/tagflow) - core runtime, HTML adapter, native block
-  transport, content policy, and rendering APIs
+- [`tagflow`](packages/tagflow) - core runtime, HTML and Markdown adapters,
+  native block transport, content policy, and rendering APIs
 - [`tagflow_table`](packages/tagflow_table) - first-party table extension for
   semantic `TagflowDocument` table nodes and legacy HTML table compatibility
-- [`examples/tagflow`](examples/tagflow) - example Flutter app and benchmark
+- [`examples/tagflow`](examples/tagflow) - feature gallery app and benchmark
   host
+- [Seisei chat example](https://github.com/devaryakjha/seisei/tree/main/examples/chat) -
+  AI chat app that streams model answers into `TagflowMarkdownStream` and
+  renders structured output as Tagflow documents
+
+## Gallery
+
+The [example app](examples/tagflow) is a gallery of HTML, Markdown and native
+JSON input, live streaming, document patches, tables and the content policy,
+in light and dark themes.
+
+<p align="center">
+  <img src="assets/screenshots/gallery-markdown.png" alt="Markdown rendered by Tagflow" width="200" />
+  <img src="assets/screenshots/gallery-streaming.png" alt="A simulated token stream rendered as it arrives" width="200" />
+  <img src="assets/screenshots/gallery-patches.png" alt="Document patches that keep widget state" width="200" />
+  <img src="assets/screenshots/gallery-markdown-dark.png" alt="Markdown in the dark theme" width="200" />
+</p>
 
 ## Install
 
@@ -65,6 +81,12 @@ Render HTML through the adapter entry point:
 
 ```dart
 Tagflow.html(html: htmlContent);
+```
+
+Render Markdown, such as an AI answer, through the Markdown adapter:
+
+```dart
+Tagflow.markdown(markdown: answer);
 ```
 
 Render a native document directly:
@@ -133,9 +155,9 @@ dart run melos run publish:dry-run
 ```text
 packages/tagflow/             Core runtime and HTML adapter
 packages/tagflow_table/       First-party table extension
-packages/tagflow_benchmarks/  Benchmark and release-gate tooling
-examples/tagflow/             Example app, routes, and profile host
-docs/                         Specs, migration notes, and release evidence
+packages/tagflow_benchmarks/  Parser, render and native-transport microbenchmarks
+examples/tagflow/             Example app
+docs/                         Specs and migration notes
 ```
 
 ## Releases
