@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tagflow_example/utils/router.dart';
 import 'package:tagflow_example/utils/style/theme.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 
 class TagflowExample extends StatefulWidget {
   const TagflowExample({super.key});
@@ -34,12 +35,16 @@ class _TagflowExampleState extends State<TagflowExample> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        return MaterialApp.router(
-          theme: AppTheme.theme,
-          darkTheme: AppTheme.darkTheme,
-          debugShowCheckedModeBanner: false,
-          title: 'Tagflow Example',
-          routerConfig: router,
+        return ValueListenableBuilder(
+          valueListenable: themeMode,
+          builder: (context, mode, _) => MaterialApp.router(
+            theme: AppTheme.theme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: mode,
+            debugShowCheckedModeBanner: false,
+            title: 'Tagflow Gallery',
+            routerConfig: router,
+          ),
         );
       },
     );

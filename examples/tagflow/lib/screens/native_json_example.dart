@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 
 const _codec = TagflowNativeBlockCodec();
 const _adapter = TagflowNativeBlockAdapter();
@@ -244,7 +245,10 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Native JSON Transport')),
+      appBar: AppBar(
+        title: const Text('Native JSON Transport'),
+        actions: const [ThemeModeToggle()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

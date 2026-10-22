@@ -1,16 +1,43 @@
-# tagflow
+# Tagflow gallery
 
-A new Flutter project.
+The example app for [Tagflow](../../README.md). Each screen shows one part of
+the runtime, and every screen has a light and dark theme toggle in its app bar.
 
-## Getting Started
+<p>
+  <img src="../../assets/screenshots/gallery-home.png" alt="Gallery home" width="180" />
+  <img src="../../assets/screenshots/gallery-markdown.png" alt="Markdown screen" width="180" />
+  <img src="../../assets/screenshots/gallery-streaming.png" alt="Live streaming screen" width="180" />
+  <img src="../../assets/screenshots/gallery-patches.png" alt="Document patches screen" width="180" />
+</p>
 
-This project is a starting point for a Flutter application.
+| Section | Screen | What it shows |
+| --- | --- | --- |
+| Inputs | HTML typography, HTML article | `Tagflow.html(...)` through `TagflowHtmlAdapter` |
+| Inputs | Markdown | GitHub Flavored Markdown through `Tagflow.markdown(...)` |
+| Inputs | Native JSON Transport | `TagflowNativeBlockCodec` documents and patch envelopes |
+| Live content | Live streaming | A simulated token stream in `TagflowMarkdownStream` and `TagflowMarkdownStreamView`, with no network |
+| Live content | Document patches | `appendRootChildren`, `insertBefore`, `replaceNode` and `removeNode`, with widget state kept across patches |
+| Components | Tables, Images, Code blocks | Built-in components and the `tagflow_table` extension |
+| Safety | Content policy | Blocked tags and URLs, dropped or kept as placeholders |
+| Validation | Reference App Route, Internal App Validation | Fixtures for app-authored content |
 
-A few resources to get you started if this is your first Flutter project:
+## Run it
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+From the repository root, after `dart pub get` and
+`dart run melos bootstrap`:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cd examples/tagflow
+flutter run
+```
+
+## Tests
+
+`test/gallery_smoke_test.dart` opens every route and fails on any render
+error, so a new screen gets a smoke test as soon as it is added to
+`allExamples` in `lib/utils/examples.dart`. Behavior tests for the newer
+screens are in `test/gallery_routes_test.dart`.
+
+```bash
+flutter test
+```

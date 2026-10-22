@@ -201,6 +201,40 @@ Use this for app-owned interactions such as callouts, cards, or list items.
 HTML-adapted nodes can still surface authored IDs and metadata through
 `TagflowNodeTapDetails.node`.
 
+### Code Blocks
+
+Code blocks render as plain monospace text by default. Tagflow core does not
+depend on a syntax highlighter; instead, pass a `TagflowCodeHighlighter`
+function that turns the source into a `TextSpan`, and opt into a copy button:
+
+```dart
+Tagflow.document(
+  document,
+  viewOptions: TagflowViewOptions(
+    codeBlock: TagflowCodeBlockOptions(
+      highlighter: (context, request) {
+        // request.language is normalized, so `language-dart` becomes `dart`.
+        if (request.language != 'dart') return null; // plain fallback
+        return TextSpan(
+          style: request.style,
+          children: myHighlighter.highlight(request.source),
+        );
+      },
+      showCopyButton: true,
+      onCopy: (details) {
+        // details.source was written to the clipboard.
+      },
+    ),
+  ),
+);
+```
+
+Any Dart highlighting package that produces styled ranges or spans can be
+plugged in this way, for example by mapping a package's tokens or nodes to
+`TextSpan`s inside the highlighter. Returning `null` keeps the default plain
+rendering for that block. For HTML input, the language comes from the `class`
+of the `<pre>` element or of its `<code>` child.
+
 ### Native JSON Transport
 
 Use `TagflowNativeBlockCodec` when a trusted app backend, CMS, or AI pipeline
