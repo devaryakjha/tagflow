@@ -121,6 +121,16 @@ void main() {
     expect(markdownItem.markdownTag, 'li');
     expect(markdownItem.markdownTaskChecked, isTrue);
     expect(const api.Tagflow.markdown(markdown: '# Hi').markdown, '# Hi');
+    final markdownStream = api.TagflowMarkdownStream()..add('# Hi');
+    expect(
+      api.TagflowMarkdownStreamView(stream: markdownStream).stream,
+      markdownStream,
+    );
+    expect(
+      markdownStream.updates,
+      isA<Stream<api.TagflowMarkdownStreamUpdate>>(),
+    );
+    markdownStream.dispose();
     expect(
       nativeDocument.blocks.single.kind,
       api.TagflowNativeBlockKind.callout,

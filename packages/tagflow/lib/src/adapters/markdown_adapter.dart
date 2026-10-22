@@ -76,11 +76,22 @@ final class TagflowMarkdownAdapter {
     Uri? uri,
     TagflowMetadata? metadata,
   }) {
-    final source = TagflowSourceInfo(
-      kind: TagflowSourceKind.markdown,
-      adapter: _markdownAdapterName,
-      uri: uri,
+    final source = _markdownSource(uri);
+    return TagflowDocument(
+      id: id ?? _documentIdFor(markdown),
+      children: [
+        ..._adaptBlocks(markdown, source: source, firstBlockIndex: 0).nonNulls,
+      ],
+      metadata: metadata,
+      source: source,
     );
+  }
+
+  List<TagflowDocumentNode?> _adaptBlocks(
+    String markdown, {
+    required TagflowSourceInfo source,
+    required int firstBlockIndex,
+  }) {
     final document = md.Document(
       extensionSet: md.ExtensionSet.gitHubFlavored,
       blockSyntaxes: const [_RawHtmlBlockSyntax()],
@@ -94,17 +105,38 @@ final class TagflowMarkdownAdapter {
       source: source,
     );
 
-    return TagflowDocument(
-      id: id ?? _documentIdFor(markdown),
-      children: [
-        for (final indexed in _withoutBlankText(blocks).indexed)
-          if (context.adaptNode(indexed.$2, [indexed.$1]) case final node?)
-            node,
-      ],
-      metadata: metadata,
-      source: source,
-    );
+    return [
+      for (final (index, block) in _withoutBlankText(blocks).indexed)
+        context.adaptNode(block, [firstBlockIndex + index]),
+    ];
   }
+}
+
+/// Adapts the top-level blocks of [markdown] as if they started at block
+/// [firstBlockIndex] of a larger document.
+///
+/// Entry `i` is the node for Markdown block `firstBlockIndex + i`, or `null`
+/// when the content policy dropped it. Used by `TagflowMarkdownStream` to
+/// re-parse only the open tail of a stream; hidden from the package barrel.
+List<TagflowDocumentNode?> tagflowAdaptMarkdownBlocks(
+  TagflowMarkdownAdapter adapter,
+  String markdown, {
+  int firstBlockIndex = 0,
+  Uri? uri,
+}) {
+  return adapter._adaptBlocks(
+    markdown,
+    source: _markdownSource(uri),
+    firstBlockIndex: firstBlockIndex,
+  );
+}
+
+TagflowSourceInfo _markdownSource(Uri? uri) {
+  return TagflowSourceInfo(
+    kind: TagflowSourceKind.markdown,
+    adapter: _markdownAdapterName,
+    uri: uri,
+  );
 }
 
 /// Read-only node metadata exposed by the Markdown adapter.
