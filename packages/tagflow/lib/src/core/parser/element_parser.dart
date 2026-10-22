@@ -17,7 +17,10 @@ class ElementParser extends NodeParser<TagflowElement> {
   @override
   TagflowElement? tryParse(dom.Node node, TagflowParser parser) {
     if (node is dom.Text) {
-      final text = normalizeWhitespace(node.text);
+      // Text inside <pre> keeps its spaces and tabs (white-space: pre).
+      final text = isPreformatted(node)
+          ? node.text
+          : normalizeWhitespace(node.text);
       return text.isEmpty ? TagflowElement.empty() : TagflowElement.text(text);
     }
 

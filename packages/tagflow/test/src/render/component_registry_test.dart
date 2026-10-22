@@ -209,20 +209,13 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
 
-      expect(find.text('Hello '), findsOneWidget);
-      expect(find.text('bold'), findsOneWidget);
-      expect(find.text(' and '), findsNWidgets(2));
-      expect(find.text('italic'), findsOneWidget);
-      expect(find.text('marked'), findsOneWidget);
+      expect(
+        find.text('Hello bold and italic and marked', findRichText: true),
+        findsOneWidget,
+      );
       expect(_richTextStyle(tester, 'bold')?.fontWeight, FontWeight.w700);
       expect(_richTextStyle(tester, 'italic')?.fontStyle, FontStyle.italic);
-      expect(
-        find.ancestor(
-          of: find.text('marked'),
-          matching: find.byType(DecoratedBox),
-        ),
-        findsWidgets,
-      );
+      expect(_richTextStyle(tester, 'marked')?.backgroundColor, isNotNull);
     });
 
     testWidgets('keeps html hint fallback for legacy unsupported nodes', (
@@ -248,7 +241,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
 
-      expect(find.text('bold'), findsOneWidget);
+      expect(find.text('bold', findRichText: true), findsOneWidget);
       expect(_richTextStyle(tester, 'bold')?.fontWeight, FontWeight.w700);
     });
 
@@ -700,12 +693,8 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(home: Tagflow.document(document)));
 
-      expect(find.text('Read '), findsOneWidget);
-      expect(find.text('more'), findsOneWidget);
-      expect(
-        tester.getTopLeft(find.text('Read ')).dy,
-        tester.getTopLeft(find.text('more')).dy,
-      );
+      expect(find.text('Read more', findRichText: true), findsOneWidget);
+      expect(_richTextStyle(tester, 'more')?.fontWeight, FontWeight.w700);
     });
 
     testWidgets('renders native blockquote and code styling', (tester) async {
@@ -888,15 +877,23 @@ final class _StatefulParagraphLabelState
   }
 }
 
+/// Effective style of the innermost rendered text run equal to [text],
+/// whether it is a whole [RichText] or a span nested inside one.
 TextStyle? _richTextStyle(WidgetTester tester, String text) {
-  final finder = find.byWidgetPredicate((widget) {
-    if (widget is! RichText) return false;
-    return widget.text.toPlainText() == text;
-  });
-
-  if (finder.evaluate().isEmpty) {
-    return null;
+  TextStyle? styleOf(InlineSpan span, TextStyle? inherited) {
+    final style = inherited?.merge(span.style) ?? span.style;
+    if (span is TextSpan) {
+      for (final child in span.children ?? const <InlineSpan>[]) {
+        final match = styleOf(child, style);
+        if (match != null) return match;
+      }
+    }
+    return span.toPlainText() == text ? style : null;
   }
 
-  return tester.widget<RichText>(finder.first).text.style;
+  for (final widget in tester.widgetList<RichText>(find.byType(RichText))) {
+    final match = styleOf(widget.text, null);
+    if (match != null) return match;
+  }
+  return null;
 }

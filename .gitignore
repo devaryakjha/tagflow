@@ -56,3 +56,6 @@ examples/tagflow/packages/
 
 
 .DS_Store
+
+# Golden test failure output
+**/failures/

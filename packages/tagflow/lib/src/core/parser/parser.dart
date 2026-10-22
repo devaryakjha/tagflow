@@ -113,7 +113,9 @@ class TagflowParser {
           wasRendering ||
           (state?.isRendering ?? false) ||
           (state?.isStopped ?? false);
-      if (canAddNode && parsedNode != null && isValidNode(parsedNode)) {
+      if (canAddNode &&
+          parsedNode != null &&
+          (isValidNode(parsedNode) || _keepsWhitespace(node))) {
         parsedNodes.add(parsedNode);
       }
       if (state?.isStopped ?? false) break;
@@ -145,6 +147,35 @@ class TagflowParser {
     return node.hasChildren || node.children.every(isValidNode);
   }
 
+  /// Whether a whitespace-only text [node] is significant: inside `<pre>`,
+  /// or between two inline siblings such as `<b>a</b> <i>b</i>`, where the
+  /// HTML specification renders it as one space.
+  bool _keepsWhitespace(dom.Node node) {
+    if (node is! dom.Text || node.text.isEmpty) return false;
+    for (var parent = node.parent; parent != null; parent = parent.parent) {
+      if (parent.localName == 'pre') return true;
+    }
+
+    final siblings = node.parent?.nodes;
+    if (siblings == null) return false;
+    final index = siblings.indexOf(node);
+    return _isInlineSibling(siblings, index, -1) &&
+        _isInlineSibling(siblings, index, 1);
+  }
+
+  bool _isInlineSibling(dom.NodeList siblings, int index, int step) {
+    for (var i = index + step; i >= 0 && i < siblings.length; i += step) {
+      final sibling = siblings[i];
+      if (sibling is dom.Comment) continue;
+      if (sibling is dom.Text) return sibling.text.trim().isNotEmpty;
+      if (sibling is dom.Element) {
+        return _inlineHtmlTags.contains(sibling.localName?.toLowerCase());
+      }
+      return false;
+    }
+    return false;
+  }
+
   bool _handleRenderBoundary(dom.Node node, _RenderBoundaryState state) {
     final boundary = renderBoundary;
     if (boundary == null || node is! dom.Comment) return false;
@@ -173,6 +204,39 @@ class TagflowParser {
     return false;
   }
 }
+
+/// HTML elements that are inline-level by default.
+const _inlineHtmlTags = {
+  'a',
+  'abbr',
+  'b',
+  'bdi',
+  'bdo',
+  'br',
+  'cite',
+  'code',
+  'data',
+  'del',
+  'dfn',
+  'em',
+  'i',
+  'img',
+  'ins',
+  'kbd',
+  'label',
+  'mark',
+  'q',
+  's',
+  'samp',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'sup',
+  'time',
+  'u',
+  'var',
+};
 
 class _RenderBoundaryState {
   _RenderBoundaryState(TagflowRenderBoundary? boundary)

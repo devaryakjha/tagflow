@@ -41,6 +41,15 @@ abstract class NodeParser<T extends TagflowNode> {
         .join('\n'); // Rejoin with newlines
   }
 
+  /// Whether [node] sits inside a `<pre>` element, where the HTML
+  /// specification preserves whitespace.
+  bool isPreformatted(dom.Node node) {
+    for (var parent = node.parent; parent != null; parent = parent.parent) {
+      if (parent.localName == 'pre') return true;
+    }
+    return false;
+  }
+
   String _normalizeStyle(String style) {
     return style
         .split(';')

@@ -106,7 +106,7 @@ final class TagflowHtmlAdapter {
 
     return TagflowDocument(
       id: id ?? _documentIdFor(html),
-      children: [
+      children: _HtmlWhitespaceCollapser().block([
         for (final indexed in rootNodes.indexed)
           if (_documentNodeFromLegacy(
                 indexed.$2,
@@ -117,7 +117,7 @@ final class TagflowHtmlAdapter {
               )
               case final node?)
             node,
-      ],
+      ]),
       metadata: metadata,
       source: source,
     );
@@ -410,6 +410,13 @@ TagflowDocumentNode? _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
+    'br' => TagflowDocumentNode.text(
+      id: id,
+      text: '\n',
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
     'hr' => TagflowDocumentNode.horizontalRule(
       id: id,
       metadata: metadata,
@@ -456,6 +463,149 @@ TagflowDocumentNode? _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
+  };
+}
+
+/// Collapses HTML source whitespace the way CSS `white-space: normal` does.
+///
+/// Runs of spaces, tabs and newlines become one space, a space that follows
+/// another (even across inline element boundaries) is dropped, and spaces at
+/// the start and end of each block are removed. `<br>` is the only line
+/// break. Code blocks keep their text as written.
+final class _HtmlWhitespaceCollapser {
+  static final _whitespace = RegExp(r'[ \t\n\r\f]+');
+
+  /// Whether the next text starts a line, or follows a collapsible space.
+  bool _skipLeadingSpace = true;
+
+  List<TagflowDocumentNode> block(List<TagflowDocumentNode> children) {
+    final saved = _skipLeadingSpace;
+    _skipLeadingSpace = true;
+    final result = <TagflowDocumentNode>[];
+    for (final child in children) {
+      if (_isInlineHtmlNode(child)) {
+        if (_isLineBreak(child)) _trimTrailing(result);
+        if (_inline(child) case final node?) result.add(node);
+        continue;
+      }
+      _trimTrailing(result);
+      result.add(_block(child));
+      _skipLeadingSpace = true;
+    }
+    _trimTrailing(result);
+    _skipLeadingSpace = saved;
+    return result;
+  }
+
+  TagflowDocumentNode _block(TagflowDocumentNode node) {
+    if (node.kind == TagflowNodeKind.codeBlock || node.children.isEmpty) {
+      return node;
+    }
+    return node.copyWith(children: block(node.children));
+  }
+
+  TagflowDocumentNode? _inline(TagflowDocumentNode node) {
+    if (_isLineBreak(node)) {
+      _skipLeadingSpace = true;
+      return node;
+    }
+
+    if (node.kind == TagflowNodeKind.text) {
+      var text = (node.text ?? '').replaceAll(_whitespace, ' ');
+      if (_skipLeadingSpace && text.startsWith(' ')) text = text.substring(1);
+      if (text.isEmpty) return null;
+      _skipLeadingSpace = text.endsWith(' ');
+      return text == node.text ? node : node.copyWith(text: text);
+    }
+
+    if (node.children.isEmpty) {
+      _skipLeadingSpace = false;
+      return node;
+    }
+
+    final children = <TagflowDocumentNode>[];
+    for (final child in node.children) {
+      if (_isInlineHtmlNode(child)) {
+        if (_inline(child) case final inline?) children.add(inline);
+      } else {
+        children.add(_block(child));
+        _skipLeadingSpace = true;
+      }
+    }
+    return node.copyWith(children: children);
+  }
+
+  /// Removes the trailing space of the inline run ending [nodes].
+  void _trimTrailing(List<TagflowDocumentNode> nodes) {
+    while (nodes.isNotEmpty) {
+      final last = nodes.last;
+      if (!_isInlineHtmlNode(last) || _isLineBreak(last)) return;
+
+      if (last.kind == TagflowNodeKind.text) {
+        final text = last.text ?? '';
+        if (!text.endsWith(' ')) return;
+        final trimmed = text.substring(0, text.length - 1);
+        if (trimmed.isNotEmpty) {
+          nodes.last = last.copyWith(text: trimmed);
+          return;
+        }
+        nodes.removeLast();
+        continue;
+      }
+
+      if (last.children.isEmpty) return;
+      final children = [...last.children];
+      _trimTrailing(children);
+      nodes.last = last.copyWith(children: children);
+      return;
+    }
+  }
+
+  static bool _isLineBreak(TagflowDocumentNode node) {
+    return node.kind == TagflowNodeKind.text && node.htmlTag == 'br';
+  }
+
+  static bool _isInlineHtmlNode(TagflowDocumentNode node) {
+    return switch (node.kind) {
+      TagflowNodeKind.text ||
+      TagflowNodeKind.link ||
+      TagflowNodeKind.inlineCode ||
+      TagflowNodeKind.image => true,
+      TagflowNodeKind.container ||
+      TagflowNodeKind.unsupported => _inlineHtmlTags.contains(node.htmlTag),
+      _ => false,
+    };
+  }
+
+  /// HTML elements that are inline-level by default.
+  static const _inlineHtmlTags = {
+    'a',
+    'abbr',
+    'b',
+    'bdi',
+    'bdo',
+    'cite',
+    'code',
+    'data',
+    'del',
+    'dfn',
+    'em',
+    'i',
+    'ins',
+    'kbd',
+    'label',
+    'mark',
+    'q',
+    's',
+    'samp',
+    'small',
+    'span',
+    'strong',
+    'sub',
+    'sup',
+    'time',
+    'u',
+    'var',
   };
 }
 
