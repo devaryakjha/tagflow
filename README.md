@@ -41,8 +41,21 @@ the same runtime instead of the whole model.
   native block transport, content policy, and rendering APIs
 - [`tagflow_table`](packages/tagflow_table) - first-party table extension for
   semantic `TagflowDocument` table nodes and legacy HTML table compatibility
-- [`examples/tagflow`](examples/tagflow) - example Flutter app and benchmark
+- [`examples/tagflow`](examples/tagflow) - feature gallery app and benchmark
   host
+
+## Gallery
+
+The [example app](examples/tagflow) is a gallery of HTML, Markdown and native
+JSON input, live streaming, document patches, tables and the content policy,
+in light and dark themes.
+
+<p align="center">
+  <img src="assets/screenshots/gallery-markdown.png" alt="Markdown rendered by Tagflow" width="200" />
+  <img src="assets/screenshots/gallery-streaming.png" alt="A simulated token stream rendered as it arrives" width="200" />
+  <img src="assets/screenshots/gallery-patches.png" alt="Document patches that keep widget state" width="200" />
+  <img src="assets/screenshots/gallery-markdown-dark.png" alt="Markdown in the dark theme" width="200" />
+</p>
 
 ## Install
 

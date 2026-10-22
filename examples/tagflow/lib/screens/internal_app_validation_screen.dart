@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
 final _validationDocument = TagflowDocument(
@@ -238,7 +239,10 @@ class _InternalAppValidationScreenState
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Internal App Validation')),
+      appBar: AppBar(
+        title: const Text('Internal App Validation'),
+        actions: const [ThemeModeToggle()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

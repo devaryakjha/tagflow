@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tagflow/tagflow.dart';
+import 'package:tagflow_example/utils/theme_mode.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 final _key = GlobalKey<_ExamplePageState>();
@@ -30,7 +31,7 @@ abstract class ExamplePage extends StatefulWidget {
   }
 
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar(title: Text(title));
+    return AppBar(title: Text(title), actions: const [ThemeModeToggle()]);
   }
 
   @override
