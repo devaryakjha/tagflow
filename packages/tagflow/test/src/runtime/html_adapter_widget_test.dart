@@ -10,14 +10,12 @@ void main() {
       const html = '<p>Hello <strong>runtime</strong></p>';
 
       await tester.pumpWidget(const MaterialApp(home: Tagflow(html: html)));
-      expect(find.text('Hello '), findsOneWidget);
-      expect(find.text('runtime'), findsOneWidget);
+      expect(find.text('Hello runtime', findRichText: true), findsOneWidget);
 
       await tester.pumpWidget(
         const MaterialApp(home: Tagflow.html(html: html)),
       );
-      expect(find.text('Hello '), findsOneWidget);
-      expect(find.text('runtime'), findsOneWidget);
+      expect(find.text('Hello runtime', findRichText: true), findsOneWidget);
     });
 
     testWidgets('html entrypoints render built-ins through semantic runtime', (
@@ -48,18 +46,13 @@ void main() {
         const MaterialApp(home: Tagflow.html(html: html)),
       );
 
-      expect(find.text('Bold'), findsOneWidget);
-      expect(find.text('Italic'), findsOneWidget);
-      expect(find.text('Marked'), findsOneWidget);
+      expect(
+        find.text('Bold Italic Marked', findRichText: true),
+        findsOneWidget,
+      );
       expect(_richTextStyle(tester, 'Bold')?.fontWeight, FontWeight.w700);
       expect(_richTextStyle(tester, 'Italic')?.fontStyle, FontStyle.italic);
-      expect(
-        find.ancestor(
-          of: find.text('Marked'),
-          matching: find.byType(DecoratedBox),
-        ),
-        findsWidgets,
-      );
+      expect(_richTextStyle(tester, 'Marked')?.backgroundColor, isNotNull);
     });
 
     testWidgets('html entrypoint renders table captions through built-ins', (
@@ -994,17 +987,25 @@ Finder _textWidgetWithSpan(String text) {
   });
 }
 
+/// Effective style of the innermost rendered text run equal to [text],
+/// whether it is a whole [RichText] or a span nested inside one.
 TextStyle? _richTextStyle(WidgetTester tester, String text) {
-  final finder = find.byWidgetPredicate((widget) {
-    if (widget is! RichText) return false;
-    return widget.text.toPlainText() == text;
-  });
-
-  if (finder.evaluate().isEmpty) {
-    return null;
+  TextStyle? styleOf(InlineSpan span, TextStyle? inherited) {
+    final style = inherited?.merge(span.style) ?? span.style;
+    if (span is TextSpan) {
+      for (final child in span.children ?? const <InlineSpan>[]) {
+        final match = styleOf(child, style);
+        if (match != null) return match;
+      }
+    }
+    return span.toPlainText() == text ? style : null;
   }
 
-  return tester.widget<RichText>(finder.first).text.style;
+  for (final widget in tester.widgetList<RichText>(find.byType(RichText))) {
+    final match = styleOf(widget.text, null);
+    if (match != null) return match;
+  }
+  return null;
 }
 
 List<TagflowNode> _findLegacyTags(TagflowNode node, String tag) {

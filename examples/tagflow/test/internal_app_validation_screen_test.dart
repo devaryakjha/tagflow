@@ -28,7 +28,10 @@ void main() {
     await tester.pump();
 
     expect(find.text('Controlled HTML probe'), findsOneWidget);
-    expect(find.text('safe policy link'), findsOneWidget);
+    expect(
+      find.textContaining('safe policy link', findRichText: true),
+      findsOneWidget,
+    );
   });
 
   testWidgets('records native document link taps', (tester) async {

@@ -1,5 +1,22 @@
 ## Unreleased
 
+- Renders the inline children of paragraphs, headings, links, list items and
+  other text blocks as one `Text.rich` with nested spans, so bold, italic,
+  links and inline code wrap word by word instead of breaking onto their own
+  lines (#95). App overrides, extension components, node tap targets and
+  images are still rendered through the registry, embedded as `WidgetSpan`s.
+  Widget tests that used `find.text` for a single inline run should use
+  `find.text(..., findRichText: true)` on the whole block text instead.
+- Collapses HTML source whitespace the way CSS `white-space: normal` does:
+  the space between adjacent inline elements is kept (`Strong bold` no longer
+  renders as `Strongbold`), source newlines become spaces, and `<br>` is the
+  only line break (#98).
+- Preserves spaces and tabs inside `<pre>`, so code blocks keep their
+  indentation (#99).
+- Tints built-in surfaces and borders (code blocks, inline code,
+  blockquotes, tables, horizontal rules, the unsupported chip) from the
+  ambient text color, so they stay visible in dark themes, and uses a lighter
+  link color on dark backgrounds (#100).
 - Adds `TagflowMarkdownAdapter` and `Tagflow.markdown(markdown: ...)` for
   GitHub Flavored Markdown (headings, emphasis, strikethrough, inline and
   fenced code, lists, task lists, blockquotes, links, autolinks, images,
