@@ -19,7 +19,7 @@ melos:
   command:
     version:
       linkToCommits: true
-      workspaceChangelog: true
+      workspaceChangelog: false
       releaseUrl: true
 
   scripts:
