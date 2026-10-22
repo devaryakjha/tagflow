@@ -43,6 +43,9 @@ the same runtime instead of the whole model.
   semantic `TagflowDocument` table nodes and legacy HTML table compatibility
 - [`examples/tagflow`](examples/tagflow) - example Flutter app and benchmark
   host
+- [Seisei chat example](https://github.com/devaryakjha/seisei/tree/main/examples/chat) -
+  AI chat app that streams model answers into `TagflowMarkdownStream` and
+  renders structured output as Tagflow documents
 
 ## Install
 
