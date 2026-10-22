@@ -301,7 +301,9 @@ Widget _renderList(TagflowComponentContext context, TagflowDocumentNode node) {
       final row = _renderListRow(
         context,
         child,
-        marker: (node.ordered ?? false) ? '${startIndex + index}.' : '•',
+        marker:
+            _taskMarker(child) ??
+            ((node.ordered ?? false) ? '${startIndex + index}.' : '•'),
       );
       children.add(
         KeyedSubtree(
@@ -328,7 +330,16 @@ Widget _renderListItem(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  return _renderListRow(context, node, marker: '•');
+  return _renderListRow(context, node, marker: _taskMarker(node) ?? '•');
+}
+
+/// Checkbox marker for task list items, such as GFM `- [x] done`.
+String? _taskMarker(TagflowDocumentNode node) {
+  return switch (node.metadata['taskChecked']) {
+    true => '☑',
+    false => '☐',
+    _ => null,
+  };
 }
 
 Widget _renderListRow(

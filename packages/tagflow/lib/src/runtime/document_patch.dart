@@ -26,6 +26,19 @@ final class TagflowDocumentPatch {
        _node = null,
        _children = List.unmodifiable(children);
 
+  /// Creates a patch that appends [children] to the top level of the
+  /// document, after its existing top-level nodes.
+  ///
+  /// Top-level nodes have no parent node, so this is the only way to add a
+  /// node to an empty document or after its last top-level node.
+  TagflowDocumentPatch.appendRootChildren({
+    required List<TagflowDocumentNode> children,
+  }) : _kind = _TagflowDocumentPatchKind.appendRootChildren,
+       _targetNodeId = null,
+       _targetArgumentName = 'children',
+       _node = null,
+       _children = List.unmodifiable(children);
+
   /// Creates a patch that inserts [nodes] before the existing sibling node.
   TagflowDocumentPatch.insertBefore({
     required String siblingNodeId,
@@ -45,7 +58,7 @@ final class TagflowDocumentPatch {
       _children = const [];
 
   final _TagflowDocumentPatchKind _kind;
-  final String _targetNodeId;
+  final String? _targetNodeId;
   final String _targetArgumentName;
   final TagflowDocumentNode? _node;
   final List<TagflowDocumentNode> _children;
@@ -60,9 +73,11 @@ extension TagflowDocumentUpdates on TagflowDocument {
   /// current or updated document contains duplicate node IDs.
   TagflowDocument applyPatch(TagflowDocumentPatch patch) {
     validateUniqueNodeIdsInChildren(children);
-    if (!containsNodeIdInChildren(children, patch._targetNodeId)) {
+    final targetNodeId = patch._targetNodeId;
+    if (targetNodeId != null &&
+        !containsNodeIdInChildren(children, targetNodeId)) {
       throw ArgumentError.value(
-        patch._targetNodeId,
+        targetNodeId,
         patch._targetArgumentName,
         'No TagflowDocumentNode exists with this id.',
       );
@@ -71,22 +86,27 @@ extension TagflowDocumentUpdates on TagflowDocument {
     final updatedChildren = switch (patch._kind) {
       _TagflowDocumentPatchKind.replaceNode => _replaceNode(
         children,
-        patch._targetNodeId,
+        targetNodeId!,
         _validatedReplacement(patch),
       ),
       _TagflowDocumentPatchKind.appendChildren => _appendChildren(
         children,
-        patch._targetNodeId,
+        targetNodeId!,
         patch._children,
       ),
+      _TagflowDocumentPatchKind.appendRootChildren =>
+        List<TagflowDocumentNode>.unmodifiable([
+          ...children,
+          ...patch._children,
+        ]),
       _TagflowDocumentPatchKind.insertBefore => _insertBefore(
         children,
-        patch._targetNodeId,
+        targetNodeId!,
         patch._children,
       ),
       _TagflowDocumentPatchKind.removeNode => _removeNode(
         children,
-        patch._targetNodeId,
+        targetNodeId!,
       ),
     };
     validateUniqueNodeIdsInChildren(updatedChildren);
@@ -108,6 +128,7 @@ extension TagflowDocumentUpdates on TagflowDocument {
 enum _TagflowDocumentPatchKind {
   replaceNode,
   appendChildren,
+  appendRootChildren,
   insertBefore,
   removeNode,
 }

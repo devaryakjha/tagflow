@@ -1,220 +1,173 @@
-# AGENTS.md
+# Contributor guide
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This is the single guide for people and coding agents working in this
+repository. `CLAUDE.md` points here; keep project guidance in this file only.
 
-## Project Overview
+## What Tagflow is
 
-Tagflow is a Flutter HTML rendering engine that transforms HTML markup into native Flutter widgets. It's a monorepo managed with Melos containing multiple packages:
+Tagflow is a native rich content runtime for Flutter. Content is described by
+a typed, immutable `TagflowDocument` tree and rendered to native Flutter
+widgets through a component registry. HTML is one input among several: it
+goes through a first-party adapter into the same document model.
 
-- `packages/tagflow` - Core HTML-to-Flutter converter package
-- `packages/tagflow_table` - Table rendering extension
-- `examples/tagflow` - Example Flutter application
+`main` carries the `1.0.0-beta` line. The `stable` branch keeps the `0.0.x`
+HTML-renderer line (latest `0.0.8`) and only takes fixes.
 
-## Development Commands
+## Workspace
 
-### Initial Setup
+A Dart pub workspace driven by Melos (root `pubspec.yaml`):
+
+| Path | What it is |
+| --- | --- |
+| `packages/tagflow` | Core runtime, adapters, renderer, style and theme |
+| `packages/tagflow_table` | First-party table extension (registry fragment plus legacy HTML converter) |
+| `packages/tagflow_benchmarks` | Parser, render and native-transport microbenchmarks (not published) |
+| `examples/tagflow` | Example app (not published) |
+| `docs/specs` | Design specs for the runtime, transport, patches and API freeze |
+| `docs/migration` | Migration notes for users moving between lines |
+
+The Flutter version is pinned in `.fvmrc`. CI reads the same file, so use that
+version locally (`fvm use` or a matching `flutter` on your PATH).
+
+## Commands
+
+Run everything from the repository root. Melos is a dev dependency, so there
+is nothing to install globally.
+
 ```bash
-# Install Melos globally
-dart pub global activate melos
-
-# Bootstrap the workspace (run dependencies for all packages)
-melos bootstrap
+dart pub get                      # resolve the workspace
+dart run melos bootstrap          # link packages
+dart run melos run validate       # analyze + format check + tests (what CI runs)
 ```
 
-### Testing
+Narrower commands:
+
 ```bash
-# Run all tests across packages
-melos run test
+dart run melos run analyze        # flutter analyze --fatal-infos in every package
+dart run melos run format         # dart format everything
+dart run melos run test           # flutter test --coverage in every package
+dart run melos run publish:dry-run
+dart run melos run goldens         # golden tests only
+dart run melos run goldens:update  # regenerate baselines (Linux, Flutter from .fvmrc)
 
-# Run tests with coverage
-melos run coverage
-
-# Run tests for a single package (from package directory)
+# One package or one file
 cd packages/tagflow && flutter test
-
-# Run a specific test file
-flutter test test/src/converter/converters/text_converter_test.dart
-
-# Run golden tests / regenerate baselines (Linux + Flutter from .fvmrc)
-melos run goldens
-melos run goldens:update
+flutter test test/src/runtime/document_patch_test.dart
 ```
 
-### Code Quality
-```bash
-# Format all Dart files
-melos run format
-
-# Check if files are formatted
-melos run format:check
-
-# Run static analysis
-melos run analyze
-
-# Run all validations (analyze + format + test)
-melos run validate
-
-# Run all static analysis checks
-melos run lint:all
-```
-
-### Building & Publishing
-```bash
-# Clean all build outputs
-melos run build:clean
-
-# Version packages with dev tag
-melos run version:dev
-
-# Version packages for stable release
-melos run version:stable
-
-# Publish all packages (requires confirmation)
-melos run publish
-
-# Publish individual package (from package directory)
-cd packages/tagflow && dart pub publish
-```
-
-### Makefile Shortcuts
-```bash
-# Run tests
-make test
-
-# Format code
-make format
-
-# Full release process (test, format, version, publish)
-make release
-
-# Dev release (test, format, version:dev, publish)
-make release-dev
-```
+`dart run melos run validate` must pass before a PR is ready.
 
 ## Architecture
 
-### Three-Layer Processing Pipeline
-
-Tagflow follows a three-stage pipeline for converting HTML to Flutter widgets:
-
-1. **Parsing Layer** (`lib/src/core/parser/`)
-   - `TagflowParser` - Main parser that orchestrates HTML document parsing
-   - `NodeParser` - Abstract base class for specialized parsers
-   - `ElementParser` - Default parser for standard HTML elements
-   - `ImgParser` - Specialized parser for image elements
-   - `TableParser` - Specialized parser for table structures
-   - Output: `TagflowNode` tree (immutable node representation)
-
-2. **Style Layer** (`lib/src/style/`)
-   - `TagflowStyle` - Style configuration with support for relative units (rem, em, %, vh, vw)
-   - `StyleParser` - CSS-like property parser (colors, sizes, borders, shadows, transforms)
-   - `TagflowTheme` - Theme system with Material Design integration
-   - `TagflowThemeProvider` - InheritedWidget for theme propagation
-   - Handles style resolution and inheritance through the node tree
-
-3. **Conversion Layer** (`lib/src/converter/`)
-   - `TagflowConverter` - Main converter coordinating all element converters
-   - `ElementConverter<T>` - Abstract base with CSS-like selector matching (supports !, >, :first-child, :last-child)
-   - Built-in converters:
-     - `TextConverter` - Base converter for text elements (p, span, h1-h6, strong, em, a, etc.)
-     - `ListConverter` / `ListItemConverter` - Ordered/unordered lists
-     - `BlockquoteConverter` - Blockquotes
-     - `CodeConverter` - Code blocks
-     - `ContainerConverter` - Divs and generic containers
-     - `ImgConverter` - Images with loading/error states
-     - `TableConverter` - Table structures
-   - Output: Flutter `Widget` tree
-
-### Key Design Patterns
-
-**Node Reparenting**: After initial parsing, `TagflowNode.reparent()` establishes bidirectional parent-child relationships throughout the tree, enabling ancestor queries and context-aware styling.
-
-**Selector Matching**: Converters use CSS-like selectors:
-- `"p"` - Simple tag match
-- `"ul > li"` - Direct child selector
-- `"blockquote footer"` - Ancestor-descendant selector
-- `"!ul > li"` - Negation selector
-- `"p:first-child"` - Pseudo-selectors
-
-**Style Resolution**: Styles cascade through the tree with `resolveStyle(element, context)` combining:
-1. Theme default styles
-2. Tag-specific theme styles
-3. CSS class styles
-4. Inline styles
-5. Element-specific overrides
-
-**Text Scale Factor Handling**: Applied directly to fontSize rather than using Text.rich's textScaler parameter to prevent compounding in nested elements (critical for nested lists).
-
-## Important Patterns & Conventions
-
-### When Adding HTML Element Support
-
-1. Follow standard HTML specifications for element behavior
-2. For table elements, the `border` attribute affects outer border width and adds 1px borders to cells
-3. Document any deviations from standard HTML behavior in code comments
-4. Add comprehensive test cases covering edge cases
-
-### Style Parser Considerations
-
-- `SizeValue` represents sizes with units (px, pt, rem, em, %, vh, vw)
-- Use `SizeValue.resolve(context)` to convert relative units to pixels at render time
-- `parseSize()` returns only absolute pixel values (null for relative values)
-- `parseSizeValue()` returns a `SizeValue` object that can be resolved later
-
-### Converter Implementation
-
-When creating custom converters:
-
-1. Extend `ElementConverter<TagflowElement>` or `TextConverter` for text-based elements
-2. Override `supportedTags` with CSS-like selectors
-3. Use `resolveStyle(element, context)` to get computed styles
-4. For text elements, apply text scale factors in `getTextStyle()` by modifying fontSize directly
-5. Use `StyledContainer` to wrap widgets that need styling (padding, margin, borders, etc.)
-
-### Testing Patterns
-
-- Place tests in `test/src/` mirroring the `lib/src/` structure
-- Use descriptive test names: `'should render nested ordered lists with correct text scaling'`
-- Test edge cases like empty nodes, deeply nested structures, and style inheritance
-- Mock converters and parsers when testing specific components in isolation
-
-## Code Style Standards
-
-- Follow Dart Style Guide and use `dart format`
-- Analysis rules defined in `analysis_options.yaml` (very_good_analysis)
-- Line length limit: 80 characters
-- Use `// ignore_for_file:` only when absolutely necessary with justification
-- All public APIs must have documentation comments
-
-## Package Structure
-
-```
-lib/
-├── src/
-│   ├── converter/          # Widget conversion layer
-│   │   ├── converter.dart  # Main converter & base classes
-│   │   ├── converters/     # Built-in element converters
-│   │   └── styled_container.dart  # Container with style application
-│   ├── core/
-│   │   ├── models/         # Node, Element, Style data models
-│   │   ├── parser/         # HTML parsing to TagflowNode tree
-│   │   └── utils/          # Extensions and utilities
-│   ├── style/              # Style system (theme, parser, types)
-│   ├── widgets/            # Reusable widgets
-│   ├── tagflow_widget.dart # Main Tagflow widget
-│   └── tagflow_options.dart # Configuration options
-└── tagflow.dart            # Public API exports
+```text
+ HTML string ──► TagflowHtmlAdapter ────────┐
+ native JSON ──► TagflowNativeBlockCodec    │
+                 └► TagflowNativeBlockAdapter├─► TagflowDocument ─► TagflowComponentRegistry ─► widgets
+ app code ──────────────────────────────────┘        ▲
+                                                     └── TagflowDocumentPatch (live updates)
 ```
 
-## Current Development Status
+### Document model (`lib/src/runtime/`)
 
-- **Alpha Release**: APIs may change frequently
-- Active development targeting v1.0.0 for production stability
-- Maintains high test coverage (tracked on Codecov)
-- Follows semantic versioning with -dev prerelease tags
+- `TagflowDocument` is the canonical runtime input: an id, top-level
+  children, metadata and source info.
+- `TagflowDocumentNode` is an immutable node with a stable string `id` and a
+  `TagflowNodeKind` (paragraph, heading, list, table, codeBlock, image, link,
+  unsupported and so on). Build nodes with the named constructors, for example
+  `TagflowDocumentNode.paragraph(...)`.
+- `TagflowPresentation` carries inline semantics and styling hints;
+  `TagflowMetadata` and `TagflowSourceInfo` carry provenance.
+- Node ids must be unique within a document. Patches and widget keys depend
+  on them.
 
-## Related Documentation
+### Patches (`runtime/document_patch.dart`)
 
-- [Tagflow Documentation](https://docs.arya.run/tagflow)
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Roadmap](ROADMAP.md)
+`TagflowDocumentPatch` has four operations: `replaceNode`, `appendChildren`,
+`insertBefore` and `removeNode`. `document.applyPatch(...)` and
+`document.applyPatches(...)` return a new document and throw on a missing
+target or duplicate ids. Because rendering keys each node by its id,
+unchanged nodes keep their widget state across patches.
+
+### Adapters (`lib/src/adapters/`)
+
+- **HTML.** `TagflowHtmlAdapter.parse(html)` uses the HTML parser in
+  `lib/src/core/parser/` and maps the result onto document nodes.
+  `Tagflow.html(html: ...)` uses it by default. `TagflowHtmlNodeIdStrategy`
+  picks between path-based and attribute-based ids.
+- **Native JSON.** `TagflowNativeBlockCodec` decodes and encodes trusted
+  JSON envelopes. It is strict: `schemaVersion` must be `1` and unknown block
+  kinds fail during decode. `TagflowNativeBlockAdapter` turns decoded blocks
+  and patch envelopes into documents and `TagflowDocumentPatch`es. The
+  contract is in `docs/specs/2026-06-11-native-block-adapter-contract.md`.
+- New input formats should be new adapters that produce a `TagflowDocument`,
+  not new render paths.
+
+### Content policy (`runtime/content_policy.dart`)
+
+Every adapter applies a `TagflowContentPolicy`. The defaults block `script`,
+`style`, `iframe`, form controls and similar tags, allow only `http`, `https`
+and `mailto` URLs, reject `data:` images, and drop unsupported content (or
+keep a placeholder with `TagflowUnsupportedBehavior.preservePlaceholder`).
+Keep new adapters behind the same policy.
+
+### Rendering (`lib/src/render/`)
+
+`TagflowComponentRegistry` maps each `TagflowNodeKind` to a builder.
+Precedence is app `overrides`, then `extensions` (for example
+`tagflowTableComponents()` from `tagflow_table`), then the built-ins, then the
+fallback builder. Builders get a `TagflowComponentContext` and render children
+with `context.render(...)` / `context.renderChildren(...)` so precedence holds
+all the way down.
+
+### Widget and options
+
+- `Tagflow.document(document)` renders a document directly.
+- `Tagflow.html(html: ...)` adapts HTML first. Passing `converters` switches
+  that widget to the legacy converter renderer.
+- `TagflowViewOptions` holds runtime view settings (link and node tap
+  callbacks, selection, image builders, error builder). `TagflowOptions` is
+  the older shape and is kept for compatibility.
+- `TagflowTheme` / `TagflowThemeProvider` and `lib/src/style/` resolve styles,
+  including relative units (`rem`, `em`, `%`, `vh`, `vw`) through
+  `SizeValue.resolve(context)`.
+
+### Legacy pipeline
+
+`lib/src/converter/`, `lib/src/core/` and `package:tagflow/legacy.dart` are the
+pre-runtime HTML converter pipeline (`ElementConverter`, CSS-like selector
+matching, `StyledContainer`). They still ship for compatibility and are
+scheduled for deprecation before 1.0. Fix bugs there, but put new features on
+the document model and registry.
+
+## Conventions
+
+- Lints come from `analysis_options.yaml` (very_good_analysis rules, strict
+  casts, inference and raw types). `flutter analyze --fatal-infos` must be
+  clean.
+- 80-column lines, `dart format`, package imports only.
+- Document every public API with a `///` comment, and export it from the
+  package barrel (`lib/tagflow.dart`). `test/src/public_api/export_test.dart`
+  guards the exported surface; update it when the surface changes on purpose.
+- Use `// ignore:` only with a reason next to it.
+- Follow the HTML specification for HTML behavior and note any deviation in a
+  code comment. For tables, the `border` attribute sets the outer border and
+  adds 1px cell borders.
+- Apply text scale to `fontSize` directly rather than through
+  `Text.rich(textScaler: ...)`, so nested content does not compound it.
+
+## Tests
+
+- Tests live in `test/src/`, mirroring `lib/src/`.
+- Name tests by behavior, for example
+  `'should keep unchanged node state after a patch'`.
+- Cover empty input, deep nesting, policy rejections and id collisions for
+  anything that touches the document model, adapters or patches.
+
+## Releases
+
+- Each package keeps its own `CHANGELOG.md`; those are the release notes.
+- Bump versions in the package `pubspec.yaml` and changelog, then push a tag:
+  `tagflow-v<version>` or `tagflow_table-v<version>`. The publish workflows
+  check the tag against the pubspec and publish through pub.dev OIDC.
+- Run `dart run melos run publish:dry-run` before tagging.
+- The plan to 1.0 is in [ROADMAP.md](ROADMAP.md).

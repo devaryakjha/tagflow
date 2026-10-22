@@ -1,168 +1,71 @@
-# Tagflow Development Roadmap
+# Roadmap
 
-## v1 Alpha Runtime Direction
+Tagflow is heading to `1.0.0`: a native renderer for rich content in Flutter,
+with rendering streamed LLM answers (Markdown) as the headline feature.
+Breaking changes go out as betas first. Tagflow runs in production apps, so
+every breaking change gets a beta soak before it reaches a stable release.
 
-- [x] Native `TagflowDocument` model as the canonical runtime input
-- [x] HTML adapter through `TagflowHtmlAdapter` and `Tagflow.html(...)`
-- [x] Direct native document rendering through `Tagflow.document(...)`
-- [x] Content policy for unsafe HTML tags, URL schemes, images, and fallbacks
-- [x] Semantic component registry for built-in renderer overrides
-- [x] Runtime view options separated from HTML adapter compatibility options
-- [x] Legacy compatibility barrel at `package:tagflow/legacy.dart`
-- [x] Alpha benchmark harness for fixtures, parser, and widget render baselines
-- [ ] Stable `1.0.0` API guarantees
-- [ ] Separate adapter packages beyond first-party HTML support
-- [ ] Production-grade benchmark comparisons and profile-mode frame timing
+## Where things stand
 
-## Core Architecture
+`1.0.0-beta.0` (June 2026) shipped the runtime:
 
-- [x] Basic HTML parsing using `html` package
-- [x] Element model with attributes support
-- [x] Converter system with plugin architecture
-- [x] Style resolution system
-- [x] Theme provider implementation
-- [x] Options scope for configuration
-- [x] Native runtime document model
-- [x] HTML adapter layer
-- [x] Semantic component registry
-- [x] Error boundary implementation for graceful fallbacks
+- `TagflowDocument` as the canonical, immutable input, built directly or by
+  adapters.
+- HTML through `TagflowHtmlAdapter` and `Tagflow.html(...)`.
+- Strict, versioned native JSON transport (`TagflowNativeBlockCodec`,
+  `TagflowNativeBlockAdapter`).
+- Document patches for live updates with stable node ids.
+- A content policy for unsafe tags, URL schemes and images.
+- A semantic component registry for overrides and extensions, with
+  `tagflow_table` as the first extension.
+- Native `<details>` / `<summary>` disclosure.
 
-## HTML Element Support
+`0.0.8` on the `stable` branch remains the stable HTML-renderer line until
+`1.0.0` ships.
 
-- [x] Block Elements
+## Cleanup (no user-facing change)
 
-  - [x] Paragraphs (`<p>`)
-  - [x] Headings (`<h1>` to `<h6>`)
-  - [x] Divisions (`<div>`)
-  - [x] Articles (`<article>`)
-  - [x] Sections (`<section>`)
+- [ ] Remove release-gate tooling and point-in-time planning docs; keep the
+      microbenchmarks.
+- [ ] Refresh the contributor guide, this roadmap and the CI toolchain pin.
+- [ ] Trim the example app to Tagflow-only content.
+- [ ] Delete stale and merged branches.
 
-- [x] Text Elements
+## 1.0.0-beta.1: AI answers
 
-  - [x] Basic text nodes
-  - [x] Emphasis (`<em>`, `<i>`)
-  - [x] Strong (`<strong>`, `<b>`)
-  - [x] Code (`<code>`, `<pre>`)
-  - [x] Subscript/Superscript (`<sub>`, `<sup>`)
-  - [x] Quotes (`<blockquote>`, `<q>`)
+- [ ] Markdown adapter: `Tagflow.markdown(...)` and `TagflowMarkdownAdapter`
+      on `package:markdown` (GFM tables, task lists, fenced code), producing a
+      normal `TagflowDocument` so the content policy, registry and tables all
+      apply.
+- [ ] Streaming helper: a controller that takes appended text chunks,
+      re-parses only the open tail block, and emits patches with stable ids so
+      finished blocks never rebuild.
+- [ ] Code blocks: a registry hook for syntax highlighting and a copy button.
+      Highlighting is an optional add-on so the core stays lean.
+- [ ] Golden tests for every built-in node kind in light and dark themes.
+- [ ] Example app rebuilt as a gallery: HTML, native JSON, Markdown and a
+      live streaming demo.
 
-- [x] Lists
+## 1.0.0-beta.2: frozen API
 
-  - [x] Unordered lists (`<ul>`, `<li>`)
-  - [x] Ordered lists (`<ol>`, `<li>`)
-  - [x] Description lists (`<dl>`, `<dt>`, `<dd>`)
+- [ ] Close the review in
+      [`docs/specs/2026-06-12-beta-public-api-freeze-review.md`](docs/specs/2026-06-12-beta-public-api-freeze-review.md).
+- [ ] Mark the legacy converter API (`package:tagflow/legacy.dart`,
+      `TagflowOptions` converters) `@Deprecated` with removal in 2.0.
+- [ ] Move `tagflow_table` off the legacy HTML bridge.
+- [ ] Write a `0.0.8` to `1.0` migration guide and refresh
+      [docs.arya.run/tagflow](https://docs.arya.run/tagflow).
+- [ ] Ship `1.0.0-beta.2` and move the internal apps onto it.
 
-- [ ] Tables
+## 1.0.0
 
-  - [x] Basic table structure
-  - [x] Table headers
-  - [x] Colspan/Rowspan support
-  - [ ] Responsive table layout
+- [ ] Graduate once the internal apps run clean on beta.2.
+- [ ] Publish `tagflow` and `tagflow_table` from tags.
+- [ ] Tag the past `stable` line releases so the history is complete.
 
-- [ ] Media
-  - [x] Images with `NetworkImage`
-  - [ ] Responsive image sizing
-  - [ ] Image loading states
-  - [ ] Lazy loading implementation
+## Later (not in 1.0)
 
-## Styling System
-
-- [x] Base style implementation
-- [x] Element-specific styles
-- [x] Class-based styling
-- [x] Inline style parsing
-- [ ] CSS-like Features
-  - [x] Pseudo-classes (:first-child, :last-child, etc.)
-  - [ ] Media queries support
-  - [ ] Attribute selectors
-  - [ ] State management (hover, focus, etc.)
-  - [ ] CSS variables (custom properties)
-  - [x] Cascade selectors (parent > child)
-  - [ ] Animation/transition support
-- [ ] Advanced CSS Properties
-  - [ ] Flexbox layout
-  - [ ] Grid layout
-  - [ ] Border radius
-  - [ ] Box shadow
-  - [ ] Transforms
-  - [ ] Transitions (where applicable)
-
-## Performance Optimization
-
-- [x] Alpha parser and widget render benchmark harness
-- [x] Example-app profile benchmark scaffold for Tagflow frame timings
-- [ ] Widget recycling for long content
-- [ ] Lazy parsing for large documents
-- [ ] Memory optimization for large DOMs
-- [ ] Render optimization
-  - [ ] `RepaintBoundary` strategic placement
-  - [ ] `const` widget optimization
-  - [ ] Custom `RenderObject` for complex layouts
-
-## Interactive Features
-
-- [x] Basic link handling
-- [ ] Advanced Interaction
-  - [x] Custom tap handlers per element type
-  - [ ] Long press actions
-  - [ ] Gesture recognition
-  - [ ] Selection support
-  - [ ] Copy/paste functionality
-
-## Plugin System
-
-- [x] Semantic component registry implementation
-- [x] First-party table extension registry fragment for semantic document tables
-- [ ] Full table extension migration off the legacy HTML converter bridge
-- [ ] Hot-reload safe plugin loading
-- [ ] Default Plugin Set
-  - [ ] Code syntax highlighting
-  - [ ] LaTeX rendering
-  - [ ] Social media embeds
-  - [ ] Video player integration
-
-## Testing & Documentation
-
-- [x] Core unit tests
-- [x] Widget tests for base components
-- [ ] Integration tests
-- [ ] Golden tests for visual regression
-- [x] Alpha performance benchmark harness
-- [x] API Documentation
-  - [x] Dart doc comments
-  - [ ] Usage examples
-  - [x] Migration guides
-  - [ ] Best practices
-
-## Developer Experience
-
-- [x] Melos workspace setup
-- [ ] Example App
-  - [ ] Interactive demo
-  - [x] Performance profiling page scaffold
-  - [ ] Theme playground
-  - [ ] Plugin showcase
-- [ ] Dev Tools
-  - [ ] Element inspector
-  - [ ] Style debugger
-  - [ ] Performance monitor
-  - [ ] Error reporting
-
-## CI/CD
-
-- [x] GitHub Actions workflow
-- [x] Automated testing
-- [x] Code coverage reporting
-- [x] Release automation
-- [x] Package publishing
-- [x] Version management
-- [x] Changelog generation
-
-## Optimization & Refinement
-
-- [ ] Tree-shaking support
-- [ ] Dead code elimination
-- [ ] Size optimization
-- [ ] Startup time optimization
-- [ ] Memory leak detection
-- [ ] Performance monitoring
+- Math rendering.
+- Lazy or sliver rendering for very long documents.
+- Richer CSS layout in the HTML adapter (flex, grid).
+- Video embeds.

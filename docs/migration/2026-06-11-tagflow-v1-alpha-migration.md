@@ -87,6 +87,23 @@ configuration during the transition.
 
 ## Compatibility Support Windows
 
+> **Decision for 1.0:** the legacy converter API is deprecated with a formal
+> window. Every surface below stays available and behaves the same through all
+> 1.x releases, emits a deprecation warning that names its replacement, and is
+> removed in 2.0. `tagflow_table`'s `TagflowTableConverter` and
+> `TagflowTableCellConverter` follow the same window; use
+> `tagflowTableComponents(...)` instead.
+
+| Deprecated (removed in 2.0) | Replacement |
+| --- | --- |
+| `package:tagflow/legacy.dart` | `package:tagflow/tagflow.dart` |
+| `ElementConverter`, `TagflowConverter`, `converters:` | `TagflowComponentRegistry`, `registry:` |
+| `TagflowParser` | `TagflowHtmlAdapter.parse(...)` |
+| `Tagflow(html: ...)` | `Tagflow.html(...)` |
+| `TagflowOptions`, `options:` | `TagflowViewOptions`, `viewOptions:`, `renderBoundary:` |
+| `ErrorWidgetBuilder` | `TagflowErrorWidgetBuilder` |
+| `TagflowTableConverter`, `TagflowTableCellConverter` | `tagflowTableComponents(...)` |
+
 The alpha line keeps compatibility surfaces available so existing HTML renderer
 integrations can move toward the native runtime in reviewable steps. These
 surfaces are not the preferred API for new code.
@@ -102,8 +119,7 @@ for migration from the HTML-first widget API, and its `renderBoundary` field is
 HTML-only compatibility behavior. `renderBoundary` should not be treated as a
 source-agnostic native document feature.
 
-Before `1.0.0` stable, the project must decide whether `TagflowOptions` stays
-as a long-term compatibility alias or receives a formal deprecation window.
+Decided: `TagflowOptions` is deprecated through 1.x and removed in 2.0.
 
 ### `package:tagflow/legacy.dart`
 
@@ -123,9 +139,8 @@ updates, and critical bug or security fixes. New feature work should target the
 native document, adapter, and registry APIs unless there is a clear migration
 need.
 
-Before `1.0.0` stable, the project must decide whether `legacy.dart` remains
-inside `package:tagflow`, moves to a separate compatibility package, or enters
-a formal deprecation window.
+Decided: `legacy.dart` stays inside `package:tagflow`, deprecated, through
+1.x and is removed in 2.0.
 
 ### `TagflowDocument(...)`
 

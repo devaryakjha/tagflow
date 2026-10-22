@@ -9,7 +9,15 @@ import 'package:html/parser.dart' as html;
 import 'package:tagflow/legacy.dart';
 
 /// Parses HTML string into TagflowElement
+///
+/// Legacy API: use `TagflowHtmlAdapter.parse(...)` to produce a runtime
+/// `TagflowDocument`. Removed in tagflow 2.0.
+@Deprecated(
+  'Use TagflowHtmlAdapter.parse(...) to build a TagflowDocument instead. '
+  'Will be removed in tagflow 2.0.',
+)
 class TagflowParser {
+  @Deprecated('Use TagflowHtmlAdapter instead. Will be removed in 2.0.')
   const TagflowParser({
     List<NodeParser>? parsers,
     this.debug = false,
@@ -18,6 +26,7 @@ class TagflowParser {
        _parsers =
            parsers ?? const [ElementParser(), TableParser(), ImgParser()];
 
+  @Deprecated('Will be removed in tagflow 2.0.')
   TagflowParser._run({
     required List<NodeParser> parsers,
     required this.debug,

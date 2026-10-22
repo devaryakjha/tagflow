@@ -1,3 +1,7 @@
+// The parser benchmark lane measures the legacy TagflowParser, which stays
+// supported (deprecated) through tagflow 1.x.
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:math';
 
