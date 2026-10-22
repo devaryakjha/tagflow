@@ -11,6 +11,7 @@ void main() {
       );
 
       expect(registry, isA<TagflowComponentRegistry>());
+      // The legacy converter shim stays exported, deprecated, through 1.x.
       expect(const api.TagflowTableConverter(), isA<Object>());
       expect(const api.TagflowTableCellConverter(), isA<Object>());
     },

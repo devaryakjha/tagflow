@@ -1,3 +1,18 @@
+## Unreleased
+
+- Deprecates `TagflowTableConverter` and `TagflowTableCellConverter` for removal
+  in tagflow_table 2.0. They stay available, unchanged, through 1.x as a legacy
+  converter shim. Use
+  `TagflowComponentRegistry(extensions: [tagflowTableComponents()])` with
+  `Tagflow.html(...)` or `Tagflow.document(...)` instead.
+- Note that the semantic registry output differs visually from the legacy shim
+  (for example cell alignment and caption placement), so migrating is an
+  intentional visual change rather than a drop-in swap.
+- Moves the example app's table screen and documentation onto
+  `tagflowTableComponents(...)`.
+- Adds golden tests pinning the legacy shim output and the semantic registry
+  output for the same HTML table.
+
 ## 1.0.0-beta.0 - 2026-06-16
 
 - Promotes the first-party table extension to the Tagflow beta runtime line.

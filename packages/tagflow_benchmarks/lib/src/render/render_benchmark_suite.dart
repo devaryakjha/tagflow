@@ -1,3 +1,7 @@
+// The parser benchmark lane measures the legacy TagflowParser, which stays
+// supported (deprecated) through tagflow 1.x.
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -117,13 +121,10 @@ class _BenchmarkHost extends StatelessWidget {
         data: const MediaQueryData(size: Size(800, 1200)),
         child: Scaffold(
           body: SingleChildScrollView(
-            child: Tagflow(
+            child: Tagflow.html(
               key: ValueKey<int>(iteration),
               html: html,
-              options: TagflowOptions.defaults.copyWith(
-                enableImageCache: false,
-                selectable: const TagflowSelectableOptions(),
-              ),
+              viewOptions: const TagflowViewOptions(enableImageCache: false),
             ),
           ),
         ),

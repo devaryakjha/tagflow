@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tagflow/legacy.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 final _key = GlobalKey<_ExamplePageState>();
@@ -14,7 +14,7 @@ abstract class ExamplePage extends StatefulWidget {
   final String title;
   String get html;
 
-  List<ElementConverter<TagflowNode>> get converters => [];
+  TagflowComponentRegistry? get registry => null;
 
   TagflowTheme createTheme(BuildContext context) {
     final theme = Theme.of(context);
@@ -61,11 +61,11 @@ class _ExamplePageState extends State<ExamplePage> {
         Scaffold(
           appBar: widget.buildAppBar(context),
           body: SingleChildScrollView(
-            child: Tagflow(
+            child: Tagflow.html(
               html: widget.html,
-              converters: widget.converters,
+              registry: widget.registry,
               theme: widget.createTheme(context),
-              options: TagflowOptions(
+              viewOptions: TagflowViewOptions(
                 selectable: const TagflowSelectableOptions(enabled: true),
                 linkTapCallback: (url, attributes) async {
                   if (await canLaunchUrlString(url)) {

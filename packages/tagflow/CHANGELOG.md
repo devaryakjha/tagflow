@@ -15,6 +15,23 @@
   `isMarkdownTaskItem`, `markdownTaskChecked`, `isMarkdownRawHtml`).
 - Renders task list items with checkbox markers in the built-in list
   component.
+- Deprecates the legacy converter API for removal in tagflow 2.0. Nothing is
+  removed or changed in behavior during 1.x; deprecated APIs only produce
+  analyzer warnings that name their runtime replacement:
+  - `package:tagflow/legacy.dart` (library-level deprecation), including
+    `ElementConverter`, `TagflowConverter`, `TagflowParser`, and
+    `TagflowHtmlDocumentBridge`. Use `TagflowComponentRegistry` with
+    `Tagflow.html(...)` / `Tagflow.document(...)`, and `TagflowHtmlAdapter`.
+  - The `converters:` parameter and field on `Tagflow`. Use `registry:`.
+  - The default `Tagflow(html: ...)` constructor. Use `Tagflow.html(...)`.
+  - `TagflowOptions`, the `options:` parameters on `Tagflow` and
+    `TagflowHtmlAdapter.parse(...)`, `Tagflow.options`, `TagflowScope.options`,
+    and the `TagflowScope(options: ...)` constructor. Use `TagflowViewOptions`
+    (`viewOptions:`) and `renderBoundary:`.
+  - The `ErrorWidgetBuilder` typedef. Use `TagflowErrorWidgetBuilder`.
+- Adds golden tests pinning `Tagflow.html(...)` output for representative HTML,
+  and proving deprecated entry points render pixel-identical output to their
+  replacements.
 
 ## 1.0.0-beta.0 - 2026-06-16
 
