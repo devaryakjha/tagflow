@@ -125,9 +125,9 @@ final allExamples = <Example>[
   Example(
     section: ExampleSection.components,
     title: 'Code blocks',
-    description: 'Code blocks and inline code',
+    description: 'Syntax highlighting hook and copy button',
     path: '/code',
-    builder: (context) => CodeExample(),
+    builder: (context) => const CodeExample(),
     icon: Icons.code,
   ),
   Example(
