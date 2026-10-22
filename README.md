@@ -139,9 +139,9 @@ dart run melos run publish:dry-run
 ```text
 packages/tagflow/             Core runtime and HTML adapter
 packages/tagflow_table/       First-party table extension
-packages/tagflow_benchmarks/  Benchmark and release-gate tooling
-examples/tagflow/             Example app, routes, and profile host
-docs/                         Specs, migration notes, and release evidence
+packages/tagflow_benchmarks/  Parser, render and native-transport microbenchmarks
+examples/tagflow/             Example app
+docs/                         Specs and migration notes
 ```
 
 ## Releases
