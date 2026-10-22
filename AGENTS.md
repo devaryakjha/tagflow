@@ -47,6 +47,8 @@ dart run melos run analyze        # flutter analyze --fatal-infos in every packa
 dart run melos run format         # dart format everything
 dart run melos run test           # flutter test --coverage in every package
 dart run melos run publish:dry-run
+dart run melos run goldens         # golden tests only
+dart run melos run goldens:update  # regenerate baselines (Linux, Flutter from .fvmrc)
 
 # One package or one file
 cd packages/tagflow && flutter test

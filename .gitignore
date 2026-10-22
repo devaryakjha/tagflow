@@ -45,6 +45,9 @@ migrate_working_dir/
 # code coverage
 coverage/
 
+# Diff images written by failing golden tests
+failures/
+
 # Generated when the example app bundles benchmark fixture assets from the
 # workspace benchmark package.
 examples/tagflow/packages/

@@ -1,0 +1,5 @@
+tags:
+  golden:
+    # Pixel comparisons against baselines rendered on Linux with the Flutter
+    # version pinned in .fvmrc. Run `dart run melos run goldens:update` to
+    # regenerate them.

@@ -40,6 +40,24 @@ melos:
         "flutter test --coverage"
       description: Run tests for all packages that have tests
 
+    goldens:
+      run: >
+        dart run melos exec
+        --scope=tagflow
+        --scope=tagflow_table
+        -c 1 --fail-fast --
+        "flutter test --tags golden"
+      description: Run golden tests only
+
+    goldens:update:
+      run: >
+        dart run melos exec
+        --scope=tagflow
+        --scope=tagflow_table
+        -c 1 --fail-fast --
+        "flutter test --tags golden --update-goldens"
+      description: Regenerate golden baselines (Linux, Flutter from .fvmrc)
+
     format:
       run: dart run melos exec -- "dart format ."
       description: Format all Dart files
