@@ -1,69 +1,110 @@
-## Unreleased
+## 1.0.0-beta.1 - 2026-10-22
 
-- Renders the inline children of paragraphs, headings, links, list items and
-  other text blocks as one `Text.rich` with nested spans, so bold, italic,
-  links and inline code wrap word by word instead of breaking onto their own
-  lines (#95). App overrides, extension components, node tap targets and
-  images are still rendered through the registry, embedded as `WidgetSpan`s.
-  Widget tests that used `find.text` for a single inline run should use
-  `find.text(..., findRichText: true)` on the whole block text instead.
-- Collapses HTML source whitespace the way CSS `white-space: normal` does:
-  the space between adjacent inline elements is kept (`Strong bold` no longer
-  renders as `Strongbold`), source newlines become spaces, and `<br>` is the
-  only line break (#98).
-- Preserves spaces and tabs inside `<pre>`, so code blocks keep their
-  indentation (#99).
-- Tints built-in surfaces and borders (code blocks, inline code,
-  blockquotes, tables, horizontal rules, the unsupported chip) from the
-  ambient text color, so they stay visible in dark themes, and uses a lighter
-  link color on dark backgrounds (#100).
-- Adds `TagflowMarkdownAdapter` and `Tagflow.markdown(markdown: ...)` for
-  GitHub Flavored Markdown (headings, emphasis, strikethrough, inline and
-  fenced code, lists, task lists, blockquotes, links, autolinks, images,
-  tables, footnotes and horizontal rules), built on `package:markdown`.
-  Markdown adapts into a normal `TagflowDocument`, so content policy, the
-  component registry and `tagflow_table` apply unchanged.
-- Assigns deterministic block-index node IDs to Markdown documents, so
-  re-adapting a longer prefix of the same Markdown keeps earlier IDs stable.
-- Adds `TagflowMarkdownRawHtmlBehavior` to adapt raw HTML in Markdown through
-  the HTML adapter and content policy (default), drop it, or keep it as
-  literal text.
-- Adds `TagflowMarkdownNodeMetadata` inspectors (`markdownTag`,
+The AI answers release: Markdown input, streaming Markdown, and a code block
+hook, on the same `TagflowDocument` runtime as HTML and native JSON.
+
+### Upgrading from 1.0.0-beta.0
+
+A caret constraint on a prerelease accepts later prereleases, so apps on
+`tagflow: ^1.0.0-beta.0` move to this release on `flutter pub upgrade`.
+Production apps should pin exact versions (`tagflow: 1.0.0-beta.1`) and
+upgrade on purpose. There are no removed APIs, but check these before
+shipping:
+
+- **Widget tests.** Inline runs inside a paragraph, heading, link or list item
+  now render as one `Text.rich`, so `find.text('bold')` no longer finds a
+  single bold run. Match the whole block text with
+  `find.text('Some bold text', findRichText: true)`, or use
+  `find.textContaining(..., findRichText: true)`.
+- **Rendered text.** HTML source whitespace now collapses the way CSS
+  `white-space: normal` does. Text that rendered as `Strongbold` now renders as
+  `Strong bold`, and source newlines inside a paragraph become spaces instead
+  of line breaks. Use `<br>` for an intended break.
+- **Visuals and goldens.** Inline content wraps word by word, `<pre>` keeps
+  its indentation, and built-in surfaces and borders are tinted from the
+  ambient text color (links are lighter on dark backgrounds). App golden tests
+  that cover Tagflow content will need new baselines.
+- **Analyzer.** The legacy converter API is now `@Deprecated`. Behavior is
+  unchanged, but CI that runs `flutter analyze --fatal-infos` (or treats
+  `deprecated_member_use` as an error) will fail until call sites move to the
+  replacements listed under Deprecated, or the lint is relaxed.
+- **Dependencies.** `tagflow` now depends on `markdown: ^7.3.1`. Apps that pin
+  an older `markdown` must raise it.
+- **tagflow_table.** `tagflow_table` `1.0.0-beta.1` requires this release;
+  upgrade the two packages together.
+
+### Added
+
+- `TagflowMarkdownAdapter` and `Tagflow.markdown(markdown: ...)` for GitHub
+  Flavored Markdown (headings, emphasis, strikethrough, inline and fenced
+  code, lists, task lists, blockquotes, links, autolinks, images, tables,
+  footnotes and horizontal rules), built on `package:markdown`. Markdown
+  adapts into a normal `TagflowDocument`, so content policy, the component
+  registry and `tagflow_table` apply unchanged.
+- Deterministic block-index node IDs for Markdown documents, so re-adapting a
+  longer prefix of the same Markdown keeps earlier IDs stable.
+- `TagflowMarkdownRawHtmlBehavior` to adapt raw HTML in Markdown through the
+  HTML adapter and content policy (default), drop it, or keep it as literal
+  text.
+- `TagflowMarkdownNodeMetadata` inspectors (`markdownTag`,
   `isMarkdownTaskItem`, `markdownTaskChecked`, `isMarkdownRawHtml`).
-- Adds `TagflowMarkdownStream` and `TagflowMarkdownStreamView` for Markdown
-  that arrives in chunks, such as streamed AI answers. Only the open tail
-  block is re-parsed, closed blocks keep their ids and node instances,
-  partial fences, list markers and table headers are held back until they
-  are complete, and every change is published as `TagflowDocumentPatch`es.
-  Closing the stream yields the same document as a one-shot parse.
-- Adds `TagflowDocumentPatch.appendRootChildren` to append top-level nodes.
-- Compares nested maps and lists in `TagflowMetadata` by value, so equal
-  nodes adapted from raw HTML attributes compare equal.
-- Renders task list items with checkbox markers in the built-in list
-  component.
-- Deprecates the legacy converter API for removal in tagflow 2.0. Nothing is
-  removed or changed in behavior during 1.x; deprecated APIs only produce
-  analyzer warnings that name their runtime replacement:
-  - `package:tagflow/legacy.dart` (library-level deprecation), including
-    `ElementConverter`, `TagflowConverter`, `TagflowParser`, and
-    `TagflowHtmlDocumentBridge`. Use `TagflowComponentRegistry` with
-    `Tagflow.html(...)` / `Tagflow.document(...)`, and `TagflowHtmlAdapter`.
-  - The `converters:` parameter and field on `Tagflow`. Use `registry:`.
-  - The default `Tagflow(html: ...)` constructor. Use `Tagflow.html(...)`.
-  - `TagflowOptions`, the `options:` parameters on `Tagflow` and
-    `TagflowHtmlAdapter.parse(...)`, `Tagflow.options`, `TagflowScope.options`,
-    and the `TagflowScope(options: ...)` constructor. Use `TagflowViewOptions`
-    (`viewOptions:`) and `renderBoundary:`.
-  - The `ErrorWidgetBuilder` typedef. Use `TagflowErrorWidgetBuilder`.
-- Adds golden tests pinning `Tagflow.html(...)` output for representative HTML,
-  and proving deprecated entry points render pixel-identical output to their
-  replacements.
-- Adds `TagflowCodeBlockOptions` on `TagflowViewOptions.codeBlock` with a
-  `TagflowCodeHighlighter` extension point for code block syntax highlighting,
-  an optional copy-to-clipboard button, and an `onCopy` callback. Core keeps no
-  highlighting dependency.
-- HTML `<pre><code class="language-x">` code blocks now carry the language from
+- `TagflowMarkdownStream` and `TagflowMarkdownStreamView` for Markdown that
+  arrives in chunks, such as streamed AI answers. Only the open tail block is
+  re-parsed, closed blocks keep their ids and node instances, partial fences,
+  list markers and table headers are held back until they are complete, and
+  every change is published as `TagflowDocumentPatch`es. Closing the stream
+  yields the same document as a one-shot parse.
+- `TagflowDocumentPatch.appendRootChildren` to append top-level nodes.
+- `TagflowCodeBlockOptions` on `TagflowViewOptions.codeBlock` with a
+  `TagflowCodeHighlighter` extension point for code block syntax
+  highlighting, an optional copy-to-clipboard button, and an `onCopy`
+  callback. Core keeps no highlighting dependency.
+- Checkbox markers for task list items in the built-in list component.
+- Golden tests for every built-in node kind in light and dark themes, pinning
+  `Tagflow.html(...)` output for representative HTML and proving deprecated
+  entry points render pixel-identical output to their replacements.
+
+### Changed
+
+- Inline children of paragraphs, headings, links, list items and other text
+  blocks render as one `Text.rich` with nested spans, so bold, italic, links
+  and inline code wrap word by word instead of breaking onto their own lines
+  (#95). App overrides, extension components, node tap targets and images are
+  still rendered through the registry, embedded as `WidgetSpan`s.
+- HTML source whitespace collapses the way CSS `white-space: normal` does: the
+  space between adjacent inline elements is kept, source newlines become
+  spaces, and `<br>` is the only line break (#98).
+- Built-in surfaces and borders (code blocks, inline code, blockquotes,
+  tables, horizontal rules, the unsupported chip) are tinted from the ambient
+  text color, so they stay visible in dark themes, and links use a lighter
+  color on dark backgrounds (#100).
+- `TagflowMetadata` compares nested maps and lists by value, so equal nodes
+  adapted from raw HTML attributes compare equal.
+- HTML `<pre><code class="language-x">` code blocks carry the language from
   the nested `<code>` element when `<pre>` has no class.
+
+### Fixed
+
+- Spaces and tabs inside `<pre>` are preserved, so code blocks keep their
+  indentation (#99).
+
+### Deprecated
+
+The legacy converter API is deprecated for removal in tagflow 2.0. Nothing is
+removed or changed in behavior during 1.x; deprecated APIs only produce
+analyzer warnings that name their runtime replacement:
+
+- `package:tagflow/legacy.dart` (library-level deprecation), including
+  `ElementConverter`, `TagflowConverter`, `TagflowParser`, and
+  `TagflowHtmlDocumentBridge`. Use `TagflowComponentRegistry` with
+  `Tagflow.html(...)` / `Tagflow.document(...)`, and `TagflowHtmlAdapter`.
+- The `converters:` parameter and field on `Tagflow`. Use `registry:`.
+- The default `Tagflow(html: ...)` constructor. Use `Tagflow.html(...)`.
+- `TagflowOptions`, the `options:` parameters on `Tagflow` and
+  `TagflowHtmlAdapter.parse(...)`, `Tagflow.options`, `TagflowScope.options`,
+  and the `TagflowScope(options: ...)` constructor. Use `TagflowViewOptions`
+  (`viewOptions:`) and `renderBoundary:`.
+- The `ErrorWidgetBuilder` typedef. Use `TagflowErrorWidgetBuilder`.
 
 ## 1.0.0-beta.0 - 2026-06-16
 

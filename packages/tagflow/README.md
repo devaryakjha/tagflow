@@ -12,9 +12,9 @@
 [![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
-> ⚠️ **Beta prerelease**: `1.0.0-beta.0` is the first feature-rich native
-> content runtime release. APIs may still change before the stable `1.0.0`
-> release.
+> ⚠️ **Beta prerelease**: `1.0.0-beta.1` adds Markdown, streaming Markdown
+> and code block support to the native content runtime. APIs may still change
+> before the stable `1.0.0` release.
 
 # 🌊 tagflow
 
@@ -394,8 +394,12 @@ Add `tagflow` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-beta.0
+  tagflow: ^1.0.0-beta.1
 ```
+
+A caret constraint on a prerelease accepts every later prerelease. Production
+apps should pin an exact version (`tagflow: 1.0.0-beta.1`) and read the
+[changelog](CHANGELOG.md) before upgrading.
 
 ## Supported Features
 
