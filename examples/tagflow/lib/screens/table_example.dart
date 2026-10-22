@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagflow/legacy.dart';
+import 'package:tagflow/tagflow.dart';
 import 'package:tagflow_example/widgets/example_page.dart';
 import 'package:tagflow_table/tagflow_table.dart';
 
@@ -281,9 +281,9 @@ final class TableExample extends ExamplePage {
   }
 
   @override
-  List<ElementConverter<TagflowNode>> get converters => !useTagflowTable
-      ? super.converters
-      : [const TagflowTableConverter(), const TagflowTableCellConverter()];
+  TagflowComponentRegistry? get registry => !useTagflowTable
+      ? super.registry
+      : TagflowComponentRegistry(extensions: [tagflowTableComponents()]);
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {

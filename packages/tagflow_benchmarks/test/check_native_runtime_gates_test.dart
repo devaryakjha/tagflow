@@ -5,33 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tagflow_benchmarks/src/io/package_paths.dart';
 
 void main() {
-  test(
-    'native runtime gate CLI passes the default draft profile',
-    () async {
-      final result = await _runGateCli();
-      final json = _decodeJson(result.stdout);
+  test('native runtime gate CLI passes the default draft profile', () async {
+    final result = await _runGateCli();
+    final json = _decodeJson(result.stdout);
 
-      expect(result.exitCode, 0);
-      expect(json['passed'], isTrue);
-      expect(json['profile'], containsPair('id', 'pr72-draft'));
-      expect(json['issues'], isEmpty);
-    },
-    timeout: const Timeout(Duration(minutes: 2)),
-  );
+    expect(result.exitCode, 0);
+    expect(json['passed'], isTrue);
+    expect(json['profile'], containsPair('id', 'pr72-draft'));
+    expect(json['issues'], isEmpty);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
-  test(
-    'native runtime gate CLI passes beta-preapproval',
-    () async {
-      final result = await _runGateCli(profile: 'beta-preapproval');
-      final json = _decodeJson(result.stdout);
+  test('native runtime gate CLI passes beta-preapproval', () async {
+    final result = await _runGateCli(profile: 'beta-preapproval');
+    final json = _decodeJson(result.stdout);
 
-      expect(result.exitCode, 0);
-      expect(json['passed'], isTrue);
-      expect(json['profile'], containsPair('id', 'beta-preapproval'));
-      expect(json['issues'], isEmpty);
-    },
-    timeout: const Timeout(Duration(minutes: 2)),
-  );
+    expect(result.exitCode, 0);
+    expect(json['passed'], isTrue);
+    expect(json['profile'], containsPair('id', 'beta-preapproval'));
+    expect(json['issues'], isEmpty);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
     'native runtime gate CLI rejects stale beta-preapproval open gates',
@@ -52,22 +44,18 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
   );
 
-  test(
-    'native runtime gate CLI accepts profile expected open gates',
-    () async {
-      final result = await _runGateCli(
-        profile: 'beta-preapproval',
-        expectProfileOpenGates: true,
-      );
-      final json = _decodeJson(result.stdout);
+  test('native runtime gate CLI accepts profile expected open gates', () async {
+    final result = await _runGateCli(
+      profile: 'beta-preapproval',
+      expectProfileOpenGates: true,
+    );
+    final json = _decodeJson(result.stdout);
 
-      expect(result.exitCode, 0);
-      expect(json['passed'], isTrue);
-      expect(json['expectationPassed'], isTrue);
-      expect(json['expectedOpenGateIds'], isEmpty);
-    },
-    timeout: const Timeout(Duration(minutes: 2)),
-  );
+    expect(result.exitCode, 0);
+    expect(json['passed'], isTrue);
+    expect(json['expectationPassed'], isTrue);
+    expect(json['expectedOpenGateIds'], isEmpty);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
     'native runtime gate CLI rejects mismatched expected open gates',
@@ -86,25 +74,19 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
   );
 
-  test(
-    'native runtime gate CLI rejects mixed expectation sources',
-    () async {
-      final result = await _runGateCli(
-        profile: 'beta-preapproval',
-        expectedOpenGates: <String>['real-app-route'],
-        expectProfileOpenGates: true,
-      );
+  test('native runtime gate CLI rejects mixed expectation sources', () async {
+    final result = await _runGateCli(
+      profile: 'beta-preapproval',
+      expectedOpenGates: <String>['real-app-route'],
+      expectProfileOpenGates: true,
+    );
 
-      expect(result.exitCode, 64);
-      expect(
-        result.stderr,
-        contains(
-          'Use either --expect-open-gates or --expect-profile-open-gates',
-        ),
-      );
-    },
-    timeout: const Timeout(Duration(minutes: 2)),
-  );
+    expect(result.exitCode, 64);
+    expect(
+      result.stderr,
+      contains('Use either --expect-open-gates or --expect-profile-open-gates'),
+    );
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }
 
 Future<ProcessResult> _runGateCli({

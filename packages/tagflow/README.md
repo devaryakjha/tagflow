@@ -296,15 +296,17 @@ before rendering.
 
 ### Compatibility Imports
 
-Parser, converter, selector, and legacy node APIs are still available during the
-alpha transition from the compatibility barrel:
+Parser, converter, selector, and legacy node APIs are deprecated. They stay
+available, unchanged, through every 1.x release and are removed in 2.0:
 
 ```dart
 import 'package:tagflow/legacy.dart';
 ```
 
-Use it for existing `TagflowParser`, `ElementConverter`, `TagflowNode`, or
-selector-based custom converter integrations. New runtime code should prefer
+Use it only for existing `TagflowParser`, `ElementConverter`, `TagflowNode`, or
+selector-based custom converter integrations. `TagflowOptions`, the
+`converters:` parameter, and the default `Tagflow(html: ...)` constructor are
+deprecated on the same schedule. New runtime code should use
 `package:tagflow/tagflow.dart`, `Tagflow.document(...)`, `Tagflow.html(...)`,
 `TagflowHtmlAdapter`, and `TagflowComponentRegistry`.
 

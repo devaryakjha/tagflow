@@ -271,8 +271,11 @@ Widget _buildTagflowRenderer(
 ) {
   return Tagflow.html(
     html: document.data,
+    // The compat lane intentionally measures the deprecated legacy converter
+    // pipeline against the semantic lanes until it is removed in 2.0.
+    // ignore: deprecated_member_use
     converters: const [TagflowTableConverter(), TagflowTableCellConverter()],
-    options: TagflowOptions(linkTapCallback: (_, _) {}),
+    viewOptions: TagflowViewOptions(linkTapCallback: (_, _) {}),
   );
 }
 
@@ -284,7 +287,7 @@ Widget _buildTagflowSemanticRenderer(
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
-    options: TagflowOptions(linkTapCallback: (_, _) {}),
+    viewOptions: TagflowViewOptions(linkTapCallback: (_, _) {}),
   );
 }
 
@@ -298,7 +301,7 @@ Widget _buildTagflowSemanticPatchRenderer(
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
-    options: TagflowOptions(linkTapCallback: (_, _) {}),
+    viewOptions: TagflowViewOptions(linkTapCallback: (_, _) {}),
   );
 }
 
@@ -314,7 +317,7 @@ Widget _buildTagflowNativeJsonRenderer(
   return Tagflow.document(
     runtimeDocument,
     registry: TagflowComponentRegistry(extensions: [tagflowTableComponents()]),
-    options: TagflowOptions(linkTapCallback: (_, _) {}),
+    viewOptions: TagflowViewOptions(linkTapCallback: (_, _) {}),
   );
 }
 

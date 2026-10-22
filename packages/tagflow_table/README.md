@@ -18,15 +18,15 @@
 
 # tagflow_table
 
-A first-party table rendering extension for Tagflow. The beta package remains
-compatible with the HTML adapter and legacy converter bridge while Tagflow moves
-toward a semantic rich content runtime.
+A first-party table rendering extension for Tagflow, built on the semantic
+component registry. The legacy converter bridge remains available as a
+deprecated shim through 1.x.
 
 ## ✨ Features
 
 - Integration with the `tagflow` `1.0.0-beta.0` runtime package
 - Semantic registry integration for native `TagflowDocument` table nodes
-- HTML table converter compatibility through `package:tagflow/legacy.dart`
+- Deprecated HTML table converter shim, kept unchanged through 1.x
 - Support for complex table structures, headers, and merged cells
 - Customizable table borders, spacing, separators, and header backgrounds
 - A focused beta-facing API centered on semantic registry extensions
@@ -49,8 +49,9 @@ high-fidelity table registry extension for native `TagflowDocument` table
 nodes. `TagflowTableBorder` remains the public configuration type for that
 semantic path.
 
-The legacy HTML converter bridge remains publicly available for compatibility:
-`TagflowTableConverter` and `TagflowTableCellConverter`.
+The legacy HTML converter bridge, `TagflowTableConverter` and
+`TagflowTableCellConverter`, is deprecated. It stays available and unchanged
+through 1.x and is removed in 2.0.
 
 Low-level render-object classes such as `TagflowTable`, `TableCell`,
 `RenderTagflowTable`, and `TableCellData` are package internals rather than the
@@ -95,8 +96,20 @@ class NativeTableArticle extends StatelessWidget {
 }
 ```
 
-HTML input should enter through `Tagflow.html(...)`. Existing table-converter
-integrations remain available through the beta legacy converter bridge:
+HTML input should enter through `Tagflow.html(...)` with the same registry:
+
+```dart
+Tagflow.html(
+  html: html,
+  registry: TagflowComponentRegistry(
+    extensions: [tagflowTableComponents()],
+  ),
+);
+```
+
+Existing table-converter integrations keep working through the deprecated
+converter shim until 2.0. The registry path renders differently (for example
+cell alignment and caption placement), so treat migrating as a visual change:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -123,6 +136,8 @@ class TableArticle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tagflow.html(
       html: html,
+      // Deprecated: migrate to tagflowTableComponents(...) before 2.0.
+      // ignore: deprecated_member_use
       converters: const [
         TagflowTableConverter(),
       ],
@@ -131,17 +146,10 @@ class TableArticle extends StatelessWidget {
 }
 ```
 
-For parser, converter, selector, and legacy node compatibility APIs, import:
-
-```dart
-import 'package:tagflow/legacy.dart';
-```
-
-New Tagflow runtime code should prefer `package:tagflow/tagflow.dart`,
-`Tagflow.document(...)`, `Tagflow.html(...)`, and semantic registry APIs where
-available. The legacy `ElementConverter` path remains available during the
-alpha transition, but new native document integrations should prefer
-`tagflowTableComponents(...)`.
+New Tagflow code should use `package:tagflow/tagflow.dart`,
+`Tagflow.document(...)`, `Tagflow.html(...)`, and `tagflowTableComponents(...)`.
+The legacy `ElementConverter` path and `package:tagflow/legacy.dart` are
+deprecated and removed in 2.0.
 
 ## 🎨 Customization
 
@@ -226,19 +234,24 @@ final theme = TagflowTheme.raw(
 );
 ```
 
-You can apply the theme using `Tagflow.html(...)`:
+These `TagflowTheme` table styles apply to the deprecated converter shim:
 
 ```dart
 TagflowThemeProvider(
   theme: theme,
   child: Tagflow.html(
     html: htmlContent,
+    // ignore: deprecated_member_use
     converters: const [
       TagflowTableConverter(),
     ],
   ),
 );
 ```
+
+The semantic registry path is configured through `tagflowTableComponents(...)`
+arguments (`border`, `headerBackgroundColor`, `padding`, `columnSpacing`,
+`rowSpacing`, `separatorBuilder`) and the HTML's own inline styles.
 
 ## 👥 Contributing
 
