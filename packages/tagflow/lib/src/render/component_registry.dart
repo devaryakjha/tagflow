@@ -145,10 +145,15 @@ Widget _wrapNodeTapTarget(
   );
 }
 
-const _linkTextStyle = TextStyle(
-  color: Color(0xFF0B57D0),
-  decoration: TextDecoration.underline,
-);
+/// Link style that stays readable on light and dark backgrounds.
+TextStyle _linkTextStyle(Color ink) {
+  return TextStyle(
+    color: ink.computeLuminance() > 0.5
+        ? const Color(0xFF8AB4F8)
+        : const Color(0xFF0B57D0),
+    decoration: TextDecoration.underline,
+  );
+}
 
 const _highlightColor = Color(0x33FFE082);
 
@@ -330,7 +335,7 @@ Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
                 linkAttributes,
               ),
         child: DefaultTextStyle.merge(
-          style: _linkTextStyle,
+          style: _linkTextStyle(_inkColor(context.buildContext)),
           child: _renderInlineChildren(context, node),
         ),
       ),
@@ -456,9 +461,11 @@ Widget _renderBlockquote(
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Color(0x14000000),
-        border: Border(left: BorderSide(color: Color(0x661F4B99), width: 4)),
+      decoration: BoxDecoration(
+        color: _inkColor(context.buildContext).withAlpha(0x14),
+        border: const Border(
+          left: BorderSide(color: Color(0x661F4B99), width: 4),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
@@ -472,12 +479,13 @@ Widget _renderCodeBlock(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final ink = _inkColor(context.buildContext);
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x12000000),
-        border: Border.all(color: const Color(0x1F000000)),
+        color: ink.withAlpha(0x12),
+        border: Border.all(color: ink.withAlpha(0x1F)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
@@ -500,7 +508,7 @@ Widget _renderInlineCode(
 ) {
   return DecoratedBox(
     decoration: BoxDecoration(
-      color: const Color(0x12000000),
+      color: _inkColor(context.buildContext).withAlpha(0x12),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Padding(
@@ -535,7 +543,9 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
   final table = Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Table(
-      border: TableBorder.all(color: const Color(0x1F000000)),
+      border: TableBorder.all(
+        color: _inkColor(context.buildContext).withAlpha(0x1F),
+      ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         for (final row in rows)
@@ -595,7 +605,9 @@ Widget _renderTableCell(
 
   return DecoratedBox(
     decoration: BoxDecoration(
-      color: node.header ? const Color(0x12000000) : null,
+      color: node.header
+          ? _inkColor(context.buildContext).withAlpha(0x12)
+          : null,
     ),
     child: node.header
         ? DefaultTextStyle.merge(
@@ -613,7 +625,7 @@ Widget _renderHorizontalRule(
   return Container(
     height: 1,
     width: double.infinity,
-    color: const Color(0x1F000000),
+    color: _inkColor(context.buildContext).withAlpha(0x1F),
   );
 }
 
@@ -625,19 +637,20 @@ Widget _renderUnsupported(
     return _defaultFallback(context, node);
   }
 
+  final ink = _inkColor(context.buildContext);
   return Semantics(
     label: 'Unsupported content',
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x0F000000),
-        border: Border.all(color: const Color(0x1F000000)),
+        color: ink.withAlpha(0x0F),
+        border: Border.all(color: ink.withAlpha(0x1F)),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Text(
           'Unsupported content',
-          style: TextStyle(fontSize: 12, color: Color(0x99000000)),
+          style: TextStyle(fontSize: 12, color: ink.withAlpha(0x99)),
         ),
       ),
     ),
@@ -1013,7 +1026,7 @@ final class _InlineSpanBuilder {
           text: node.text ?? '',
           style: TextStyle(
             fontFamily: 'monospace',
-            backgroundColor: _ink.withValues(alpha: 0.07),
+            backgroundColor: _ink.withAlpha(0x12),
           ),
           recognizer: recognizer,
           mouseCursor: mouseCursor,
@@ -1038,7 +1051,9 @@ final class _InlineSpanBuilder {
           recognizers.add(linkRecognizer);
         }
         return TextSpan(
-          style: _linkTextStyle.merge(_presentationStyle(node.presentation)),
+          style: _linkTextStyle(
+            _ink,
+          ).merge(_presentationStyle(node.presentation)),
           children: _children(
             node,
             recognizer: linkRecognizer,

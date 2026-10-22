@@ -66,7 +66,7 @@ void main() {
     testWidgets('should handle an empty paragraph', (tester) async {
       final document = TagflowDocument(
         id: 'empty',
-        children: [TagflowDocumentNode.paragraph(id: 'p', children: const [])],
+        children: [TagflowDocumentNode.paragraph(id: 'p')],
       );
 
       await tester.pumpWidget(_app(Tagflow.document(document)));
