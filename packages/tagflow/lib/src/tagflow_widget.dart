@@ -9,6 +9,9 @@ import 'package:tagflow/src/style/theme.dart';
 import 'package:tagflow/src/tagflow_options.dart';
 
 /// Legacy widget-level error builder typedef.
+@Deprecated(
+  'Use TagflowErrorWidgetBuilder instead. Will be removed in tagflow 2.0.',
+)
 typedef ErrorWidgetBuilder = TagflowErrorWidgetBuilder;
 
 /// Default error widget builder
@@ -27,13 +30,24 @@ Widget _defaultLoadingWidget(BuildContext context) {
 /// Main widget for rendering rich content.
 class Tagflow extends StatefulWidget {
   /// Creates a new legacy HTML [Tagflow] widget.
+  ///
+  /// Equivalent to [Tagflow.html]; kept for compatibility through 1.x.
+  @Deprecated('Use Tagflow.html(...) instead. Will be removed in tagflow 2.0.')
   const Tagflow({
     required String this.html,
     this.theme,
+    @Deprecated(
+      'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
+      'instead. Will be removed in tagflow 2.0.',
+    )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
+    @Deprecated(
+      'Use viewOptions: TagflowViewOptions(...) instead. '
+      'Will be removed in tagflow 2.0.',
+    )
     TagflowOptions? options,
     TagflowRenderBoundary? renderBoundary,
     super.key,
@@ -54,10 +68,18 @@ class Tagflow extends StatefulWidget {
     this.adapter,
     this.theme,
     this.registry,
+    @Deprecated(
+      'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
+      'instead. Will be removed in tagflow 2.0.',
+    )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
+    @Deprecated(
+      'Use viewOptions: TagflowViewOptions(...) instead. '
+      'Will be removed in tagflow 2.0.',
+    )
     TagflowOptions? options,
     TagflowRenderBoundary? renderBoundary,
     super.key,
@@ -75,10 +97,18 @@ class Tagflow extends StatefulWidget {
     TagflowDocument this.document, {
     this.theme,
     this.registry,
+    @Deprecated(
+      'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
+      'instead. Will be removed in tagflow 2.0.',
+    )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
+    @Deprecated(
+      'Use viewOptions: TagflowViewOptions(...) instead. '
+      'Will be removed in tagflow 2.0.',
+    )
     TagflowOptions? options,
     super.key,
   }) : assert(
@@ -106,7 +136,14 @@ class Tagflow extends StatefulWidget {
   /// Semantic component registry used by [Tagflow.document] and [Tagflow.html].
   final TagflowComponentRegistry? registry;
 
-  /// Additional converters to use
+  /// Additional legacy converters to use.
+  ///
+  /// When non-empty, [Tagflow.html] renders through the legacy converter
+  /// pipeline instead of [registry]. Removed in tagflow 2.0.
+  @Deprecated(
+    'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
+    'instead. Will be removed in tagflow 2.0.',
+  )
   final List<ElementConverter> converters;
 
   /// Error builder for handling parsing/conversion errors
@@ -130,6 +167,7 @@ class Tagflow extends StatefulWidget {
       _renderBoundary ?? _legacyOptions?.renderBoundary;
 
   /// Legacy compatibility access to the old options shape.
+  @Deprecated('Use viewOptions instead. Will be removed in tagflow 2.0.')
   TagflowOptions get options =>
       _legacyOptions ??
       TagflowOptions.fromViewOptions(

@@ -68,8 +68,17 @@ class _ParsedSelector {
 final _globalSelectorCache = <String, _ParsedSelector>{};
 
 /// Base interface for element converters
+///
+/// Legacy API: register semantic components through
+/// `TagflowComponentRegistry` instead. Kept unchanged through 1.x and removed
+/// in tagflow 2.0.
+@Deprecated(
+  'Use TagflowComponentRegistry components with Tagflow.html(...) or '
+  'Tagflow.document(...) instead. Will be removed in tagflow 2.0.',
+)
 abstract class ElementConverter<T extends TagflowNode> {
   /// Create a new element converter
+  @Deprecated('Will be removed in tagflow 2.0.')
   const ElementConverter();
 
   /// Supported tags for this converter
@@ -245,8 +254,15 @@ abstract class ElementConverter<T extends TagflowNode> {
 }
 
 /// Main converter that orchestrates the conversion process
+///
+/// Legacy API: the semantic runtime renders through
+/// `TagflowComponentRegistry.render(...)`. Removed in tagflow 2.0.
+@Deprecated(
+  'Use TagflowComponentRegistry instead. Will be removed in tagflow 2.0.',
+)
 class TagflowConverter {
   /// Create a new converter with optional custom converters
+  @Deprecated('Use TagflowComponentRegistry instead. Will be removed in 2.0.')
   TagflowConverter([List<ElementConverter>? customConverters]) {
     if (customConverters != null) {
       _customConverters.addAll(customConverters);
