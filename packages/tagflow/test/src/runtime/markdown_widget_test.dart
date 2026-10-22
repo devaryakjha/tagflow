@@ -19,8 +19,7 @@ void main() {
       );
 
       expect(find.text('Answer'), findsOneWidget);
-      expect(find.text('bold'), findsOneWidget);
-      expect(find.text('code'), findsOneWidget);
+      expect(find.text('Use bold and code.', findRichText: true), findsOne);
       expect(find.text('☑'), findsOneWidget);
       expect(find.text('☐'), findsOneWidget);
       expect(find.text('void main() {}'), findsOneWidget);
@@ -43,7 +42,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(home: Tagflow.markdown(markdown: 'Hi <b>there</b>')),
       );
-      expect(find.text('there'), findsOneWidget);
+      expect(find.text('Hi there', findRichText: true), findsOneWidget);
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -55,7 +54,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('<b>'), findsOneWidget);
+      expect(find.textContaining('<b>', findRichText: true), findsOneWidget);
 
       await tester.pumpWidget(
         const MaterialApp(home: Tagflow.markdown(markdown: 'Updated')),

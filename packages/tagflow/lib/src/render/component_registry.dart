@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 import 'package:tagflow/src/tagflow_options.dart';
@@ -144,6 +145,19 @@ Widget _wrapNodeTapTarget(
   );
 }
 
+const _linkTextStyle = TextStyle(
+  color: Color(0xFF0B57D0),
+  decoration: TextDecoration.underline,
+);
+
+const _highlightColor = Color(0x33FFE082);
+
+/// Ambient text color that built-in surfaces and borders are tinted from, so
+/// they keep their contrast on light and dark backgrounds.
+Color _inkColor(BuildContext context) {
+  return DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+}
+
 final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.root: _renderBlockChildren,
   TagflowNodeKind.container: _renderContainer,
@@ -178,15 +192,12 @@ Widget _renderContainer(
   if (_htmlTag(node) == 'summary') {
     return _applyInlinePresentation(
       node.presentation,
-      Wrap(children: context.renderChildren(node)),
+      _renderInlineChildren(context, node),
     );
   }
 
-  final isInline =
-      node.presentation.inlineSemantics.isNotEmpty ||
-      _isInlineFallbackTag(_htmlTag(node));
-  final child = isInline
-      ? Wrap(children: context.renderChildren(node))
+  final child = _isInlineContainer(node)
+      ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
 
   return _applyInlinePresentation(node.presentation, child);
@@ -218,15 +229,54 @@ Widget _renderDisclosure(
   );
 }
 
+/// Renders [node]'s children as stacked blocks.
+///
+/// Consecutive inline children, such as the bare text and emphasis runs of a
+/// tight Markdown list item, are merged into one flowing text run instead of
+/// one line each.
 Widget _renderBlockChildren(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final children = <Widget>[];
+  var inlineRun = <TagflowDocumentNode>[];
+
+  void flushInlineRun() {
+    if (inlineRun.isEmpty) return;
+    children.add(
+      _TagflowInlineText(
+        key: ValueKey<String>('${inlineRun.first.id}:inline'),
+        context: context,
+        nodes: inlineRun,
+      ),
+    );
+    inlineRun = <TagflowDocumentNode>[];
+  }
+
+  for (final child in node.children) {
+    if (_isInlineNode(child)) {
+      inlineRun.add(child);
+      continue;
+    }
+    flushInlineRun();
+    children.add(context.render(child));
+  }
+  flushInlineRun();
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.start,
-    children: context.renderChildren(node),
+    children: children,
   );
+}
+
+/// Renders [node]'s children as one flowing text run, so inline content wraps
+/// word by word like prose instead of run by run.
+Widget _renderInlineChildren(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return _TagflowInlineText(context: context, nodes: node.children);
 }
 
 Widget _renderParagraph(
@@ -235,7 +285,7 @@ Widget _renderParagraph(
 ) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 8),
-    child: Wrap(children: context.renderChildren(node)),
+    child: _renderInlineChildren(context, node),
   );
 }
 
@@ -255,7 +305,7 @@ Widget _renderHeading(
 
   return DefaultTextStyle.merge(
     style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
-    child: Wrap(children: context.renderChildren(node)),
+    child: _renderInlineChildren(context, node),
   );
 }
 
@@ -280,11 +330,8 @@ Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
                 linkAttributes,
               ),
         child: DefaultTextStyle.merge(
-          style: const TextStyle(
-            color: Color(0xFF0B57D0),
-            decoration: TextDecoration.underline,
-          ),
-          child: Wrap(children: context.renderChildren(node)),
+          style: _linkTextStyle,
+          child: _renderInlineChildren(context, node),
         ),
       ),
     ),
@@ -387,7 +434,7 @@ Widget _renderDescriptionTerm(
     padding: const EdgeInsets.only(top: 4),
     child: DefaultTextStyle.merge(
       style: const TextStyle(fontWeight: FontWeight.w700),
-      child: Wrap(children: context.renderChildren(node)),
+      child: _renderInlineChildren(context, node),
     ),
   );
 }
@@ -607,7 +654,7 @@ Widget _defaultFallback(
 
   final htmlTag = _htmlTag(node);
   final child = _isInlineFallbackTag(htmlTag)
-      ? Wrap(children: context.renderChildren(node))
+      ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
 
   final textStyle = _fallbackTextStyle(htmlTag);
@@ -618,7 +665,7 @@ Widget _defaultFallback(
   if (htmlTag == 'mark') {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x33FFE082),
+        color: _highlightColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: child,
@@ -644,7 +691,7 @@ Widget _applyInlinePresentation(
   if (semantics.contains(TagflowInlineSemantic.highlight)) {
     current = DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x33FFE082),
+        color: _highlightColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: current,
@@ -825,6 +872,223 @@ final class _TagflowDisclosureState extends State<_TagflowDisclosure> {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Whether [node] is a container that flows inline, such as `<strong>` or a
+/// Markdown emphasis run.
+bool _isInlineContainer(TagflowDocumentNode node) {
+  final htmlTag = _htmlTag(node);
+  if (htmlTag == 'details' || htmlTag == 'summary') return false;
+  return node.presentation.inlineSemantics.isNotEmpty ||
+      _isInlineFallbackTag(htmlTag);
+}
+
+/// Whether [node] takes part in an inline text run inside a block.
+bool _isInlineNode(TagflowDocumentNode node) {
+  return switch (node.kind) {
+    TagflowNodeKind.text ||
+    TagflowNodeKind.inlineCode ||
+    TagflowNodeKind.link => true,
+    TagflowNodeKind.container => _isInlineContainer(node),
+    TagflowNodeKind.unsupported =>
+      node.children.isNotEmpty && _isInlineFallbackTag(_htmlTag(node)),
+    _ => false,
+  };
+}
+
+/// Paints inline [nodes] as a single [Text.rich] so runs of text, emphasis,
+/// links and inline code wrap together like prose.
+///
+/// Nodes that need their own widget (app overrides, extension components,
+/// node tap targets, images and block content) are embedded as [WidgetSpan]s
+/// rendered through the registry, so registry precedence still holds.
+final class _TagflowInlineText extends StatefulWidget {
+  const _TagflowInlineText({
+    required this.context,
+    required this.nodes,
+    super.key,
+  });
+
+  final TagflowComponentContext context;
+  final List<TagflowDocumentNode> nodes;
+
+  @override
+  State<_TagflowInlineText> createState() => _TagflowInlineTextState();
+}
+
+final class _TagflowInlineTextState extends State<_TagflowInlineText> {
+  List<GestureRecognizer> _recognizers = const [];
+
+  @override
+  void dispose() {
+    _disposeRecognizers(_recognizers);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final previous = _recognizers;
+    final builder = _InlineSpanBuilder(widget.context, context);
+    final nodes = widget.nodes;
+    if (nodes.length == 1 &&
+        nodes.single.kind == TagflowNodeKind.text &&
+        nodes.single.presentation.inlineSemantics.isEmpty &&
+        builder._canFlow(nodes.single)) {
+      _recognizers = const [];
+      _disposeRecognizers(previous);
+      return Text(nodes.single.text ?? '');
+    }
+
+    final spans = [for (final node in nodes) builder.build(node)];
+    _recognizers = builder.recognizers;
+    _disposeRecognizers(previous);
+
+    return Text.rich(TextSpan(children: spans));
+  }
+
+  static void _disposeRecognizers(List<GestureRecognizer> recognizers) {
+    for (final recognizer in recognizers) {
+      recognizer.dispose();
+    }
+  }
+}
+
+final class _InlineSpanBuilder {
+  _InlineSpanBuilder(this.context, this.buildContext);
+
+  final TagflowComponentContext context;
+  final BuildContext buildContext;
+  final List<GestureRecognizer> recognizers = [];
+
+  late final TagflowViewOptions? _viewOptions = TagflowViewOptions.maybeOf(
+    buildContext,
+  );
+  late final Color _ink = _inkColor(buildContext);
+
+  InlineSpan build(
+    TagflowDocumentNode node, {
+    GestureRecognizer? recognizer,
+    MouseCursor? mouseCursor,
+  }) {
+    if (!_canFlow(node)) {
+      return WidgetSpan(
+        alignment: node.kind == TagflowNodeKind.image
+            ? PlaceholderAlignment.middle
+            : PlaceholderAlignment.baseline,
+        baseline: TextBaseline.alphabetic,
+        child: context.render(node),
+      );
+    }
+
+    switch (node.kind) {
+      case TagflowNodeKind.text:
+        return TextSpan(
+          text: node.text ?? '',
+          style: _presentationStyle(node.presentation),
+          recognizer: recognizer,
+          mouseCursor: mouseCursor,
+        );
+      case TagflowNodeKind.inlineCode:
+        return TextSpan(
+          text: node.text ?? '',
+          style: TextStyle(
+            fontFamily: 'monospace',
+            backgroundColor: _ink.withValues(alpha: 0.07),
+          ),
+          recognizer: recognizer,
+          mouseCursor: mouseCursor,
+        );
+      case TagflowNodeKind.link:
+        if (!_canFlowSubtree(node)) {
+          // A link around an image or other widget keeps its gesture
+          // wrapper so the whole subtree stays tappable.
+          return WidgetSpan(
+            alignment: PlaceholderAlignment.baseline,
+            baseline: TextBaseline.alphabetic,
+            child: context.render(node),
+          );
+        }
+        final url = node.url;
+        final callback = TagflowOptions.of(buildContext).linkTapCallback;
+        var linkRecognizer = recognizer;
+        if (url != null && callback != null) {
+          final attributes = _linkAttributes(node);
+          linkRecognizer = TapGestureRecognizer()
+            ..onTap = () => callback(url.toString(), attributes);
+          recognizers.add(linkRecognizer);
+        }
+        return TextSpan(
+          style: _linkTextStyle.merge(_presentationStyle(node.presentation)),
+          children: _children(
+            node,
+            recognizer: linkRecognizer,
+            mouseCursor: url == null ? mouseCursor : SystemMouseCursors.click,
+          ),
+        );
+      case _:
+        final textStyle = _fallbackTextStyle(_htmlTag(node));
+        final highlight = _htmlTag(node) == 'mark'
+            ? const TextStyle(backgroundColor: _highlightColor)
+            : null;
+        return TextSpan(
+          style: (textStyle ?? const TextStyle())
+              .merge(highlight)
+              .merge(_presentationStyle(node.presentation)),
+          children: _children(
+            node,
+            recognizer: recognizer,
+            mouseCursor: mouseCursor,
+          ),
+        );
+    }
+  }
+
+  List<InlineSpan> _children(
+    TagflowDocumentNode node, {
+    required GestureRecognizer? recognizer,
+    required MouseCursor? mouseCursor,
+  }) {
+    return [
+      for (final child in node.children)
+        build(child, recognizer: recognizer, mouseCursor: mouseCursor),
+    ];
+  }
+
+  /// Whether [node] can be painted as a [TextSpan] by the built-in inline
+  /// renderer rather than embedded as its own widget.
+  bool _canFlow(TagflowDocumentNode node) {
+    if (!_isInlineNode(node)) return false;
+    if (!identical(
+      context.registry._components[node.kind] ??
+          context.registry._fallbackBuilder,
+      _builtInComponents[node.kind] ?? _defaultFallback,
+    )) {
+      return false;
+    }
+
+    final options = _viewOptions;
+    if (options?.nodeTapCallback != null &&
+        node.kind != TagflowNodeKind.link &&
+        options!.tapTargetKinds.contains(node.kind)) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _canFlowSubtree(TagflowDocumentNode node) {
+    return node.children.every(
+      (child) => _canFlow(child) && _canFlowSubtree(child),
+    );
+  }
+
+  TextStyle? _presentationStyle(TagflowPresentation presentation) {
+    final semantics = presentation.inlineSemantics;
+    final style = _inlineTextStyle(semantics);
+    if (!semantics.contains(TagflowInlineSemantic.highlight)) return style;
+    return (style ?? const TextStyle()).copyWith(
+      backgroundColor: _highlightColor,
     );
   }
 }
