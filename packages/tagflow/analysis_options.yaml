@@ -1,5 +1,7 @@
 analyzer:
   exclude:
     - build/**
+    # Fix tests use deprecated APIs on purpose and carry their own options.
+    - test_fixes/**
 include: ../../analysis_options.yaml
 

@@ -40,6 +40,12 @@ melos:
         "flutter test --coverage"
       description: Run tests for all packages that have tests
 
+    test:fixes:
+      run: >
+        dart run melos exec --scope=tagflow -c 1 --fail-fast --
+        "cd test_fixes && dart fix --compare-to-golden"
+      description: Check lib/fix_data.yaml against the test_fixes goldens
+
     goldens:
       run: >
         dart run melos exec
@@ -75,7 +81,8 @@ melos:
     validate:
       run: |
         dart run melos run lint:all &&
-        dart run melos run test --no-select
+        dart run melos run test --no-select &&
+        dart run melos run test:fixes --no-select
       description: Run all validations
 
     build:clean:

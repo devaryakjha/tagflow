@@ -47,6 +47,7 @@ dart run melos run analyze        # flutter analyze --fatal-infos in every packa
 dart run melos run format         # dart format everything
 dart run melos run test           # flutter test --coverage in every package
 dart run melos run publish:dry-run
+dart run melos run test:fixes      # dart fix goldens in packages/tagflow/test_fixes
 dart run melos run goldens         # golden tests only
 dart run melos run goldens:update  # regenerate baselines (Linux, Flutter from .fvmrc)
 
@@ -149,6 +150,10 @@ the document model and registry.
   package barrel (`lib/tagflow.dart`). `test/src/public_api/export_test.dart`
   guards the exported surface; update it when the surface changes on purpose.
 - Use `// ignore:` only with a reason next to it.
+- When you deprecate an API whose replacement is mechanical (a rename, a
+  moved parameter, an equivalent constructor), add a transform to
+  `packages/tagflow/lib/fix_data.yaml` and a case to
+  `packages/tagflow/test_fixes/` so `dart fix` can migrate users.
 - Follow the HTML specification for HTML behavior and note any deviation in a
   code comment. For tables, the `border` attribute sets the outer border and
   adds 1px cell borders.
