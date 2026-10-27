@@ -1,0 +1,8 @@
+# Keeps the package analysis options from changing the fix tests.
+
+linter:
+  rules:
+    # These files live inside package:tagflow, so deprecated tagflow APIs are
+    # reported as deprecated_member_use_from_same_package. App code outside
+    # the package gets deprecated_member_use, which is on by default.
+    - deprecated_member_use_from_same_package

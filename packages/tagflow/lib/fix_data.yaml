@@ -1,0 +1,112 @@
+# Data-driven fixes for `dart fix` and IDE quick fixes.
+#
+# Format reference: https://dart.dev/go/data-driven-fixes
+# Tests live in ../test_fixes; run `dart fix --compare-to-golden` there.
+#
+# Only migrations that keep behavior belong here. A fix may leave code that
+# does not compile (for example a variable explicitly typed TagflowOptions),
+# but it must never compile into different behavior.
+version: 1
+transforms:
+  # Changes made in 1.0.0-beta.1: the legacy options shape is deprecated.
+
+  # TagflowViewOptions takes the same parameters except renderBoundary, which
+  # moved to Tagflow.html(renderBoundary: ...) and the HTML adapter. Calls
+  # that pass renderBoundary are left for a manual migration so the boundary
+  # is not dropped.
+  - title: 'Migrate to TagflowViewOptions'
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'TagflowOptions'
+    oneOf:
+      - if: "renderBoundary == ''"
+        changes:
+          - kind: 'replacedBy'
+            newElement:
+              uris: ['tagflow.dart']
+              constructor: ''
+              inClass: 'TagflowViewOptions'
+    variables:
+      renderBoundary:
+        kind: 'fragment'
+        value: 'arguments[renderBoundary]'
+
+  # Tagflow.html takes the same parameters; its own transform below then
+  # renames options: to viewOptions:.
+  - title: 'Migrate to Tagflow.html'
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'rename'
+        newName: 'html'
+
+  - title: "Migrate to 'viewOptions'"
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'html'
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'options'
+        newName: 'viewOptions'
+
+  - title: "Migrate to 'viewOptions'"
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'document'
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'options'
+        newName: 'viewOptions'
+
+  - title: "Migrate to 'viewOptions'"
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      method: 'parse'
+      inClass: 'TagflowHtmlAdapter'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'options'
+        newName: 'viewOptions'
+
+  - title: 'Migrate to TagflowScope.view'
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'TagflowScope'
+    changes:
+      - kind: 'rename'
+        newName: 'view'
+
+  # Renaming the deprecated TagflowScope constructor leaves its options:
+  # argument on TagflowScope.view, where this transform picks it up.
+  - title: "Migrate to 'viewOptions'"
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'view'
+      inClass: 'TagflowScope'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'options'
+        newName: 'viewOptions'
+
+  # ErrorWidgetBuilder is an alias of TagflowErrorWidgetBuilder.
+  - title: 'Rename to TagflowErrorWidgetBuilder'
+    date: 2026-10-27
+    element:
+      uris: ['tagflow.dart']
+      typedef: 'ErrorWidgetBuilder'
+    changes:
+      - kind: 'rename'
+        newName: 'TagflowErrorWidgetBuilder'

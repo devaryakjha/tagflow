@@ -1,3 +1,16 @@
+## Unreleased
+
+### Added
+
+- Data-driven fixes (`lib/fix_data.yaml`) so `dart fix --apply` and IDE quick
+  fixes migrate deprecated call sites: `Tagflow(html: ...)` to
+  `Tagflow.html(...)`, `TagflowOptions(...)` to `TagflowViewOptions(...)`
+  when no `renderBoundary` is passed, `options:` to `viewOptions:` on
+  `Tagflow`, `Tagflow.html`, `Tagflow.document` and
+  `TagflowHtmlAdapter.parse`, `TagflowScope(options: ...)` to
+  `TagflowScope.view(viewOptions: ...)`, and `ErrorWidgetBuilder` to
+  `TagflowErrorWidgetBuilder`.
+
 ## 1.0.0-beta.1 - 2026-10-22
 
 The AI answers release: Markdown input, streaming Markdown, and a code block

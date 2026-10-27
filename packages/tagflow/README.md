@@ -373,6 +373,12 @@ deprecated on the same schedule. New runtime code should use
 `package:tagflow/tagflow.dart`, `Tagflow.document(...)`, `Tagflow.html(...)`,
 `TagflowHtmlAdapter`, and `TagflowComponentRegistry`.
 
+`dart fix --apply` (or the IDE quick fix) migrates the mechanical cases: the
+default `Tagflow(html: ...)` constructor, `TagflowOptions(...)` without a
+`renderBoundary`, `options:` arguments, `TagflowScope(options: ...)`, and
+`ErrorWidgetBuilder`. Converter-based code and `TagflowOptions` with a
+`renderBoundary` need a manual migration.
+
 ### Theming
 
 ```dart
