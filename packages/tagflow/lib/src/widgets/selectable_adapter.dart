@@ -1,6 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tagflow/legacy.dart';
+import 'package:tagflow/src/tagflow_options.dart';
 
 /// A widget that wraps the child with selectable functionality.
 class TagflowSelectableAdapter extends StatelessWidget {

@@ -7,7 +7,7 @@ import 'package:html/dom.dart' as dom;
 import 'package:html/dom_parsing.dart';
 import 'package:html/parser.dart' as html;
 import 'package:tagflow/legacy.dart';
-import 'package:tagflow/src/adapters/content_limits.dart';
+import 'package:tagflow/src/adapters/html_dom.dart';
 
 /// Parses HTML string into TagflowElement
 ///
@@ -77,7 +77,7 @@ class TagflowParser {
     }
 
     if (maxDepth != null || maxNodes != null) {
-      _limitDom(body, maxDepth: maxDepth, maxNodes: maxNodes);
+      limitHtmlDom(body, maxDepth: maxDepth, maxNodes: maxNodes);
     }
 
     _renderBoundaryState?.setHasStartBoundary(
@@ -225,43 +225,6 @@ class TagflowParser {
 }
 
 /// HTML elements that are inline-level by default.
-/// Cuts [body] down to [maxDepth] and [maxNodes] before any further parsing,
-/// so the cost of the rest of the pipeline is bounded.
-///
-/// Walks the tree iteratively, so very deep input cannot overflow the stack.
-void _limitDom(dom.Element body, {int? maxDepth, int? maxNodes}) {
-  final stack = <(dom.Node, int)>[
-    for (final node in body.nodes.reversed) (node, 1),
-  ];
-  var count = 0;
-  var markedNodeLimit = false;
-
-  while (stack.isNotEmpty) {
-    final (node, depth) = stack.removeLast();
-
-    if (maxNodes != null && count >= maxNodes) {
-      if (markedNodeLimit) {
-        node.remove();
-      } else {
-        markedNodeLimit = true;
-        node.replaceWith(dom.Element.tag(tagflowLimitNodesTag));
-      }
-      continue;
-    }
-    count++;
-
-    if (maxDepth != null && depth > maxDepth) {
-      node.replaceWith(dom.Element.tag(tagflowLimitDepthTag));
-      continue;
-    }
-
-    final children = node.nodes.toList(growable: false);
-    for (final child in children.reversed) {
-      stack.add((child, depth + 1));
-    }
-  }
-}
-
 const _inlineHtmlTags = {
   'a',
   'abbr',

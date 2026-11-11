@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagflow/src/adapters/html_adapter.dart';
 import 'package:tagflow/src/adapters/markdown_adapter.dart';
 import 'package:tagflow/src/converter/converter.dart';
+import 'package:tagflow/src/converter/html_document_bridge.dart';
 import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/render/render.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
