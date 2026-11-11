@@ -222,9 +222,15 @@ Widget _renderCell(
 
   if (!cell.header) return decorated;
 
-  return DefaultTextStyle.merge(
-    style: theme.tableHeaderStyle,
-    child: decorated,
+  // Flutter's table widgets have no row semantics, so the header role is a
+  // hint read after the cell text, the same as the core table.
+  return Semantics(
+    container: true,
+    hint: 'Column header',
+    child: DefaultTextStyle.merge(
+      style: theme.tableHeaderStyle,
+      child: decorated,
+    ),
   );
 }
 

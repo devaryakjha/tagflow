@@ -286,19 +286,82 @@ Widget _wrapNodeTapTarget(
     return child;
   }
 
-  return MouseRegion(
-    cursor: SystemMouseCursors.click,
-    child: Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          callback(TagflowNodeTapDetails(context: context, node: node));
-        },
-        child: child,
-      ),
-    ),
+  return _TagflowTapTarget(
+    button: true,
+    onTap: () {
+      callback(TagflowNodeTapDetails(context: context, node: node));
+    },
+    child: child,
   );
+}
+
+/// A tap target that the keyboard can reach: it takes focus, shows a focus
+/// ring while focused, and activates with Enter or Space, besides a tap.
+final class _TagflowTapTarget extends StatefulWidget {
+  const _TagflowTapTarget({
+    required this.onTap,
+    required this.child,
+    this.button = false,
+    this.link = false,
+    this.expanded,
+  });
+
+  final VoidCallback? onTap;
+  final Widget child;
+  final bool button;
+  final bool link;
+  final bool? expanded;
+
+  @override
+  State<_TagflowTapTarget> createState() => _TagflowTapTargetState();
+}
+
+final class _TagflowTapTargetState extends State<_TagflowTapTarget> {
+  bool _showFocus = false;
+
+  late final Map<Type, Action<Intent>> _actions = {
+    ActivateIntent: CallbackAction<ActivateIntent>(
+      onInvoke: (_) {
+        widget.onTap?.call();
+        return null;
+      },
+    ),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final onTap = widget.onTap;
+    final enabled = onTap != null;
+    final ring =
+        _theme(context).linkStyle?.color ??
+        DefaultTextStyle.of(context).style.color ??
+        const Color(0xFF1A73E8);
+    return Semantics(
+      button: widget.button,
+      link: widget.link,
+      expanded: widget.expanded,
+      child: FocusableActionDetector(
+        enabled: enabled,
+        actions: _actions,
+        mouseCursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
+        onShowFocusHighlight: (value) => setState(() => _showFocus = value),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: onTap,
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: _showFocus
+                ? BoxDecoration(
+                    border: Border.all(color: ring, width: 2),
+                    borderRadius: BorderRadius.circular(2),
+                  )
+                : const BoxDecoration(),
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// View options from the nearest [TagflowScope], or the defaults when the
@@ -579,11 +642,16 @@ Widget _renderHeading(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  final style = _theme(context.buildContext).headingStyle(node.level ?? 1);
+  final level = (node.level ?? 1).clamp(1, 6);
+  final style = _theme(context.buildContext).headingStyle(level);
 
-  return DefaultTextStyle.merge(
-    style: style,
-    child: _renderInlineChildren(context, node),
+  return Semantics(
+    header: true,
+    headingLevel: level,
+    child: DefaultTextStyle.merge(
+      style: style,
+      child: _renderInlineChildren(context, node),
+    ),
   );
 }
 
@@ -599,23 +667,17 @@ Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
   final options = _viewOptionsOf(context.buildContext);
   final linkAttributes = _linkAttributes(node);
 
-  return Semantics(
+  return _TagflowTapTarget(
     link: true,
-    child: MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: node.url == null
-            ? null
-            : () => options.linkTapCallback?.call(
-                node.url.toString(),
-                linkAttributes,
-              ),
-        child: DefaultTextStyle.merge(
-          style: _theme(context.buildContext).linkStyle,
-          child: _renderInlineChildren(context, node),
-        ),
-      ),
+    onTap: node.url == null
+        ? null
+        : () => options.linkTapCallback?.call(
+            node.url.toString(),
+            linkAttributes,
+          ),
+    child: DefaultTextStyle.merge(
+      style: _theme(context.buildContext).linkStyle,
+      child: _renderInlineChildren(context, node),
     ),
   );
 }
@@ -855,6 +917,8 @@ Widget _renderImage(TagflowComponentContext context, TagflowDocumentNode node) {
     width: _clampDimension(node.width, options.maxImageWidth),
     height: _clampDimension(node.height, options.maxImageHeight),
     semanticLabel: node.alt,
+    // An empty alt marks a decorative image, as in HTML.
+    excludeFromSemantics: node.alt?.isEmpty ?? false,
     loadingBuilder: options.imageLoadingBuilder,
     errorBuilder: options.imageErrorBuilder,
   );
@@ -1003,7 +1067,7 @@ Widget _renderTableCell(
   );
 
   final theme = _theme(context.buildContext);
-  return DecoratedBox(
+  final cell = DecoratedBox(
     decoration: BoxDecoration(
       color: node.header ? theme.tableHeaderBackgroundColor : null,
     ),
@@ -1011,6 +1075,7 @@ Widget _renderTableCell(
         ? DefaultTextStyle.merge(style: theme.tableHeaderStyle, child: child)
         : child,
   );
+  return node.header ? _tableHeaderSemantics(cell) : cell;
 }
 
 Widget _renderHorizontalRule(
@@ -1198,26 +1263,26 @@ final class _TagflowDisclosureState extends State<_TagflowDisclosure> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Semantics(
+          _TagflowTapTarget(
             button: true,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => setState(() {
-                _expanded = !_expanded;
-              }),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text(_expanded ? 'v' : '>'),
+            expanded: _expanded,
+            onTap: () => setState(() {
+              _expanded = !_expanded;
+            }),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ExcludeSemantics(
+                      child: _DisclosureChevron(expanded: _expanded),
                     ),
-                    Flexible(child: widget.title),
-                  ],
-                ),
+                  ),
+                  Flexible(child: widget.title),
+                ],
               ),
             ),
           ),
@@ -1291,16 +1356,51 @@ final class _TagflowInlineText extends StatefulWidget {
 final class _TagflowInlineTextState extends State<_TagflowInlineText> {
   List<GestureRecognizer> _recognizers = const [];
 
+  /// Focus nodes of the tappable links in this run, by link node id.
+  Map<String, FocusNode> _linkFocusNodes = const {};
+
+  /// The link whose keyboard focus highlight is showing.
+  String? _highlightedLink;
+
   @override
   void dispose() {
     _disposeRecognizers(_recognizers);
+    for (final node in _linkFocusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
+  }
+
+  FocusNode _linkFocusNode(String id, Map<String, FocusNode> used) {
+    return used[id] ??=
+        _linkFocusNodes[id] ?? FocusNode(debugLabel: 'Tagflow link $id');
+  }
+
+  void _setHighlightedLink(String id, {required bool highlighted}) {
+    final next = highlighted
+        ? id
+        : (_highlightedLink == id ? null : _highlightedLink);
+    if (next != _highlightedLink) setState(() => _highlightedLink = next);
+  }
+
+  void _retainLinkFocusNodes(Map<String, FocusNode> used) {
+    for (final entry in _linkFocusNodes.entries) {
+      if (!identical(used[entry.key], entry.value)) entry.value.dispose();
+    }
+    _linkFocusNodes = used;
   }
 
   @override
   Widget build(BuildContext context) {
     final previous = _recognizers;
-    final builder = _InlineSpanBuilder(widget.context, context);
+    final usedFocusNodes = <String, FocusNode>{};
+    final builder = _InlineSpanBuilder(
+      widget.context,
+      context,
+      linkFocus: (id) => _linkFocusNode(id, usedFocusNodes),
+      highlightedLink: _highlightedLink,
+      onLinkHighlight: _setHighlightedLink,
+    );
     final nodes = widget.nodes;
     if (nodes.length == 1 &&
         nodes.single.kind == TagflowNodeKind.text &&
@@ -1308,14 +1408,28 @@ final class _TagflowInlineTextState extends State<_TagflowInlineText> {
         builder._canFlow(nodes.single)) {
       _recognizers = const [];
       _disposeRecognizers(previous);
+      _retainLinkFocusNodes(usedFocusNodes);
       return Text(nodes.single.text ?? '');
     }
 
     final spans = [for (final node in nodes) builder.build(node)];
     _recognizers = builder.recognizers;
     _disposeRecognizers(previous);
+    _retainLinkFocusNodes(usedFocusNodes);
 
-    return Text.rich(TextSpan(children: spans));
+    Widget text = Text.rich(TextSpan(children: spans));
+    final links = builder.links;
+    if (links.isEmpty) return text;
+    // One focus target per link, wrapped around the text so layout and the
+    // text itself are unchanged. They share a rect, so an ordered group
+    // keeps Tab in reading order.
+    for (var index = links.length - 1; index >= 0; index--) {
+      text = FocusTraversalOrder(
+        order: NumericFocusOrder(index.toDouble()),
+        child: links[index].wrap(text),
+      );
+    }
+    return FocusTraversalGroup(policy: OrderedTraversalPolicy(), child: text);
   }
 
   static void _disposeRecognizers(List<GestureRecognizer> recognizers) {
@@ -1326,11 +1440,24 @@ final class _TagflowInlineTextState extends State<_TagflowInlineText> {
 }
 
 final class _InlineSpanBuilder {
-  _InlineSpanBuilder(this.context, this.buildContext);
+  _InlineSpanBuilder(
+    this.context,
+    this.buildContext, {
+    required this.linkFocus,
+    required this.highlightedLink,
+    required this.onLinkHighlight,
+  });
 
   final TagflowComponentContext context;
   final BuildContext buildContext;
   final List<GestureRecognizer> recognizers = [];
+
+  /// Keyboard focus targets for the tappable links, in reading order.
+  final List<_InlineLinkFocusTarget> links = [];
+  final FocusNode Function(String linkId) linkFocus;
+  final String? highlightedLink;
+  final void Function(String linkId, {required bool highlighted})
+  onLinkHighlight;
 
   late final TagflowViewOptions? _viewOptions = TagflowViewOptions.maybeOf(
     buildContext,
@@ -1382,22 +1509,45 @@ final class _InlineSpanBuilder {
         final url = node.url;
         final callback = _viewOptions?.linkTapCallback;
         var linkRecognizer = recognizer;
+        VoidCallback? activate;
         if (url != null && callback != null) {
           final attributes = _linkAttributes(node);
-          linkRecognizer = TapGestureRecognizer()
-            ..onTap = () => callback(url.toString(), attributes);
+          activate = () => callback(url.toString(), attributes);
+          linkRecognizer = TapGestureRecognizer()..onTap = activate;
           recognizers.add(linkRecognizer);
         }
-        return TextSpan(
-          style: _renderTheme.linkStyle!.merge(
-            _presentationStyle(node.presentation),
-          ),
+        var style = _renderTheme.linkStyle!.merge(
+          _presentationStyle(node.presentation),
+        );
+        if (highlightedLink == node.id) {
+          // Text spans cannot take focus, so a focus target wraps the text
+          // for each link and the link text shows the focus.
+          style = style.merge(
+            TextStyle(
+              backgroundColor: (style.color ?? const Color(0xFF1A73E8))
+                  .withAlpha(0x33),
+            ),
+          );
+        }
+        final link = TextSpan(
+          style: style,
           children: _children(
             node,
             recognizer: linkRecognizer,
             mouseCursor: url == null ? mouseCursor : SystemMouseCursors.click,
           ),
         );
+        if (activate != null) {
+          links.add(
+            _InlineLinkFocusTarget(
+              focusNode: linkFocus(node.id),
+              onActivate: activate,
+              onHighlight: (value) =>
+                  onLinkHighlight(node.id, highlighted: value),
+            ),
+          );
+        }
+        return link;
       case _:
         return TextSpan(
           style: _presentationStyle(node.presentation),
@@ -1459,6 +1609,39 @@ final class _InlineSpanBuilder {
     final inline = _textStyleFromInline(buildContext, presentation.inlineStyle);
     if (inline == null) return style;
     return (style ?? const TextStyle()).merge(inline);
+  }
+}
+
+/// Keyboard focus target for a link painted as a text span.
+///
+/// Enter or Space activates the link. Screen readers use the span's own link
+/// semantics, so the target adds no semantics node of its own.
+final class _InlineLinkFocusTarget {
+  const _InlineLinkFocusTarget({
+    required this.focusNode,
+    required this.onActivate,
+    required this.onHighlight,
+  });
+
+  final FocusNode focusNode;
+  final VoidCallback onActivate;
+  final ValueChanged<bool> onHighlight;
+
+  Widget wrap(Widget child) {
+    return FocusableActionDetector(
+      focusNode: focusNode,
+      includeFocusSemantics: false,
+      onShowFocusHighlight: onHighlight,
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            onActivate();
+            return null;
+          },
+        ),
+      },
+      child: child,
+    );
   }
 }
 
@@ -1601,4 +1784,66 @@ final class _TagflowCodeCopyButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A chevron that points right when collapsed and down when expanded.
+///
+/// Drawn rather than taken from an icon font, so the core package does not
+/// depend on Material icons.
+final class _DisclosureChevron extends StatelessWidget {
+  const _DisclosureChevron({required this.expanded});
+
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style;
+    final size = (style.fontSize ?? 14) * 0.75;
+    return SizedBox(
+      // Match the first line of the title.
+      height: (style.fontSize ?? 14) * (style.height ?? 1.2),
+      child: Center(
+        child: AnimatedRotation(
+          turns: expanded ? 0.25 : 0,
+          duration: const Duration(milliseconds: 150),
+          child: CustomPaint(
+            size: Size.square(size),
+            painter: _ChevronPainter(style.color ?? const Color(0xFF000000)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+final class _ChevronPainter extends CustomPainter {
+  const _ChevronPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width / 6
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final path = Path()
+      ..moveTo(size.width * 0.35, size.height * 0.2)
+      ..lineTo(size.width * 0.7, size.height * 0.5)
+      ..lineTo(size.width * 0.35, size.height * 0.8);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_ChevronPainter oldDelegate) => oldDelegate.color != color;
+}
+
+/// Marks [cell] as a table column header for assistive technology.
+///
+/// Flutter's `Table` has no row semantics, so the header role is carried as
+/// a hint read after the cell text rather than as a table role.
+Widget _tableHeaderSemantics(Widget cell) {
+  return Semantics(container: true, hint: 'Column header', child: cell);
 }

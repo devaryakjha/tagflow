@@ -1,3 +1,8 @@
+## Unreleased
+
+- Header cells carry a "Column header" semantics hint.
+  ([#122](https://github.com/devaryakjha/tagflow/issues/122))
+
 ## 1.0.0-beta.2
 
 ### Upgrading from 1.0.0-beta.1
