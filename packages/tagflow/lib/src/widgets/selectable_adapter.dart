@@ -30,7 +30,7 @@ class TagflowSelectableAdapter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registrar = SelectionContainer.maybeOf(context);
-    final options = TagflowOptions.maybeOf(context);
+    final options = TagflowViewOptions.maybeOf(context);
 
     // Early return if selection is not enabled
     if (registrar == null || !(options?.selectable.enabled ?? false)) {

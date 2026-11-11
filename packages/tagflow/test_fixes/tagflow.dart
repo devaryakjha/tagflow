@@ -42,4 +42,22 @@ void main() {
   // ErrorWidgetBuilder.
   ErrorWidgetBuilder? errorBuilder;
   Tagflow.html(html: '<p>Hello</p>', errorBuilder: errorBuilder!);
+
+  // Changes made in 1.0.0-beta.2.
+
+  // loadingBuilder and enableImageCache had no effect.
+  Tagflow.html(
+    html: '<p>Hello</p>',
+    loadingBuilder: (context) => const SizedBox(),
+  );
+  Tagflow.markdown(
+    markdown: '# Hi',
+    loadingBuilder: (context) => const SizedBox(),
+  );
+  Tagflow.document(
+    TagflowDocument(id: 'doc', children: const []),
+    loadingBuilder: (context) => const SizedBox(),
+  );
+  const TagflowViewOptions(enableImageCache: false, debug: true);
+  const TagflowViewOptions().copyWith(enableImageCache: false);
 }

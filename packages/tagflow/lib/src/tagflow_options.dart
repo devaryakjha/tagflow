@@ -43,32 +43,96 @@ enum TagflowImageSelectionBehavior {
   custom,
 }
 
+/// Builds the text an image contributes to a selection.
+///
+/// [image] is a [TagflowNodeKind.image] node. Return `null` to leave the
+/// image out of the selection.
+typedef TagflowImageSelectionTextBuilder =
+    String? Function(TagflowDocumentNode image, BuildContext context);
+
 /// Options for configuring the selectable behavior of the Tagflow widget
 final class TagflowSelectableOptions extends Equatable {
   /// Creates a new [TagflowSelectableOptions] instance.
   const TagflowSelectableOptions({
     this.enabled = false,
     this.imageSelectionBehavior = TagflowImageSelectionBehavior.altTextOnly,
+    this.imageSelectionTextBuilder,
+    @Deprecated(
+      'Use imageSelectionTextBuilder, which takes a TagflowDocumentNode. '
+      'Will be removed in tagflow 2.0.',
+    )
     this.imageSelectionBehaviorTextBuilder,
   }) : assert(
          imageSelectionBehavior != TagflowImageSelectionBehavior.custom ||
+             imageSelectionTextBuilder != null ||
              imageSelectionBehaviorTextBuilder != null,
-         'imageSelectionBehaviorTextBuilder must be provided when imageSelectionBehavior is custom',
+         'imageSelectionTextBuilder must be provided when imageSelectionBehavior is custom',
        );
 
   /// Whether the selectable behavior is enabled
   final bool enabled;
 
-  /// Behavior for selecting images
+  /// What an image contributes when a selection that covers it is copied.
   final TagflowImageSelectionBehavior imageSelectionBehavior;
 
-  /// Custom behavior for selecting images
+  /// Builds the selection text of images when [imageSelectionBehavior] is
+  /// [TagflowImageSelectionBehavior.custom].
+  final TagflowImageSelectionTextBuilder? imageSelectionTextBuilder;
+
+  /// Legacy form of [imageSelectionTextBuilder] that takes the legacy
+  /// element type. Used only when [imageSelectionTextBuilder] is not set.
+  @Deprecated(
+    'Use imageSelectionTextBuilder, which takes a TagflowDocumentNode. '
+    'Will be removed in tagflow 2.0.',
+  )
   final String? Function(TagflowImgElement, BuildContext)?
   imageSelectionBehaviorTextBuilder;
 
+  /// The text [image] contributes to a selection, following
+  /// [imageSelectionBehavior].
+  ///
+  /// [TagflowImageSelectionBehavior.altTextOnly] gives the alt text,
+  /// [TagflowImageSelectionBehavior.urlAndAlt] gives the alt text and the
+  /// URL separated by an em dash, and [TagflowImageSelectionBehavior.custom]
+  /// calls the text builder.
+  String? imageSelectionText(TagflowDocumentNode image, BuildContext context) {
+    final alt = image.alt;
+    final url = image.url?.toString();
+    switch (imageSelectionBehavior) {
+      case TagflowImageSelectionBehavior.altTextOnly:
+        return alt;
+      case TagflowImageSelectionBehavior.urlAndAlt:
+        return [
+          if (alt != null && alt.isNotEmpty) alt,
+          if (url != null && url.isNotEmpty) url,
+        ].join(' — ');
+      case TagflowImageSelectionBehavior.custom:
+        if (imageSelectionTextBuilder case final builder?) {
+          return builder(image, context);
+        }
+        final legacyBuilder = imageSelectionBehaviorTextBuilder;
+        if (legacyBuilder == null) return null;
+        return legacyBuilder(
+          TagflowImgElement(
+            attributes: {
+              if (url != null) 'src': url,
+              if (alt != null) 'alt': alt,
+              if (image.width != null) 'width': '${image.width}',
+              if (image.height != null) 'height': '${image.height}',
+            },
+          ),
+          context,
+        );
+    }
+  }
+
   @override
   // coverage:ignore-line
-  List<Object?> get props => [enabled, imageSelectionBehavior];
+  List<Object?> get props => [
+    enabled,
+    imageSelectionBehavior,
+    imageSelectionTextBuilder,
+  ];
 }
 
 /// Boundary that limits rendering when matched while parsing the HTML tree.
@@ -135,6 +199,10 @@ final class TagflowViewOptions extends Equatable {
     this.imageErrorBuilder,
     this.maxImageWidth,
     this.maxImageHeight,
+    @Deprecated(
+      'Has no effect: images use the Flutter image cache. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.enableImageCache = true,
     this.errorBuilder,
     this.codeBlock = const TagflowCodeBlockOptions(),
@@ -167,7 +235,11 @@ final class TagflowViewOptions extends Equatable {
   /// Maximum height for images
   final double? maxImageHeight;
 
-  /// Whether to cache images
+  /// Has no effect; images always use the Flutter image cache.
+  @Deprecated(
+    'Has no effect: images use the Flutter image cache. '
+    'Will be removed before tagflow 1.0.0.',
+  )
   final bool enableImageCache;
 
   /// Custom widget builder for unrecoverable parsing or rendering errors.
@@ -187,6 +259,10 @@ final class TagflowViewOptions extends Equatable {
     ImageErrorWidgetBuilder? imageErrorBuilder,
     double? maxImageWidth,
     double? maxImageHeight,
+    @Deprecated(
+      'Has no effect: images use the Flutter image cache. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     bool? enableImageCache,
     TagflowErrorWidgetBuilder? errorBuilder,
     TagflowCodeBlockOptions? codeBlock,
@@ -262,6 +338,10 @@ final class TagflowOptions extends Equatable {
     this.imageErrorBuilder,
     this.maxImageWidth,
     this.maxImageHeight,
+    @Deprecated(
+      'Has no effect: images use the Flutter image cache. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.enableImageCache = true,
     this.errorBuilder,
     this.codeBlock = const TagflowCodeBlockOptions(),
@@ -318,7 +398,11 @@ final class TagflowOptions extends Equatable {
   /// Maximum height for images
   final double? maxImageHeight;
 
-  /// Whether to cache images
+  /// Has no effect; images always use the Flutter image cache.
+  @Deprecated(
+    'Has no effect: images use the Flutter image cache. '
+    'Will be removed before tagflow 1.0.0.',
+  )
   final bool enableImageCache;
 
   /// Custom widget builder for unrecoverable parsing or rendering errors.
@@ -359,6 +443,10 @@ final class TagflowOptions extends Equatable {
     ImageErrorWidgetBuilder? imageErrorBuilder,
     double? maxImageWidth,
     double? maxImageHeight,
+    @Deprecated(
+      'Has no effect: images use the Flutter image cache. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     bool? enableImageCache,
     TagflowErrorWidgetBuilder? errorBuilder,
     TagflowCodeBlockOptions? codeBlock,

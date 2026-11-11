@@ -49,6 +49,10 @@ class Tagflow extends StatefulWidget {
     )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
+    @Deprecated(
+      'Has no effect: content is adapted synchronously. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
     @Deprecated(
@@ -91,6 +95,10 @@ class Tagflow extends StatefulWidget {
     )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
+    @Deprecated(
+      'Has no effect: content is adapted synchronously. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
     @Deprecated(
@@ -129,6 +137,10 @@ class Tagflow extends StatefulWidget {
     this.renderTheme,
     this.registry,
     this.errorBuilder = _defaultErrorWidget,
+    @Deprecated(
+      'Has no effect: content is adapted synchronously. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
     super.key,
@@ -152,6 +164,10 @@ class Tagflow extends StatefulWidget {
     )
     this.converters = const [],
     this.errorBuilder = _defaultErrorWidget,
+    @Deprecated(
+      'Has no effect: content is adapted synchronously. '
+      'Will be removed before tagflow 1.0.0.',
+    )
     this.loadingBuilder = _defaultLoadingWidget,
     TagflowViewOptions? viewOptions,
     @Deprecated(
@@ -224,7 +240,11 @@ class Tagflow extends StatefulWidget {
   /// Error builder for handling parsing/conversion errors
   final ErrorWidgetBuilder errorBuilder;
 
-  /// Loading widget shown while parsing
+  /// Not shown: content is adapted synchronously, before the first frame.
+  @Deprecated(
+    'Has no effect: content is adapted synchronously. '
+    'Will be removed before tagflow 1.0.0.',
+  )
   final WidgetBuilder loadingBuilder;
 
   final TagflowViewOptions? _viewOptions;

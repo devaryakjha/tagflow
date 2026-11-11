@@ -13,38 +13,18 @@ final class ImgConverter extends ElementConverter<TagflowImgElement> {
     TagflowImgElement element,
     BuildContext context,
   ) {
-    final options = TagflowOptions.maybeOf(context);
-    final behavior = options?.selectable.imageSelectionBehavior;
-    final altText = element.alt;
-    final url = element.src;
-    switch (behavior) {
-      case TagflowImageSelectionBehavior.urlAndAlt:
-        final buffer = StringBuffer();
-
-        // Maintain semantic structure: alt text first, then URL
-        if (altText?.isNotEmpty ?? false) {
-          buffer.write(altText);
-        }
-
-        if (url?.isNotEmpty ?? false) {
-          if (buffer.isNotEmpty) {
-            // Add semantic separator for screen readers
-            buffer.write(' — '); // Em dash for visual separation
-          }
-          buffer.write(url);
-        }
-
-        return buffer.toString();
-      case TagflowImageSelectionBehavior.altTextOnly:
-        return element.alt;
-      case TagflowImageSelectionBehavior.custom:
-        return options?.selectable.imageSelectionBehaviorTextBuilder?.call(
-          element,
-          context,
-        );
-      case null:
-        return null;
-    }
+    final selectable = TagflowViewOptions.maybeOf(context)?.selectable;
+    if (selectable == null) return null;
+    return selectable.imageSelectionText(
+      TagflowDocumentNode.image(
+        id: 'img',
+        url: Uri.tryParse(element.src ?? '') ?? Uri(),
+        alt: element.alt,
+        width: element.width,
+        height: element.height,
+      ),
+      context,
+    );
   }
 
   @override
