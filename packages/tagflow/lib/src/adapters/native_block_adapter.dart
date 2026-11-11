@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:tagflow/src/adapters/native_block.dart';
 import 'package:tagflow/src/adapters/native_block_patch.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
@@ -11,6 +12,7 @@ const _nativeBlockRevisionKey = 'revision';
 const _policyDecisionReasonKey = 'policyDecisionReason';
 
 /// Adapts typed native blocks into the canonical [TagflowDocument] model.
+@immutable
 final class TagflowNativeBlockAdapter {
   /// Creates a native block adapter.
   const TagflowNativeBlockAdapter({
@@ -19,6 +21,15 @@ final class TagflowNativeBlockAdapter {
 
   /// Content policy applied to URL-bearing blocks.
   final TagflowContentPolicy policy;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is TagflowNativeBlockAdapter && other.policy == policy;
+  }
+
+  @override
+  int get hashCode => policy.hashCode;
 
   /// Converts [document] into the canonical runtime document model.
   TagflowDocument adapt(TagflowNativeBlockDocument document) {

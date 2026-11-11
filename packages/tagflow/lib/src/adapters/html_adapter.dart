@@ -23,10 +23,12 @@ const _tableCellPaddingHintKey = 'tableCellPadding';
 const _textAlignHintKey = 'textAlign';
 const _syntheticRootStyle = 'display: flex; flex-direction: column; gap: 1rem;';
 const _defaultHtmlNodeIdAttribute = 'data-tagflow-id';
+const _emptyTag = '#empty';
 
 enum _TagflowHtmlNodeIdStrategyKind { path, attribute }
 
 /// Configures how the HTML adapter assigns runtime node IDs.
+@immutable
 final class TagflowHtmlNodeIdStrategy {
   /// Uses deterministic path-based IDs for every adapted node.
   const TagflowHtmlNodeIdStrategy.path()
@@ -47,6 +49,18 @@ final class TagflowHtmlNodeIdStrategy {
 
   /// Whether nodes without authored IDs fall back to path IDs.
   final bool fallbackToPath;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is TagflowHtmlNodeIdStrategy &&
+            other._kind == _kind &&
+            other.attribute == attribute &&
+            other.fallbackToPath == fallbackToPath;
+  }
+
+  @override
+  int get hashCode => Object.hash(_kind, attribute, fallbackToPath);
 }
 
 /// Converts HTML input into the native Tagflow runtime document model.
@@ -54,6 +68,7 @@ final class TagflowHtmlNodeIdStrategy {
 /// This first adapter slice intentionally delegates HTML parsing to the legacy
 /// parser so current rendering behavior remains stable while
 /// [TagflowDocument] becomes the public render input.
+@immutable
 final class TagflowHtmlAdapter {
   /// Creates an HTML adapter.
   const TagflowHtmlAdapter({
@@ -74,6 +89,23 @@ final class TagflowHtmlAdapter {
 
   /// Strategy used to assign [TagflowDocumentNode.id] values.
   final TagflowHtmlNodeIdStrategy nodeIdStrategy;
+
+  /// Adapters are equal when they produce the same document for the same
+  /// input, so a widget can skip re-parsing when a parent rebuilds with a new
+  /// but equivalent adapter.
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is TagflowHtmlAdapter &&
+            other.debug == debug &&
+            other.renderBoundary == renderBoundary &&
+            other.policy == policy &&
+            other.nodeIdStrategy == nodeIdStrategy;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(debug, renderBoundary, policy, nodeIdStrategy);
 
   /// Parses [html] into a source-tagged [TagflowDocument].
   TagflowDocument parse(
@@ -193,6 +225,11 @@ TagflowDocumentNode? _documentNodeFromLegacy(
   TagflowContentPolicy policy,
   _TagflowHtmlNodeIds nodeIds,
 ) {
+  // The legacy table parser pads rows with `#empty` placeholders so every row
+  // has the same number of cells. They are layout artifacts, not content: the
+  // renderer and the legacy bridge rebuild the grid from the real cells.
+  if (node.tag == _emptyTag) return null;
+
   final id = nodeIds.resolve(node, path);
   final source = TagflowSourceInfo(
     kind: TagflowSourceKind.html,
@@ -410,6 +447,15 @@ TagflowDocumentNode? _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
+    // `wbr` is only a line-break opportunity; a zero-width space gives the
+    // text layout the same opportunity without any visible glyph.
+    'wbr' => TagflowDocumentNode.text(
+      id: id,
+      text: '\u200B',
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
     'br' => TagflowDocumentNode.text(
       id: id,
       text: '\n',
@@ -433,6 +479,21 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     'small' ||
     'sub' ||
     'sup' ||
+    'span' ||
+    'abbr' ||
+    'bdi' ||
+    'bdo' ||
+    'cite' ||
+    'data' ||
+    'dfn' ||
+    'ins' ||
+    'kbd' ||
+    'label' ||
+    'q' ||
+    's' ||
+    'samp' ||
+    'time' ||
+    'var' ||
     'details' ||
     'summary' => TagflowDocumentNode.container(
       id: id,
@@ -455,6 +516,12 @@ TagflowDocumentNode? _documentNodeFromLegacy(
       presentation: presentation,
       source: source,
     ),
+    // With nothing to render, an unmapped element is dropped unless the policy
+    // asks for placeholders.
+    _
+        when children.isEmpty &&
+            policy.unsupportedBehavior == TagflowUnsupportedBehavior.drop =>
+      null,
     _ => TagflowDocumentNode.unsupported(
       id: id,
       unsupportedReason: 'HTML tag "${node.tag}" has no semantic mapping yet.',
@@ -681,11 +748,12 @@ TagflowNode _legacyNodeFromDocumentNode(TagflowDocumentNode node) {
       }
     }
 
+    final columnCount = _padLegacyTableRows(rows);
+
     return TagflowTableElement(
       tag: tag,
       rowCount: _metadataInt(node, _tableRowCountKey) ?? rows.length,
-      columnCount:
-          _metadataInt(node, _tableColumnCountKey) ?? _maxChildCount(rows),
+      columnCount: _metadataInt(node, _tableColumnCountKey) ?? columnCount,
       rows: rows,
       spans: const {},
       caption: caption,
@@ -1097,12 +1165,57 @@ int? _metadataInt(TagflowDocumentNode node, String key) {
   return value is int ? value : null;
 }
 
-int _maxChildCount(List<TagflowNode> nodes) {
-  var max = 0;
-  for (final node in nodes) {
-    if (node.children.length > max) max = node.children.length;
+/// Pads legacy table [rows] with `#empty` cells so every row has one entry per
+/// grid column, the shape the legacy table converters expect.
+///
+/// Mirrors the legacy table parser: a slot covered by a row span from above
+/// gets a placeholder before the next real cell, and a column span keeps one
+/// entry for the spanning cell. Returns the column count.
+int _padLegacyTableRows(List<TagflowNode> rows) {
+  int span(TagflowNode cell, String attribute) {
+    final value = int.tryParse(cell[attribute] ?? '') ?? 1;
+    return value < 1 ? 1 : value;
   }
-  return max;
+
+  var columns = 0;
+  for (final row in rows) {
+    var width = 0;
+    for (final cell in row.children) {
+      width += span(cell, 'colspan');
+    }
+    if (width > columns) columns = width;
+  }
+
+  final occupied = <int, int>{};
+  for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    final row = rows[rowIndex];
+    final cells = <TagflowNode>[];
+    var column = 0;
+
+    void skipOccupied() {
+      while (column < columns && (occupied[column] ?? -1) >= rowIndex) {
+        cells.add(TagflowElement.empty());
+        column++;
+      }
+    }
+
+    for (final cell in row.children) {
+      skipOccupied();
+      cells.add(cell);
+      final rowSpan = span(cell, 'rowspan');
+      final colSpan = span(cell, 'colspan');
+      for (var c = column; c < column + colSpan && c < columns; c++) {
+        occupied[c] = rowIndex + rowSpan - 1;
+      }
+      column += colSpan;
+    }
+    while (cells.length < columns) {
+      cells.add(TagflowElement.empty());
+    }
+    row.children = cells;
+  }
+
+  return columns;
 }
 
 bool _isSyntheticRoot(TagflowNode node) {

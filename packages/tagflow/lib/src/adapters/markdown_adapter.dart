@@ -317,6 +317,10 @@ final class _MarkdownAdaptContext {
         presentation: presentation,
         source: source,
       ),
+      _
+          when children.isEmpty &&
+              policy.unsupportedBehavior == TagflowUnsupportedBehavior.drop =>
+        null,
       _ => TagflowDocumentNode.unsupported(
         id: id,
         unsupportedReason:

@@ -99,6 +99,9 @@ final class TagflowComponentRegistry {
   }
 
   /// Renders [node] through this registry.
+  ///
+  /// Works with or without an enclosing `Tagflow` widget. Without one, the
+  /// built-in components use [TagflowViewOptions.defaults].
   Widget render(BuildContext context, TagflowDocumentNode node) {
     final builder = _components[node.kind] ?? _fallbackBuilder;
     if (builder == null) {
@@ -146,6 +149,12 @@ Widget _wrapNodeTapTarget(
       ),
     ),
   );
+}
+
+/// View options from the nearest [TagflowScope], or the defaults when the
+/// registry renders outside a `Tagflow` widget.
+TagflowViewOptions _viewOptionsOf(BuildContext context) {
+  return TagflowViewOptions.maybeOf(context) ?? TagflowViewOptions.defaults;
 }
 
 /// Link style that stays readable on light and dark backgrounds.
@@ -207,8 +216,14 @@ Widget _renderContainer(
   final child = _isInlineContainer(node)
       ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
+  final fallbackStyle = _fallbackTextStyle(_htmlTag(node));
 
-  return _applyInlinePresentation(node.presentation, child);
+  return _applyInlinePresentation(
+    node.presentation,
+    fallbackStyle == null
+        ? child
+        : DefaultTextStyle.merge(style: fallbackStyle, child: child),
+  );
 }
 
 Widget _renderDisclosure(
@@ -322,7 +337,7 @@ Widget _renderText(TagflowComponentContext context, TagflowDocumentNode node) {
 }
 
 Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
-  final options = TagflowOptions.of(context.buildContext);
+  final options = _viewOptionsOf(context.buildContext);
   final linkAttributes = _linkAttributes(node);
 
   return Semantics(
@@ -522,7 +537,7 @@ Widget _renderInlineCode(
 Widget _renderImage(TagflowComponentContext context, TagflowDocumentNode node) {
   final url = node.url;
   if (url == null) return const SizedBox.shrink();
-  final options = TagflowOptions.of(context.buildContext);
+  final options = _viewOptionsOf(context.buildContext);
 
   return Image.network(
     url.toString(),
@@ -535,9 +550,10 @@ Widget _renderImage(TagflowComponentContext context, TagflowDocumentNode node) {
 }
 
 Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
-  final rows = node.children.where(
-    (child) => child.kind == TagflowNodeKind.tableRow,
-  );
+  final rows = node.children
+      .where((child) => child.kind == TagflowNodeKind.tableRow)
+      .toList(growable: false);
+  final grid = _tableGrid(rows);
   final table = Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Table(
@@ -546,9 +562,12 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
       ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
-        for (final row in rows)
+        for (final row in grid)
           TableRow(
-            children: [for (final cell in row.children) context.render(cell)],
+            children: [
+              for (final cell in row)
+                cell == null ? const SizedBox.shrink() : context.render(cell),
+            ],
           ),
       ],
     ),
@@ -564,6 +583,50 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [caption, table],
   );
+}
+
+/// Lays [rows] out on a plain grid for the core table renderer.
+///
+/// The core renderer does not merge cells: a cell that spans columns or rows
+/// keeps its first slot, and the slots it covers, plus the end of short rows,
+/// are filled with empty cells (`null`). Register `tagflowTableComponents()`
+/// from `package:tagflow_table` for real `rowspan` and `colspan` layout.
+List<List<TagflowDocumentNode?>> _tableGrid(List<TagflowDocumentNode> rows) {
+  int span(int value) => value < 1 ? 1 : value;
+
+  var columns = 0;
+  for (final row in rows) {
+    var width = 0;
+    for (final cell in row.children) {
+      if (cell.kind == TagflowNodeKind.tableCell) width += span(cell.colSpan);
+    }
+    if (width > columns) columns = width;
+  }
+
+  final occupiedThroughRow = <int, int>{};
+  final grid = <List<TagflowDocumentNode?>>[];
+  for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    final slots = List<TagflowDocumentNode?>.filled(columns, null);
+    var column = 0;
+    for (final cell in rows[rowIndex].children) {
+      if (cell.kind != TagflowNodeKind.tableCell) continue;
+      while (column < columns &&
+          (occupiedThroughRow[column] ?? -1) >= rowIndex) {
+        column++;
+      }
+      if (column >= columns) break;
+      slots[column] = cell;
+      final colSpan = span(cell.colSpan);
+      final rowSpan = span(cell.rowSpan);
+      for (var c = column; c < column + colSpan && c < columns; c++) {
+        occupiedThroughRow[c] = rowIndex + rowSpan - 1;
+      }
+      column += colSpan;
+    }
+    grid.add(slots);
+  }
+
+  return grid;
 }
 
 Widget? _renderTableCaption(
@@ -1040,7 +1103,7 @@ final class _InlineSpanBuilder {
           );
         }
         final url = node.url;
-        final callback = TagflowOptions.of(buildContext).linkTapCallback;
+        final callback = _viewOptions?.linkTapCallback;
         var linkRecognizer = recognizer;
         if (url != null && callback != null) {
           final attributes = _linkAttributes(node);

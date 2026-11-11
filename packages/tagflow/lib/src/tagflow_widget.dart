@@ -28,6 +28,12 @@ Widget _defaultLoadingWidget(BuildContext context) {
   return const Center(child: CircularProgressIndicator());
 }
 
+/// Document ids used by [Tagflow.html] and [Tagflow.markdown] when the caller
+/// does not supply one. They do not depend on the content, so editing the
+/// source keeps the root key and unchanged nodes keep their widget state.
+const _defaultHtmlDocumentId = 'tagflow-html';
+const _defaultMarkdownDocumentId = 'tagflow-markdown';
+
 /// Main widget for rendering rich content.
 class Tagflow extends StatefulWidget {
   /// Creates a new legacy HTML [Tagflow] widget.
@@ -60,15 +66,21 @@ class Tagflow extends StatefulWidget {
        _legacyOptions = options,
        _renderBoundary = renderBoundary,
        document = null,
+       documentId = null,
        adapter = null,
        registry = null,
        markdown = null,
        markdownAdapter = null;
 
   /// Creates a new [Tagflow] widget from HTML.
+  ///
+  /// [documentId] names the adapted document. Without it the id stays the same
+  /// for the life of the widget, so changing [html] updates the rendered tree
+  /// in place and unchanged nodes keep their state.
   const Tagflow.html({
     required String this.html,
     this.adapter,
+    this.documentId,
     this.theme,
     this.registry,
     @Deprecated(
@@ -103,9 +115,14 @@ class Tagflow extends StatefulWidget {
   /// [TagflowMarkdownAdapter]) into a [TagflowDocument] and rendered through
   /// [registry], so content policy and component overrides apply as they do
   /// for [Tagflow.document].
+  ///
+  /// [documentId] names the adapted document. Without it the id stays the same
+  /// for the life of the widget, so changing [markdown] updates the rendered
+  /// tree in place and unchanged nodes keep their state.
   const Tagflow.markdown({
     required String this.markdown,
     this.markdownAdapter,
+    this.documentId,
     this.theme,
     this.registry,
     this.errorBuilder = _defaultErrorWidget,
@@ -146,6 +163,7 @@ class Tagflow extends StatefulWidget {
        _viewOptions = viewOptions,
        _legacyOptions = options,
        _renderBoundary = null,
+       documentId = null,
        html = null,
        adapter = null,
        markdown = null,
@@ -162,6 +180,13 @@ class Tagflow extends StatefulWidget {
 
   /// The canonical runtime document to render.
   final TagflowDocument? document;
+
+  /// Id given to the document adapted from [html] or [markdown].
+  ///
+  /// When null, the widget uses an id that does not depend on the content, so
+  /// it stays the same for the life of the widget. Supply a different id to
+  /// remount the rendered tree on purpose.
+  final String? documentId;
 
   /// Adapter used by [Tagflow.html] to produce a runtime document.
   final TagflowHtmlAdapter? adapter;
@@ -240,12 +265,16 @@ class _TagflowState extends State<Tagflow> {
       _converter = TagflowConverter(widget.converters);
     }
 
+    // Only inputs that change the adapted document trigger a re-parse. Other
+    // view options, such as inline tap callbacks that are new closures on
+    // every parent build, only rebuild the rendered tree.
     if (oldWidget.html != widget.html ||
         oldWidget.document != widget.document ||
+        oldWidget.documentId != widget.documentId ||
         oldWidget.adapter != widget.adapter ||
         oldWidget.markdown != widget.markdown ||
         oldWidget.markdownAdapter != widget.markdownAdapter ||
-        oldWidget.viewOptions != widget.viewOptions ||
+        oldWidget.viewOptions.debug != widget.viewOptions.debug ||
         oldWidget.renderBoundary != widget.renderBoundary ||
         (convertersChanged && widget.document == null)) {
       _loadDocument();
@@ -266,9 +295,11 @@ class _TagflowState extends State<Tagflow> {
             final markdown? =>
               (widget.markdownAdapter ?? const TagflowMarkdownAdapter()).parse(
                 markdown,
+                id: widget.documentId ?? _defaultMarkdownDocumentId,
               ),
             null => (widget.adapter ?? const TagflowHtmlAdapter()).parse(
               widget.html ?? '',
+              id: widget.documentId ?? _defaultHtmlDocumentId,
               viewOptions: widget.viewOptions,
               renderBoundary: widget.renderBoundary,
             ),
@@ -353,6 +384,7 @@ class _TagflowState extends State<Tagflow> {
     properties
       ..add(StringProperty('html', widget.html))
       ..add(StringProperty('markdown', widget.markdown))
+      ..add(StringProperty('documentId', widget.documentId))
       ..add(DiagnosticsProperty<TagflowDocument>('document', _document))
       ..add(DiagnosticsProperty<TagflowHtmlAdapter>('adapter', widget.adapter))
       ..add(
