@@ -113,6 +113,7 @@ final class TagflowContentPolicy {
     this.unsupportedBehavior = TagflowUnsupportedBehavior.drop,
     this.maxDepth = defaultMaxDepth,
     this.maxNodes = defaultMaxNodes,
+    this.allowInlineStyles = true,
   }) : assert(maxDepth > 0, 'maxDepth must be positive'),
        assert(maxNodes > 0, 'maxNodes must be positive');
 
@@ -170,6 +171,14 @@ final class TagflowContentPolicy {
   /// [TagflowUnsupportedBehavior.preservePlaceholder] one unsupported node
   /// marks where it was. Adapting never throws because of this limit.
   final int maxDepth;
+
+  /// Whether adapters keep a safe subset of inline styling, such as the
+  /// HTML `style` attribute.
+  ///
+  /// Only `color`, `background-color`, `text-align`, `font-weight`,
+  /// `font-style`, `text-decoration` and `font-size` are read; every other
+  /// property is ignored. Set to `false` to ignore inline styles entirely.
+  final bool allowInlineStyles;
 
   /// Most nodes an adapter produces for one document, counted in document
   /// order.
@@ -264,7 +273,8 @@ final class TagflowContentPolicy {
             _stringSetEquality.equals(other.blockedTags, blockedTags) &&
             other.unsupportedBehavior == unsupportedBehavior &&
             other.maxDepth == maxDepth &&
-            other.maxNodes == maxNodes;
+            other.maxNodes == maxNodes &&
+            other.allowInlineStyles == allowInlineStyles;
   }
 
   @override
@@ -278,5 +288,6 @@ final class TagflowContentPolicy {
     unsupportedBehavior,
     maxDepth,
     maxNodes,
+    allowInlineStyles,
   );
 }

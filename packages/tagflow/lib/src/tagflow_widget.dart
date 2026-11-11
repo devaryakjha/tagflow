@@ -67,6 +67,7 @@ class Tagflow extends StatefulWidget {
        _renderBoundary = renderBoundary,
        document = null,
        documentId = null,
+       renderTheme = null,
        adapter = null,
        registry = null,
        markdown = null,
@@ -82,6 +83,7 @@ class Tagflow extends StatefulWidget {
     this.adapter,
     this.documentId,
     this.theme,
+    this.renderTheme,
     this.registry,
     @Deprecated(
       'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
@@ -124,6 +126,7 @@ class Tagflow extends StatefulWidget {
     this.markdownAdapter,
     this.documentId,
     this.theme,
+    this.renderTheme,
     this.registry,
     this.errorBuilder = _defaultErrorWidget,
     this.loadingBuilder = _defaultLoadingWidget,
@@ -141,6 +144,7 @@ class Tagflow extends StatefulWidget {
   const Tagflow.document(
     TagflowDocument this.document, {
     this.theme,
+    this.renderTheme,
     this.registry,
     @Deprecated(
       'Legacy converter API. Use registry: TagflowComponentRegistry(...) '
@@ -191,8 +195,18 @@ class Tagflow extends StatefulWidget {
   /// Adapter used by [Tagflow.html] to produce a runtime document.
   final TagflowHtmlAdapter? adapter;
 
-  /// Custom theme for styling HTML elements
+  /// Legacy theme.
+  ///
+  /// On the runtime renderer its named styles (default text style, `p`, `h1`
+  /// to `h6`, `a`, `strong`, `em`, `code`, `pre`, `blockquote`, `th`, `mark`)
+  /// are mapped onto a [TagflowRenderTheme] with
+  /// [TagflowRenderTheme.fromTagflowTheme]. Other selectors only apply to the
+  /// legacy converter pipeline. [renderTheme] is applied over it.
   final TagflowTheme? theme;
+
+  /// Typed styling for the built-in components, merged over the enclosing
+  /// [TagflowRenderThemeScope] and the defaults from the ambient [Theme].
+  final TagflowRenderTheme? renderTheme;
 
   /// Semantic component registry used by the runtime entry points.
   final TagflowComponentRegistry? registry;
@@ -366,15 +380,26 @@ class _TagflowState extends State<Tagflow> {
 
   @override
   Widget build(BuildContext context) {
+    final legacyTheme = widget.theme;
+    final renderTheme = legacyTheme == null
+        ? widget.renderTheme
+        : TagflowRenderTheme.fromTagflowTheme(
+            legacyTheme,
+          ).merge(widget.renderTheme);
+    final content = TagflowRenderThemeScope(
+      theme: renderTheme,
+      child: Builder(builder: _buildContent),
+    );
+
     return TagflowScope.view(
       viewOptions: widget.viewOptions,
-      child: widget.theme != null
+      child: legacyTheme != null
           ? TagflowThemeProvider.merge(
               context,
-              theme: widget.theme!,
-              child: Builder(builder: _buildContent),
+              theme: legacyTheme,
+              child: content,
             )
-          : Builder(builder: _buildContent),
+          : content,
     );
   }
 
@@ -394,6 +419,12 @@ class _TagflowState extends State<Tagflow> {
         ),
       )
       ..add(DiagnosticsProperty<TagflowTheme>('theme', widget.theme))
+      ..add(
+        DiagnosticsProperty<TagflowRenderTheme>(
+          'renderTheme',
+          widget.renderTheme,
+        ),
+      )
       ..add(
         DiagnosticsProperty<TagflowComponentRegistry>(
           'registry',

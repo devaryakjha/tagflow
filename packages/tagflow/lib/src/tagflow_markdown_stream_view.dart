@@ -16,6 +16,7 @@ class TagflowMarkdownStreamView extends StatelessWidget {
   const TagflowMarkdownStreamView({
     required this.stream,
     this.theme,
+    this.renderTheme,
     this.registry,
     this.viewOptions,
     super.key,
@@ -26,6 +27,9 @@ class TagflowMarkdownStreamView extends StatelessWidget {
 
   /// Custom theme passed to [Tagflow.document].
   final TagflowTheme? theme;
+
+  /// Render theme passed to [Tagflow.document].
+  final TagflowRenderTheme? renderTheme;
 
   /// Component registry passed to [Tagflow.document].
   final TagflowComponentRegistry? registry;
@@ -40,6 +44,7 @@ class TagflowMarkdownStreamView extends StatelessWidget {
       builder: (context, _) => Tagflow.document(
         stream.document,
         theme: theme,
+        renderTheme: renderTheme,
         registry: registry,
         viewOptions: viewOptions,
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow/src/render/code_block.dart';
+import 'package:tagflow/src/render/render_theme.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 import 'package:tagflow/src/tagflow_options.dart';
 
@@ -110,10 +111,15 @@ final class TagflowComponentRegistry {
       );
     }
 
-    final child = builder(
+    var child = builder(
       TagflowComponentContext._(buildContext: context, registry: this),
       node,
     );
+    final inlineStyle = node.presentation.inlineStyle;
+    if (inlineStyle != null &&
+        identical(builder, _builtInComponents[node.kind] ?? _defaultFallback)) {
+      child = _applyInlineStyle(context, node, inlineStyle, child);
+    }
 
     return KeyedSubtree(
       key: ValueKey<String>(node.id),
@@ -157,26 +163,123 @@ TagflowViewOptions _viewOptionsOf(BuildContext context) {
   return TagflowViewOptions.maybeOf(context) ?? TagflowViewOptions.defaults;
 }
 
-/// Link style that stays readable on light and dark backgrounds.
-TextStyle _linkTextStyle(Color ink) {
-  return TextStyle(
-    color: ink.computeLuminance() > 0.5
-        ? const Color(0xFF8AB4F8)
-        : const Color(0xFF0B57D0),
-    decoration: TextDecoration.underline,
+/// Applies source inline styling (for example safe HTML inline CSS) around a
+/// built-in component. Inline runs get the same styling as text spans in
+/// [_InlineSpanBuilder].
+Widget _applyInlineStyle(
+  BuildContext context,
+  TagflowDocumentNode node,
+  TagflowInlineStyle inlineStyle,
+  Widget child,
+) {
+  final textStyle = _textStyleFromInline(
+    context,
+    inlineStyle,
+    includeBackground: false,
   );
+  final textAlign = _flutterTextAlign(inlineStyle.textAlign);
+  var current = child;
+  if (textStyle != null || textAlign != null) {
+    current = DefaultTextStyle.merge(
+      style: textStyle,
+      textAlign: textAlign,
+      child: current,
+    );
+  }
+
+  final isBlock = !_isInlineNode(node);
+  final alignment = switch (inlineStyle.textAlign) {
+    TagflowTextAlign.center => Alignment.topCenter,
+    TagflowTextAlign.right => Alignment.topRight,
+    TagflowTextAlign.end => AlignmentDirectional.topEnd,
+    _ => null,
+  };
+  // A short line only moves when its box is as wide as the block.
+  if (isBlock && alignment != null) {
+    current = Align(alignment: alignment, child: current);
+  }
+
+  final background = inlineStyle.backgroundColor;
+  if (background != null) {
+    current = DecoratedBox(
+      decoration: BoxDecoration(color: Color(background)),
+      child: current,
+    );
+  }
+  return current;
 }
 
-const _highlightColor = Color(0x33FFE082);
-
-/// Ambient text color that built-in surfaces and borders are tinted from, so
-/// they keep their contrast on light and dark backgrounds.
-Color _inkColor(BuildContext context) {
-  return DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
+TextStyle? _textStyleFromInline(
+  BuildContext context,
+  TagflowInlineStyle? inlineStyle, {
+  bool includeBackground = true,
+}) {
+  if (inlineStyle == null || inlineStyle.isEmpty) return null;
+  final decorations = inlineStyle.decorations;
+  final factor = inlineStyle.fontSizeFactor;
+  final style = TextStyle(
+    color: switch (inlineStyle.color) {
+      final color? => Color(color),
+      null => null,
+    },
+    backgroundColor: switch (inlineStyle.backgroundColor) {
+      final color? when includeBackground => Color(color),
+      _ => null,
+    },
+    fontWeight: switch (inlineStyle.fontWeight) {
+      final weight? => FontWeight.values[(weight ~/ 100 - 1).clamp(0, 8)],
+      null => null,
+    },
+    fontStyle: switch (inlineStyle.italic) {
+      true => FontStyle.italic,
+      false => FontStyle.normal,
+      null => null,
+    },
+    decoration: decorations == null
+        ? null
+        : TextDecoration.combine([
+            for (final decoration in decorations)
+              switch (decoration) {
+                TagflowTextDecoration.underline => TextDecoration.underline,
+                TagflowTextDecoration.overline => TextDecoration.overline,
+                TagflowTextDecoration.lineThrough => TextDecoration.lineThrough,
+              },
+          ]),
+    fontSize:
+        inlineStyle.fontSize ??
+        (factor == null ? null : _relativeFontSize(context, factor)),
+  );
+  return style == const TextStyle() ? null : style;
 }
+
+TextAlign? _flutterTextAlign(TagflowTextAlign? align) {
+  return switch (align) {
+    TagflowTextAlign.start => TextAlign.start,
+    TagflowTextAlign.end => TextAlign.end,
+    TagflowTextAlign.left => TextAlign.left,
+    TagflowTextAlign.right => TextAlign.right,
+    TagflowTextAlign.center => TextAlign.center,
+    TagflowTextAlign.justify => TextAlign.justify,
+    null => null,
+  };
+}
+
+/// The resolved render theme the built-in components read.
+TagflowRenderTheme _theme(BuildContext context) {
+  return TagflowRenderTheme.of(context);
+}
+
+/// [factor] times the ambient font size, for text that is smaller than its
+/// surroundings (`small`, `sub`, `sup`, placeholder labels).
+double _relativeFontSize(BuildContext context, double factor) {
+  return (DefaultTextStyle.of(context).style.fontSize ?? 14) * factor;
+}
+
+/// Ratio used for `small`, `sub` and `sup` text.
+const _smallTextFactor = 0.85;
 
 final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
-  TagflowNodeKind.root: _renderBlockChildren,
+  TagflowNodeKind.root: _renderRoot,
   TagflowNodeKind.container: _renderContainer,
   TagflowNodeKind.paragraph: _renderParagraph,
   TagflowNodeKind.heading: _renderHeading,
@@ -208,6 +311,7 @@ Widget _renderContainer(
 
   if (_htmlTag(node) == 'summary') {
     return _applyInlinePresentation(
+      context.buildContext,
       node.presentation,
       _renderInlineChildren(context, node),
     );
@@ -216,9 +320,13 @@ Widget _renderContainer(
   final child = _isInlineContainer(node)
       ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
-  final fallbackStyle = _fallbackTextStyle(_htmlTag(node));
+  final fallbackStyle = _fallbackTextStyle(
+    context.buildContext,
+    _htmlTag(node),
+  );
 
   return _applyInlinePresentation(
+    context.buildContext,
     node.presentation,
     fallbackStyle == null
         ? child
@@ -249,6 +357,13 @@ Widget _renderDisclosure(
             child: context.render(summary),
           ),
     body: [for (final child in body) context.render(child)],
+  );
+}
+
+Widget _renderRoot(TagflowComponentContext context, TagflowDocumentNode node) {
+  return DefaultTextStyle.merge(
+    style: _theme(context.buildContext).textStyle,
+    child: _renderBlockChildren(context, node),
   );
 }
 
@@ -306,9 +421,13 @@ Widget _renderParagraph(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final theme = _theme(context.buildContext);
   return Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: _renderInlineChildren(context, node),
+    padding: EdgeInsets.only(bottom: theme.paragraphSpacing!),
+    child: DefaultTextStyle.merge(
+      style: theme.paragraphStyle,
+      child: _renderInlineChildren(context, node),
+    ),
   );
 }
 
@@ -316,24 +435,20 @@ Widget _renderHeading(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  final level = node.level?.clamp(1, 6) ?? 1;
-  final fontSize = switch (level) {
-    1 => 32.0,
-    2 => 28.0,
-    3 => 24.0,
-    4 => 20.0,
-    5 => 18.0,
-    _ => 16.0,
-  };
+  final style = _theme(context.buildContext).headingStyle(node.level ?? 1);
 
   return DefaultTextStyle.merge(
-    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700),
+    style: style,
     child: _renderInlineChildren(context, node),
   );
 }
 
 Widget _renderText(TagflowComponentContext context, TagflowDocumentNode node) {
-  return _applyInlinePresentation(node.presentation, Text(node.text ?? ''));
+  return _applyInlinePresentation(
+    context.buildContext,
+    node.presentation,
+    Text(node.text ?? ''),
+  );
 }
 
 Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
@@ -353,7 +468,7 @@ Widget _renderLink(TagflowComponentContext context, TagflowDocumentNode node) {
                 linkAttributes,
               ),
         child: DefaultTextStyle.merge(
-          style: _linkTextStyle(_inkColor(context.buildContext)),
+          style: _theme(context.buildContext).linkStyle,
           child: _renderInlineChildren(context, node),
         ),
       ),
@@ -387,7 +502,9 @@ Widget _renderList(TagflowComponentContext context, TagflowDocumentNode node) {
   }
 
   return Padding(
-    padding: const EdgeInsets.only(bottom: 8),
+    padding: EdgeInsets.only(
+      bottom: _theme(context.buildContext).paragraphSpacing!,
+    ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +535,9 @@ Widget _renderListRow(
   required String marker,
 }) {
   return Padding(
-    padding: const EdgeInsets.only(bottom: 4),
+    padding: EdgeInsets.only(
+      bottom: _theme(context.buildContext).listItemSpacing!,
+    ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -440,7 +559,9 @@ Widget _renderDescriptionList(
   TagflowDocumentNode node,
 ) {
   return Padding(
-    padding: const EdgeInsets.only(bottom: 8),
+    padding: EdgeInsets.only(
+      bottom: _theme(context.buildContext).paragraphSpacing!,
+    ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,9 +575,11 @@ Widget _renderDescriptionTerm(
   TagflowDocumentNode node,
 ) {
   return Padding(
-    padding: const EdgeInsets.only(top: 4),
+    padding: EdgeInsets.only(
+      top: _theme(context.buildContext).listItemSpacing!,
+    ),
     child: DefaultTextStyle.merge(
-      style: const TextStyle(fontWeight: FontWeight.w700),
+      style: _theme(context.buildContext).strongStyle,
       child: _renderInlineChildren(context, node),
     ),
   );
@@ -476,18 +599,23 @@ Widget _renderBlockquote(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final theme = _theme(context.buildContext);
+  final spacing = theme.blockSpacing!;
   return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: EdgeInsets.only(bottom: spacing),
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: _inkColor(context.buildContext).withAlpha(0x14),
-        border: const Border(
-          left: BorderSide(color: Color(0x661F4B99), width: 4),
+        color: theme.quoteBackgroundColor,
+        border: Border(
+          left: BorderSide(color: theme.quoteBorderColor!, width: 4),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-        child: _renderBlockChildren(context, node),
+        padding: EdgeInsets.fromLTRB(spacing + 4, spacing, spacing, spacing),
+        child: DefaultTextStyle.merge(
+          style: theme.blockquoteStyle,
+          child: _renderBlockChildren(context, node),
+        ),
       ),
     ),
   );
@@ -497,20 +625,24 @@ Widget _renderCodeBlock(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  final ink = _inkColor(context.buildContext);
+  final theme = _theme(context.buildContext);
   final options =
       TagflowViewOptions.maybeOf(context.buildContext)?.codeBlock ??
       const TagflowCodeBlockOptions();
 
   return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: EdgeInsets.only(bottom: theme.blockSpacing!),
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: ink.withAlpha(0x12),
-        border: Border.all(color: ink.withAlpha(0x1F)),
+        color: theme.codeBackgroundColor,
+        border: Border.all(color: theme.borderColor!),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: _TagflowCodeBlock(node: node, options: options),
+      child: _TagflowCodeBlock(
+        node: node,
+        options: options,
+        style: theme.codeBlockStyle!,
+      ),
     ),
   );
 }
@@ -519,17 +651,15 @@ Widget _renderInlineCode(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
+  final theme = _theme(context.buildContext);
   return DecoratedBox(
     decoration: BoxDecoration(
-      color: _inkColor(context.buildContext).withAlpha(0x12),
+      color: theme.codeBackgroundColor,
       borderRadius: BorderRadius.circular(4),
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      child: Text(
-        node.text ?? '',
-        style: const TextStyle(fontFamily: 'monospace'),
-      ),
+      child: Text(node.text ?? '', style: theme.inlineCodeStyle),
     ),
   );
 }
@@ -554,12 +684,11 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
       .where((child) => child.kind == TagflowNodeKind.tableRow)
       .toList(growable: false);
   final grid = _tableGrid(rows);
+  final theme = _theme(context.buildContext);
   final table = Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: EdgeInsets.only(bottom: theme.blockSpacing!),
     child: Table(
-      border: TableBorder.all(
-        color: _inkColor(context.buildContext).withAlpha(0x1F),
-      ),
+      border: TableBorder.all(color: theme.borderColor!),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         for (final row in grid)
@@ -642,7 +771,9 @@ Widget? _renderTableCaption(
   for (final child in table.children) {
     if (_htmlTag(child) == 'caption') {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: EdgeInsets.only(
+          bottom: _theme(context.buildContext).paragraphSpacing!,
+        ),
         child: DefaultTextStyle.merge(
           style: const TextStyle(fontWeight: FontWeight.w600),
           child: context.render(child),
@@ -670,17 +801,13 @@ Widget _renderTableCell(
     child: _renderBlockChildren(context, node),
   );
 
+  final theme = _theme(context.buildContext);
   return DecoratedBox(
     decoration: BoxDecoration(
-      color: node.header
-          ? _inkColor(context.buildContext).withAlpha(0x12)
-          : null,
+      color: node.header ? theme.tableHeaderBackgroundColor : null,
     ),
     child: node.header
-        ? DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.w700),
-            child: child,
-          )
+        ? DefaultTextStyle.merge(style: theme.tableHeaderStyle, child: child)
         : child,
   );
 }
@@ -692,7 +819,7 @@ Widget _renderHorizontalRule(
   return Container(
     height: 1,
     width: double.infinity,
-    color: _inkColor(context.buildContext).withAlpha(0x1F),
+    color: _theme(context.buildContext).borderColor,
   );
 }
 
@@ -704,20 +831,24 @@ Widget _renderUnsupported(
     return _defaultFallback(context, node);
   }
 
-  final ink = _inkColor(context.buildContext);
+  final theme = _theme(context.buildContext);
+  final ink = DefaultTextStyle.of(context.buildContext).style.color;
   return Semantics(
     label: 'Unsupported content',
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: ink.withAlpha(0x0F),
-        border: Border.all(color: ink.withAlpha(0x1F)),
+        color: theme.codeBackgroundColor,
+        border: Border.all(color: theme.borderColor!),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Text(
           'Unsupported content',
-          style: TextStyle(fontSize: 12, color: ink.withAlpha(0x99)),
+          style: TextStyle(
+            fontSize: _relativeFontSize(context.buildContext, _smallTextFactor),
+            color: ink?.withAlpha(0x99),
+          ),
         ),
       ),
     ),
@@ -737,7 +868,7 @@ Widget _defaultFallback(
       ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
 
-  final textStyle = _fallbackTextStyle(htmlTag);
+  final textStyle = _fallbackTextStyle(context.buildContext, htmlTag);
   if (textStyle != null) {
     return DefaultTextStyle.merge(style: textStyle, child: child);
   }
@@ -745,7 +876,7 @@ Widget _defaultFallback(
   if (htmlTag == 'mark') {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _highlightColor,
+        color: _theme(context.buildContext).highlightColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: child,
@@ -756,6 +887,7 @@ Widget _defaultFallback(
 }
 
 Widget _applyInlinePresentation(
+  BuildContext context,
   TagflowPresentation presentation,
   Widget child,
 ) {
@@ -763,7 +895,7 @@ Widget _applyInlinePresentation(
   if (semantics.isEmpty) return child;
 
   var current = child;
-  final textStyle = _inlineTextStyle(semantics);
+  final textStyle = _inlineTextStyle(context, semantics);
   if (textStyle != null) {
     current = DefaultTextStyle.merge(style: textStyle, child: current);
   }
@@ -771,7 +903,7 @@ Widget _applyInlinePresentation(
   if (semantics.contains(TagflowInlineSemantic.highlight)) {
     current = DecoratedBox(
       decoration: BoxDecoration(
-        color: _highlightColor,
+        color: _theme(context).highlightColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: current,
@@ -781,7 +913,12 @@ Widget _applyInlinePresentation(
   return current;
 }
 
-TextStyle? _inlineTextStyle(Set<TagflowInlineSemantic> semantics) {
+TextStyle? _inlineTextStyle(
+  BuildContext context,
+  Set<TagflowInlineSemantic> semantics,
+) {
+  if (semantics.isEmpty) return null;
+  final theme = _theme(context);
   final decorations = <TextDecoration>[];
   if (semantics.contains(TagflowInlineSemantic.underline)) {
     decorations.add(TextDecoration.underline);
@@ -790,22 +927,25 @@ TextStyle? _inlineTextStyle(Set<TagflowInlineSemantic> semantics) {
     decorations.add(TextDecoration.lineThrough);
   }
 
-  final style = TextStyle(
-    fontWeight: semantics.contains(TagflowInlineSemantic.strong)
-        ? FontWeight.w700
-        : null,
-    fontStyle: semantics.contains(TagflowInlineSemantic.emphasis)
-        ? FontStyle.italic
-        : null,
-    decoration: decorations.isEmpty
-        ? null
-        : TextDecoration.combine(decorations),
-    fontSize:
-        semantics.contains(TagflowInlineSemantic.small) ||
-            semantics.contains(TagflowInlineSemantic.subscript) ||
-            semantics.contains(TagflowInlineSemantic.superscript)
-        ? 12
-        : null,
+  var style = const TextStyle();
+  if (semantics.contains(TagflowInlineSemantic.strong)) {
+    style = style.merge(theme.strongStyle);
+  }
+  if (semantics.contains(TagflowInlineSemantic.emphasis)) {
+    style = style.merge(theme.emphasisStyle);
+  }
+  style = style.merge(
+    TextStyle(
+      decoration: decorations.isEmpty
+          ? null
+          : TextDecoration.combine(decorations),
+      fontSize:
+          semantics.contains(TagflowInlineSemantic.small) ||
+              semantics.contains(TagflowInlineSemantic.subscript) ||
+              semantics.contains(TagflowInlineSemantic.superscript)
+          ? _relativeFontSize(context, _smallTextFactor)
+          : null,
+    ),
   );
 
   return style == const TextStyle() ? null : style;
@@ -884,20 +1024,16 @@ bool _isInlineFallbackTag(String? htmlTag) {
   };
 }
 
-TextStyle? _fallbackTextStyle(String? htmlTag) {
+TextStyle? _fallbackTextStyle(BuildContext context, String? htmlTag) {
   return switch (htmlTag) {
-    'b' || 'strong' => const TextStyle(fontWeight: FontWeight.w700),
-    'i' ||
-    'em' ||
-    'cite' ||
-    'dfn' ||
-    'var' => const TextStyle(fontStyle: FontStyle.italic),
+    'b' || 'strong' => _theme(context).strongStyle,
+    'i' || 'em' || 'cite' || 'dfn' || 'var' => _theme(context).emphasisStyle,
     'u' || 'ins' => const TextStyle(decoration: TextDecoration.underline),
     'del' || 's' => const TextStyle(decoration: TextDecoration.lineThrough),
-    'kbd' || 'samp' => const TextStyle(fontFamily: 'monospace'),
-    'small' => const TextStyle(fontSize: 12),
-    'sub' => const TextStyle(fontSize: 12),
-    'sup' => const TextStyle(fontSize: 12),
+    'kbd' || 'samp' => _theme(context).inlineCodeStyle,
+    'small' ||
+    'sub' ||
+    'sup' => TextStyle(fontSize: _relativeFontSize(context, _smallTextFactor)),
     _ => null,
   };
 }
@@ -1063,7 +1199,7 @@ final class _InlineSpanBuilder {
   late final TagflowViewOptions? _viewOptions = TagflowViewOptions.maybeOf(
     buildContext,
   );
-  late final Color _ink = _inkColor(buildContext);
+  late final TagflowRenderTheme _renderTheme = _theme(buildContext);
 
   InlineSpan build(
     TagflowDocumentNode node, {
@@ -1091,9 +1227,8 @@ final class _InlineSpanBuilder {
       case TagflowNodeKind.inlineCode:
         return TextSpan(
           text: node.text ?? '',
-          style: TextStyle(
-            fontFamily: 'monospace',
-            backgroundColor: _ink.withAlpha(0x12),
+          style: _renderTheme.inlineCodeStyle!.merge(
+            TextStyle(backgroundColor: _renderTheme.codeBackgroundColor),
           ),
           recognizer: recognizer,
           mouseCursor: mouseCursor,
@@ -1118,9 +1253,9 @@ final class _InlineSpanBuilder {
           recognizers.add(linkRecognizer);
         }
         return TextSpan(
-          style: _linkTextStyle(
-            _ink,
-          ).merge(_presentationStyle(node.presentation)),
+          style: _renderTheme.linkStyle!.merge(
+            _presentationStyle(node.presentation),
+          ),
           children: _children(
             node,
             recognizer: linkRecognizer,
@@ -1128,9 +1263,9 @@ final class _InlineSpanBuilder {
           ),
         );
       case _:
-        final textStyle = _fallbackTextStyle(_htmlTag(node));
+        final textStyle = _fallbackTextStyle(buildContext, _htmlTag(node));
         final highlight = _htmlTag(node) == 'mark'
-            ? const TextStyle(backgroundColor: _highlightColor)
+            ? TextStyle(backgroundColor: _renderTheme.highlightColor)
             : null;
         return TextSpan(
           style: (textStyle ?? const TextStyle())
@@ -1185,18 +1320,27 @@ final class _InlineSpanBuilder {
 
   TextStyle? _presentationStyle(TagflowPresentation presentation) {
     final semantics = presentation.inlineSemantics;
-    final style = _inlineTextStyle(semantics);
-    if (!semantics.contains(TagflowInlineSemantic.highlight)) return style;
-    return (style ?? const TextStyle()).copyWith(
-      backgroundColor: _highlightColor,
-    );
+    var style = _inlineTextStyle(buildContext, semantics);
+    if (semantics.contains(TagflowInlineSemantic.highlight)) {
+      style = (style ?? const TextStyle()).copyWith(
+        backgroundColor: _renderTheme.highlightColor,
+      );
+    }
+    final inline = _textStyleFromInline(buildContext, presentation.inlineStyle);
+    if (inline == null) return style;
+    return (style ?? const TextStyle()).merge(inline);
   }
 }
 
-const _codeTextStyle = TextStyle(fontFamily: 'monospace');
-
 final class _TagflowCodeBlock extends StatefulWidget {
-  const _TagflowCodeBlock({required this.node, required this.options});
+  const _TagflowCodeBlock({
+    required this.node,
+    required this.options,
+    required this.style,
+  });
+
+  /// Code text style from the render theme.
+  final TextStyle style;
 
   final TagflowDocumentNode node;
   final TagflowCodeBlockOptions options;
@@ -1242,7 +1386,7 @@ final class _TagflowCodeBlockState extends State<_TagflowCodeBlock> {
   }
 
   Widget _buildSource(BuildContext context) {
-    final style = DefaultTextStyle.of(context).style.merge(_codeTextStyle);
+    final style = DefaultTextStyle.of(context).style.merge(widget.style);
     final highlighted = widget.options.highlighter?.call(
       context,
       TagflowCodeHighlightRequest(
@@ -1254,10 +1398,10 @@ final class _TagflowCodeBlockState extends State<_TagflowCodeBlock> {
     );
 
     if (highlighted == null) {
-      return Text(_source, style: _codeTextStyle);
+      return Text(_source, style: widget.style);
     }
 
-    return Text.rich(TextSpan(style: _codeTextStyle, children: [highlighted]));
+    return Text.rich(TextSpan(style: widget.style, children: [highlighted]));
   }
 
   @override
@@ -1296,7 +1440,7 @@ final class _TagflowCodeCopyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = copied ? 'Copied' : 'Copy';
-    final ink = _inkColor(context);
+    final ink = DefaultTextStyle.of(context).style.color;
 
     return Semantics(
       button: true,
@@ -1309,14 +1453,17 @@ final class _TagflowCodeCopyButton extends StatelessWidget {
           onTap: onPressed,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: ink.withAlpha(0x0F),
+              color: _theme(context).codeBackgroundColor,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Text(
                 label,
-                style: TextStyle(fontSize: 12, color: ink.withAlpha(0x99)),
+                style: TextStyle(
+                  fontSize: _relativeFontSize(context, _smallTextFactor),
+                  color: ink?.withAlpha(0x99),
+                ),
               ),
             ),
           ),
