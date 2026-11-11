@@ -39,5 +39,22 @@ void main() {
 </table>
 ''',
     );
+
+    tagflowGoldenTest(
+      'table_inline_spans_caption',
+      registry: registry,
+      html: '''
+<table>
+  <caption>Inline <em>formatting</em> and spans</caption>
+  <tr><th>Item</th><th colspan="2">Notes</th></tr>
+  <tr>
+    <td rowspan="2">Long</td>
+    <td>Some <b>bold</b> and <code>code</code> text that wraps inside the cell</td>
+    <td><a href="https://example.com">A link</a></td>
+  </tr>
+  <tr><td colspan="2">Plain <i>italic</i> run</td></tr>
+</table>
+''',
+    );
   });
 }

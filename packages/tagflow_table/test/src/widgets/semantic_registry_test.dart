@@ -142,7 +142,9 @@ void main() {
       expect(_tableCellForText(tester, 'Bottom span').colSpan, 2);
     });
 
-    testWidgets('keeps inline cell content on one line', (tester) async {
+    testWidgets('should flow inline cell content as one paragraph', (
+      tester,
+    ) async {
       final document = TagflowDocument(
         id: 'doc-inline-cell',
         children: [
@@ -155,7 +157,7 @@ void main() {
                   TagflowDocumentNode.tableCell(
                     id: 'cell',
                     children: [
-                      TagflowDocumentNode.text(id: 'one', text: 'One'),
+                      TagflowDocumentNode.text(id: 'one', text: 'One '),
                       TagflowDocumentNode.container(
                         id: 'strong',
                         presentation: TagflowPresentation(
@@ -166,7 +168,7 @@ void main() {
                           TagflowDocumentNode.text(id: 'two', text: 'Two'),
                         ],
                       ),
-                      TagflowDocumentNode.text(id: 'three', text: 'Three'),
+                      TagflowDocumentNode.text(id: 'three', text: ' Three'),
                     ],
                   ),
                 ],
@@ -183,10 +185,8 @@ void main() {
         MaterialApp(home: Tagflow.document(document, registry: registry)),
       );
 
-      final oneY = tester.getTopLeft(find.text('One')).dy;
-      expect(tester.getTopLeft(find.text('Two')).dy, oneY);
-      expect(tester.getTopLeft(find.text('Three')).dy, oneY);
-      expect(_richTextStyle(tester, 'Two')?.fontWeight, FontWeight.w700);
+      expect(find.text('One Two Three', findRichText: true), findsOneWidget);
+      expect(_spanStyle(tester, 'Two')?.fontWeight, FontWeight.w700);
     });
 
     testWidgets('applies semantic cell padding and background hints', (
@@ -477,11 +477,8 @@ void main() {
         tester.getTopLeft(find.text('Hand caption', findRichText: true)).dy,
         lessThan(tester.getTopLeft(find.byType(TagflowTable)).dy),
       );
-      // The inline container stays on the line of the text before it.
-      expect(
-        tester.getTopLeft(find.text('line', findRichText: true)).dy,
-        tester.getTopLeft(find.text('One ', findRichText: true)).dy,
-      );
+      // The inline container flows in the same paragraph as the text.
+      expect(find.text('One line', findRichText: true), findsOneWidget);
     });
   });
 }
@@ -528,4 +525,23 @@ EdgeInsetsGeometry? _paddingForText(WidgetTester tester, String text) {
   expect(finder, findsOneWidget);
 
   return tester.widget<Padding>(finder).padding;
+}
+
+/// The effective style of the span whose own text is [text].
+TextStyle? _spanStyle(WidgetTester tester, String text) {
+  TextStyle? found;
+  void visit(InlineSpan span, TextStyle? inherited) {
+    final style = inherited?.merge(span.style) ?? span.style;
+    if (span is TextSpan) {
+      if (span.text == text) found = style;
+      for (final child in span.children ?? const <InlineSpan>[]) {
+        visit(child, style);
+      }
+    }
+  }
+
+  for (final widget in tester.widgetList<RichText>(find.byType(RichText))) {
+    visit(widget.text, null);
+  }
+  return found;
 }
