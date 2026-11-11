@@ -81,6 +81,12 @@ Map<TagflowNodeKind, TagflowDocumentNode> _nodes() {
       id: 'disclosureSummary',
       children: [_text('disclosureSummary')],
     ),
+    TagflowNodeKind.callout: TagflowDocumentNode.callout(
+      id: 'callout',
+      tone: TagflowCalloutTone.warning,
+      title: 'Title',
+      children: [_text('callout')],
+    ),
     TagflowNodeKind.codeBlock: TagflowDocumentNode.codeBlock(
       id: 'codeBlock',
       text: 'codeBlock',

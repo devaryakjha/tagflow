@@ -164,7 +164,7 @@ void main() {
       final updated = document.applyPatch(patch);
 
       final callout = updated.nodeById('callout');
-      expect(callout?.kind, TagflowNodeKind.container);
+      expect(callout?.kind, TagflowNodeKind.callout);
       expect(callout?.presentation.variant, 'tip');
 
       final table = updated.nodeById('table');

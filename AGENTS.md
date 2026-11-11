@@ -87,8 +87,10 @@ flutter test test/src/runtime/document_patch_test.dart
 
 ### Patches (`runtime/document_patch.dart`)
 
-`TagflowDocumentPatch` has four operations: `replaceNode`, `appendChildren`,
-`insertBefore` and `removeNode`. `document.applyPatch(...)` and
+`TagflowDocumentPatch` has five operations: `replaceNode`, `appendChildren`,
+`appendRootChildren`, `insertBefore` and `removeNode`. The native JSON patch
+envelope has one op for each (`replace`, `append-children`, `append-root`,
+`insert-before`, `remove`). `document.applyPatch(...)` and
 `document.applyPatches(...)` return a new document and throw on a missing
 target or duplicate ids. Because rendering keys each node by its id,
 unchanged nodes keep their widget state across patches.

@@ -107,6 +107,16 @@ void main() {
     expect(policy.maxNodes, api.TagflowContentPolicy.defaultMaxNodes);
     expect(api.TagflowContentLimit.values, hasLength(2));
     expect(api.TagflowDisplay.values, hasLength(2));
+    expect(api.TagflowCalloutTone.values, hasLength(5));
+    expect(
+      api.TagflowNativeBlockPatch.appendRootChildren(children: const []).kind,
+      api.TagflowNativeBlockPatchKind.appendRootChildren,
+    );
+    expect(api.TagflowDocumentNode.callout(id: 'c', title: 't').title, 't');
+    expect(
+      const api.TagflowRenderTheme().calloutColor(api.TagflowCalloutTone.info),
+      isNull,
+    );
     expect(
       api.TagflowDocumentNode.disclosure(id: 'd', expanded: true).expanded,
       isTrue,

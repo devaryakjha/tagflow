@@ -293,6 +293,7 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.blockquote: _renderBlockquote,
   TagflowNodeKind.disclosure: _renderDisclosure,
   TagflowNodeKind.disclosureSummary: _renderDisclosureSummary,
+  TagflowNodeKind.callout: _renderCallout,
   TagflowNodeKind.codeBlock: _renderCodeBlock,
   TagflowNodeKind.inlineCode: _renderInlineCode,
   TagflowNodeKind.image: _renderImage,
@@ -614,6 +615,43 @@ Widget _renderBlockquote(
         child: DefaultTextStyle.merge(
           style: theme.blockquoteStyle,
           child: _renderBlockChildren(context, node),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _renderCallout(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  final theme = _theme(context.buildContext);
+  final spacing = theme.blockSpacing!;
+  final accent = theme.calloutColor(node.tone)!;
+  final title = node.title;
+  return Padding(
+    padding: EdgeInsets.only(bottom: spacing),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: accent.withAlpha(0x1A),
+        border: Border(left: BorderSide(color: accent, width: 4)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(spacing + 4, spacing, spacing, spacing),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null && title.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: theme.paragraphSpacing!),
+                child: Text(
+                  title,
+                  style: theme.strongStyle!.copyWith(color: accent),
+                ),
+              ),
+            _renderBlockChildren(context, node),
+          ],
         ),
       ),
     ),

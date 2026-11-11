@@ -63,6 +63,20 @@
   - Native blocks: `disclosure`, `disclosureSummary` and `tableCaption`
     kinds, `checked` on `listItem`, `expanded` on `disclosure` and
     `display` on `container`.
+- Native JSON gaps ([#114](https://github.com/devaryakjha/tagflow/issues/114)):
+  - Text and container blocks take a `semantics` attribute, a list of
+    `TagflowInlineSemantic` names, so bold, italic, strikethrough and similar
+    runs can be sent inside a paragraph. `TagflowNativeBlock.text` and
+    `.container` take `semantics:`.
+  - An `append-root` patch operation and
+    `TagflowNativeBlockPatch.appendRootChildren`, for streaming new
+    top-level blocks.
+  - `TagflowNodeKind.callout` with `TagflowCalloutTone` and `title`, and a
+    built-in callout component. Its accent colours are
+    `calloutNeutralColor`, `calloutInfoColor`, `calloutSuccessColor`,
+    `calloutWarningColor` and `calloutDangerColor` on `TagflowRenderTheme`.
+  - The codec rejects mistyped `checked`, `expanded`, `display`, `tone` and
+    `semantics` attributes with the JSON path of the attribute.
 
 ### Changed
 
@@ -72,6 +86,12 @@
   flow or bold, italic and similar styles must use the typed kinds, fields
   and `inlineSemantics` instead. `TagflowNodeKind` has three new values, so
   exhaustive `switch`es over it need new cases.
+- **Breaking:** native `callout` blocks adapt to `TagflowNodeKind.callout`
+  instead of a `container` with a `calloutTone` hint, and a callout `tone`
+  must be `neutral`, `info`, `success`, `warning` or `danger`.
+  `TagflowNativeBlock.callout(tone:)` takes a `TagflowCalloutTone`, and
+  `TagflowNativeBlockPatch.targetNodeId` is nullable (it is `null` for
+  `append-root`).
 - **Breaking:** GFM task state moved from the `taskChecked` metadata key to
   `TagflowDocumentNode.checked`. `isMarkdownTaskItem` and
   `markdownTaskChecked` still work.

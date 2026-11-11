@@ -404,7 +404,7 @@ void main() {
       );
     });
 
-    test('normalizes callout blocks to container nodes predictably', () {
+    test('should adapt callout blocks to typed callout nodes', () {
       final document = TagflowNativeBlockDocument(
         id: 'doc',
         schemaVersion: 1,
@@ -435,7 +435,9 @@ void main() {
       final adapted = const TagflowNativeBlockAdapter().adapt(document);
       final callout = adapted.children.single;
 
-      expect(callout.kind, TagflowNodeKind.container);
+      expect(callout.kind, TagflowNodeKind.callout);
+      expect(callout.tone, TagflowCalloutTone.info);
+      expect(callout.title, 'What changed');
       expect(callout.id, 'callout');
       expect(callout.presentation.variant, 'tip');
       expect(callout.metadata['blockKind'], 'callout');

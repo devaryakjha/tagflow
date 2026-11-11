@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
+import 'package:tagflow/src/runtime/document_node.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
 import 'package:tagflow/src/runtime/presentation.dart';
 import 'package:tagflow/src/runtime/source.dart';
@@ -86,9 +87,14 @@ final class TagflowNativeBlock {
   }
 
   /// Creates a text block.
+  ///
+  /// [semantics] styles the run, for example
+  /// `{TagflowInlineSemantic.strong}` for bold text. They are sent as the
+  /// `semantics` attribute, a list of [TagflowInlineSemantic] names.
   factory TagflowNativeBlock.text({
     required String id,
     required String text,
+    Set<TagflowInlineSemantic> semantics = const {},
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
   }) {
@@ -96,6 +102,7 @@ final class TagflowNativeBlock {
       id: id,
       kind: TagflowNativeBlockKind.text,
       text: text,
+      attributes: _semanticsAttributes(semantics),
       metadata: metadata,
       source: source,
     );
@@ -396,7 +403,7 @@ final class TagflowNativeBlock {
   factory TagflowNativeBlock.callout({
     required String id,
     List<TagflowNativeBlock> children = const [],
-    String? tone,
+    TagflowCalloutTone? tone,
     String? variant,
     String? title,
     TagflowMetadata? metadata,
@@ -406,7 +413,7 @@ final class TagflowNativeBlock {
       id: id,
       kind: TagflowNativeBlockKind.callout,
       attributes: {
-        if (tone != null) 'tone': tone,
+        if (tone != null) 'tone': tone.name,
         if (variant != null) 'variant': variant,
         if (title != null) 'title': title,
       },
@@ -420,17 +427,24 @@ final class TagflowNativeBlock {
   ///
   /// Set [display] to [TagflowDisplay.inline] for a container that flows with
   /// the surrounding text.
+  ///
+  /// [semantics] styles every run inside the container; a container with
+  /// semantics flows inline unless [display] says otherwise.
   factory TagflowNativeBlock.container({
     required String id,
     List<TagflowNativeBlock> children = const [],
     TagflowDisplay? display,
+    Set<TagflowInlineSemantic> semantics = const {},
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
   }) {
     return TagflowNativeBlock(
       id: id,
       kind: TagflowNativeBlockKind.container,
-      attributes: {if (display != null) 'display': display.name},
+      attributes: {
+        if (display != null) 'display': display.name,
+        ..._semanticsAttributes(semantics),
+      },
       children: children,
       metadata: metadata,
       source: source,
@@ -556,4 +570,11 @@ final class TagflowNativeBlockDocument {
     source,
     revision,
   );
+}
+
+Map<String, Object?> _semanticsAttributes(Set<TagflowInlineSemantic> values) {
+  if (values.isEmpty) return const {};
+  return {
+    'semantics': [for (final value in values) value.name],
+  };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tagflow/src/runtime/document_node.dart';
 import 'package:tagflow/src/style/theme.dart';
 
 /// Typed styling for the built-in components of the runtime renderer.
@@ -41,6 +42,11 @@ final class TagflowRenderTheme with Diagnosticable {
     this.quoteBorderColor,
     this.tableHeaderBackgroundColor,
     this.highlightColor,
+    this.calloutNeutralColor,
+    this.calloutInfoColor,
+    this.calloutSuccessColor,
+    this.calloutWarningColor,
+    this.calloutDangerColor,
   });
 
   /// Maps the named styles of a legacy [TagflowTheme] onto a render theme.
@@ -85,6 +91,7 @@ final class TagflowRenderTheme with Diagnosticable {
   /// that colour, so they keep their contrast on light and dark backgrounds.
   factory TagflowRenderTheme.defaults(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final ink =
         DefaultTextStyle.of(context).style.color ?? const Color(0xFF000000);
 
@@ -131,6 +138,11 @@ final class TagflowRenderTheme with Diagnosticable {
       quoteBorderColor: const Color(0x661F4B99),
       tableHeaderBackgroundColor: ink.withAlpha(0x12),
       highlightColor: const Color(0x33FFE082),
+      calloutNeutralColor: ink.withAlpha(0x66),
+      calloutInfoColor: colorScheme.primary,
+      calloutSuccessColor: const Color(0xFF1E8E3E),
+      calloutWarningColor: const Color(0xFFE37400),
+      calloutDangerColor: colorScheme.error,
     );
   }
 
@@ -217,6 +229,32 @@ final class TagflowRenderTheme with Diagnosticable {
   /// Background of highlighted (`<mark>`) text.
   final Color? highlightColor;
 
+  /// Accent of callouts with no tone or [TagflowCalloutTone.neutral].
+  final Color? calloutNeutralColor;
+
+  /// Accent of [TagflowCalloutTone.info] callouts.
+  final Color? calloutInfoColor;
+
+  /// Accent of [TagflowCalloutTone.success] callouts.
+  final Color? calloutSuccessColor;
+
+  /// Accent of [TagflowCalloutTone.warning] callouts.
+  final Color? calloutWarningColor;
+
+  /// Accent of [TagflowCalloutTone.danger] callouts.
+  final Color? calloutDangerColor;
+
+  /// Accent colour for a callout of [tone]; `null` means neutral.
+  Color? calloutColor(TagflowCalloutTone? tone) {
+    return switch (tone) {
+      null || TagflowCalloutTone.neutral => calloutNeutralColor,
+      TagflowCalloutTone.info => calloutInfoColor,
+      TagflowCalloutTone.success => calloutSuccessColor,
+      TagflowCalloutTone.warning => calloutWarningColor,
+      TagflowCalloutTone.danger => calloutDangerColor,
+    };
+  }
+
   /// Text style for a heading of [level] (clamped to 1 to 6).
   TextStyle? headingStyle(int level) {
     return switch (level.clamp(1, 6)) {
@@ -266,6 +304,11 @@ final class TagflowRenderTheme with Diagnosticable {
       tableHeaderBackgroundColor:
           other.tableHeaderBackgroundColor ?? tableHeaderBackgroundColor,
       highlightColor: other.highlightColor ?? highlightColor,
+      calloutNeutralColor: other.calloutNeutralColor ?? calloutNeutralColor,
+      calloutInfoColor: other.calloutInfoColor ?? calloutInfoColor,
+      calloutSuccessColor: other.calloutSuccessColor ?? calloutSuccessColor,
+      calloutWarningColor: other.calloutWarningColor ?? calloutWarningColor,
+      calloutDangerColor: other.calloutDangerColor ?? calloutDangerColor,
     );
   }
 
@@ -294,6 +337,11 @@ final class TagflowRenderTheme with Diagnosticable {
     quoteBorderColor,
     tableHeaderBackgroundColor,
     highlightColor,
+    calloutNeutralColor,
+    calloutInfoColor,
+    calloutSuccessColor,
+    calloutWarningColor,
+    calloutDangerColor,
   ];
 
   @override
@@ -333,6 +381,11 @@ final class TagflowRenderTheme with Diagnosticable {
       'quoteBorderColor',
       'tableHeaderBackgroundColor',
       'highlightColor',
+      'calloutNeutralColor',
+      'calloutInfoColor',
+      'calloutSuccessColor',
+      'calloutWarningColor',
+      'calloutDangerColor',
     ];
     final values = _props;
     for (var i = 0; i < fields.length; i++) {
