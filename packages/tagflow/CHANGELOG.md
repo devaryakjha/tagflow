@@ -10,6 +10,15 @@
   `replaceNode` patch on a 13,000-node document drops from about 3 ms to
   about 40 µs. New `benchmark:streaming` melos script.
   ([#120](https://github.com/devaryakjha/tagflow/issues/120))
+- Add `TagflowContentPolicy.baseUrl`. With a base, relative and
+  scheme-relative URLs are resolved and then checked against the allowed
+  schemes. Without one, scheme-relative URLs and relative images are
+  rejected with the new `TagflowUrlDecisionReason.missingBaseUrl`, and
+  relative links are kept as written. Previously `//host/path` passed as a
+  relative URL without a scheme check.
+  ([#121](https://github.com/devaryakjha/tagflow/issues/121))
+- The default error widget shows a neutral message in release builds
+  instead of the exception text.
 
 ## 1.0.0-beta.2
 

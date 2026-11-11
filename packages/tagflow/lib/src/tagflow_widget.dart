@@ -17,9 +17,14 @@ import 'package:tagflow/src/tagflow_options.dart';
 typedef ErrorWidgetBuilder = TagflowErrorWidgetBuilder;
 
 /// Default error widget builder
+/// Shows the error in debug and profile builds. Release builds show a
+/// neutral message, so internal details do not reach end users; pass an
+/// `errorBuilder` to show something else.
 Widget _defaultErrorWidget(BuildContext context, Object? error) {
   return SelectableText(
-    'Failed to render content: $error',
+    kReleaseMode
+        ? 'This content could not be displayed.'
+        : 'Failed to render content: $error',
     style: const TextStyle(color: Color(0xFFB00020)),
   );
 }

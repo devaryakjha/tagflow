@@ -115,6 +115,7 @@ TagflowContentPolicy.allowRelativeUrls
 TagflowContentPolicy.allowRemoteImages
 TagflowContentPolicy.allowedSchemes
 TagflowContentPolicy.allowedTags
+TagflowContentPolicy.baseUrl
 TagflowContentPolicy.blockedTags
 TagflowContentPolicy.decideTag
 TagflowContentPolicy.decideUrl
@@ -620,6 +621,7 @@ TagflowUnsupportedBehavior.preservePlaceholder
 TagflowUrlDecisionReason.dataUrlNotAllowed
 TagflowUrlDecisionReason.disallowedScheme
 TagflowUrlDecisionReason.malformedUrl
+TagflowUrlDecisionReason.missingBaseUrl
 TagflowUrlDecisionReason.relativeUrlNotAllowed
 TagflowUrlDecisionReason.remoteImagesDisabled
 TagflowUrlPolicyDecision.get hashCode

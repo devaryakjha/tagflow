@@ -58,6 +58,11 @@ enum TagflowUrlDecisionReason {
 
   /// The URL is a remote image and the policy does not allow them.
   remoteImagesDisabled,
+
+  /// The URL is scheme-relative (`//host/path`), or a relative image URL,
+  /// and the policy has no [TagflowContentPolicy.baseUrl] to resolve it
+  /// against.
+  missingBaseUrl,
 }
 
 /// Result of a tag policy check.
@@ -144,6 +149,7 @@ final class TagflowContentPolicy {
     this.maxDepth = defaultMaxDepth,
     this.maxNodes = defaultMaxNodes,
     this.allowInlineStyles = true,
+    this.baseUrl,
   }) : assert(maxDepth > 0, 'maxDepth must be positive'),
        assert(maxNodes > 0, 'maxNodes must be positive');
 
@@ -180,6 +186,21 @@ final class TagflowContentPolicy {
 
   /// Whether relative URLs are allowed.
   final bool allowRelativeUrls;
+
+  /// Absolute URL that relative and scheme-relative URLs resolve against,
+  /// such as the address the content was loaded from.
+  ///
+  /// With a base URL, a relative URL is resolved first and the result is
+  /// checked like any absolute URL, so it must use an allowed scheme.
+  ///
+  /// Without one, scheme-relative URLs (`//host/path`) and relative image
+  /// URLs are rejected with [TagflowUrlDecisionReason.missingBaseUrl], since
+  /// there is nothing to resolve them against. Relative link URLs are kept
+  /// as written and passed to the app's link callback unchanged.
+  ///
+  /// [allowRelativeUrls] still applies: when it is `false`, relative URLs
+  /// are rejected whether or not a base URL is set.
+  final Uri? baseUrl;
 
   /// Explicitly allowed URI schemes.
   final Set<String> allowedSchemes;
@@ -258,13 +279,37 @@ final class TagflowContentPolicy {
     }
 
     if (!uri.hasScheme) {
-      return allowRelativeUrls
-          ? TagflowUrlPolicyDecision.allow(uri)
-          : const TagflowUrlPolicyDecision.disallow(
-              TagflowUrlDecisionReason.relativeUrlNotAllowed,
-            );
+      if (!allowRelativeUrls) {
+        return const TagflowUrlPolicyDecision.disallow(
+          TagflowUrlDecisionReason.relativeUrlNotAllowed,
+        );
+      }
+      final base = baseUrl;
+      if (base != null && base.hasScheme) {
+        return _decideAbsolute(
+          base.resolveUri(uri),
+          normalizedUrl,
+          resourceType,
+        );
+      }
+      // A scheme-relative URL names another host, so it cannot be kept as a
+      // relative path, and a relative image has nothing to load from.
+      if (uri.hasAuthority || resourceType == TagflowResourceType.image) {
+        return const TagflowUrlPolicyDecision.disallow(
+          TagflowUrlDecisionReason.missingBaseUrl,
+        );
+      }
+      return TagflowUrlPolicyDecision.allow(uri);
     }
 
+    return _decideAbsolute(uri, normalizedUrl, resourceType);
+  }
+
+  TagflowUrlPolicyDecision _decideAbsolute(
+    Uri uri,
+    String normalizedUrl,
+    TagflowResourceType resourceType,
+  ) {
     final normalizedScheme = uri.scheme.toLowerCase();
 
     if (normalizedScheme == 'data') {
@@ -309,7 +354,8 @@ final class TagflowContentPolicy {
             other.unsupportedBehavior == unsupportedBehavior &&
             other.maxDepth == maxDepth &&
             other.maxNodes == maxNodes &&
-            other.allowInlineStyles == allowInlineStyles;
+            other.allowInlineStyles == allowInlineStyles &&
+            other.baseUrl == baseUrl;
   }
 
   @override
@@ -324,6 +370,7 @@ final class TagflowContentPolicy {
     maxDepth,
     maxNodes,
     allowInlineStyles,
+    baseUrl,
   );
 }
 
