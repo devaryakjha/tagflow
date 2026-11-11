@@ -27,6 +27,9 @@
   excluded from semantics, and the toggle reports its expanded state;
   images with an empty `alt` are treated as decorative; table header cells
   carry a "Column header" hint in both the core table and `tagflow_table`.
+- Add a package `example/` and fix README snippets that did not compile;
+  CI now compiles every README snippet.
+  ([#124](https://github.com/devaryakjha/tagflow/issues/124))
 
 ## 1.0.0-beta.2
 

@@ -9,7 +9,6 @@
 </p>
 
 [![pub package](https://img.shields.io/pub/v/tagflow_table.svg)](https://pub.dev/packages/tagflow_table)
-[![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
 > ⚠️ **Beta prerelease**: `tagflow_table` `1.0.0-beta.2` is aligned with
@@ -185,7 +184,7 @@ final theme = TagflowTheme.article(
   headingTextStyle: Theme.of(context).textTheme.headlineMedium!,
   additionalStyles: {
     'table': TagflowStyle(
-      maxWidth: 800,
+      maxWidth: SizeValue(800),
       border: Border.all(color: Colors.grey[300]!),
       margin: EdgeInsets.symmetric(vertical: 16),
     ),
@@ -220,9 +219,9 @@ final theme = TagflowTheme.raw(
       borderBottom: BorderSide(color: Colors.grey[300]!),
     ),
     'tr:hover': TagflowStyle(
-      backgroundColor: Colors.blue[50]!.withOpacity(0.3),
+      backgroundColor: Colors.blue[50]!.withValues(alpha: 0.3),
     ),
-  ),
+  },
   defaultStyle: TagflowStyle(
     textStyle: TextStyle(fontSize: 14),
   ),

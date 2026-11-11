@@ -37,3 +37,32 @@ jobs:
 
       - name: Validate workspace
         run: dart run melos run validate
+
+  minimum-sdk:
+    name: Minimum Flutter (analyze and test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # The oldest Flutter that ships the Dart SDK lower bound declared in
+      # the package pubspecs (sdk: ">=3.9.0"). Raise both together.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.35.0
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Goldens are rendered with the pinned Flutter only, so they are
+      # skipped here. Lint infos differ between analyzer versions, so only
+      # errors and warnings fail this job; the validate job keeps infos fatal.
+      - name: Analyze and test published packages
+        run: |
+          set -e
+          for package in packages/tagflow packages/tagflow_table; do
+            (cd "$package" && flutter analyze --no-fatal-infos && flutter test --exclude-tags golden)
+          done

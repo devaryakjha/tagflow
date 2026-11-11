@@ -82,8 +82,13 @@ melos:
       run: |
         dart run melos run lint:all &&
         dart run melos run test --no-select &&
-        dart run melos run test:fixes --no-select
+        dart run melos run test:fixes --no-select &&
+        dart run tool/check_readme_snippets.dart
       description: Run all validations
+
+    check:readme:
+      run: dart run tool/check_readme_snippets.dart
+      description: Check that the README Dart snippets compile
 
     build:clean:
       run: dart run melos exec -- "flutter clean"

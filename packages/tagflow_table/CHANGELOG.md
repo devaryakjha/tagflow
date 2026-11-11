@@ -2,6 +2,9 @@
 
 - Header cells carry a "Column header" semantics hint.
   ([#122](https://github.com/devaryakjha/tagflow/issues/122))
+- Add a package `example/`, and fix the `TagflowTheme.raw` and
+  `TagflowTheme.article` README snippets.
+  ([#124](https://github.com/devaryakjha/tagflow/issues/124))
 
 ## 1.0.0-beta.2
 
