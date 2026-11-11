@@ -165,6 +165,9 @@ examples/tagflow/             Example app
 docs/                         Specs and migration notes
 ```
 
+Upgrading from the `0.0.x` HTML renderer: read
+[`docs/migration/2026-11-tagflow-0.0.8-to-1.0.md`](docs/migration/2026-11-tagflow-0.0.8-to-1.0.md).
+
 ## Releases
 
 Package publication is handled by GitHub Actions tag workflows:

@@ -94,6 +94,9 @@
   children the way the built-in table cell does, flowing inline runs as one
   rich text. `tagflow_table` uses it for cells.
   ([#118](https://github.com/devaryakjha/tagflow/issues/118))
+- A public API snapshot test fails on any unintended change to the exported
+  surface, and a migration guide covers moving from `0.0.8` to `1.0`.
+  ([#86](https://github.com/devaryakjha/tagflow/issues/86))
 
 ### Deprecated
 

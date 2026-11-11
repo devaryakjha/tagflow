@@ -538,8 +538,11 @@ affect the legacy converter pipeline.
 
 Visit our [documentation](https://docs.arya.run/tagflow) for detailed guides and examples.
 
-For the v1 alpha migration direction, see
-[`docs/migration/2026-06-11-tagflow-v1-alpha-migration.md`](../../docs/migration/2026-06-11-tagflow-v1-alpha-migration.md).
+Moving from `0.0.8`? The
+[0.0.8 to 1.0 migration guide](https://github.com/devaryakjha/tagflow/blob/main/docs/migration/2026-11-tagflow-0.0.8-to-1.0.md)
+shows how to replace each kind of custom converter with a registry builder.
+The [v1 alpha migration guide](https://github.com/devaryakjha/tagflow/blob/main/docs/migration/2026-06-11-tagflow-v1-alpha-migration.md)
+explains the runtime design in more depth.
 The example app also includes a `Native JSON Transport` screen that decodes
 native block JSON, renders it with `Tagflow.document(...)`, and applies a patch
 envelope through `TagflowNativeBlockAdapter.adaptPatches(...)`.
