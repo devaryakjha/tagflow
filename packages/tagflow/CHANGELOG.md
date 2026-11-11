@@ -83,6 +83,14 @@
   `imageSelectionTextBuilder`, which takes the image `TagflowDocumentNode`
   ([#115](https://github.com/devaryakjha/tagflow/issues/115)).
 
+- `TagflowNodeKind.custom`, `TagflowDocumentNode.custom(type: ...)` and
+  `TagflowDocumentNode.customType` for content with no built-in kind, rendered
+  with `TagflowComponentRegistry(customComponents: {...})` (also on
+  `TagflowComponentRegistry.components`). Native JSON gains a `custom` block
+  with a required `type` attribute. `TagflowNodeKind` now only gains values in
+  a major release. ([#117](https://github.com/devaryakjha/tagflow/issues/117))
+- Every public API is documented, and `public_member_api_docs` is on.
+
 ### Deprecated
 
 - `TagflowViewOptions.enableImageCache` and `loadingBuilder` on the
@@ -123,6 +131,14 @@
   `titleMedium` and `titleSmall`, bold), and `small`, `sub` and `sup` are
   0.85 of the surrounding size instead of a fixed 12. Goldens changed
   accordingly.
+
+- **Breaking:** `TagflowContentPolicy.allowedTags` is nullable and defaults
+  to `null`, which allows every tag that is not blocked. An empty set now
+  allows no tags instead of all of them. Remove `allowedTags: {}` to keep the
+  old behavior. ([#117](https://github.com/devaryakjha/tagflow/issues/117))
+- **Breaking:** `TagflowDocumentNode.copyWith` no longer takes `kind`. Build
+  a new node with the kind's constructor.
+- `TagflowComponentRegistry.components` no longer requires `components`.
 
 ### Fixed
 

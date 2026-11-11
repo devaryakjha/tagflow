@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tagflow/legacy.dart';
 
+/// Converter for `table` elements.
 final class TableConverter extends ElementConverter<TagflowTableElement> {
+  /// Creates a table converter.
   const TableConverter();
 
   @override
@@ -40,7 +42,9 @@ final class TableConverter extends ElementConverter<TagflowTableElement> {
   Set<String> get supportedTags => {'table'};
 }
 
+/// Converter for `td` and `th` cells.
 final class TableCellConverter extends TextConverter {
+  /// Creates a table cell converter.
   const TableCellConverter();
 
   @override

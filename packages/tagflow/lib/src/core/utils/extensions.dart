@@ -68,7 +68,9 @@ extension TagflowNodeSize on TagflowNode {
   }
 }
 
+/// Helpers that turn a [TagflowStyle] into Flutter decorations.
 extension StyleExtension on TagflowStyle {
+  /// Whether any border is set.
   bool get hasBorder =>
       border != null ||
       borderLeft != null ||
@@ -76,6 +78,7 @@ extension StyleExtension on TagflowStyle {
       borderTop != null ||
       borderBottom != null;
 
+  /// The border to paint, or `null`.
   Border? get effectiveBorder => hasBorder
       ? border ??
             Border(
@@ -86,12 +89,14 @@ extension StyleExtension on TagflowStyle {
             )
       : null;
 
+  /// Whether a box decoration is needed.
   bool get hasBoxDecoration =>
       backgroundColor != null ||
       borderRadius != null ||
       effectiveBorder != null ||
       boxShadow != null;
 
+  /// The box decoration to paint, or `null`.
   BoxDecoration? toBoxDecoration() => hasBoxDecoration
       ? BoxDecoration(
           color: backgroundColor,
@@ -101,6 +106,7 @@ extension StyleExtension on TagflowStyle {
         )
       : null;
 
+  /// The text style with the style color applied.
   TextStyle? get textStyleWithColor =>
       textStyle == null && (color != null || backgroundColor != null)
       ? TextStyle(color: color)

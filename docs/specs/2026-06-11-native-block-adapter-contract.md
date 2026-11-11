@@ -294,6 +294,7 @@ Required first-slice block kinds:
 - `tableCaption`
 - `horizontalRule`
 - `container`
+- `custom`
 
 Additional supported contract shapes for the first slice:
 
@@ -333,6 +334,10 @@ level when they are semantically meaningful:
 - list items: optional `checked` (`true` or `false`) for task items
 - disclosures: optional `expanded` (defaults to `false`)
 - containers: optional `display` (`"block"` or `"inline"`)
+- custom blocks: required `type`, a non-empty string such as `"chart"`. The
+  block adapts to a `TagflowNodeKind.custom` node with that `customType`, and
+  its other attributes stay in the node's `blockAttributes` metadata for the
+  app's builder. Decode fails when `type` is missing or blank.
 
 Rule:
 

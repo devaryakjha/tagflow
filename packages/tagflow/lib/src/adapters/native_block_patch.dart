@@ -65,9 +65,18 @@ final class TagflowNativeBlockPatch {
 
 /// Semantic native update kinds supported by the patch adapter slice.
 enum TagflowNativeBlockPatchKind {
+  /// Replaces the node with `targetNodeId`.
   replaceNode,
+
+  /// Appends blocks to the children of `targetNodeId`.
   appendChildren,
+
+  /// Appends blocks to the end of the document.
   appendRootChildren,
+
+  /// Inserts blocks before the sibling `targetNodeId`.
   insertBefore,
+
+  /// Removes the node with `targetNodeId`.
   removeNode,
 }

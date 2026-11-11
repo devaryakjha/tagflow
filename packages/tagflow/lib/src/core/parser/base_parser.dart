@@ -1,15 +1,21 @@
 import 'package:html/dom.dart' as dom;
 import 'package:tagflow/legacy.dart';
 
+/// Parses one kind of DOM node for the legacy [TagflowParser].
 abstract class NodeParser<T extends TagflowNode> {
+  /// Creates a node parser.
   const NodeParser();
 
   // Cached RegEx pattern for performance
   static final _whitespaceRegex = RegExp(r'[ \t]+');
 
+  /// Parses [node], or returns `null`.
   T? tryParse(dom.Node node, TagflowParser parser);
+
+  /// Whether this parser handles [node].
   bool canHandle(dom.Node node);
 
+  /// The attributes of [element], with `style` and `class` normalized.
   Map<String, String> parseAttributes(dom.Element element) {
     final attributes = <String, String>{};
 
@@ -28,6 +34,7 @@ abstract class NodeParser<T extends TagflowNode> {
     return attributes;
   }
 
+  /// Collapses runs of spaces and tabs in [text], keeping newlines.
   String normalizeWhitespace(String text) {
     // Collapse spaces/tabs within each line
     String replaceSpaces(String lines) {
@@ -71,6 +78,7 @@ abstract class NodeParser<T extends TagflowNode> {
         .join(' ');
   }
 
+  /// Parses the children of [element].
   List<TagflowNode> parseChildren(dom.Element element, TagflowParser parser) {
     return parser.parseNodes(element.nodes);
   }

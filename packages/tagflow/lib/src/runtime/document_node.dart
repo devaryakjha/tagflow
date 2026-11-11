@@ -26,18 +26,47 @@ enum TagflowCalloutTone {
 }
 
 /// Semantic runtime node kinds for Tagflow documents.
+///
+/// New built-in kinds are added only in major releases, so an exhaustive
+/// `switch` over this enum keeps compiling across minor and patch releases.
+/// Content that has no built-in kind uses [custom] with a string
+/// [TagflowDocumentNode.customType], rendered through
+/// `TagflowComponentRegistry(customComponents: ...)`.
 enum TagflowNodeKind {
+  /// The root of a rendered tree.
   root,
+
+  /// A generic group of nodes; set `presentation.display` to flow inline.
   container,
+
+  /// A paragraph of inline content.
   paragraph,
+
+  /// A heading with a `level` from 1 to 6.
   heading,
+
+  /// A run of text.
   text,
+
+  /// A link to `url`.
   link,
+
+  /// An ordered or unordered list.
   list,
+
+  /// A list item, a task when `checked` is set.
   listItem,
+
+  /// A description list of terms and details.
   descriptionList,
+
+  /// A term in a description list.
   descriptionTerm,
+
+  /// The details for a term in a description list.
   descriptionDetails,
+
+  /// A quotation.
   blockquote,
 
   /// A collapsible section, like HTML `<details>`.
@@ -52,17 +81,37 @@ enum TagflowNodeKind {
   /// A highlighted aside such as a note, tip or warning, with an optional
   /// title and a [TagflowCalloutTone].
   callout,
+
+  /// Preformatted code, with an optional `language`.
   codeBlock,
+
+  /// Inline code.
   inlineCode,
+
+  /// An image at `url`.
   image,
+
+  /// A table of rows and an optional caption.
   table,
+
+  /// A row of table cells.
   tableRow,
+
+  /// A table cell, with spans and a header flag.
   tableCell,
 
   /// The caption of a [table], like HTML `<caption>`.
   tableCaption,
+
+  /// A thematic break.
   horizontalRule,
+
+  /// A placeholder for content that could not be adapted.
   unsupported,
+
+  /// App or extension content with no built-in kind, identified by
+  /// [TagflowDocumentNode.customType].
+  custom,
 }
 
 /// Immutable semantic node used by the runtime document model.
@@ -91,6 +140,7 @@ final class TagflowDocumentNode {
     this.expanded = false,
     this.tone,
     this.title,
+    this.customType,
     this.unsupportedReason,
   }) : children = List.unmodifiable(children),
        presentation = presentation ?? TagflowPresentation.empty,
@@ -550,6 +600,34 @@ final class TagflowDocumentNode {
     );
   }
 
+  /// Creates a custom node of [type], such as `chart` or `product-card`.
+  ///
+  /// Register a builder for [type] with
+  /// `TagflowComponentRegistry(customComponents: {type: ...})`. Put the
+  /// node's data in [metadata] and its content in [children]. Without a
+  /// builder, the registry's fallback renders the children.
+  factory TagflowDocumentNode.custom({
+    required String id,
+    required String type,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    if (type.trim().isEmpty) {
+      throw ArgumentError.value(type, 'type', 'Must not be blank.');
+    }
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.custom,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+      customType: type,
+    );
+  }
+
   /// Creates an unsupported placeholder node.
   factory TagflowDocumentNode.unsupported({
     required String id,
@@ -637,10 +715,16 @@ final class TagflowDocumentNode {
   /// Title of a callout node.
   final String? title;
 
+  /// Type of a [TagflowNodeKind.custom] node, `null` for other kinds.
+  final String? customType;
+
   /// Optional unsupported-content reason.
   final String? unsupportedReason;
 
   /// Creates a copy of this node with selected fields replaced.
+  ///
+  /// The kind cannot change: build a node of another kind with its named
+  /// constructor, so it only carries the fields that kind uses.
   ///
   /// The copied node remains immutable: replacement children are copied into an
   /// unmodifiable list by the private runtime constructor.
@@ -650,7 +734,6 @@ final class TagflowDocumentNode {
   /// image alt text or [clearText] to remove a text/code payload.
   TagflowDocumentNode copyWith({
     String? id,
-    TagflowNodeKind? kind,
     List<TagflowDocumentNode>? children,
     TagflowPresentation? presentation,
     TagflowMetadata? metadata,
@@ -689,7 +772,7 @@ final class TagflowDocumentNode {
   }) {
     return TagflowDocumentNode._(
       id: id ?? this.id,
-      kind: kind ?? this.kind,
+      kind: kind,
       children: children ?? this.children,
       presentation: presentation ?? this.presentation,
       metadata: metadata ?? this.metadata,
@@ -763,6 +846,7 @@ final class TagflowDocumentNode {
         name: 'checked',
       ),
       expanded: expanded ?? this.expanded,
+      customType: customType,
       tone: _resolveNullableCopyField(
         current: this.tone,
         replacement: tone,
@@ -810,6 +894,7 @@ final class TagflowDocumentNode {
             other.expanded == expanded &&
             other.tone == tone &&
             other.title == title &&
+            other.customType == customType &&
             other.unsupportedReason == unsupportedReason;
   }
 
@@ -837,6 +922,7 @@ final class TagflowDocumentNode {
     expanded,
     tone,
     title,
+    customType,
     unsupportedReason,
   ]);
 }

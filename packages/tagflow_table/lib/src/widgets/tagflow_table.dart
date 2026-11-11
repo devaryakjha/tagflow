@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tagflow_table/src/rendering/tagflow_table.dart';
 
+/// Places a child in a [TagflowTable] grid.
 class TableCell extends ParentDataWidget<TableCellData> {
+  /// Creates a cell at [row] and [column].
   const TableCell({
     required this.row,
     required this.column,
@@ -13,10 +15,19 @@ class TableCell extends ParentDataWidget<TableCellData> {
     this.isSeparator = false,
   });
 
+  /// Row index of the cell.
   final int row;
+
+  /// Column index of the cell.
   final int column;
+
+  /// Rows the cell covers.
   final int rowSpan;
+
+  /// Columns the cell covers.
   final int colSpan;
+
+  /// Whether the child is a row separator rather than a cell.
   final bool isSeparator;
 
   @override
@@ -61,7 +72,9 @@ class TableCell extends ParentDataWidget<TableCellData> {
   Type get debugTypicalAncestorWidgetClass => TagflowTable;
 }
 
+/// A table that supports row and column spans.
 final class TagflowTable extends MultiChildRenderObjectWidget {
+  /// Creates a table of [rowCount] by [columnCount] cells.
   TagflowTable({
     required this.rowCount,
     required this.columnCount,
@@ -77,14 +90,31 @@ final class TagflowTable extends MultiChildRenderObjectWidget {
   }) : border = border ?? TagflowTableBorder.none,
        super(children: children);
 
+  /// Number of rows.
   final int rowCount;
+
+  /// Number of columns.
   final int columnCount;
+
+  /// Outer and inner borders.
   final TagflowTableBorder border;
+
+  /// Whether the first row is styled as a header.
   final bool treatFirstRowAsHeader;
+
+  /// Background of the header row.
   final Color? headerBackgroundColor;
+
+  /// Padding inside each cell.
   final EdgeInsets padding;
+
+  /// Builds a separator between rows.
   final IndexedWidgetBuilder? separatorBuilder;
+
+  /// Space between columns.
   final double columnSpacing;
+
+  /// Space between rows.
   final double rowSpacing;
 
   @override

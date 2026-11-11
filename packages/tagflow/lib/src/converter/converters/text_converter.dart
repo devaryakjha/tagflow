@@ -88,6 +88,7 @@ class TextConverter extends ElementConverter<TagflowElement> {
     return null;
   }
 
+  /// Whether [element] renders as a widget span rather than a text span.
   bool shouldForceWidgetSpan(TagflowNode element) {
     return ['sub', 'sup', 'mark'].contains(element.tag);
   }

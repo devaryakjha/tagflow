@@ -116,12 +116,33 @@ enum AlignItems {
 }
 
 /// Represents different types of size units
-enum SizeUnit { px, pt, percentage, rem, vh, vw }
+enum SizeUnit {
+  /// Logical pixels.
+  px,
+
+  /// Points.
+  pt,
+
+  /// A percentage of the parent size.
+  percentage,
+
+  /// Multiples of the root font size.
+  rem,
+
+  /// A percentage of the viewport height.
+  vh,
+
+  /// A percentage of the viewport width.
+  vw,
+}
 
 /// Represents a size value that can be either absolute or relative
 class SizeValue extends Equatable {
+  /// Creates a size of [_value] in [unit].
   const SizeValue(this._value, [this.unit = SizeUnit.px]);
   final double _value;
+
+  /// Unit of the size.
   final SizeUnit unit;
 
   /// Get the value in pixels

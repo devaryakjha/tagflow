@@ -127,6 +127,17 @@ Current node-kind posture:
   default. Renderers decide behavior from these typed fields only. The
   `htmlTag` metadata key is provenance for inspection and the legacy bridge,
   and the registry and `tagflow_table` do not read it.
+- `custom` (beta.2, [#117](https://github.com/devaryakjha/tagflow/issues/117))
+  carries content that has no built-in kind. `TagflowDocumentNode.customType`
+  names it (for example `chart`), and
+  `TagflowComponentRegistry(customComponents: {...})` renders it by that
+  name. Without a builder the fallback renders its children.
+- Kind evolution policy: `TagflowNodeKind` is closed between majors. New
+  kinds are added only in a major release, because adding a value breaks
+  exhaustive `switch` statements in apps. Within 1.x, new content types use
+  `custom` with a `customType`, and new facts about existing kinds use typed
+  node fields or metadata. `TagflowDocumentNode.copyWith` cannot change a
+  node's kind; build a new node with the kind's constructor instead.
 - `unsupported` remains a runtime placeholder kind for preserved policy
   rejections and app-authored unsupported nodes. It is not the native JSON
   unknown-kind compatibility model.

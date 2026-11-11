@@ -4,13 +4,34 @@ import 'package:meta/meta.dart';
 const SetEquality<String> _stringSetEquality = SetEquality<String>();
 
 /// Runtime behavior for unsupported content.
-enum TagflowUnsupportedBehavior { drop, preservePlaceholder }
+enum TagflowUnsupportedBehavior {
+  /// Leave unsupported or rejected content out of the document.
+  drop,
+
+  /// Keep an unsupported placeholder node where the content was.
+  preservePlaceholder,
+}
 
 /// Source URL categories evaluated by the content policy.
-enum TagflowResourceType { generic, link, image }
+enum TagflowResourceType {
+  /// A URL with no particular use.
+  generic,
+
+  /// The target of a link.
+  link,
+
+  /// The source of an image.
+  image,
+}
 
 /// Reasons a tag decision may be rejected.
-enum TagflowTagDecisionReason { blockedTag, notInAllowlist }
+enum TagflowTagDecisionReason {
+  /// The tag is in `blockedTags`.
+  blockedTag,
+
+  /// `allowedTags` is set and does not contain the tag.
+  notInAllowlist,
+}
 
 /// Content policy limits an adapter can hit while adapting input.
 enum TagflowContentLimit {
@@ -23,10 +44,19 @@ enum TagflowContentLimit {
 
 /// Reasons a URL decision may be rejected.
 enum TagflowUrlDecisionReason {
+  /// The URL could not be parsed.
   malformedUrl,
+
+  /// The URL is relative and the policy does not allow relative URLs.
   relativeUrlNotAllowed,
+
+  /// The URL scheme is not in `allowedSchemes`.
   disallowedScheme,
+
+  /// The URL is a `data:` URL and the policy does not allow them.
   dataUrlNotAllowed,
+
+  /// The URL is a remote image and the policy does not allow them.
   remoteImagesDisabled,
 }
 
@@ -108,7 +138,7 @@ final class TagflowContentPolicy {
     this.allowDataImages = false,
     this.allowRelativeUrls = true,
     this.allowedSchemes = _defaultAllowedSchemes,
-    this.allowedTags = const {},
+    this.allowedTags,
     this.blockedTags = _defaultBlockedTags,
     this.unsupportedBehavior = TagflowUnsupportedBehavior.drop,
     this.maxDepth = defaultMaxDepth,
@@ -154,8 +184,12 @@ final class TagflowContentPolicy {
   /// Explicitly allowed URI schemes.
   final Set<String> allowedSchemes;
 
-  /// Optional source tag allowlist.
-  final Set<String> allowedTags;
+  /// Source tags to allow, or `null` to allow every tag that is not in
+  /// [blockedTags].
+  ///
+  /// An empty set allows no tags at all, so a list built from configuration
+  /// that comes out empty fails closed.
+  final Set<String>? allowedTags;
 
   /// Explicit source tag denylist.
   final Set<String> blockedTags;
@@ -198,7 +232,8 @@ final class TagflowContentPolicy {
       );
     }
 
-    if (allowedTags.isNotEmpty && !allowedTags.contains(normalizedTag)) {
+    final allowed = allowedTags;
+    if (allowed != null && !allowed.contains(normalizedTag)) {
       return TagflowTagPolicyDecision.disallow(
         normalizedTag,
         TagflowTagDecisionReason.notInAllowlist,
@@ -269,7 +304,7 @@ final class TagflowContentPolicy {
             other.allowDataImages == allowDataImages &&
             other.allowRelativeUrls == allowRelativeUrls &&
             _stringSetEquality.equals(other.allowedSchemes, allowedSchemes) &&
-            _stringSetEquality.equals(other.allowedTags, allowedTags) &&
+            _nullableSetEquals(other.allowedTags, allowedTags) &&
             _stringSetEquality.equals(other.blockedTags, blockedTags) &&
             other.unsupportedBehavior == unsupportedBehavior &&
             other.maxDepth == maxDepth &&
@@ -283,11 +318,16 @@ final class TagflowContentPolicy {
     allowDataImages,
     allowRelativeUrls,
     _stringSetEquality.hash(allowedSchemes),
-    _stringSetEquality.hash(allowedTags),
+    allowedTags == null ? null : _stringSetEquality.hash(allowedTags),
     _stringSetEquality.hash(blockedTags),
     unsupportedBehavior,
     maxDepth,
     maxNodes,
     allowInlineStyles,
   );
+}
+
+bool _nullableSetEquals(Set<String>? a, Set<String>? b) {
+  if (a == null || b == null) return a == b;
+  return _stringSetEquality.equals(a, b);
 }

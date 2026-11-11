@@ -25,9 +25,7 @@ void main() {
       tester,
     ) async {
       final fullRegistry = TagflowComponentRegistry();
-      final fragment = TagflowComponentRegistry.components(
-        components: const {},
-      );
+      final fragment = TagflowComponentRegistry.components();
 
       expect(fullRegistry.hasComponent(TagflowNodeKind.paragraph), isTrue);
       expect(fullRegistry.canRender(TagflowNodeKind.paragraph), isTrue);

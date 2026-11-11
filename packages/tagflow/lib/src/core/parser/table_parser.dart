@@ -2,7 +2,9 @@ import 'package:html/dom.dart' as dom;
 import 'package:tagflow/legacy.dart';
 import 'package:tagflow/src/adapters/content_limits.dart';
 
+/// Parses `table` elements into a padded grid.
 class TableParser extends NodeParser<TagflowTableElement> {
+  /// Creates a table parser.
   const TableParser();
 
   static const _elementParser = ElementParser();

@@ -45,8 +45,13 @@ final class TagflowComponentContext {
 final class TagflowComponentRegistry {
   /// Creates a registry with built-ins, optional [extensions], and app
   /// [overrides].
+  ///
+  /// [customComponents] render [TagflowNodeKind.custom] nodes by their
+  /// [TagflowDocumentNode.customType]; they take precedence over the
+  /// extensions' custom components.
   factory TagflowComponentRegistry({
     Map<TagflowNodeKind, TagflowComponentBuilder> overrides = const {},
+    Map<String, TagflowComponentBuilder> customComponents = const {},
     Iterable<TagflowComponentRegistry> extensions = const [],
     TagflowComponentBuilder? fallbackBuilder,
   }) {
@@ -56,17 +61,23 @@ final class TagflowComponentRegistry {
         for (final extension in extensions) ...extension._components,
         ...overrides,
       },
+      customComponents: {
+        for (final extension in extensions) ...extension._customComponents,
+        ...customComponents,
+      },
       fallbackBuilder: fallbackBuilder ?? builtIn._fallbackBuilder,
     );
   }
 
   /// Creates a registry fragment for first-party or app extension components.
   factory TagflowComponentRegistry.components({
-    required Map<TagflowNodeKind, TagflowComponentBuilder> components,
+    Map<TagflowNodeKind, TagflowComponentBuilder> components = const {},
+    Map<String, TagflowComponentBuilder> customComponents = const {},
     TagflowComponentBuilder? fallbackBuilder,
   }) {
     return TagflowComponentRegistry._(
       components: components,
+      customComponents: customComponents,
       fallbackBuilder: fallbackBuilder,
     );
   }
@@ -74,7 +85,9 @@ final class TagflowComponentRegistry {
   TagflowComponentRegistry._({
     required Map<TagflowNodeKind, TagflowComponentBuilder> components,
     required TagflowComponentBuilder? fallbackBuilder,
+    Map<String, TagflowComponentBuilder> customComponents = const {},
   }) : _components = Map.unmodifiable(components),
+       _customComponents = Map.unmodifiable(customComponents),
        _fallbackBuilder = fallbackBuilder;
 
   /// Built-in semantic components shipped by the core package.
@@ -84,6 +97,7 @@ final class TagflowComponentRegistry {
   );
 
   final Map<TagflowNodeKind, TagflowComponentBuilder> _components;
+  final Map<String, TagflowComponentBuilder> _customComponents;
   final TagflowComponentBuilder? _fallbackBuilder;
 
   /// Semantic node kinds with an explicitly registered component.
@@ -95,6 +109,10 @@ final class TagflowComponentRegistry {
     return _components.containsKey(kind);
   }
 
+  /// Custom node types with a registered component.
+  Set<String> get registeredCustomTypes =>
+      Set.unmodifiable(_customComponents.keys);
+
   /// Whether [kind] can be rendered by a component or fallback.
   bool canRender(TagflowNodeKind kind) {
     return hasComponent(kind) || _fallbackBuilder != null;
@@ -105,7 +123,12 @@ final class TagflowComponentRegistry {
   /// Works with or without an enclosing `Tagflow` widget. Without one, the
   /// built-in components use [TagflowViewOptions.defaults].
   Widget render(BuildContext context, TagflowDocumentNode node) {
-    final builder = _components[node.kind] ?? _fallbackBuilder;
+    final builder =
+        (node.kind == TagflowNodeKind.custom
+            ? _customComponents[node.customType]
+            : null) ??
+        _components[node.kind] ??
+        _fallbackBuilder;
     if (builder == null) {
       throw UnsupportedError(
         'No Tagflow component registered for ${node.kind}.',

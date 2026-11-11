@@ -19,6 +19,7 @@ import 'package:tagflow/src/adapters/html_dom.dart';
 )
 class TagflowParser {
   @Deprecated('Use TagflowHtmlAdapter instead. Will be removed in 2.0.')
+  /// Creates a parser with the default node parsers unless [parsers] is set.
   const TagflowParser({
     List<NodeParser>? parsers,
     this.debug = false,
@@ -40,7 +41,11 @@ class TagflowParser {
        _renderBoundaryState = _RenderBoundaryState(renderBoundary);
 
   final List<NodeParser> _parsers;
+
+  /// Logs the parsed DOM when true.
   final bool debug;
+
+  /// Renders only the content between these comment markers.
   final TagflowRenderBoundary? renderBoundary;
 
   /// Deepest element nesting kept, counting the body's children as depth 1.
@@ -52,6 +57,7 @@ class TagflowParser {
   final int? maxNodes;
   final _RenderBoundaryState? _renderBoundaryState;
 
+  /// Parses [input] into a node tree.
   TagflowNode parse(String input) {
     final parser = TagflowParser._run(
       parsers: _parsers,
@@ -102,6 +108,7 @@ class TagflowParser {
     return element.reparent();
   }
 
+  /// Parses the content nodes among [nodes].
   List<TagflowNode> parseNodes(dom.NodeList nodes) {
     const excludeTags = ['table'];
     bool isNodeValid(dom.Node node) {
@@ -142,6 +149,7 @@ class TagflowParser {
     return parsedNodes;
   }
 
+  /// Parses [node] with the first parser that handles it.
   TagflowNode? parseNode(dom.Node node) {
     for (final parser in _parsers) {
       if (parser.canHandle(node)) {
@@ -151,6 +159,7 @@ class TagflowParser {
     return null;
   }
 
+  /// Whether [node] is content worth keeping.
   bool isValidNode(TagflowNode node) {
     const excludeTags = ['table'];
     if (node.isEmpty) return false;

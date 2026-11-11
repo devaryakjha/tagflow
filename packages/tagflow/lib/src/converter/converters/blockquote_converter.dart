@@ -32,7 +32,9 @@ final class BlockquoteConverter extends ElementConverter<TagflowElement> {
   }
 }
 
+/// Converter for the `footer` of a blockquote.
 final class BlockquoteFooterConverter extends ElementConverter<TagflowElement> {
+  /// Creates a blockquote footer converter.
   const BlockquoteFooterConverter();
 
   @override

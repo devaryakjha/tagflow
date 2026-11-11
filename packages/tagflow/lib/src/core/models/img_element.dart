@@ -3,7 +3,9 @@ import 'dart:collection';
 import 'package:flutter/rendering.dart';
 import 'package:tagflow/legacy.dart';
 
+/// Legacy parsed `img` element.
 class TagflowImgElement extends TagflowNode {
+  /// Creates an image element with [attributes].
   const TagflowImgElement({super.tag = 'img', Map<String, String>? attributes})
     : _attributes = attributes ?? const {};
 
