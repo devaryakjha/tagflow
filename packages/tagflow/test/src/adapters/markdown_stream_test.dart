@@ -368,6 +368,78 @@ void main() {
 
       expect(tester.element(find.byKey(const ValueKey('0.0'))), same(before));
     });
+
+    testWidgets('should not rebuild finished blocks when a later block '
+        'changes', (tester) async {
+      var headingBuilds = 0;
+      var paragraphBuilds = 0;
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.heading: (context, node) {
+            headingBuilds++;
+            return Text(_text(node));
+          },
+          TagflowNodeKind.paragraph: (context, node) {
+            paragraphBuilds++;
+            return Text(_text(node));
+          },
+        },
+      );
+      final stream = TagflowMarkdownStream()..add('# Title\n\nBody');
+      addTearDown(stream.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TagflowMarkdownStreamView(stream: stream, registry: registry),
+          ),
+        ),
+      );
+      expect(headingBuilds, 1);
+
+      for (var i = 0; i < 20; i++) {
+        stream.add(' more');
+        await tester.pump();
+      }
+
+      expect(headingBuilds, 1);
+      expect(paragraphBuilds, 21);
+      expect(find.textContaining('Body more'), findsOneWidget);
+    });
+
+    testWidgets('should rebuild finished blocks when the theme changes', (
+      tester,
+    ) async {
+      var headingBuilds = 0;
+      final registry = TagflowComponentRegistry(
+        overrides: {
+          TagflowNodeKind.heading: (context, node) {
+            headingBuilds++;
+            final style = TagflowRenderTheme.of(context.buildContext).h1Style;
+            return Text(_text(node), style: style);
+          },
+        },
+      );
+      final stream = TagflowMarkdownStream()..add('# Title\n\nBody');
+      addTearDown(stream.dispose);
+
+      Widget app(Color linkColor) => MaterialApp(
+        home: Scaffold(
+          body: TagflowMarkdownStreamView(
+            stream: stream,
+            registry: registry,
+            renderTheme: TagflowRenderTheme(
+              h1Style: TextStyle(color: linkColor),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(app(const Color(0xFF0000FF)));
+      await tester.pumpWidget(app(const Color(0xFFFF0000)));
+
+      expect(headingBuilds, 2);
+    });
   });
 
   group('TagflowDocumentPatch.appendRootChildren', () {
@@ -399,4 +471,8 @@ void main() {
       );
     });
   });
+}
+
+String _text(TagflowDocumentNode node) {
+  return node.text ?? node.children.map(_text).join();
 }

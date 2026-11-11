@@ -342,4 +342,205 @@ void main() {
       );
     });
   });
+
+  group('TagflowDocumentPatch id index', () {
+    TagflowDocument nested(int depth) {
+      var node = TagflowDocumentNode.paragraph(id: 'n$depth');
+      for (var i = depth - 1; i >= 0; i--) {
+        node = TagflowDocumentNode.blockquote(id: 'n$i', children: [node]);
+      }
+      return TagflowDocument(id: 'doc', children: [node]);
+    }
+
+    test('should keep untouched node instances along a patch chain', () {
+      final first = TagflowDocumentNode.paragraph(id: 'first');
+      var document = TagflowDocument(
+        id: 'doc',
+        children: [
+          first,
+          TagflowDocumentNode.paragraph(id: 'second'),
+        ],
+      );
+
+      for (var i = 0; i < 5; i++) {
+        document = document.applyPatch(
+          TagflowDocumentPatch.appendChildren(
+            parentNodeId: 'second',
+            children: [TagflowDocumentNode.text(id: 't$i', text: '$i')],
+          ),
+        );
+      }
+
+      expect(identical(document.children.first, first), isTrue);
+      expect(document.children.last.children, hasLength(5));
+    });
+
+    test('should patch deeply nested targets', () {
+      final document = nested(200).applyPatch(
+        TagflowDocumentPatch.replaceNode(
+          nodeId: 'n200',
+          node: TagflowDocumentNode.heading(id: 'n200', level: 2),
+        ),
+      );
+
+      var node = document.children.single;
+      while (node.children.isNotEmpty) {
+        node = node.children.single;
+      }
+      expect(node.kind, TagflowNodeKind.heading);
+    });
+
+    test('should allow re-using the ids of a replaced subtree', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.paragraph(
+            id: 'p',
+            children: [TagflowDocumentNode.text(id: 'p.text', text: 'old')],
+          ),
+        ],
+      );
+
+      final patched = document.applyPatch(
+        TagflowDocumentPatch.replaceNode(
+          nodeId: 'p',
+          node: TagflowDocumentNode.paragraph(
+            id: 'p',
+            children: [TagflowDocumentNode.text(id: 'p.text', text: 'new')],
+          ),
+        ),
+      );
+
+      expect(patched.children.single.children.single.text, 'new');
+    });
+
+    test('should forget the ids of a removed subtree', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.paragraph(
+            id: 'p',
+            children: [TagflowDocumentNode.text(id: 'p.text', text: 'x')],
+          ),
+        ],
+      );
+
+      final patched = document
+          .applyPatch(const TagflowDocumentPatch.removeNode(nodeId: 'p'))
+          .applyPatch(
+            TagflowDocumentPatch.appendRootChildren(
+              children: [TagflowDocumentNode.text(id: 'p.text', text: 'y')],
+            ),
+          );
+
+      expect(patched.children.single.id, 'p.text');
+      expect(
+        () => patched.applyPatch(
+          const TagflowDocumentPatch.removeNode(nodeId: 'p'),
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('should reject ids repeated within the added nodes', () {
+      final document = TagflowDocument(id: 'doc', children: const []);
+
+      expect(
+        () => document.applyPatch(
+          TagflowDocumentPatch.appendRootChildren(
+            children: [
+              TagflowDocumentNode.paragraph(id: 'same'),
+              TagflowDocumentNode.paragraph(id: 'same'),
+            ],
+          ),
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('should leave the document usable after a rejected patch', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'a')],
+      );
+
+      expect(
+        () => document.applyPatch(
+          TagflowDocumentPatch.appendRootChildren(
+            children: [TagflowDocumentNode.paragraph(id: 'a')],
+          ),
+        ),
+        throwsStateError,
+      );
+      final patched = document.applyPatch(
+        TagflowDocumentPatch.appendRootChildren(
+          children: [TagflowDocumentNode.paragraph(id: 'b')],
+        ),
+      );
+
+      expect(patched.children.map((node) => node.id), ['a', 'b']);
+    });
+
+    test('should patch an older document after a newer one', () {
+      final base = TagflowDocument(
+        id: 'doc',
+        children: [TagflowDocumentNode.paragraph(id: 'a')],
+      );
+      final left = base.applyPatch(
+        TagflowDocumentPatch.appendRootChildren(
+          children: [TagflowDocumentNode.paragraph(id: 'left')],
+        ),
+      );
+      final right = base.applyPatch(
+        TagflowDocumentPatch.appendRootChildren(
+          children: [TagflowDocumentNode.paragraph(id: 'left')],
+        ),
+      );
+
+      expect(left.children.map((node) => node.id), ['a', 'left']);
+      expect(right.children.map((node) => node.id), ['a', 'left']);
+      expect(
+        () => left.applyPatch(
+          TagflowDocumentPatch.appendRootChildren(
+            children: [TagflowDocumentNode.paragraph(id: 'left')],
+          ),
+        ),
+        throwsStateError,
+      );
+    });
+
+    test('should keep insert-before targets in nested lists', () {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.list(
+            ordered: false,
+            id: 'list',
+            children: [
+              TagflowDocumentNode.listItem(id: 'one'),
+              TagflowDocumentNode.listItem(id: 'three'),
+            ],
+          ),
+        ],
+      );
+
+      final patched = document
+          .applyPatch(
+            TagflowDocumentPatch.insertBefore(
+              siblingNodeId: 'three',
+              nodes: [TagflowDocumentNode.listItem(id: 'two')],
+            ),
+          )
+          .applyPatch(
+            TagflowDocumentPatch.appendChildren(
+              parentNodeId: 'two',
+              children: [TagflowDocumentNode.text(id: 'two.text', text: '2')],
+            ),
+          );
+
+      final items = patched.children.single.children;
+      expect(items.map((node) => node.id), ['one', 'two', 'three']);
+      expect(items[1].children.single.text, '2');
+    });
+  });
 }

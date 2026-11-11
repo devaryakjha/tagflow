@@ -1,5 +1,5 @@
 export 'src/adapters/adapters.dart';
-export 'src/render/render.dart';
+export 'src/render/render.dart' hide TagflowRenderErrorScope;
 export 'src/runtime/runtime.dart';
 export 'src/style/style.dart';
 export 'src/style/style_parser.dart';

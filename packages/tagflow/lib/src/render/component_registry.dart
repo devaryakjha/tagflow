@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:tagflow/src/render/code_block.dart';
 import 'package:tagflow/src/render/render_theme.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
@@ -132,7 +133,23 @@ final class TagflowComponentRegistry {
   ///
   /// Works with or without an enclosing `Tagflow` widget. Without one, the
   /// built-in components use [TagflowViewOptions.defaults].
+  ///
+  /// The node is built by a widget keyed by [TagflowDocumentNode.id]. When a
+  /// later render passes the identical node instance through the same
+  /// registry, and the theme and view options it read are unchanged, the
+  /// previous build is reused. Patched documents keep the instances of
+  /// untouched nodes, so during streaming only the changed blocks build
+  /// again. Keep the registry instance stable across builds to benefit.
   Widget render(BuildContext context, TagflowDocumentNode node) {
+    return _TagflowNodeView(
+      key: ValueKey<String>(node.id),
+      registry: this,
+      node: node,
+      builder: _builderFor(node),
+    );
+  }
+
+  TagflowComponentBuilder _builderFor(TagflowDocumentNode node) {
     final builder =
         (node.kind == TagflowNodeKind.custom
             ? _customComponents[node.customType]
@@ -144,7 +161,14 @@ final class TagflowComponentRegistry {
         'No Tagflow component registered for ${node.kind}.',
       );
     }
+    return builder;
+  }
 
+  Widget _build(
+    BuildContext context,
+    TagflowDocumentNode node,
+    TagflowComponentBuilder builder,
+  ) {
     var child = builder(
       TagflowComponentContext._(buildContext: context, registry: this),
       node,
@@ -155,11 +179,97 @@ final class TagflowComponentRegistry {
       child = _applyInlineStyle(context, node, inlineStyle, child);
     }
 
-    return KeyedSubtree(
-      key: ValueKey<String>(node.id),
-      child: _wrapNodeTapTarget(context, node, child),
-    );
+    return _wrapNodeTapTarget(context, node, child);
   }
+}
+
+/// Builds one node and reuses the result while the node instance, the
+/// registry and the inherited values the build read stay the same.
+final class _TagflowNodeView extends StatefulWidget {
+  const _TagflowNodeView({
+    required this.registry,
+    required this.node,
+    required this.builder,
+    super.key,
+  });
+
+  final TagflowComponentRegistry registry;
+  final TagflowDocumentNode node;
+  final TagflowComponentBuilder builder;
+
+  @override
+  State<_TagflowNodeView> createState() => _TagflowNodeViewState();
+}
+
+final class _TagflowNodeViewState extends State<_TagflowNodeView> {
+  Widget? _built;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A theme, options or media query the builder read has changed.
+    _built = null;
+  }
+
+  @override
+  void didUpdateWidget(_TagflowNodeView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.node, widget.node) ||
+        !identical(oldWidget.registry, widget.registry) ||
+        !identical(oldWidget.builder, widget.builder)) {
+      _built = null;
+    }
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _built = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    try {
+      // Returning the identical widget lets Flutter skip the whole subtree.
+      return _built ??= widget.registry._build(
+        context,
+        widget.node,
+        widget.builder,
+      );
+    } on Object catch (error, stackTrace) {
+      final scope = context
+          .getInheritedWidgetOfExactType<TagflowRenderErrorScope>();
+      if (scope == null) rethrow;
+      return scope.onError(context, error, stackTrace);
+    }
+  }
+}
+
+/// Routes errors thrown by component builders below it to [onError], which
+/// returns the widget shown in place of the failing node.
+///
+/// The `Tagflow` widget installs one that uses its error builder. Without a
+/// scope, builder errors reach Flutter's error widget.
+@internal
+final class TagflowRenderErrorScope extends InheritedWidget {
+  /// Creates an error scope.
+  const TagflowRenderErrorScope({
+    required this.onError,
+    required super.child,
+    super.key,
+  });
+
+  /// Builds the replacement for a node whose builder threw `error`.
+  final Widget Function(
+    BuildContext context,
+    Object error,
+    StackTrace stackTrace,
+  )
+  onError;
+
+  // Read without a dependency at error time, so changes need no rebuild.
+  @override
+  bool updateShouldNotify(TagflowRenderErrorScope oldWidget) => false;
 }
 
 Widget _wrapNodeTapTarget(

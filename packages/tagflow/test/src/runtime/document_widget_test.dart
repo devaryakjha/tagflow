@@ -67,7 +67,9 @@ void main() {
 
       expect(find.text('Inserted'), findsOneWidget);
       expect(find.text('tracked:$firstTrackedStateId'), findsOneWidget);
-      expect(trackedStateIds, [firstTrackedStateId, firstTrackedStateId]);
+      // The tracked node is the same instance after the patch, so its build
+      // is reused rather than run again.
+      expect(trackedStateIds, [firstTrackedStateId]);
     });
   });
 }
