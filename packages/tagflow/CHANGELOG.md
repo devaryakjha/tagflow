@@ -1,4 +1,34 @@
-## Unreleased
+## 1.0.0-beta.2
+
+The frozen API release. The public surface is recorded in
+`docs/specs/2026-06-12-beta-public-api-freeze-review.md` and guarded by an
+API snapshot test; later betas only fix bugs and remove the options this
+release deprecates.
+
+### Upgrading from 1.0.0-beta.1
+
+Run `dart fix --apply` first: it removes `loadingBuilder:` and
+`enableImageCache:`. Then check these:
+
+- **Exhaustive switches.** `TagflowNodeKind` gained `disclosure`,
+  `disclosureSummary`, `tableCaption`, `callout` and `custom`. It does not
+  gain values again before 2.0.
+- **Content policy.** `allowedTags: {}` now allows nothing. Remove it, or
+  pass `null`, to allow every tag that is not blocked.
+- **Hand-built documents.** Renderers no longer read the `htmlTag` hint. Use
+  the typed kinds, `checked`, `expanded`, `presentation.display` and
+  `inlineSemantics`. `copyWith(kind: ...)` is gone.
+- **Native JSON.** Callouts become `TagflowNodeKind.callout` with a typed
+  `tone`, and the codec rejects mistyped `checked`, `expanded`, `display`,
+  `tone`, `semantics` and custom `type` attributes.
+- **Markdown tasks.** Read `node.checked` instead of the `taskChecked`
+  metadata key.
+- **Goldens.** Heading sizes follow the text theme, colours follow the
+  ambient theme in dark mode, and table cells flow inline content as one
+  paragraph.
+- **Upgrade both packages together**: `tagflow_table` `1.0.0-beta.2` needs
+  `tagflow` `1.0.0-beta.2`.
+
 
 ### Added
 

@@ -20,7 +20,7 @@
   <a href="https://github.com/devaryakjha/tagflow/actions/workflows/ci.yml"><img src="https://github.com/devaryakjha/tagflow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
 </p>
 
-> **Beta** — `1.0.0-beta.1` adds Markdown, streaming and code block support to the native runtime. APIs may still change before `1.0.0`.
+> **Beta** — `1.0.0-beta.2` freezes the public API ahead of `1.0.0`. Later betas only fix bugs and remove the options it deprecates.
 
 ## What is this?
 
@@ -64,21 +64,22 @@ in light and dark themes.
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-beta.1
+  tagflow: ^1.0.0-beta.2
 ```
 
 Add semantic table support when needed:
 
 ```yaml
 dependencies:
-  tagflow: ^1.0.0-beta.1
-  tagflow_table: ^1.0.0-beta.1
+  tagflow: ^1.0.0-beta.2
+  tagflow_table: ^1.0.0-beta.2
 ```
 
 A caret constraint on a prerelease accepts every later prerelease, so
-`flutter pub upgrade` moves `^1.0.0-beta.0` apps onto `beta.1`. Production
-apps should pin exact versions (`tagflow: 1.0.0-beta.1`) and upgrade on
-purpose; see the [changelog](packages/tagflow/CHANGELOG.md) for upgrade notes.
+`flutter pub upgrade` moves `^1.0.0-beta.0` and `^1.0.0-beta.1` apps onto
+`beta.2`. Production apps should pin exact versions (`tagflow: 1.0.0-beta.2`)
+and upgrade on purpose; see the [changelog](packages/tagflow/CHANGELOG.md) for
+upgrade notes.
 
 ## Usage
 

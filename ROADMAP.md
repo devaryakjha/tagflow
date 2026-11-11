@@ -51,14 +51,15 @@ Ready to publish; see the
 
 ## 1.0.0-beta.2: frozen API
 
-- [ ] Close the review in
+- [x] Close the review in
       [`docs/specs/2026-06-12-beta-public-api-freeze-review.md`](docs/specs/2026-06-12-beta-public-api-freeze-review.md).
 - [x] Mark the legacy converter API (`package:tagflow/legacy.dart`,
       `TagflowOptions` converters) `@Deprecated` with removal in 2.0
       (shipped early in beta.1).
-- [ ] Move `tagflow_table` off the legacy HTML bridge.
-- [ ] Write a `0.0.8` to `1.0` migration guide and refresh
-      [docs.arya.run/tagflow](https://docs.arya.run/tagflow).
+- [x] Move `tagflow_table` off the legacy HTML bridge.
+- [x] Write a `0.0.8` to `1.0` migration guide
+      ([`docs/migration/2026-11-tagflow-0.0.8-to-1.0.md`](docs/migration/2026-11-tagflow-0.0.8-to-1.0.md)).
+- [ ] Refresh [docs.arya.run/tagflow](https://docs.arya.run/tagflow).
 - [ ] Ship `1.0.0-beta.2` and move the internal apps onto it.
 
 ## 1.0.0
