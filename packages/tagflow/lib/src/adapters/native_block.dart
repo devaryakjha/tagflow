@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
+import 'package:tagflow/src/runtime/presentation.dart';
 import 'package:tagflow/src/runtime/source.dart';
 
 const ListEquality<TagflowNativeBlock> _nativeBlockListEquality =
@@ -20,12 +21,15 @@ enum TagflowNativeBlockKind {
   descriptionTerm,
   descriptionDetails,
   blockquote,
+  disclosure,
+  disclosureSummary,
   codeBlock,
   inlineCode,
   image,
   table,
   tableRow,
   tableCell,
+  tableCaption,
   callout,
   horizontalRule,
   container,
@@ -139,15 +143,19 @@ final class TagflowNativeBlock {
   }
 
   /// Creates a list item block.
+  ///
+  /// Set [checked] for a task list item.
   factory TagflowNativeBlock.listItem({
     required String id,
     List<TagflowNativeBlock> children = const [],
+    bool? checked,
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
   }) {
     return TagflowNativeBlock(
       id: id,
       kind: TagflowNativeBlockKind.listItem,
+      attributes: {if (checked != null) 'checked': checked},
       children: children,
       metadata: metadata,
       source: source,
@@ -332,6 +340,58 @@ final class TagflowNativeBlock {
     );
   }
 
+  /// Creates a disclosure block: a section that can be expanded and
+  /// collapsed. Its first [TagflowNativeBlockKind.disclosureSummary] child is
+  /// the title.
+  factory TagflowNativeBlock.disclosure({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    bool expanded = false,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.disclosure,
+      attributes: {if (expanded) 'expanded': true},
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates the title block of a disclosure.
+  factory TagflowNativeBlock.disclosureSummary({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.disclosureSummary,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a table caption block.
+  factory TagflowNativeBlock.tableCaption({
+    required String id,
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.tableCaption,
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
   /// Creates a callout block.
   factory TagflowNativeBlock.callout({
     required String id,
@@ -357,15 +417,20 @@ final class TagflowNativeBlock {
   }
 
   /// Creates a container block.
+  ///
+  /// Set [display] to [TagflowDisplay.inline] for a container that flows with
+  /// the surrounding text.
   factory TagflowNativeBlock.container({
     required String id,
     List<TagflowNativeBlock> children = const [],
+    TagflowDisplay? display,
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
   }) {
     return TagflowNativeBlock(
       id: id,
       kind: TagflowNativeBlockKind.container,
+      attributes: {if (display != null) 'display': display.name},
       children: children,
       metadata: metadata,
       source: source,

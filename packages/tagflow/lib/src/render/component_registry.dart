@@ -291,12 +291,15 @@ final Map<TagflowNodeKind, TagflowComponentBuilder> _builtInComponents = {
   TagflowNodeKind.descriptionTerm: _renderDescriptionTerm,
   TagflowNodeKind.descriptionDetails: _renderDescriptionDetails,
   TagflowNodeKind.blockquote: _renderBlockquote,
+  TagflowNodeKind.disclosure: _renderDisclosure,
+  TagflowNodeKind.disclosureSummary: _renderDisclosureSummary,
   TagflowNodeKind.codeBlock: _renderCodeBlock,
   TagflowNodeKind.inlineCode: _renderInlineCode,
   TagflowNodeKind.image: _renderImage,
   TagflowNodeKind.table: _renderTable,
   TagflowNodeKind.tableRow: _renderTableRow,
   TagflowNodeKind.tableCell: _renderTableCell,
+  TagflowNodeKind.tableCaption: _renderTableCaptionNode,
   TagflowNodeKind.horizontalRule: _renderHorizontalRule,
   TagflowNodeKind.unsupported: _renderUnsupported,
 };
@@ -305,32 +308,28 @@ Widget _renderContainer(
   TagflowComponentContext context,
   TagflowDocumentNode node,
 ) {
-  if (_htmlTag(node) == 'details') {
-    return _renderDisclosure(context, node);
-  }
-
-  if (_htmlTag(node) == 'summary') {
-    return _applyInlinePresentation(
-      context.buildContext,
-      node.presentation,
-      _renderInlineChildren(context, node),
-    );
-  }
-
   final child = _isInlineContainer(node)
       ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
-  final fallbackStyle = _fallbackTextStyle(
-    context.buildContext,
-    _htmlTag(node),
-  );
 
   return _applyInlinePresentation(
     context.buildContext,
     node.presentation,
-    fallbackStyle == null
-        ? child
-        : DefaultTextStyle.merge(style: fallbackStyle, child: child),
+    child,
+  );
+}
+
+/// Renders a disclosure summary on its own, outside a disclosure.
+///
+/// Inside a disclosure the summary is rendered as the disclosure title.
+Widget _renderDisclosureSummary(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return _applyInlinePresentation(
+    context.buildContext,
+    node.presentation,
+    _renderInlineChildren(context, node),
   );
 }
 
@@ -341,7 +340,7 @@ Widget _renderDisclosure(
   TagflowDocumentNode? summary;
   final body = <TagflowDocumentNode>[];
   for (final child in node.children) {
-    if (summary == null && _htmlTag(child) == 'summary') {
+    if (summary == null && child.kind == TagflowNodeKind.disclosureSummary) {
       summary = child;
       continue;
     }
@@ -349,7 +348,7 @@ Widget _renderDisclosure(
   }
 
   return _TagflowDisclosure(
-    initiallyExpanded: _hasHtmlAttribute(node, 'open'),
+    initiallyExpanded: node.expanded,
     title: summary == null
         ? const Text('Details')
         : DefaultTextStyle.merge(
@@ -522,7 +521,7 @@ Widget _renderListItem(
 
 /// Checkbox marker for task list items, such as GFM `- [x] done`.
 String? _taskMarker(TagflowDocumentNode node) {
-  return switch (node.metadata['taskChecked']) {
+  return switch (node.checked) {
     true => '☑',
     false => '☐',
     _ => null,
@@ -769,7 +768,7 @@ Widget? _renderTableCaption(
   TagflowDocumentNode table,
 ) {
   for (final child in table.children) {
-    if (_htmlTag(child) == 'caption') {
+    if (child.kind == TagflowNodeKind.tableCaption) {
       return Padding(
         padding: EdgeInsets.only(
           bottom: _theme(context.buildContext).paragraphSpacing!,
@@ -783,6 +782,18 @@ Widget? _renderTableCaption(
   }
 
   return null;
+}
+
+/// Renders the content of a table caption; the table places it.
+Widget _renderTableCaptionNode(
+  TagflowComponentContext context,
+  TagflowDocumentNode node,
+) {
+  return _applyInlinePresentation(
+    context.buildContext,
+    node.presentation,
+    _renderBlockChildren(context, node),
+  );
 }
 
 Widget _renderTableRow(
@@ -863,27 +874,15 @@ Widget _defaultFallback(
     return const SizedBox.shrink();
   }
 
-  final htmlTag = _htmlTag(node);
-  final child = _isInlineFallbackTag(htmlTag)
+  final child = _isInlineDisplay(node)
       ? _renderInlineChildren(context, node)
       : _renderBlockChildren(context, node);
 
-  final textStyle = _fallbackTextStyle(context.buildContext, htmlTag);
-  if (textStyle != null) {
-    return DefaultTextStyle.merge(style: textStyle, child: child);
-  }
-
-  if (htmlTag == 'mark') {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: _theme(context.buildContext).highlightColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: child,
-    );
-  }
-
-  return child;
+  return _applyInlinePresentation(
+    context.buildContext,
+    node.presentation,
+    child,
+  );
 }
 
 Widget _applyInlinePresentation(
@@ -928,6 +927,9 @@ TextStyle? _inlineTextStyle(
   }
 
   var style = const TextStyle();
+  if (semantics.contains(TagflowInlineSemantic.code)) {
+    style = style.merge(theme.inlineCodeStyle);
+  }
   if (semantics.contains(TagflowInlineSemantic.strong)) {
     style = style.merge(theme.strongStyle);
   }
@@ -956,20 +958,6 @@ double? _clampDimension(double? value, double? maxValue) {
   return value > maxValue ? maxValue : value;
 }
 
-String? _htmlTag(TagflowDocumentNode node) {
-  final metadataTag = node.metadata['htmlTag'];
-  if (metadataTag is String && metadataTag.isNotEmpty) {
-    return metadataTag;
-  }
-
-  final hintTag = node.presentation.hints['htmlTag'];
-  if (hintTag is String && hintTag.isNotEmpty) {
-    return hintTag;
-  }
-
-  return null;
-}
-
 LinkedHashMap<String, String>? _linkAttributes(TagflowDocumentNode node) {
   final attributes = <String, String>{};
   final rawAttributes = node.metadata['htmlAttributes'];
@@ -984,58 +972,6 @@ LinkedHashMap<String, String>? _linkAttributes(TagflowDocumentNode node) {
   }
 
   return attributes.isEmpty ? null : LinkedHashMap.of(attributes);
-}
-
-bool _hasHtmlAttribute(TagflowDocumentNode node, String attribute) {
-  final rawAttributes = node.metadata['htmlAttributes'];
-  if (rawAttributes is! Map) return false;
-  return rawAttributes.keys.any((key) => '$key'.toLowerCase() == attribute);
-}
-
-bool _isInlineFallbackTag(String? htmlTag) {
-  return switch (htmlTag) {
-    'a' ||
-    'abbr' ||
-    'b' ||
-    'bdi' ||
-    'bdo' ||
-    'cite' ||
-    'data' ||
-    'del' ||
-    'dfn' ||
-    'em' ||
-    'i' ||
-    'ins' ||
-    'kbd' ||
-    'label' ||
-    'mark' ||
-    'q' ||
-    's' ||
-    'samp' ||
-    'small' ||
-    'span' ||
-    'strong' ||
-    'sub' ||
-    'sup' ||
-    'time' ||
-    'u' ||
-    'var' => true,
-    _ => false,
-  };
-}
-
-TextStyle? _fallbackTextStyle(BuildContext context, String? htmlTag) {
-  return switch (htmlTag) {
-    'b' || 'strong' => _theme(context).strongStyle,
-    'i' || 'em' || 'cite' || 'dfn' || 'var' => _theme(context).emphasisStyle,
-    'u' || 'ins' => const TextStyle(decoration: TextDecoration.underline),
-    'del' || 's' => const TextStyle(decoration: TextDecoration.lineThrough),
-    'kbd' || 'samp' => _theme(context).inlineCodeStyle,
-    'small' ||
-    'sub' ||
-    'sup' => TextStyle(fontSize: _relativeFontSize(context, _smallTextFactor)),
-    _ => null,
-  };
 }
 
 final class _TagflowDisclosure extends StatefulWidget {
@@ -1112,11 +1048,21 @@ final class _TagflowDisclosureState extends State<_TagflowDisclosure> {
 
 /// Whether [node] is a container that flows inline, such as `<strong>` or a
 /// Markdown emphasis run.
+///
+/// An explicit [TagflowPresentation.display] wins; otherwise a container with
+/// inline semantics flows inline.
 bool _isInlineContainer(TagflowDocumentNode node) {
-  final htmlTag = _htmlTag(node);
-  if (htmlTag == 'details' || htmlTag == 'summary') return false;
-  return node.presentation.inlineSemantics.isNotEmpty ||
-      _isInlineFallbackTag(htmlTag);
+  return switch (node.presentation.display) {
+    TagflowDisplay.inline => true,
+    TagflowDisplay.block => false,
+    null => node.presentation.inlineSemantics.isNotEmpty,
+  };
+}
+
+/// Whether [node] asked to flow inline through
+/// [TagflowPresentation.display].
+bool _isInlineDisplay(TagflowDocumentNode node) {
+  return node.presentation.display == TagflowDisplay.inline;
 }
 
 /// Whether [node] takes part in an inline text run inside a block.
@@ -1127,7 +1073,7 @@ bool _isInlineNode(TagflowDocumentNode node) {
     TagflowNodeKind.link => true,
     TagflowNodeKind.container => _isInlineContainer(node),
     TagflowNodeKind.unsupported =>
-      node.children.isNotEmpty && _isInlineFallbackTag(_htmlTag(node)),
+      node.children.isNotEmpty && _isInlineDisplay(node),
     _ => false,
   };
 }
@@ -1263,14 +1209,8 @@ final class _InlineSpanBuilder {
           ),
         );
       case _:
-        final textStyle = _fallbackTextStyle(buildContext, _htmlTag(node));
-        final highlight = _htmlTag(node) == 'mark'
-            ? TextStyle(backgroundColor: _renderTheme.highlightColor)
-            : null;
         return TextSpan(
-          style: (textStyle ?? const TextStyle())
-              .merge(highlight)
-              .merge(_presentationStyle(node.presentation)),
+          style: _presentationStyle(node.presentation),
           children: _children(
             node,
             recognizer: recognizer,

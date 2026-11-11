@@ -424,6 +424,65 @@ void main() {
         lessThan(tester.getTopLeft(find.byType(TagflowTable)).dy),
       );
     });
+
+    testWidgets('should render a hand-built caption without htmlTag', (
+      tester,
+    ) async {
+      final document = TagflowDocument(
+        id: 'doc',
+        children: [
+          TagflowDocumentNode.table(
+            id: 't',
+            children: [
+              TagflowDocumentNode.tableCaption(
+                id: 'cap',
+                children: [
+                  TagflowDocumentNode.text(id: 'cap.0', text: 'Hand caption'),
+                ],
+              ),
+              TagflowDocumentNode.tableRow(
+                id: 'r',
+                children: [
+                  TagflowDocumentNode.tableCell(
+                    id: 'c',
+                    children: [
+                      TagflowDocumentNode.text(id: 'c.0', text: 'One '),
+                      TagflowDocumentNode.container(
+                        id: 'c.1',
+                        presentation: TagflowPresentation(
+                          display: TagflowDisplay.inline,
+                        ),
+                        children: [
+                          TagflowDocumentNode.text(id: 'c.1.0', text: 'line'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final registry = TagflowComponentRegistry(
+        extensions: [tagflowTableComponents()],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: Tagflow.document(document, registry: registry)),
+      );
+
+      expect(find.byType(TagflowTable), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Hand caption', findRichText: true)).dy,
+        lessThan(tester.getTopLeft(find.byType(TagflowTable)).dy),
+      );
+      // The inline container stays on the line of the text before it.
+      expect(
+        tester.getTopLeft(find.text('line', findRichText: true)).dy,
+        tester.getTopLeft(find.text('One ', findRichText: true)).dy,
+      );
+    });
   });
 }
 

@@ -284,7 +284,7 @@ Widget? _captionWidget(
   TagflowDocumentNode table,
 ) {
   for (final child in table.children) {
-    if (_htmlTag(child) == 'caption') {
+    if (child.kind == TagflowNodeKind.tableCaption) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: DefaultTextStyle.merge(
@@ -303,42 +303,11 @@ bool _isInlineCellNode(TagflowDocumentNode node) {
     TagflowNodeKind.text ||
     TagflowNodeKind.link ||
     TagflowNodeKind.inlineCode => true,
-    TagflowNodeKind.container =>
-      node.presentation.inlineSemantics.isNotEmpty ||
-          _isInlineFallbackTag(_htmlTag(node)),
-    _ => false,
-  };
-}
-
-String? _htmlTag(TagflowDocumentNode node) {
-  final metadataTag = node.metadata['htmlTag'];
-  if (metadataTag is String && metadataTag.isNotEmpty) {
-    return metadataTag;
-  }
-
-  final hintTag = node.presentation.hints['htmlTag'];
-  if (hintTag is String && hintTag.isNotEmpty) {
-    return hintTag;
-  }
-
-  return null;
-}
-
-bool _isInlineFallbackTag(String? htmlTag) {
-  return switch (htmlTag) {
-    'a' ||
-    'b' ||
-    'strong' ||
-    'i' ||
-    'em' ||
-    'u' ||
-    'span' ||
-    'small' ||
-    'mark' ||
-    'del' ||
-    'ins' ||
-    'sub' ||
-    'sup' => true,
+    TagflowNodeKind.container => switch (node.presentation.display) {
+      TagflowDisplay.inline => true,
+      TagflowDisplay.block => false,
+      null => node.presentation.inlineSemantics.isNotEmpty,
+    },
     _ => false,
   };
 }

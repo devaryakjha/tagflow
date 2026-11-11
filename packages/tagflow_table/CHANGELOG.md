@@ -1,3 +1,12 @@
+## Unreleased
+
+### Changed
+
+- Table captions are found by `TagflowNodeKind.tableCaption` and inline cell
+  content by `TagflowPresentation.display` or inline semantics, instead of
+  the `htmlTag` metadata key. Requires the matching `tagflow` release.
+  ([#113](https://github.com/devaryakjha/tagflow/issues/113))
+
 ## 1.0.0-beta.1 - 2026-10-22
 
 ### Upgrading from 1.0.0-beta.0

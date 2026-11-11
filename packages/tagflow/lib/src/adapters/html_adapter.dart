@@ -272,6 +272,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     variant: _variantForHtmlTag(node.tag),
     width: _parseDimension(node['width']),
     height: _parseDimension(node['height']),
+    display: _inlineHtmlTags.contains(node.tag) ? TagflowDisplay.inline : null,
     inlineSemantics: _inlineSemanticsForHtmlTag(node.tag),
     inlineStyle: policy.allowInlineStyles ? _inlineStyleFor(node) : null,
     hints: _presentationHintsForLegacyNode(node),
@@ -512,9 +513,29 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     's' ||
     'samp' ||
     'time' ||
-    'var' ||
-    'details' ||
-    'summary' => TagflowDocumentNode.container(
+    'var' => TagflowDocumentNode.container(
+      id: id,
+      children: children,
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
+    'details' => TagflowDocumentNode.disclosure(
+      id: id,
+      children: children,
+      expanded: node.attributes?.containsKey('open') ?? false,
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
+    'summary' => TagflowDocumentNode.disclosureSummary(
+      id: id,
+      children: children,
+      metadata: metadata,
+      presentation: presentation,
+      source: source,
+    ),
+    'caption' => TagflowDocumentNode.tableCaption(
       id: id,
       children: children,
       metadata: metadata,
@@ -657,42 +678,11 @@ final class _HtmlWhitespaceCollapser {
       TagflowNodeKind.link ||
       TagflowNodeKind.inlineCode ||
       TagflowNodeKind.image => true,
-      TagflowNodeKind.container ||
-      TagflowNodeKind.unsupported => _inlineHtmlTags.contains(node.htmlTag),
+      TagflowNodeKind.container || TagflowNodeKind.unsupported =>
+        node.presentation.display == TagflowDisplay.inline,
       _ => false,
     };
   }
-
-  /// HTML elements that are inline-level by default.
-  static const _inlineHtmlTags = {
-    'a',
-    'abbr',
-    'b',
-    'bdi',
-    'bdo',
-    'cite',
-    'code',
-    'data',
-    'del',
-    'dfn',
-    'em',
-    'i',
-    'ins',
-    'kbd',
-    'label',
-    'mark',
-    'q',
-    's',
-    'samp',
-    'small',
-    'span',
-    'strong',
-    'sub',
-    'sup',
-    'time',
-    'u',
-    'var',
-  };
 }
 
 final class _TagflowHtmlNodeIds {
@@ -886,7 +876,8 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
   if (metadataTag is String) return metadataTag;
   if (presentationTag is String) return presentationTag;
   if (node.kind == TagflowNodeKind.container &&
-      node.presentation.inlineSemantics.isNotEmpty) {
+      (node.presentation.display == TagflowDisplay.inline ||
+          node.presentation.inlineSemantics.isNotEmpty)) {
     return 'span';
   }
 
@@ -902,12 +893,15 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
     TagflowNodeKind.descriptionTerm => 'dt',
     TagflowNodeKind.descriptionDetails => 'dd',
     TagflowNodeKind.blockquote => 'blockquote',
+    TagflowNodeKind.disclosure => 'details',
+    TagflowNodeKind.disclosureSummary => 'summary',
     TagflowNodeKind.codeBlock => 'pre',
     TagflowNodeKind.inlineCode => 'code',
     TagflowNodeKind.image => 'img',
     TagflowNodeKind.table => 'table',
     TagflowNodeKind.tableRow => 'tr',
     TagflowNodeKind.tableCell => node.header ? 'th' : 'td',
+    TagflowNodeKind.tableCaption => 'caption',
     TagflowNodeKind.horizontalRule => 'hr',
     TagflowNodeKind.unsupported => 'div',
   };
@@ -922,6 +916,37 @@ String? _trimmedAttributeValue(TagflowNode node, String attribute) {
 String _htmlNodeLabel(TagflowNode node) {
   return node.isTextNode ? '#text' : '<${node.tag}>';
 }
+
+/// HTML elements that are inline-level by default.
+const _inlineHtmlTags = {
+  'a',
+  'abbr',
+  'b',
+  'bdi',
+  'bdo',
+  'cite',
+  'code',
+  'data',
+  'del',
+  'dfn',
+  'em',
+  'i',
+  'ins',
+  'kbd',
+  'label',
+  'mark',
+  'q',
+  's',
+  'samp',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'sup',
+  'time',
+  'u',
+  'var',
+};
 
 String? _variantForHtmlTag(String tag) {
   return switch (tag) {
@@ -941,8 +966,10 @@ Set<TagflowInlineSemantic> _inlineSemanticsForHtmlTag(String tag) {
   return switch (tag) {
     'strong' || 'b' => const {TagflowInlineSemantic.strong},
     'em' || 'i' => const {TagflowInlineSemantic.emphasis},
-    'u' => const {TagflowInlineSemantic.underline},
-    'del' => const {TagflowInlineSemantic.deleted},
+    'cite' || 'dfn' || 'var' => const {TagflowInlineSemantic.emphasis},
+    'u' || 'ins' => const {TagflowInlineSemantic.underline},
+    'del' || 's' => const {TagflowInlineSemantic.deleted},
+    'kbd' || 'samp' => const {TagflowInlineSemantic.code},
     'mark' => const {TagflowInlineSemantic.highlight},
     'small' => const {TagflowInlineSemantic.small},
     'sub' => const {TagflowInlineSemantic.subscript},

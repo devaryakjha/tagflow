@@ -80,6 +80,10 @@ flutter test test/src/runtime/document_patch_test.dart
   `TagflowMetadata` and `TagflowSourceInfo` carry provenance.
 - Node ids must be unique within a document. Patches and widget keys depend
   on them.
+- Renderers decide behavior from typed kinds and fields (for example
+  `disclosure`, `tableCaption`, `checked`, `presentation.display`). The
+  `htmlTag` metadata key is provenance only; do not branch on it outside the
+  HTML adapter and the legacy bridge.
 
 ### Patches (`runtime/document_patch.dart`)
 

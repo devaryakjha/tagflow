@@ -67,6 +67,20 @@ Map<TagflowNodeKind, TagflowDocumentNode> _nodes() {
       id: 'blockquote',
       children: [_text('blockquote')],
     ),
+    TagflowNodeKind.disclosure: TagflowDocumentNode.disclosure(
+      id: 'disclosure',
+      expanded: true,
+      children: [
+        TagflowDocumentNode.disclosureSummary(
+          id: 'disclosure.0',
+          children: [_text('disclosure')],
+        ),
+      ],
+    ),
+    TagflowNodeKind.disclosureSummary: TagflowDocumentNode.disclosureSummary(
+      id: 'disclosureSummary',
+      children: [_text('disclosureSummary')],
+    ),
     TagflowNodeKind.codeBlock: TagflowDocumentNode.codeBlock(
       id: 'codeBlock',
       text: 'codeBlock',
@@ -107,6 +121,10 @@ Map<TagflowNodeKind, TagflowDocumentNode> _nodes() {
     TagflowNodeKind.tableCell: TagflowDocumentNode.tableCell(
       id: 'tableCell',
       children: [_text('tableCell')],
+    ),
+    TagflowNodeKind.tableCaption: TagflowDocumentNode.tableCaption(
+      id: 'tableCaption',
+      children: [_text('tableCaption')],
     ),
     TagflowNodeKind.horizontalRule: TagflowDocumentNode.horizontalRule(
       id: 'horizontalRule',

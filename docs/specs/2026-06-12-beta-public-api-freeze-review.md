@@ -118,6 +118,15 @@ Current node-kind posture:
   runtime-level semantic kinds, not HTML-only tags. They are additive beta
   candidates because native block producers and HTML adapters can both target
   them without passing through legacy converters.
+- `disclosure`, `disclosureSummary` and `tableCaption` are runtime kinds
+  (beta.2, [#113](https://github.com/devaryakjha/tagflow/issues/113)).
+  `TagflowDocumentNode.expanded` holds a disclosure's initial state and
+  `TagflowDocumentNode.checked` holds task state on list items (`null` for
+  ordinary items). `TagflowPresentation.display` (`TagflowDisplay.block` or
+  `inline`) says whether a container flows inline; `null` keeps the kind's
+  default. Renderers decide behavior from these typed fields only. The
+  `htmlTag` metadata key is provenance for inspection and the legacy bridge,
+  and the registry and `tagflow_table` do not read it.
 - `unsupported` remains a runtime placeholder kind for preserved policy
   rejections and app-authored unsupported nodes. It is not the native JSON
   unknown-kind compatibility model.

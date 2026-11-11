@@ -12,7 +12,6 @@ const _htmlTagKey = 'htmlTag';
 const _markdownTagKey = 'markdownTag';
 const _blockedHtmlTagKey = 'blockedHtmlTag';
 const _policyDecisionReasonKey = 'policyDecisionReason';
-const _taskCheckedKey = 'taskChecked';
 const _titleKey = 'title';
 const _tableRowCountKey = 'tableRowCount';
 const _tableColumnCountKey = 'tableColumnCount';
@@ -150,13 +149,17 @@ extension TagflowMarkdownNodeMetadata on TagflowDocumentNode {
   }
 
   /// Whether this list item is a GFM task list item.
-  bool get isMarkdownTaskItem => metadata[_taskCheckedKey] is bool;
+  ///
+  /// The same as `checked != null`; the task state lives on
+  /// [TagflowDocumentNode.checked].
+  bool get isMarkdownTaskItem =>
+      kind == TagflowNodeKind.listItem && this.checked != null;
 
   /// Checked state of a GFM task list item, or `null` for other nodes.
-  bool? get markdownTaskChecked {
-    final value = metadata[_taskCheckedKey];
-    return value is bool ? value : null;
-  }
+  ///
+  /// The same as [TagflowDocumentNode.checked] on list items.
+  bool? get markdownTaskChecked =>
+      kind == TagflowNodeKind.listItem ? this.checked : null;
 
   /// Whether this node was produced from raw HTML embedded in Markdown.
   bool get isMarkdownRawHtml => metadata[_rawHtmlKey] == true;
@@ -210,6 +213,9 @@ final class _MarkdownAdaptContext {
     final metadata = _metadataFor(node.tag);
     final presentation = TagflowPresentation(
       variant: _variantFor(node.tag),
+      display: _inlineSemanticsFor(node.tag).isEmpty
+          ? null
+          : TagflowDisplay.inline,
       inlineSemantics: _inlineSemanticsFor(node.tag),
       hints: {_htmlTagKey: node.tag},
     );
@@ -303,7 +309,8 @@ final class _MarkdownAdaptContext {
       'li' => TagflowDocumentNode.listItem(
         id: id,
         children: children,
-        metadata: _withTaskState(metadata, node),
+        checked: _taskState(node),
+        metadata: metadata,
         presentation: presentation,
         source: source,
       ),
@@ -579,14 +586,8 @@ final class _MarkdownAdaptContext {
     );
   }
 
-  TagflowMetadata _withTaskState(TagflowMetadata metadata, md.Element node) {
-    final checkbox = _taskCheckbox(node);
-    if (checkbox == null) return metadata;
-    return metadata.merge(
-      TagflowMetadata({
-        _taskCheckedKey: checkbox.attributes.containsKey('checked'),
-      }),
-    );
+  bool? _taskState(md.Element node) {
+    return _taskCheckbox(node)?.attributes.containsKey('checked');
   }
 }
 

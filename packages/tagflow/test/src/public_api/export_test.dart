@@ -106,6 +106,30 @@ void main() {
     expect(policy.maxDepth, api.TagflowContentPolicy.defaultMaxDepth);
     expect(policy.maxNodes, api.TagflowContentPolicy.defaultMaxNodes);
     expect(api.TagflowContentLimit.values, hasLength(2));
+    expect(api.TagflowDisplay.values, hasLength(2));
+    expect(
+      api.TagflowDocumentNode.disclosure(id: 'd', expanded: true).expanded,
+      isTrue,
+    );
+    expect(
+      api.TagflowDocumentNode.listItem(id: 'i', checked: true).checked,
+      isTrue,
+    );
+    expect(
+      api.TagflowDocumentNode.tableCaption(id: 'c').kind,
+      api.TagflowNodeKind.tableCaption,
+    );
+    expect(
+      api.TagflowNodeKind.values,
+      containsAll([
+        api.TagflowNodeKind.disclosure,
+        api.TagflowNodeKind.disclosureSummary,
+      ]),
+    );
+    expect(
+      api.TagflowNativeBlock.disclosureSummary(id: 's').kind,
+      api.TagflowNativeBlockKind.disclosureSummary,
+    );
     expect(policy.allowInlineStyles, isTrue);
     const renderTheme = api.TagflowRenderTheme(paragraphSpacing: 4);
     expect(renderTheme.merge(null), renderTheme);

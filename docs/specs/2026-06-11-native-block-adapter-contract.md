@@ -277,12 +277,15 @@ Required first-slice block kinds:
 - `descriptionTerm`
 - `descriptionDetails`
 - `blockquote`
+- `disclosure`
+- `disclosureSummary`
 - `codeBlock`
 - `inlineCode`
 - `image`
 - `table`
 - `tableRow`
 - `tableCell`
+- `tableCaption`
 - `horizontalRule`
 - `container`
 
@@ -317,6 +320,9 @@ level when they are semantically meaningful:
 - code blocks: optional `language`
 - callouts: tone or variant hint, optional title
 - table cells: `header`, `rowSpan`, `colSpan`
+- list items: optional `checked` (`true` or `false`) for task items
+- disclosures: optional `expanded` (defaults to `false`)
+- containers: optional `display` (`"block"` or `"inline"`)
 
 Rule:
 

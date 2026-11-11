@@ -31,6 +31,24 @@ enum TagflowInlineSemantic {
 
   /// Superscript text.
   superscript,
+
+  /// Code-like text, such as keyboard input or sample program output,
+  /// commonly rendered in the inline code style.
+  code,
+}
+
+/// How a node takes part in layout.
+///
+/// Most node kinds have a fixed display: paragraphs are blocks and text is
+/// inline. Containers and unsupported nodes use [TagflowPresentation.display]
+/// to say which one they are; `null` means block, unless the node carries
+/// inline semantics.
+enum TagflowDisplay {
+  /// The node starts on its own line and stacks with its siblings.
+  block,
+
+  /// The node flows with surrounding text, like a `<span>`.
+  inline,
 }
 
 /// Horizontal text alignment requested by the source content.
@@ -176,6 +194,7 @@ final class TagflowPresentation {
     this.variant,
     this.width,
     this.height,
+    this.display,
     Set<TagflowInlineSemantic> inlineSemantics = const {},
     this.inlineStyle,
     Map<String, Object?> hints = const {},
@@ -194,6 +213,11 @@ final class TagflowPresentation {
   /// Suggested presentation height.
   final double? height;
 
+  /// Whether the node is laid out as a block or inline.
+  ///
+  /// `null` keeps the default for the node kind. See [TagflowDisplay].
+  final TagflowDisplay? display;
+
   /// Source-agnostic inline text semantics.
   final Set<TagflowInlineSemantic> inlineSemantics;
 
@@ -208,6 +232,7 @@ final class TagflowPresentation {
       variant == null &&
       width == null &&
       height == null &&
+      display == null &&
       inlineSemantics.isEmpty &&
       (inlineStyle?.isEmpty ?? true) &&
       hints.isEmpty;
@@ -220,6 +245,7 @@ final class TagflowPresentation {
       variant: other.variant ?? variant,
       width: other.width ?? width,
       height: other.height ?? height,
+      display: other.display ?? display,
       inlineSemantics: {...inlineSemantics, ...other.inlineSemantics},
       inlineStyle: inlineStyle?.merge(other.inlineStyle) ?? other.inlineStyle,
       hints: {...hints, ...other.hints},
@@ -233,6 +259,7 @@ final class TagflowPresentation {
             other.variant == variant &&
             other.width == width &&
             other.height == height &&
+            other.display == display &&
             _inlineSemanticEquality.equals(
               other.inlineSemantics,
               inlineSemantics,
@@ -246,6 +273,7 @@ final class TagflowPresentation {
     variant,
     width,
     height,
+    display,
     _inlineSemanticEquality.hash(inlineSemantics),
     inlineStyle,
     _presentationHintEquality.hash(hints),

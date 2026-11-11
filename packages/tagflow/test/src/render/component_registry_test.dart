@@ -218,7 +218,7 @@ void main() {
       expect(_richTextStyle(tester, 'marked')?.backgroundColor, isNotNull);
     });
 
-    testWidgets('keeps html hint fallback for legacy unsupported nodes', (
+    testWidgets('should flow an unsupported node inline from its display', (
       tester,
     ) async {
       final document = TagflowDocument(
@@ -230,7 +230,8 @@ void main() {
               TagflowDocumentNode.unsupported(
                 id: 'legacy-strong',
                 presentation: TagflowPresentation(
-                  hints: const {'htmlTag': 'strong'},
+                  display: TagflowDisplay.inline,
+                  inlineSemantics: const {TagflowInlineSemantic.strong},
                 ),
                 children: [TagflowDocumentNode.text(id: 't1', text: 'bold')],
               ),
