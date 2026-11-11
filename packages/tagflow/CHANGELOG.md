@@ -2,6 +2,17 @@
 
 ### Added
 
+- `maxDepth` (default 128) and `maxNodes` (default 50000) on
+  `TagflowContentPolicy`, applied by the HTML, Markdown and native block
+  adapters and the Markdown stream. Content over a limit is cut off and
+  follows `unsupportedBehavior` instead of throwing. New
+  `TagflowContentLimit` enum names the limit in placeholder metadata.
+  `colspan` and `rowspan` are clamped to 1000 and 65534 as the HTML
+  specification does. Adapting 10000 nested elements dropped from about
+  11 s to about 2 s (the HTML tokenizer's own cost), and a cell with
+  `colspan="100000"` from about 11 s to a few milliseconds.
+  ([#111](https://github.com/devaryakjha/tagflow/issues/111))
+
 - `documentId:` on `Tagflow.html` and `Tagflow.markdown` to name the adapted
   document. ([#108](https://github.com/devaryakjha/tagflow/issues/108))
 - Value equality on `TagflowHtmlAdapter`, `TagflowHtmlNodeIdStrategy` and

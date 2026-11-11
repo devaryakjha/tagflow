@@ -592,16 +592,22 @@ Widget _renderTable(TagflowComponentContext context, TagflowDocumentNode node) {
 /// are filled with empty cells (`null`). Register `tagflowTableComponents()`
 /// from `package:tagflow_table` for real `rowspan` and `colspan` layout.
 List<List<TagflowDocumentNode?>> _tableGrid(List<TagflowDocumentNode> rows) {
-  int span(int value) => value < 1 ? 1 : value;
+  // Spans are clamped as the HTML specification clamps them (colspan 1000,
+  // rowspan 65534) and the grid is at most 1000 columns wide, so a document
+  // built by hand cannot ask for an unbounded grid.
+  int span(int value, int max) => value < 1 ? 1 : (value > max ? max : value);
+  int colSpanOf(TagflowDocumentNode cell) => span(cell.colSpan, 1000);
+  int rowSpanOf(TagflowDocumentNode cell) => span(cell.rowSpan, 65534);
 
   var columns = 0;
   for (final row in rows) {
     var width = 0;
     for (final cell in row.children) {
-      if (cell.kind == TagflowNodeKind.tableCell) width += span(cell.colSpan);
+      if (cell.kind == TagflowNodeKind.tableCell) width += colSpanOf(cell);
     }
     if (width > columns) columns = width;
   }
+  if (columns > 1000) columns = 1000;
 
   final occupiedThroughRow = <int, int>{};
   final grid = <List<TagflowDocumentNode?>>[];
@@ -616,8 +622,8 @@ List<List<TagflowDocumentNode?>> _tableGrid(List<TagflowDocumentNode> rows) {
       }
       if (column >= columns) break;
       slots[column] = cell;
-      final colSpan = span(cell.colSpan);
-      final rowSpan = span(cell.rowSpan);
+      final colSpan = colSpanOf(cell);
+      final rowSpan = rowSpanOf(cell);
       for (var c = column; c < column + colSpan && c < columns; c++) {
         occupiedThroughRow[c] = rowIndex + rowSpan - 1;
       }

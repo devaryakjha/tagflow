@@ -12,6 +12,15 @@ enum TagflowResourceType { generic, link, image }
 /// Reasons a tag decision may be rejected.
 enum TagflowTagDecisionReason { blockedTag, notInAllowlist }
 
+/// Content policy limits an adapter can hit while adapting input.
+enum TagflowContentLimit {
+  /// The input nests deeper than [TagflowContentPolicy.maxDepth].
+  maxDepth,
+
+  /// The input has more nodes than [TagflowContentPolicy.maxNodes].
+  maxNodes,
+}
+
 /// Reasons a URL decision may be rejected.
 enum TagflowUrlDecisionReason {
   malformedUrl,
@@ -102,7 +111,16 @@ final class TagflowContentPolicy {
     this.allowedTags = const {},
     this.blockedTags = _defaultBlockedTags,
     this.unsupportedBehavior = TagflowUnsupportedBehavior.drop,
-  });
+    this.maxDepth = defaultMaxDepth,
+    this.maxNodes = defaultMaxNodes,
+  }) : assert(maxDepth > 0, 'maxDepth must be positive'),
+       assert(maxNodes > 0, 'maxNodes must be positive');
+
+  /// Default for [maxDepth].
+  static const int defaultMaxDepth = 128;
+
+  /// Default for [maxNodes].
+  static const int defaultMaxNodes = 50000;
 
   /// Default runtime content policy.
   static const TagflowContentPolicy defaults = TagflowContentPolicy();
@@ -143,6 +161,22 @@ final class TagflowContentPolicy {
 
   /// Behavior for unsupported content.
   final TagflowUnsupportedBehavior unsupportedBehavior;
+
+  /// Deepest element nesting an adapter keeps, counting top-level nodes as
+  /// depth 1.
+  ///
+  /// Content nested deeper is cut off. Under
+  /// [TagflowUnsupportedBehavior.drop] it is removed; under
+  /// [TagflowUnsupportedBehavior.preservePlaceholder] one unsupported node
+  /// marks where it was. Adapting never throws because of this limit.
+  final int maxDepth;
+
+  /// Most nodes an adapter produces for one document, counted in document
+  /// order.
+  ///
+  /// Content after the limit is cut off and follows [unsupportedBehavior] the
+  /// same way as [maxDepth]. Adapting never throws because of this limit.
+  final int maxNodes;
 
   /// Evaluates whether [tag] is allowed by this policy.
   TagflowTagPolicyDecision decideTag(String tag) {
@@ -228,7 +262,9 @@ final class TagflowContentPolicy {
             _stringSetEquality.equals(other.allowedSchemes, allowedSchemes) &&
             _stringSetEquality.equals(other.allowedTags, allowedTags) &&
             _stringSetEquality.equals(other.blockedTags, blockedTags) &&
-            other.unsupportedBehavior == unsupportedBehavior;
+            other.unsupportedBehavior == unsupportedBehavior &&
+            other.maxDepth == maxDepth &&
+            other.maxNodes == maxNodes;
   }
 
   @override
@@ -240,5 +276,7 @@ final class TagflowContentPolicy {
     _stringSetEquality.hash(allowedTags),
     _stringSetEquality.hash(blockedTags),
     unsupportedBehavior,
+    maxDepth,
+    maxNodes,
   );
 }

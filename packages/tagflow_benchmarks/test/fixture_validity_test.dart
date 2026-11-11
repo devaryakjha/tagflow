@@ -14,6 +14,8 @@ void main() {
           'table_stress',
           'large_article',
           'deep_nested_lists',
+          'hostile_table_spans',
+          'hostile_deep_nesting',
         ]),
       );
     });

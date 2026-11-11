@@ -79,6 +79,29 @@ final document = adapter.parse(htmlContent);
 Tagflow.document(document);
 ```
 
+### Content Policy and Limits
+
+Every adapter (HTML, Markdown, native JSON and the Markdown stream) applies a
+`TagflowContentPolicy`. Besides tags and URL schemes, the policy bounds how
+much work one document can cost:
+
+| Limit | Default | What happens over it |
+| --- | --- | --- |
+| `maxDepth` | 128 | Deeper content is cut off |
+| `maxNodes` | 50000 | Content after the limit is cut off |
+| `colspan` / `rowspan` | 1000 / 65534 | Clamped, as the HTML specification does |
+
+Cut content follows `unsupportedBehavior`: it is removed under the default
+`drop`, or one unsupported node with a `policyDecisionReason` of `maxDepth`
+or `maxNodes` marks the cut under `preservePlaceholder`. Adapting never
+throws because of a limit. Raise the limits only for trusted input:
+
+```dart
+const adapter = TagflowHtmlAdapter(
+  policy: TagflowContentPolicy(maxDepth: 256, maxNodes: 200000),
+);
+```
+
 ### Markdown Adapter
 
 Render Markdown, such as an AI answer, without converting it to HTML first.

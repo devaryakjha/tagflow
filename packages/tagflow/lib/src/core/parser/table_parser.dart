@@ -1,5 +1,6 @@
 import 'package:html/dom.dart' as dom;
 import 'package:tagflow/legacy.dart';
+import 'package:tagflow/src/adapters/content_limits.dart';
 
 class TableParser extends NodeParser<TagflowTableElement> {
   const TableParser();
@@ -56,14 +57,16 @@ class TableParser extends NodeParser<TagflowTableElement> {
         final tag = cell.localName?.toLowerCase();
         if (tag != 'td' && tag != 'th') continue;
 
-        final colspan = int.tryParse(cell.attributes['colspan'] ?? '1') ?? 1;
-        columnsInRow += colspan;
+        columnsInRow += _colSpan(cell);
       }
 
       maxColumns = maxColumns < columnsInRow ? columnsInRow : maxColumns;
     }
 
-    return _TableStructure(rows: totalRows, columns: maxColumns);
+    return _TableStructure(
+      rows: totalRows,
+      columns: maxColumns > maxTableColumns ? maxTableColumns : maxColumns,
+    );
   }
 
   /// Helper method to get table rows, handling tbody/thead sections
@@ -96,10 +99,11 @@ class TableParser extends NodeParser<TagflowTableElement> {
     _TableStructure structure,
   ) {
     var rowIndex = 0;
-    final occupied = List.generate(
-      structure.rows,
-      (_) => List.filled(structure.columns, false),
-    );
+    // Column -> last row index covered by a row span. Sparse, so a large
+    // rowspan costs nothing per covered row.
+    final occupiedThroughRow = <int, int>{};
+    bool isOccupied(int column) =>
+        (occupiedThroughRow[column] ?? -1) >= rowIndex;
 
     // Reuse the row getter
     final rows = _getTableRows(element);
@@ -108,24 +112,18 @@ class TableParser extends NodeParser<TagflowTableElement> {
       final cells = <TagflowNode>[];
       var colIndex = 0;
 
-      // Skip already occupied cells (from previous rowspans)
-      while (colIndex < structure.columns && occupied[rowIndex][colIndex]) {
-        cells.add(TagflowElement.empty());
-        colIndex++;
-      }
-
       for (final cell in rowElement.children) {
         final tag = cell.localName?.toLowerCase();
         if (tag != 'td' && tag != 'th') continue;
 
-        // Skip occupied cells
-        while (colIndex < structure.columns && occupied[rowIndex][colIndex]) {
+        // Skip cells covered by row spans from earlier rows
+        while (colIndex < structure.columns && isOccupied(colIndex)) {
           cells.add(TagflowElement.empty());
           colIndex++;
         }
 
-        final rowspan = int.tryParse(cell.attributes['rowspan'] ?? '1') ?? 1;
-        final colspan = int.tryParse(cell.attributes['colspan'] ?? '1') ?? 1;
+        final rowspan = _rowSpan(cell);
+        final colspan = _colSpan(cell);
 
         // Create cell element
         final cellElement =
@@ -137,17 +135,22 @@ class TableParser extends NodeParser<TagflowTableElement> {
           table.setSpan(rowIndex, colIndex, rowSpan: rowspan, colSpan: colspan);
         }
 
-        // Mark occupied cells
-        for (var r = 0; r < rowspan; r++) {
-          for (var c = 0; c < colspan; c++) {
-            if (rowIndex + r < structure.rows &&
-                colIndex + c < structure.columns) {
-              occupied[rowIndex + r][colIndex + c] = true;
-            }
+        if (rowspan > 1) {
+          final end = colIndex + colspan < structure.columns
+              ? colIndex + colspan
+              : structure.columns;
+          for (var c = colIndex; c < end; c++) {
+            occupiedThroughRow[c] = rowIndex + rowspan - 1;
           }
         }
 
         colIndex += colspan;
+      }
+
+      // Slots covered by row spans after the last cell
+      while (colIndex < structure.columns && isOccupied(colIndex)) {
+        cells.add(TagflowElement.empty());
+        colIndex++;
       }
 
       // Fill remaining columns with empty cells
@@ -165,6 +168,14 @@ class TableParser extends NodeParser<TagflowTableElement> {
       rowIndex++;
     }
   }
+}
+
+int _colSpan(dom.Element cell) {
+  return clampTableSpan(cell.attributes['colspan'], maxTableColSpan);
+}
+
+int _rowSpan(dom.Element cell) {
+  return clampTableSpan(cell.attributes['rowspan'], maxTableRowSpan);
 }
 
 class _TableStructure {

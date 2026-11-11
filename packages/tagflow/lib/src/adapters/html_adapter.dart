@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
+import 'package:tagflow/src/adapters/content_limits.dart';
 import 'package:tagflow/src/core/models/models.dart';
 import 'package:tagflow/src/core/parser/parser.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
@@ -126,6 +127,8 @@ final class TagflowHtmlAdapter {
       debug: debug ?? resolvedViewOptions.debug,
       renderBoundary:
           this.renderBoundary ?? renderBoundary ?? options?.renderBoundary,
+      maxDepth: policy.maxDepth,
+      maxNodes: policy.maxNodes,
     );
     final root = parser.parse(html);
     final source = TagflowSourceInfo(
@@ -237,6 +240,21 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     uri: documentSource.uri,
     metadata: TagflowMetadata({_htmlTagKey: node.tag}),
   );
+  final limit = switch (node.tag) {
+    tagflowLimitDepthTag => TagflowContentLimit.maxDepth,
+    tagflowLimitNodesTag => TagflowContentLimit.maxNodes,
+    _ => null,
+  };
+  if (limit != null) {
+    return tagflowContentLimitNode(
+      policy,
+      limit,
+      id: id,
+      source: source,
+      metadata: TagflowMetadata(const {_htmlTagKey: 'div'}),
+    );
+  }
+
   final tagDecision = node.isTextNode
       ? const TagflowTagPolicyDecision.allow('#text')
       : policy.decideTag(node.tag);
@@ -440,8 +458,8 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     'td' || 'th' => TagflowDocumentNode.tableCell(
       id: id,
       children: children,
-      rowSpan: int.tryParse(node['rowspan'] ?? '') ?? 1,
-      colSpan: int.tryParse(node['colspan'] ?? '') ?? 1,
+      rowSpan: clampTableSpan(node['rowspan'], maxTableRowSpan),
+      colSpan: clampTableSpan(node['colspan'], maxTableColSpan),
       header: node.tag == 'th',
       metadata: metadata,
       presentation: presentation,
@@ -1172,19 +1190,19 @@ int? _metadataInt(TagflowDocumentNode node, String key) {
 /// gets a placeholder before the next real cell, and a column span keeps one
 /// entry for the spanning cell. Returns the column count.
 int _padLegacyTableRows(List<TagflowNode> rows) {
-  int span(TagflowNode cell, String attribute) {
-    final value = int.tryParse(cell[attribute] ?? '') ?? 1;
-    return value < 1 ? 1 : value;
+  int span(TagflowNode cell, String attribute, int max) {
+    return clampTableSpan(cell[attribute], max);
   }
 
   var columns = 0;
   for (final row in rows) {
     var width = 0;
     for (final cell in row.children) {
-      width += span(cell, 'colspan');
+      width += span(cell, 'colspan', maxTableColSpan);
     }
     if (width > columns) columns = width;
   }
+  if (columns > maxTableColumns) columns = maxTableColumns;
 
   final occupied = <int, int>{};
   for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
@@ -1202,8 +1220,8 @@ int _padLegacyTableRows(List<TagflowNode> rows) {
     for (final cell in row.children) {
       skipOccupied();
       cells.add(cell);
-      final rowSpan = span(cell, 'rowspan');
-      final colSpan = span(cell, 'colspan');
+      final rowSpan = span(cell, 'rowspan', maxTableRowSpan);
+      final colSpan = span(cell, 'colspan', maxTableColSpan);
       for (var c = column; c < column + colSpan && c < columns; c++) {
         occupied[c] = rowIndex + rowSpan - 1;
       }

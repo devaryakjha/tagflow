@@ -134,8 +134,13 @@ final class _SemanticTableLayout {
           columnIndex++;
         }
 
-        final rowSpan = _positiveSpan(cell.rowSpan);
-        final colSpan = _positiveSpan(cell.colSpan);
+        // A row span past the last row is cut at the end of the table, as
+        // the HTML table model does.
+        final rowSpan = math.min(
+          _clampSpan(cell.rowSpan, _maxRowSpan),
+          rows.length - rowIndex,
+        );
+        final colSpan = _clampSpan(cell.colSpan, _maxColSpan);
         cells.add(
           TableCell(
             row: rowIndex,
@@ -338,7 +343,14 @@ bool _isInlineFallbackTag(String? htmlTag) {
   };
 }
 
-int _positiveSpan(int value) => value < 1 ? 1 : value;
+/// Largest spans the HTML specification allows.
+const _maxColSpan = 1000;
+const _maxRowSpan = 65534;
+
+int _clampSpan(int value, int max) {
+  if (value < 1) return 1;
+  return value > max ? max : value;
+}
 
 TagflowTableBorder? _borderHint(TagflowDocumentNode node) {
   final outsideWidth = _doubleHint(node, _tableBorderWidthHintKey);

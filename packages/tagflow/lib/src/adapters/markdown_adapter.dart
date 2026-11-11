@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/painting.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:meta/meta.dart';
+import 'package:tagflow/src/adapters/content_limits.dart';
 import 'package:tagflow/src/adapters/html_adapter.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 
@@ -171,9 +172,13 @@ final class _MarkdownAdaptContext {
   final TagflowContentPolicy policy;
   final TagflowMarkdownRawHtmlBehavior rawHtml;
   final TagflowSourceInfo source;
+  late final TagflowContentBudget _budget = TagflowContentBudget(policy);
 
   TagflowDocumentNode? adaptNode(md.Node node, List<int> path) {
     final id = TagflowNodeIds.fromPath(path);
+    if (_budget.admit(path.length) case final limit?) {
+      return _budget.cutOff(limit, id: id, source: source);
+    }
     if (node is md.Text) {
       return _text(id, node.text.replaceAll('\n', ' '));
     }
