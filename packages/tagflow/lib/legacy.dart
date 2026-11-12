@@ -14,9 +14,9 @@
 )
 library;
 
-export 'src/adapters/html_adapter.dart' show TagflowHtmlDocumentBridge;
 export 'src/converter/converter.dart';
 export 'src/converter/converters/converters.dart';
+export 'src/converter/html_document_bridge.dart';
 export 'src/converter/styled_container.dart';
 export 'src/core/core.dart';
 export 'src/core/models/models.dart';

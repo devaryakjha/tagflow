@@ -93,6 +93,15 @@
 
 ### Changed
 
+- `TagflowHtmlAdapter` reads the `package:html` DOM directly instead of going
+  through the legacy `TagflowParser` and element tree, so the runtime no
+  longer depends on the legacy pipeline
+  ([#116](https://github.com/devaryakjha/tagflow/issues/116)). Output is the
+  same, except that table cell ids no longer count the padding slots the
+  legacy parser inserted under a `rowspan`. Adapting is 5 to 25% faster on
+  the benchmark fixtures, and 8x faster on the hostile span table.
+  `TagflowHtmlDocumentBridge` moved with the rest of the legacy code and is
+  still exported from `package:tagflow/legacy.dart`.
 - **Breaking:** the registry no longer reads `htmlTag` from node metadata or
   presentation hints. It stays as provenance metadata. A document built by
   hand that relied on an `htmlTag` hint for disclosures, captions, inline

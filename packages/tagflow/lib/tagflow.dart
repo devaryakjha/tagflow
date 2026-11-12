@@ -1,4 +1,4 @@
-export 'src/adapters/adapters.dart' hide TagflowHtmlDocumentBridge;
+export 'src/adapters/adapters.dart';
 export 'src/render/render.dart';
 export 'src/runtime/runtime.dart';
 export 'src/style/style.dart';
