@@ -398,7 +398,9 @@ void main() {
           matchesSemantics(
             label: 'Open card',
             hasTapAction: true,
+            hasFocusAction: true,
             isButton: true,
+            isFocusable: true,
           ),
         );
       } finally {
@@ -522,7 +524,9 @@ void main() {
           matchesSemantics(
             label: 'Open summary',
             hasTapAction: true,
+            hasFocusAction: true,
             isButton: true,
+            isFocusable: true,
           ),
         );
 

@@ -19,6 +19,14 @@
   ([#121](https://github.com/devaryakjha/tagflow/issues/121))
 - The default error widget shows a neutral message in release builds
   instead of the exception text.
+- Accessibility ([#122](https://github.com/devaryakjha/tagflow/issues/122)):
+  headings are exposed as headers with their level; links, node tap targets
+  and the disclosure toggle take keyboard focus, show a focus ring and
+  activate with Enter or Space (links inside flowing text get one focus
+  stop each and a highlight); the disclosure indicator is a drawn chevron
+  excluded from semantics, and the toggle reports its expanded state;
+  images with an empty `alt` are treated as decorative; table header cells
+  carry a "Column header" hint in both the core table and `tagflow_table`.
 
 ## 1.0.0-beta.2
 

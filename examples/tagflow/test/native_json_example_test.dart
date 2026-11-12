@@ -95,7 +95,9 @@ void main() {
         matchesSemantics(
           label: 'Tap this risk desk note to inspect the native block.',
           hasTapAction: true,
+          hasFocusAction: true,
           isButton: true,
+          isFocusable: true,
         ),
       );
 
