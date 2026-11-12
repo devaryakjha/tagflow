@@ -56,7 +56,12 @@ cd packages/tagflow && flutter test
 flutter test test/src/runtime/document_patch_test.dart
 ```
 
-`dart run melos run validate` must pass before a PR is ready.
+`dart run melos run validate` must pass before a PR is ready. It also runs
+`tool/check_readme_snippets.dart`, which compiles every Dart block in the
+READMEs. CI additionally analyzes and tests the published packages on the
+oldest Flutter that meets the pubspec SDK bound (`minimum-sdk` in
+`.github/workflows/ci.yml`; goldens are skipped there), and the publish
+workflows run `validate` and a publish dry run before publishing.
 
 ## Architecture
 

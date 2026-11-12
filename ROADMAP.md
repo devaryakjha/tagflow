@@ -25,11 +25,18 @@ every breaking change gets a beta soak before it reaches a stable release.
 
 ## Cleanup (no user-facing change)
 
-- [ ] Remove release-gate tooling and point-in-time planning docs; keep the
+Tracked in [#105](https://github.com/devaryakjha/tagflow/issues/105).
+
+- [x] Remove release-gate tooling and point-in-time planning docs; keep the
       microbenchmarks.
-- [ ] Refresh the contributor guide, this roadmap and the CI toolchain pin.
+- [x] Refresh the contributor guide, this roadmap and the CI toolchain pin.
 - [ ] Trim the example app to Tagflow-only content.
-- [ ] Delete stale and merged branches.
+- [x] CI validates before publishing, tests the minimum Flutter version and
+      checks that README snippets compile
+      ([#123](https://github.com/devaryakjha/tagflow/issues/123),
+      [#124](https://github.com/devaryakjha/tagflow/issues/124)).
+- [ ] Delete stale and merged branches (list prepared in
+      [#124](https://github.com/devaryakjha/tagflow/issues/124)).
 
 ## 1.0.0-beta.1: AI answers
 

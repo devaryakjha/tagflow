@@ -9,7 +9,6 @@
 </p>
 
 [![pub package](https://img.shields.io/pub/v/tagflow.svg)](https://pub.dev/packages/tagflow)
-[![codecov](https://codecov.io/gh/devaryakjha/tagflow/graph/badge.svg)](https://codecov.io/gh/devaryakjha/tagflow)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 
 > ⚠️ **Beta prerelease**: `1.0.0-beta.2` freezes the public API. Changes
@@ -385,12 +384,12 @@ Text and container blocks take inline semantics, so styled runs fit inside a
 paragraph:
 
 ```dart
-{
+final textBlock = {
   'id': 'p.1',
   'kind': 'text',
   'text': 'bold and struck',
   'attributes': {'semantics': ['strong', 'deleted']},
-}
+};
 ```
 
 This transport is for trusted, app-controlled structured content. It is not a

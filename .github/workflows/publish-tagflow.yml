@@ -26,9 +26,6 @@ jobs:
           flutter-version-file: .fvmrc
           cache: true
 
-      - name: Set up pub.dev OIDC
-        uses: dart-lang/setup-dart@v1
-
       - name: Install dependencies
         run: flutter pub get
 
@@ -40,6 +37,21 @@ jobs:
             echo "Tag ${GITHUB_REF_NAME} does not match ${expected_tag}"
             exit 1
           fi
+
+      - name: Bootstrap workspace
+        run: dart run melos bootstrap
+
+      # A tag on a broken commit must not ship.
+      - name: Validate workspace
+        run: dart run melos run validate
+
+      # After validation, so the workspace is checked with Flutter's own Dart.
+      - name: Set up pub.dev OIDC
+        uses: dart-lang/setup-dart@v1
+
+      - name: Publish dry run
+        working-directory: packages/tagflow
+        run: flutter pub publish --dry-run
 
       - name: Publish
         working-directory: packages/tagflow

@@ -1,5 +1,3 @@
-import 'dart:ui' show Tristate;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -20,11 +18,14 @@ void main() {
         _app(const Tagflow.html(html: '<h2>Overview</h2>')),
       );
 
-      final data = tester
-          .getSemantics(find.text('Overview'))
-          .getSemanticsData();
-      expect(data.flagsCollection.isHeader, isTrue);
-      expect(data.headingLevel, 2);
+      expect(
+        tester.getSemantics(find.text('Overview')),
+        matchesSemantics(label: 'Overview', isHeader: true),
+      );
+      expect(
+        tester.getSemantics(find.text('Overview')).getSemanticsData(),
+        isA<SemanticsData>().having((d) => d.headingLevel, 'headingLevel', 2),
+      );
       semantics.dispose();
     });
 
@@ -170,11 +171,15 @@ void main() {
       await tester.pump();
 
       expect(
-        tester.getSemantics(find.text('More')).getSemanticsData(),
-        isA<SemanticsData>().having(
-          (data) => data.flagsCollection.isExpanded,
-          'isExpanded',
-          Tristate.isTrue,
+        tester.getSemantics(find.text('More')),
+        matchesSemantics(
+          label: 'More',
+          isButton: true,
+          isFocusable: true,
+          hasExpandedState: true,
+          isExpanded: true,
+          hasTapAction: true,
+          hasFocusAction: true,
         ),
       );
       semantics.dispose();
