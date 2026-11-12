@@ -140,6 +140,7 @@ final class TagflowNativeBlockAdapter {
       TagflowNativeBlockKind.listItem => TagflowDocumentNode.listItem(
         id: block.id,
         children: children,
+        checked: _boolAttribute(block, 'checked'),
         metadata: metadata,
         source: source,
       ),
@@ -170,6 +171,20 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
+      TagflowNativeBlockKind.disclosure => TagflowDocumentNode.disclosure(
+        id: block.id,
+        children: children,
+        expanded: _boolAttribute(block, 'expanded') ?? false,
+        metadata: metadata,
+        source: source,
+      ),
+      TagflowNativeBlockKind.disclosureSummary =>
+        TagflowDocumentNode.disclosureSummary(
+          id: block.id,
+          children: children,
+          metadata: metadata,
+          source: source,
+        ),
       TagflowNativeBlockKind.codeBlock => TagflowDocumentNode.codeBlock(
         id: block.id,
         text: block.text ?? '',
@@ -215,6 +230,12 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
+      TagflowNativeBlockKind.tableCaption => TagflowDocumentNode.tableCaption(
+        id: block.id,
+        children: children,
+        metadata: metadata,
+        source: source,
+      ),
       TagflowNativeBlockKind.callout => TagflowDocumentNode.container(
         id: block.id,
         children: children,
@@ -225,6 +246,7 @@ final class TagflowNativeBlockAdapter {
       TagflowNativeBlockKind.container => TagflowDocumentNode.container(
         id: block.id,
         children: children,
+        presentation: _displayPresentation(block),
         metadata: metadata,
         source: source,
       ),
@@ -468,6 +490,15 @@ TagflowMetadata _metadataForRejectedUrl(
   String reason,
 ) {
   return metadata.merge(TagflowMetadata({_policyDecisionReasonKey: reason}));
+}
+
+TagflowPresentation? _displayPresentation(TagflowNativeBlock block) {
+  final display = switch (_stringAttribute(block, 'display')) {
+    'inline' => TagflowDisplay.inline,
+    'block' => TagflowDisplay.block,
+    _ => null,
+  };
+  return display == null ? null : TagflowPresentation(display: display);
 }
 
 TagflowPresentation? _calloutPresentation(TagflowNativeBlock block) {

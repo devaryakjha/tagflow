@@ -654,7 +654,7 @@ void main() {
       }
     });
 
-    test('maps details and summary into supported runtime containers', () {
+    test('should map details, summary and caption to typed node kinds', () {
       const html = '''
 <details open>
   <summary>Offer details</summary>
@@ -665,15 +665,25 @@ void main() {
       final details = _singleNodeWithHtmlTag(document, 'details');
       final summary = _singleNodeWithHtmlTag(document, 'summary');
 
-      expect(details.kind, TagflowNodeKind.container);
+      expect(details.kind, TagflowNodeKind.disclosure);
+      expect(details.expanded, isTrue);
       expect(details.htmlTag, 'details');
       expect(details.htmlAttributes, contains('open'));
-      expect(details.presentation.variant, 'details');
-      expect(details.kind, isNot(TagflowNodeKind.unsupported));
-      expect(summary.kind, TagflowNodeKind.container);
+      expect(summary.kind, TagflowNodeKind.disclosureSummary);
       expect(summary.htmlTag, 'summary');
-      expect(summary.presentation.variant, 'summary');
-      expect(summary.kind, isNot(TagflowNodeKind.unsupported));
+
+      final closed = const TagflowHtmlAdapter().parse(
+        '<details><summary>s</summary>body</details>',
+      );
+      expect(closed.children.single.expanded, isFalse);
+
+      final table = const TagflowHtmlAdapter().parse(
+        '<table><caption>Rates</caption><tr><td>1</td></tr></table>',
+      );
+      expect(
+        table.children.single.children.map((node) => node.kind),
+        contains(TagflowNodeKind.tableCaption),
+      );
     });
 
     test('maps description lists into first-class runtime nodes', () {

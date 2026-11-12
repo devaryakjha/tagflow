@@ -45,8 +45,36 @@
   `TagflowHtmlAdapter.parse`, `TagflowScope(options: ...)` to
   `TagflowScope.view(viewOptions: ...)`, and `ErrorWidgetBuilder` to
   `TagflowErrorWidgetBuilder`.
+- Typed node fields for things the renderer used to read from the
+  `htmlTag` metadata key ([#113](https://github.com/devaryakjha/tagflow/issues/113)):
+  - `TagflowNodeKind.disclosure` and `disclosureSummary`, with
+    `TagflowDocumentNode.disclosure(expanded: ...)` and
+    `TagflowDocumentNode.disclosureSummary(...)`. HTML `<details open>` maps
+    to `expanded: true`.
+  - `TagflowNodeKind.tableCaption` and `TagflowDocumentNode.tableCaption`.
+  - `TagflowDocumentNode.checked` on list items, set by the Markdown adapter
+    for GFM task items.
+  - `TagflowDisplay` and `TagflowPresentation.display`, so a container can
+    flow inline without inline semantics. The HTML adapter sets it for
+    inline elements such as `span`.
+  - `TagflowInlineSemantic.code`, used for `kbd` and `samp`. The HTML adapter
+    also maps `cite`, `dfn` and `var` to emphasis, `ins` to underline and
+    `s` to deleted.
+  - Native blocks: `disclosure`, `disclosureSummary` and `tableCaption`
+    kinds, `checked` on `listItem`, `expanded` on `disclosure` and
+    `display` on `container`.
 
 ### Changed
+
+- **Breaking:** the registry no longer reads `htmlTag` from node metadata or
+  presentation hints. It stays as provenance metadata. A document built by
+  hand that relied on an `htmlTag` hint for disclosures, captions, inline
+  flow or bold, italic and similar styles must use the typed kinds, fields
+  and `inlineSemantics` instead. `TagflowNodeKind` has three new values, so
+  exhaustive `switch`es over it need new cases.
+- **Breaking:** GFM task state moved from the `taskChecked` metadata key to
+  `TagflowDocumentNode.checked`. `isMarkdownTaskItem` and
+  `markdownTaskChecked` still work.
 
 - Default heading sizes now come from the ambient text theme (`h1` to `h6`
   use `headlineLarge`, `headlineMedium`, `headlineSmall`, `titleLarge`,

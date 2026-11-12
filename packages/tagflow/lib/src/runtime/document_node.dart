@@ -21,12 +21,24 @@ enum TagflowNodeKind {
   descriptionTerm,
   descriptionDetails,
   blockquote,
+
+  /// A collapsible section, like HTML `<details>`.
+  ///
+  /// Its first [disclosureSummary] child is the always-visible title; the
+  /// other children are shown when the section is expanded.
+  disclosure,
+
+  /// The title of a [disclosure], like HTML `<summary>`.
+  disclosureSummary,
   codeBlock,
   inlineCode,
   image,
   table,
   tableRow,
   tableCell,
+
+  /// The caption of a [table], like HTML `<caption>`.
+  tableCaption,
   horizontalRule,
   unsupported,
 }
@@ -53,6 +65,8 @@ final class TagflowDocumentNode {
     this.rowSpan = 1,
     this.colSpan = 1,
     this.header = false,
+    this.checked,
+    this.expanded = false,
     this.unsupportedReason,
   }) : children = List.unmodifiable(children),
        presentation = presentation ?? TagflowPresentation.empty,
@@ -193,9 +207,13 @@ final class TagflowDocumentNode {
   }
 
   /// Creates a list item node.
+  ///
+  /// Set [checked] to make a task list item: `true` for a done task, `false`
+  /// for an open one. Leave it `null` for an ordinary item.
   factory TagflowDocumentNode.listItem({
     required String id,
     List<TagflowDocumentNode> children = const [],
+    bool? checked,
     TagflowPresentation? presentation,
     TagflowMetadata? metadata,
     TagflowSourceInfo? source,
@@ -207,6 +225,7 @@ final class TagflowDocumentNode {
       presentation: presentation,
       metadata: metadata,
       source: source,
+      checked: checked,
     );
   }
 
@@ -257,6 +276,47 @@ final class TagflowDocumentNode {
     return TagflowDocumentNode._(
       id: id,
       kind: TagflowNodeKind.descriptionDetails,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a disclosure node: a section that can be expanded and collapsed.
+  ///
+  /// The first [TagflowNodeKind.disclosureSummary] child is the title. When
+  /// [expanded] is true the section starts open.
+  factory TagflowDocumentNode.disclosure({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    bool expanded = false,
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.disclosure,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+      expanded: expanded,
+    );
+  }
+
+  /// Creates the title node of a disclosure.
+  factory TagflowDocumentNode.disclosureSummary({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.disclosureSummary,
       children: children,
       presentation: presentation,
       metadata: metadata,
@@ -380,6 +440,27 @@ final class TagflowDocumentNode {
     );
   }
 
+  /// Creates a table caption node.
+  ///
+  /// Put it among the children of a [TagflowNodeKind.table] node; renderers
+  /// show it above the rows.
+  factory TagflowDocumentNode.tableCaption({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.tableCaption,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
   /// Creates a table cell node.
   factory TagflowDocumentNode.tableCell({
     required String id,
@@ -494,6 +575,13 @@ final class TagflowDocumentNode {
   /// Header flag for table cells.
   final bool header;
 
+  /// Task state for list items: `true` when done, `false` when open, and
+  /// `null` when the item is not a task.
+  final bool? checked;
+
+  /// Whether a disclosure node starts expanded.
+  final bool expanded;
+
   /// Optional unsupported-content reason.
   final String? unsupportedReason;
 
@@ -524,6 +612,8 @@ final class TagflowDocumentNode {
     int? rowSpan,
     int? colSpan,
     bool? header,
+    bool? checked,
+    bool? expanded,
     String? unsupportedReason,
     bool clearSource = false,
     bool clearText = false,
@@ -535,6 +625,7 @@ final class TagflowDocumentNode {
     bool clearWidth = false,
     bool clearHeight = false,
     bool clearLanguage = false,
+    bool clearChecked = false,
     bool clearUnsupportedReason = false,
   }) {
     return TagflowDocumentNode._(
@@ -606,6 +697,13 @@ final class TagflowDocumentNode {
       rowSpan: rowSpan ?? this.rowSpan,
       colSpan: colSpan ?? this.colSpan,
       header: header ?? this.header,
+      checked: _resolveNullableCopyField(
+        current: this.checked,
+        replacement: checked,
+        clear: clearChecked,
+        name: 'checked',
+      ),
+      expanded: expanded ?? this.expanded,
       unsupportedReason: _resolveNullableCopyField(
         current: this.unsupportedReason,
         replacement: unsupportedReason,
@@ -637,11 +735,13 @@ final class TagflowDocumentNode {
             other.rowSpan == rowSpan &&
             other.colSpan == colSpan &&
             other.header == header &&
+            other.checked == checked &&
+            other.expanded == expanded &&
             other.unsupportedReason == unsupportedReason;
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     kind,
     _nodeListEquality.hash(children),
@@ -660,8 +760,10 @@ final class TagflowDocumentNode {
     rowSpan,
     colSpan,
     header,
+    checked,
+    expanded,
     unsupportedReason,
-  );
+  ]);
 }
 
 T? _resolveNullableCopyField<T>({
