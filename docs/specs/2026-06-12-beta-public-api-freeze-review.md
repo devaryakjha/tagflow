@@ -1,7 +1,8 @@
 # Tagflow Beta Public API Freeze Review
 
-**Status:** Draft review for `1.0.0-beta.0` readiness  
-**Date:** 2026-06-12  
+**Status:** Frozen for `1.0.0-beta.2` (see "Beta.2 Freeze Record"). The
+sections after it are the original `beta.0` review, kept for history.  
+**Date:** 2026-06-12, freeze record added 2026-11-11  
 **Reviewed Baseline:** current coordinator branch after published
 `tagflow-v1.0.0-alpha.3`, including runtime follow-ups through
 `848f1fc feat(runtime): add node tap callbacks`, public API follow-ups in
@@ -9,6 +10,84 @@
 evidence through the reviewed raw heap/class-diff interpretation notes
 **Scope:** `package:tagflow/tagflow.dart`, `package:tagflow/legacy.dart`, and
 the first-party `tagflow_table` extension posture
+
+## Beta.2 Freeze Record
+
+Recorded 2026-11-11 for [#86](https://github.com/devaryakjha/tagflow/issues/86),
+after the November 2026 review (tracker
+[#105](https://github.com/devaryakjha/tagflow/issues/105)). `1.0.0-beta.0`
+and `beta.1` shipped; this record is the API that `beta.2` freezes. Changes
+after `beta.2` are additive or bug fixes until `1.0.0`, apart from removing
+the options that `beta.2` deprecates as no-ops.
+
+### Guard
+
+`test/src/public_api/api_snapshot_test.dart` compares every public type and
+member reachable from `package:tagflow/tagflow.dart` with
+`test/src/public_api/tagflow_api.txt`. Any addition, removal or rename fails
+the test. After an intended change, regenerate it with
+`TAGFLOW_UPDATE_API=1 flutter test test/src/public_api/api_snapshot_test.dart`,
+add a CHANGELOG entry and update this record. `export_test.dart` keeps
+checking that the surface is usable.
+
+### Surface added since the original review
+
+All `beta-stable`:
+
+- Markdown: `Tagflow.markdown`, `TagflowMarkdownAdapter`,
+  `TagflowMarkdownRawHtmlBehavior`, `TagflowMarkdownNodeMetadata`.
+- Streaming: `TagflowMarkdownStream`, `TagflowMarkdownStreamUpdate` and
+  `TagflowMarkdownStreamView`.
+- Code blocks: `TagflowCodeBlockOptions`, `TagflowCodeHighlighter`,
+  `TagflowCodeHighlightRequest`, `TagflowCodeCopyCallback` and
+  `TagflowCodeCopyDetails`.
+- Styling: `TagflowRenderTheme` and `TagflowRenderThemeScope`
+  ([#112](https://github.com/devaryakjha/tagflow/issues/112)), and
+  `TagflowInlineStyle` with `TagflowTextAlign` and `TagflowTextDecoration`.
+- Policy limits: `TagflowContentPolicy.maxDepth`, `maxNodes`,
+  `allowInlineStyles` and `TagflowContentLimit`
+  ([#111](https://github.com/devaryakjha/tagflow/issues/111)).
+- Typed node fields: the `disclosure`, `disclosureSummary`, `tableCaption`,
+  `callout` and `custom` kinds, `checked`, `expanded`, `tone`, `title`,
+  `customType`, `TagflowDisplay`, `TagflowCalloutTone` and
+  `TagflowInlineSemantic.code`
+  ([#113](https://github.com/devaryakjha/tagflow/issues/113),
+  [#114](https://github.com/devaryakjha/tagflow/issues/114),
+  [#117](https://github.com/devaryakjha/tagflow/issues/117)).
+- Registry: `customComponents`, `registeredCustomTypes` and
+  `TagflowComponentContext.renderBlockContent`.
+- Native transport: `append-root` patches, `semantics` on text and
+  containers, `custom` blocks, and typed attribute validation in the codec.
+- `documentId:` on `Tagflow.html` and `Tagflow.markdown`.
+
+### Decisions that close the original open items
+
+- Node kinds: `TagflowNodeKind` gains values only in a major release. Inside
+  1.x, new content uses the `custom` kind and new facts use typed fields.
+  `copyWith` cannot change a node's kind.
+- Renderers read typed fields only. `htmlTag` is provenance for inspection
+  and the legacy bridge.
+- `TagflowContentPolicy.allowedTags`: `null` allows every unblocked tag and
+  an empty set allows none.
+- Callouts are a runtime kind with a typed tone, which replaces the earlier
+  "normalize callouts to containers" decision below.
+- The HTML adapter reads the HTML DOM directly and no longer depends on the
+  legacy parser models ([#116](https://github.com/devaryakjha/tagflow/issues/116)).
+- Image selection works on the runtime path. `loadingBuilder` and
+  `enableImageCache` are deprecated in `beta.2` and removed before `1.0.0`
+  ([#115](https://github.com/devaryakjha/tagflow/issues/115)).
+- `TagflowOptions`, `Tagflow(html: ...)`, `converters:`,
+  `package:tagflow/legacy.dart` and the `tagflow_table` legacy converters are
+  deprecated, keep working through 1.x and are removed in 2.0.
+- Every public API is documented, enforced by `public_member_api_docs`.
+
+### Still open before `1.0.0`
+
+- The `beta.2` soak in internal apps
+  ([#87](https://github.com/devaryakjha/tagflow/issues/87)).
+- Long press and wider gesture semantics stay out of 1.0 unless the soak
+  shows a need.
+- Benchmark and memory evidence stay report-only.
 
 ## Purpose
 
