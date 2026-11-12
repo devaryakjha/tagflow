@@ -45,6 +45,7 @@ Future<void> loadGoldenFonts(String fontsDir) async {
 void tagflowGoldenTest(
   String name, {
   required String html,
+  TagflowHtmlAdapter? adapter,
   TagflowComponentRegistry? registry,
   TagflowViewOptions? viewOptions,
   Future<void> Function(WidgetTester tester)? interact,
@@ -61,6 +62,7 @@ void tagflowGoldenTest(
           brightness: brightness,
           child: Tagflow.html(
             html: html,
+            adapter: adapter,
             registry: registry,
             viewOptions: viewOptions,
           ),

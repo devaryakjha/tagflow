@@ -2,6 +2,12 @@
 
 ### Added
 
+- `documentId:` on `Tagflow.html` and `Tagflow.markdown` to name the adapted
+  document. ([#108](https://github.com/devaryakjha/tagflow/issues/108))
+- Value equality on `TagflowHtmlAdapter`, `TagflowHtmlNodeIdStrategy` and
+  `TagflowNativeBlockAdapter`.
+  ([#109](https://github.com/devaryakjha/tagflow/issues/109))
+
 - Data-driven fixes (`lib/fix_data.yaml`) so `dart fix --apply` and IDE quick
   fixes migrate deprecated call sites: `Tagflow(html: ...)` to
   `Tagflow.html(...)`, `TagflowOptions(...)` to `TagflowViewOptions(...)`
@@ -10,6 +16,32 @@
   `TagflowHtmlAdapter.parse`, `TagflowScope(options: ...)` to
   `TagflowScope.view(viewOptions: ...)`, and `ErrorWidgetBuilder` to
   `TagflowErrorWidgetBuilder`.
+
+### Fixed
+
+- Tables with `rowspan` or `colspan` no longer show "Unsupported content"
+  cells in the core renderer. The parser's padding cells are no longer part
+  of the adapted document, and the core table lays rows out on a plain grid
+  with empty cells (it also no longer throws on ragged rows). Spans still
+  need `tagflow_table`.
+  ([#106](https://github.com/devaryakjha/tagflow/issues/106))
+- `span` and the other HTML phrasing elements without their own semantics
+  (`abbr`, `cite`, `kbd`, `q`, `s`, `time` and so on) adapt to inline
+  containers, `wbr` adapts to a zero-width space, and under the default
+  `TagflowUnsupportedBehavior.drop` childless unsupported nodes are removed
+  during adaptation, so the placeholder only shows with `preservePlaceholder`.
+  ([#107](https://github.com/devaryakjha/tagflow/issues/107))
+- Changing the `html:` or `markdown:` string no longer remounts the whole
+  tree: the document ID no longer depends on the content, so unchanged nodes
+  keep their state. ([#108](https://github.com/devaryakjha/tagflow/issues/108))
+- `Tagflow` no longer re-parses on every parent rebuild when `viewOptions`
+  has inline callbacks or the adapter is not `const`. Only the source, the
+  adapter, the document ID or `viewOptions.debug` trigger a re-parse.
+  ([#109](https://github.com/devaryakjha/tagflow/issues/109))
+- The built-in link, image and inline components work when
+  `TagflowComponentRegistry.render` is called outside a `Tagflow` widget,
+  falling back to default view options.
+  ([#110](https://github.com/devaryakjha/tagflow/issues/110))
 
 ## 1.0.0-beta.1 - 2026-10-22
 

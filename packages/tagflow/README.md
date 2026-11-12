@@ -108,6 +108,20 @@ Tagflow.markdown(markdown: answer, markdownAdapter: adapter);
 Tagflow.document(adapter.parse(answer));
 ```
 
+### Live Updates
+
+Pass a new `html:` or `markdown:` string to the same `Tagflow.html` or
+`Tagflow.markdown` widget and it updates in place. The adapted document keeps
+the same ID for the life of the widget, and each node is keyed by its ID, so
+nodes that did not change keep their widget state (scroll position, selection,
+expanded disclosures, loaded images). Pass a different `documentId:` when you
+want a full remount on purpose.
+
+The widget re-parses only when the source string, the adapter (compared by
+value, so a new but equal `TagflowHtmlAdapter(...)` is fine), the document ID
+or `viewOptions.debug` changes. Inline callbacks in `viewOptions` rebuild the
+rendered tree without parsing again.
+
 ### Controlled Dynamic HTML
 
 Use authored IDs when your HTML comes from a controlled CMS, AI pipeline, or
@@ -413,7 +427,9 @@ apps should pin an exact version (`tagflow: 1.0.0-beta.1`) and read the
 - Trusted native JSON document decode, adapt, and render flow
 - Trusted native JSON patch envelope decode, adapt, and apply flow
 - HTML adapter support for headings, paragraphs, emphasis, links, code,
-  blockquotes, lists, images, and tables
+  blockquotes, lists, images, and tables. The core table renderer draws a
+  plain grid; register `tagflowTableComponents()` from `tagflow_table` for
+  `rowspan` and `colspan` layout
 - Content policy filtering for unsafe tags, URL schemes, and unsupported input
 - Runtime view options for links, view-owned node taps, selection, image
   behavior, caching, and render errors

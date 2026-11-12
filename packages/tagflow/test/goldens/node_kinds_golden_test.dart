@@ -155,6 +155,23 @@ source</strong></a>.</p>
 <p>Unknown element with content:</p>
 <x-card><p>Children still render.</p></x-card>
 ''',
+      adapter: const TagflowHtmlAdapter(
+        policy: TagflowContentPolicy(
+          unsupportedBehavior: TagflowUnsupportedBehavior.preservePlaceholder,
+        ),
+      ),
+    );
+
+    tagflowGoldenTest(
+      'table_spans',
+      html: '''
+<table>
+  <tr><th colspan="2">Header across two columns</th></tr>
+  <tr><td rowspan="2">Tall</td><td>Right top</td></tr>
+  <tr><td>Right bottom</td></tr>
+  <tr><td>Short row</td></tr>
+</table>
+''',
     );
 
     tagflowGoldenTest(
