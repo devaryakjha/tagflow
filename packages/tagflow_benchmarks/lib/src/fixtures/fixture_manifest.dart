@@ -52,6 +52,19 @@ final List<BenchmarkFixture> benchmarkFixtures =
         htmlSha256:
             '78b0510dace4a84e219b84c070d361e95fdb88be2554ea4874f25e15f1a1ca3d',
       ),
+      // Hostile inputs that stay bounded by the content policy limits.
+      const BenchmarkFixture(
+        id: 'hostile_table_spans',
+        htmlRelativePath: 'fixtures/html/hostile_table_spans.html',
+        htmlSha256:
+            '4f32ad7f4497702f749815893d399b344c71ef39963b9ee561a3c84a60ddffb6',
+      ),
+      const BenchmarkFixture(
+        id: 'hostile_deep_nesting',
+        htmlRelativePath: 'fixtures/html/hostile_deep_nesting.html',
+        htmlSha256:
+            '0394d65462d0d200173ccfd790d99a216970e1c85d23cec1463c56815c382d47',
+      ),
     ]);
 
 final Map<String, BenchmarkFixture> _fixturesById = <String, BenchmarkFixture>{

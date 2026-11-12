@@ -11,11 +11,16 @@ import 'package:tagflow_benchmarks/src/results/benchmark_result.dart';
 import 'package:tagflow_benchmarks/src/results/environment_detector.dart';
 import 'package:tagflow_benchmarks/src/results/sample_statistics.dart';
 
+/// Benchmarks the legacy parser with the content policy limits that
+/// `TagflowHtmlAdapter` applies by default.
 class TagflowParserBenchmarkSuite {
   const TagflowParserBenchmarkSuite({
     this.warmupIterations = 5,
     this.sampleCount = 10,
-    this.parser = const TagflowParser(),
+    this.parser = const TagflowParser(
+      maxDepth: TagflowContentPolicy.defaultMaxDepth,
+      maxNodes: TagflowContentPolicy.defaultMaxNodes,
+    ),
   });
 
   final int warmupIterations;

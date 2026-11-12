@@ -103,6 +103,9 @@ void main() {
     expect(document.containsNodeId('text'), isTrue);
     document.validateUniqueNodeIds();
     expect(adapter.policy, policy);
+    expect(policy.maxDepth, api.TagflowContentPolicy.defaultMaxDepth);
+    expect(policy.maxNodes, api.TagflowContentPolicy.defaultMaxNodes);
+    expect(api.TagflowContentLimit.values, hasLength(2));
     expect(
       nativeAdapter.adapt(nativeDocument).children.single.id,
       'native-callout',

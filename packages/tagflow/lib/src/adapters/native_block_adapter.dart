@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:tagflow/src/adapters/content_limits.dart';
 import 'package:tagflow/src/adapters/native_block.dart';
 import 'package:tagflow/src/adapters/native_block_patch.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
@@ -35,12 +36,15 @@ final class TagflowNativeBlockAdapter {
   TagflowDocument adapt(TagflowNativeBlockDocument document) {
     _validateDocument(document);
     final source = document.source ?? _defaultDocumentSource();
+    final budget = TagflowContentBudget(policy);
 
     return TagflowDocument(
       id: document.id,
       children: [
         for (final block in document.blocks)
-          if (_adaptBlock(block, documentSource: source) case final node?) node,
+          if (_adaptBlock(block, documentSource: source, budget: budget)
+              case final node?)
+            node,
       ],
       metadata: _documentMetadata(document),
       source: source,
@@ -79,11 +83,21 @@ final class TagflowNativeBlockAdapter {
   TagflowDocumentNode? _adaptBlock(
     TagflowNativeBlock block, {
     required TagflowSourceInfo documentSource,
+    required TagflowContentBudget budget,
+    int depth = 1,
   }) {
     final source = block.source ?? documentSource;
+    if (budget.admit(depth) case final limit?) {
+      return budget.cutOff(limit, id: block.id, source: source);
+    }
     final children = [
       for (final child in block.children)
-        if (_adaptBlock(child, documentSource: documentSource)
+        if (_adaptBlock(
+              child,
+              documentSource: documentSource,
+              budget: budget,
+              depth: depth + 1,
+            )
             case final adaptedChild?)
           adaptedChild,
     ];
@@ -189,8 +203,14 @@ final class TagflowNativeBlockAdapter {
       TagflowNativeBlockKind.tableCell => TagflowDocumentNode.tableCell(
         id: block.id,
         children: children,
-        rowSpan: _positiveIntAttribute(block, 'rowSpan') ?? 1,
-        colSpan: _positiveIntAttribute(block, 'colSpan') ?? 1,
+        rowSpan: _clampSpan(
+          _positiveIntAttribute(block, 'rowSpan'),
+          maxTableRowSpan,
+        ),
+        colSpan: _clampSpan(
+          _positiveIntAttribute(block, 'colSpan'),
+          maxTableColSpan,
+        ),
         header: _boolAttribute(block, 'header') ?? false,
         metadata: metadata,
         source: source,
@@ -323,9 +343,12 @@ final class TagflowNativeBlockAdapter {
       );
     }
 
+    // Limits apply to the patch payload on its own; the adapter does not
+    // know how deep the target sits in the document.
     final replacement = _adaptBlock(
       block,
       documentSource: _defaultDocumentSource(),
+      budget: TagflowContentBudget(policy),
     );
 
     if (replacement == null) {
@@ -341,10 +364,13 @@ final class TagflowNativeBlockAdapter {
   List<TagflowDocumentNode> _adaptPatchBlocks(List<TagflowNativeBlock> blocks) {
     _validateBlockTreeIds(blocks);
     final source = _defaultDocumentSource();
+    final budget = TagflowContentBudget(policy);
 
     return List.unmodifiable([
       for (final block in blocks)
-        if (_adaptBlock(block, documentSource: source) case final node?) node,
+        if (_adaptBlock(block, documentSource: source, budget: budget)
+            case final node?)
+          node,
     ]);
   }
 }
@@ -525,4 +551,10 @@ double? _doubleAttribute(TagflowNativeBlock block, String name) {
     num() => value.toDouble(),
     _ => null,
   };
+}
+
+/// Clamps a table span to `1..max`, as the HTML specification does.
+int _clampSpan(int? value, int max) {
+  if (value == null || value < 1) return 1;
+  return value > max ? max : value;
 }
