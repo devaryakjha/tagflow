@@ -15,7 +15,7 @@ void main() {
   // options: parameters.
   Tagflow.html(
     html: '<p>Hello</p>',
-    viewOptions: const TagflowViewOptions(enableImageCache: false),
+    viewOptions: const TagflowViewOptions(),
   );
   Tagflow.document(
     TagflowDocument(id: 'doc', children: const []),
@@ -42,4 +42,20 @@ void main() {
   // ErrorWidgetBuilder.
   TagflowErrorWidgetBuilder? errorBuilder;
   Tagflow.html(html: '<p>Hello</p>', errorBuilder: errorBuilder!);
+
+  // Changes made in 1.0.0-beta.2.
+
+  // loadingBuilder and enableImageCache had no effect.
+  Tagflow.html(
+    html: '<p>Hello</p>',
+  );
+  Tagflow.markdown(
+    markdown: '# Hi',
+  );
+  Tagflow.document(
+    TagflowDocument(id: 'doc', children: const []),
+  );
+  const TagflowViewOptions(debug: true);
+  const TagflowViewOptions().copyWith();
 }
+

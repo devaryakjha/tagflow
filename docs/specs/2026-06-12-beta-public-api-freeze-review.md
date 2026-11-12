@@ -196,6 +196,7 @@ runtime registry can see them.
 - `TagflowViewOptions`
 - `TagflowSelectableOptions`
 - `TagflowImageSelectionBehavior`
+- `TagflowImageSelectionTextBuilder`
 - `TagflowLinkTapCallback`
 - `TagflowNodeTapCallback`
 - `TagflowNodeTapDetails`
@@ -210,6 +211,16 @@ Node tap callbacks continue that view-owned behavior model: documents and
 transport payloads remain data-only, while a particular Flutter view can opt
 specific `TagflowNodeKind` values into tap handling and receive the tapped
 `TagflowDocumentNode`.
+
+Options with no effect on the runtime path are deprecated in beta.2 and
+removed before 1.0.0 (#115): `TagflowViewOptions.enableImageCache` (images
+always use the Flutter image cache) and `Tagflow.*(loadingBuilder:)` (content
+is adapted synchronously, so nothing was ever loading). `dart fix` removes
+both. `TagflowSelectableOptions.imageSelectionBehavior` now works on the
+runtime path, and its custom builder is `imageSelectionTextBuilder`, which
+takes the image `TagflowDocumentNode`. The legacy
+`imageSelectionBehaviorTextBuilder` (taking `TagflowImgElement`) is
+deprecated and used only as a fallback.
 
 Current node interaction policy:
 

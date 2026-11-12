@@ -110,3 +110,86 @@ transforms:
     changes:
       - kind: 'rename'
         newName: 'TagflowErrorWidgetBuilder'
+
+  # Changes made in 1.0.0-beta.2: options that had no effect are deprecated.
+  # Removing them keeps behavior.
+
+  - title: "Remove 'loadingBuilder'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'removeParameter'
+        name: 'loadingBuilder'
+
+  - title: "Remove 'loadingBuilder'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'html'
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'removeParameter'
+        name: 'loadingBuilder'
+
+  - title: "Remove 'loadingBuilder'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'markdown'
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'removeParameter'
+        name: 'loadingBuilder'
+
+  - title: "Remove 'loadingBuilder'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: 'document'
+      inClass: 'Tagflow'
+    changes:
+      - kind: 'removeParameter'
+        name: 'loadingBuilder'
+
+  - title: "Remove 'enableImageCache'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'TagflowViewOptions'
+    changes:
+      - kind: 'removeParameter'
+        name: 'enableImageCache'
+
+  - title: "Remove 'enableImageCache'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      method: 'copyWith'
+      inClass: 'TagflowViewOptions'
+    changes:
+      - kind: 'removeParameter'
+        name: 'enableImageCache'
+
+  - title: "Remove 'enableImageCache'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      constructor: ''
+      inClass: 'TagflowOptions'
+    changes:
+      - kind: 'removeParameter'
+        name: 'enableImageCache'
+
+  - title: "Remove 'enableImageCache'"
+    date: 2026-11-11
+    element:
+      uris: ['tagflow.dart']
+      method: 'copyWith'
+      inClass: 'TagflowOptions'
+    changes:
+      - kind: 'removeParameter'
+        name: 'enableImageCache'

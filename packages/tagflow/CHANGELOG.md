@@ -77,6 +77,19 @@
     `calloutWarningColor` and `calloutDangerColor` on `TagflowRenderTheme`.
   - The codec rejects mistyped `checked`, `expanded`, `display`, `tone` and
     `semantics` attributes with the JSON path of the attribute.
+- `TagflowSelectableOptions.imageSelectionBehavior` now works on the runtime
+  path: with `selectable.enabled`, copying a selection that covers an image
+  gives its alt text, its alt text and URL, or the text from the new
+  `imageSelectionTextBuilder`, which takes the image `TagflowDocumentNode`
+  ([#115](https://github.com/devaryakjha/tagflow/issues/115)).
+
+### Deprecated
+
+- `TagflowViewOptions.enableImageCache` and `loadingBuilder` on the
+  `Tagflow` constructors. Neither had any effect; both are removed before
+  1.0.0, and `dart fix --apply` removes them from your code.
+- `TagflowSelectableOptions.imageSelectionBehaviorTextBuilder`, which takes
+  the legacy `TagflowImgElement`. Use `imageSelectionTextBuilder`.
 
 ### Changed
 

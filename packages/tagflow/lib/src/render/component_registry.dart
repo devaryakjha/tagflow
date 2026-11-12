@@ -8,6 +8,7 @@ import 'package:tagflow/src/render/code_block.dart';
 import 'package:tagflow/src/render/render_theme.dart';
 import 'package:tagflow/src/runtime/runtime.dart';
 import 'package:tagflow/src/tagflow_options.dart';
+import 'package:tagflow/src/widgets/selectable_adapter.dart';
 
 /// Builds a Flutter widget for a semantic Tagflow document node.
 typedef TagflowComponentBuilder =
@@ -706,13 +707,21 @@ Widget _renderImage(TagflowComponentContext context, TagflowDocumentNode node) {
   if (url == null) return const SizedBox.shrink();
   final options = _viewOptionsOf(context.buildContext);
 
-  return Image.network(
+  final image = Image.network(
     url.toString(),
     width: _clampDimension(node.width, options.maxImageWidth),
     height: _clampDimension(node.height, options.maxImageHeight),
     semanticLabel: node.alt,
     loadingBuilder: options.imageLoadingBuilder,
     errorBuilder: options.imageErrorBuilder,
+  );
+  if (!options.selectable.enabled) return image;
+
+  // Inside a SelectionArea the image takes part in the selection, and
+  // copying gives the text from imageSelectionBehavior.
+  return TagflowSelectableAdapter(
+    text: options.selectable.imageSelectionText(node, context.buildContext),
+    child: image,
   );
 }
 

@@ -108,6 +108,15 @@ void main() {
     expect(api.TagflowContentLimit.values, hasLength(2));
     expect(api.TagflowDisplay.values, hasLength(2));
     expect(api.TagflowCalloutTone.values, hasLength(5));
+    api.TagflowImageSelectionTextBuilder textBuilder;
+    textBuilder = (image, context) => image.alt;
+    expect(
+      api.TagflowSelectableOptions(
+        imageSelectionBehavior: api.TagflowImageSelectionBehavior.custom,
+        imageSelectionTextBuilder: textBuilder,
+      ).imageSelectionTextBuilder,
+      same(textBuilder),
+    );
     expect(
       api.TagflowNativeBlockPatch.appendRootChildren(children: const []).kind,
       api.TagflowNativeBlockPatchKind.appendRootChildren,
