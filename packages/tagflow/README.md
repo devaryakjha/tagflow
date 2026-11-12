@@ -102,6 +102,23 @@ const adapter = TagflowHtmlAdapter(
 );
 ```
 
+Relative URLs need a base. Set `baseUrl` to the address the content came
+from and relative or scheme-relative links and images are resolved, then
+checked against the allowed schemes like any other URL. Without a base,
+scheme-relative URLs (`//host/path`) and relative images are rejected, and
+relative links reach your link callback as written.
+
+```dart
+final adapter = TagflowHtmlAdapter(
+  policy: TagflowContentPolicy(
+    baseUrl: Uri.parse('https://example.com/articles/'),
+  ),
+);
+```
+
+The default error widget shows the error text in debug and profile builds
+and a neutral message in release builds. Pass `errorBuilder` to replace it.
+
 ### Markdown Adapter
 
 Render Markdown, such as an AI answer, without converting it to HTML first.

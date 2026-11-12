@@ -81,6 +81,12 @@ All `beta-stable`:
   deprecated, keep working through 1.x and are removed in 2.0.
 - Every public API is documented, enforced by `public_member_api_docs`.
 
+### Additive changes after `beta.2`
+
+- `TagflowContentPolicy.baseUrl` and
+  `TagflowUrlDecisionReason.missingBaseUrl`
+  ([#121](https://github.com/devaryakjha/tagflow/issues/121)).
+
 ### Still open before `1.0.0`
 
 - The `beta.2` soak in internal apps
