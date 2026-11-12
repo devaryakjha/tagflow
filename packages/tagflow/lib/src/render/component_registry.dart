@@ -36,6 +36,16 @@ final class TagflowComponentContext {
   List<Widget> renderChildren(TagflowDocumentNode node) {
     return [for (final child in node.children) render(child)];
   }
+
+  /// Renders the children of [node] as block content, the way the built-in
+  /// table cell and list item do.
+  ///
+  /// Consecutive inline children (text, links, inline code and inline
+  /// containers) flow as one rich text, so they wrap word by word and share
+  /// a baseline. Other children render as blocks in a column.
+  Widget renderBlockContent(TagflowDocumentNode node) {
+    return _renderBlockChildren(this, node);
+  }
 }
 
 /// Registry for mapping semantic Tagflow node kinds to Flutter components.

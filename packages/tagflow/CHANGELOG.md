@@ -90,6 +90,10 @@
   with a required `type` attribute. `TagflowNodeKind` now only gains values in
   a major release. ([#117](https://github.com/devaryakjha/tagflow/issues/117))
 - Every public API is documented, and `public_member_api_docs` is on.
+- `TagflowComponentContext.renderBlockContent(node)` renders a node's
+  children the way the built-in table cell does, flowing inline runs as one
+  rich text. `tagflow_table` uses it for cells.
+  ([#118](https://github.com/devaryakjha/tagflow/issues/118))
 
 ### Deprecated
 

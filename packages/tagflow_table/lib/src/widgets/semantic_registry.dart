@@ -18,6 +18,14 @@ const _textAlignHintKey = 'textAlign';
 /// Use this extension with `TagflowComponentRegistry(extensions: [...])` when
 /// rendering native [TagflowDocument] table nodes through the first-party table
 /// render object instead of the core package's simple fallback table.
+///
+/// Unset colours follow the ambient [TagflowRenderTheme]: the border uses
+/// [TagflowRenderTheme.borderColor], header cells use
+/// [TagflowRenderTheme.tableHeaderBackgroundColor] and
+/// [TagflowRenderTheme.tableHeaderStyle], and a `border` attribute without a
+/// colour uses the ambient text colour. Cell content renders like the core
+/// table cell, so inline runs such as `some <b>bold</b> text` flow and wrap
+/// as one paragraph.
 TagflowComponentRegistry tagflowTableComponents({
   TagflowTableBorder? border,
   bool treatFirstRowAsHeader = false,
@@ -62,11 +70,12 @@ final class _SemanticTableRenderer {
   final double rowSpacing;
 
   Widget render(TagflowComponentContext context, TagflowDocumentNode node) {
-    final layout = _SemanticTableLayout.from(node, context);
+    final theme = TagflowRenderTheme.of(context.buildContext);
+    final layout = _SemanticTableLayout.from(node, context, theme);
     final resolvedBorder =
         border ??
-        _borderHint(node) ??
-        TagflowTableBorder.all(color: const Color(0x1F000000));
+        _borderHint(node, DefaultTextStyle.of(context.buildContext).style) ??
+        TagflowTableBorder.all(color: theme.borderColor!);
     final resolvedColumnSpacing = columnSpacing.isNaN
         ? _doubleHint(node, _tableColumnSpacingHintKey) ?? 0
         : columnSpacing;
@@ -114,6 +123,7 @@ final class _SemanticTableLayout {
   factory _SemanticTableLayout.from(
     TagflowDocumentNode table,
     TagflowComponentContext context,
+    TagflowRenderTheme theme,
   ) {
     final rows = table.children
         .where((child) => child.kind == TagflowNodeKind.tableRow)
@@ -147,7 +157,7 @@ final class _SemanticTableLayout {
             column: columnIndex,
             rowSpan: rowSpan,
             colSpan: colSpan,
-            child: _renderCell(context, table, row, cell),
+            child: _renderCell(context, theme, table, row, cell),
           ),
         );
 
@@ -184,11 +194,14 @@ final class _SemanticTableLayout {
 
 Widget _renderCell(
   TagflowComponentContext context,
+  TagflowRenderTheme theme,
   TagflowDocumentNode table,
   TagflowDocumentNode row,
   TagflowDocumentNode cell,
 ) {
-  final content = _renderCellContent(context, cell);
+  final content = cell.children.isEmpty
+      ? const SizedBox.shrink()
+      : context.renderBlockContent(cell);
   final aligned = _alignCellContent(content, cell, row);
   final padded = Padding(
     padding:
@@ -202,7 +215,7 @@ Widget _renderCell(
       color:
           _colorHint(cell, 'backgroundColor') ??
           _colorHint(row, 'backgroundColor') ??
-          (cell.header ? const Color(0x12000000) : null),
+          (cell.header ? theme.tableHeaderBackgroundColor : null),
     ),
     child: padded,
   );
@@ -210,7 +223,7 @@ Widget _renderCell(
   if (!cell.header) return decorated;
 
   return DefaultTextStyle.merge(
-    style: const TextStyle(fontWeight: FontWeight.w700),
+    style: theme.tableHeaderStyle,
     child: decorated,
   );
 }
@@ -234,51 +247,6 @@ Widget _alignCellContent(
   return Align(alignment: alignment, child: content);
 }
 
-Widget _renderCellContent(
-  TagflowComponentContext context,
-  TagflowDocumentNode cell,
-) {
-  if (cell.children.isEmpty) {
-    return const SizedBox.shrink();
-  }
-
-  final blocks = <Widget>[];
-  final inlineRun = <TagflowDocumentNode>[];
-
-  void flushInlineRun() {
-    if (inlineRun.isEmpty) {
-      return;
-    }
-
-    blocks.add(
-      Wrap(children: [for (final node in inlineRun) context.render(node)]),
-    );
-    inlineRun.clear();
-  }
-
-  for (final child in cell.children) {
-    if (_isInlineCellNode(child)) {
-      inlineRun.add(child);
-      continue;
-    }
-
-    flushInlineRun();
-    blocks.add(context.render(child));
-  }
-
-  flushInlineRun();
-
-  if (blocks.length == 1) {
-    return blocks.single;
-  }
-
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: blocks,
-  );
-}
-
 Widget? _captionWidget(
   TagflowComponentContext context,
   TagflowDocumentNode table,
@@ -298,20 +266,6 @@ Widget? _captionWidget(
   return null;
 }
 
-bool _isInlineCellNode(TagflowDocumentNode node) {
-  return switch (node.kind) {
-    TagflowNodeKind.text ||
-    TagflowNodeKind.link ||
-    TagflowNodeKind.inlineCode => true,
-    TagflowNodeKind.container => switch (node.presentation.display) {
-      TagflowDisplay.inline => true,
-      TagflowDisplay.block => false,
-      null => node.presentation.inlineSemantics.isNotEmpty,
-    },
-    _ => false,
-  };
-}
-
 /// Largest spans the HTML specification allows.
 const _maxColSpan = 1000;
 const _maxRowSpan = 65534;
@@ -321,11 +275,14 @@ int _clampSpan(int value, int max) {
   return value > max ? max : value;
 }
 
-TagflowTableBorder? _borderHint(TagflowDocumentNode node) {
+TagflowTableBorder? _borderHint(TagflowDocumentNode node, TextStyle text) {
   final outsideWidth = _doubleHint(node, _tableBorderWidthHintKey);
   final insideWidth = _doubleHint(node, _tableInsideBorderWidthHintKey);
+  // CSS draws a border without a colour in `currentColor`.
   final color =
-      _colorHint(node, _tableBorderColorHintKey) ?? const Color(0xFF000000);
+      _colorHint(node, _tableBorderColorHintKey) ??
+      text.color ??
+      const Color(0xFF000000);
 
   if (outsideWidth == null && insideWidth == null) {
     return null;

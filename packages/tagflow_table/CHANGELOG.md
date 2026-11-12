@@ -2,6 +2,16 @@
 
 ### Changed
 
+- Cell content renders through the core block content path, so inline runs
+  such as `some <b>bold</b> text` flow and wrap as one paragraph with one
+  baseline, instead of one box per run in a `Wrap`.
+  ([#118](https://github.com/devaryakjha/tagflow/issues/118))
+- Default colours follow the ambient `TagflowRenderTheme` and so work in
+  dark themes: the border uses `borderColor`, header cells use
+  `tableHeaderBackgroundColor` and `tableHeaderStyle`, and a `border`
+  attribute with no colour draws in the text colour (`currentColor`)
+  instead of black. App goldens that cover tables need updating.
+
 - Table captions are found by `TagflowNodeKind.tableCaption` and inline cell
   content by `TagflowPresentation.display` or inline semantics, instead of
   the `htmlTag` metadata key. Requires the matching `tagflow` release.
