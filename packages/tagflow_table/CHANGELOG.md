@@ -1,4 +1,14 @@
-## Unreleased
+## 1.0.0-beta.2
+
+### Upgrading from 1.0.0-beta.1
+
+- Requires `tagflow` `1.0.0-beta.2`. Upgrade both packages together and pin
+  exact versions in production apps.
+- Table goldens change: cells flow inline content as one paragraph and
+  default colours follow the ambient theme.
+- `TagflowTableConverter` and `TagflowTableCellConverter` stay deprecated,
+  keep working through 1.x and are removed in 2.0.
+
 
 ### Changed
 
@@ -6,6 +16,7 @@
   such as `some <b>bold</b> text` flow and wrap as one paragraph with one
   baseline, instead of one box per run in a `Wrap`.
   ([#118](https://github.com/devaryakjha/tagflow/issues/118))
+- Requires `tagflow: ^1.0.0-beta.2`.
 - Default colours follow the ambient `TagflowRenderTheme` and so work in
   dark themes: the border uses `borderColor`, header cells use
   `tableHeaderBackgroundColor` and `tableHeaderStyle`, and a `border`
