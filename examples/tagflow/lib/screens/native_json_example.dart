@@ -295,6 +295,7 @@ class _NativeJsonExampleState extends State<NativeJsonExample> {
               nodeTapCallback: _recordNodeTap,
               tapTargetKinds: const {
                 TagflowNodeKind.container,
+                TagflowNodeKind.callout,
                 TagflowNodeKind.listItem,
               },
             ),

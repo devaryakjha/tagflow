@@ -895,6 +895,7 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
     TagflowNodeKind.blockquote => 'blockquote',
     TagflowNodeKind.disclosure => 'details',
     TagflowNodeKind.disclosureSummary => 'summary',
+    TagflowNodeKind.callout => 'aside',
     TagflowNodeKind.codeBlock => 'pre',
     TagflowNodeKind.inlineCode => 'code',
     TagflowNodeKind.image => 'img',

@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
 import 'package:tagflow/src/adapters/native_block.dart';
 import 'package:tagflow/src/adapters/native_block_patch.dart';
+import 'package:tagflow/src/runtime/document_node.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
+import 'package:tagflow/src/runtime/presentation.dart';
 import 'package:tagflow/src/runtime/source.dart';
 
 const _supportedNativeBlockSchemaVersion = 1;
@@ -153,6 +155,11 @@ TagflowNativeBlock _decodeBlock(
   Map<String, Object?> json, {
   required String path,
 }) {
+  final attributes = _decodeJsonObject(
+    json['attributes'],
+    path: '$path.attributes',
+  );
+  _validateTypedAttributes(attributes, path: '$path.attributes');
   return TagflowNativeBlock(
     id: _requiredString(json, 'id', path: '$path.id'),
     kind: _nativeBlockKind(
@@ -160,11 +167,49 @@ TagflowNativeBlock _decodeBlock(
       path: '$path.kind',
     ),
     text: _optionalString(json, 'text', path: '$path.text'),
-    attributes: _decodeJsonObject(json['attributes'], path: '$path.attributes'),
+    attributes: attributes,
     children: _decodeBlocks(json['children'], path: '$path.children'),
     metadata: _decodeMetadata(json['metadata'], path: '$path.metadata'),
     source: _decodeSource(json['source'], path: '$path.source'),
   );
+}
+
+/// Rejects typed attributes with values the adapter cannot represent, so a
+/// producer typo fails at decode instead of rendering differently.
+void _validateTypedAttributes(
+  Map<String, Object?> attributes, {
+  required String path,
+}) {
+  Never fail(String name, String expected) {
+    throw FormatException('$path.$name must be $expected.');
+  }
+
+  for (final name in const ['checked', 'expanded']) {
+    final value = attributes[name];
+    if (value != null && value is! bool) fail(name, 'a boolean');
+  }
+
+  final display = attributes['display'];
+  if (display != null &&
+      !TagflowDisplay.values.any((value) => value.name == display)) {
+    fail('display', '"block" or "inline"');
+  }
+
+  final tones = TagflowCalloutTone.values.map((v) => '"${v.name}"');
+  final semanticNames = TagflowInlineSemantic.values.map((v) => v.name);
+  final tone = attributes['tone'];
+  if (tone != null &&
+      !TagflowCalloutTone.values.any((value) => value.name == tone)) {
+    fail('tone', 'one of ${tones.join(', ')}');
+  }
+
+  final semantics = attributes['semantics'];
+  if (semantics != null) {
+    final names = TagflowInlineSemantic.values.asNameMap();
+    if (semantics is! List || semantics.any((v) => !names.containsKey(v))) {
+      fail('semantics', 'a list of ${semanticNames.join(', ')}');
+    }
+  }
 }
 
 List<TagflowNativeBlockPatch> _decodePatchOperations(
@@ -208,6 +253,9 @@ TagflowNativeBlockPatch _decodePatchOperation(
       ),
       children: _decodeBlocks(json['blocks'], path: '$path.blocks'),
     ),
+    'append-root' => TagflowNativeBlockPatch.appendRootChildren(
+      children: _decodeBlocks(json['blocks'], path: '$path.blocks'),
+    ),
     'insert-before' => TagflowNativeBlockPatch.insertBefore(
       siblingNodeId: _requiredString(
         json,
@@ -235,6 +283,13 @@ Map<String, Object?> _encodePatchOperation(TagflowNativeBlockPatch operation) {
     TagflowNativeBlockPatchKind.appendChildren => {
       'op': 'append-children',
       'parentNodeId': operation.targetNodeId,
+      'blocks': [
+        for (final block in operation.blocks)
+          const TagflowNativeBlockCodec().encodeBlock(block),
+      ],
+    },
+    TagflowNativeBlockPatchKind.appendRootChildren => {
+      'op': 'append-root',
       'blocks': [
         for (final block in operation.blocks)
           const TagflowNativeBlockCodec().encodeBlock(block),

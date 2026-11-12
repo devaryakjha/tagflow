@@ -32,16 +32,23 @@ The first compileable adapter foundation landed in `packages/tagflow` on
 - Description-list blocks now map directly to runtime `descriptionList`,
   `descriptionTerm`, and `descriptionDetails` nodes. They are first-class
   native content, not HTML-only compatibility tags.
-- Callout blocks now normalize to runtime `container` nodes. Stable IDs,
-  children, and callout attributes remain preserved; `variant` is exposed as a
-  presentation variant, while non-semantic attributes remain metadata-backed.
+- Callout blocks map to runtime `callout` nodes (beta.2, #114) with a typed
+  `TagflowCalloutTone` and an optional `title`, and the registry has a
+  built-in callout component that colours its accent by tone. `variant` is
+  exposed as a presentation variant, and the raw attributes stay available
+  through `nativeBlockAttributes`.
+- Text and container blocks can carry inline semantics (beta.2, #114) in a
+  `semantics` attribute, a list of `TagflowInlineSemantic` names such as
+  `["strong", "emphasis"]`, so bold, italic, strikethrough and similar runs
+  can be sent inside a paragraph. Inline code uses the `inlineCode` kind.
 - Adapter validation now rejects blank or duplicate block IDs before runtime
   document creation and applies `TagflowContentPolicy` to link and image URLs.
 - Native block patch adaptation now lands a narrow update slice through
   `TagflowNativeBlockPatch` plus
   `TagflowNativeBlockAdapter.adaptPatch(...)` /
-  `adaptPatches(...)`, covering replace, append-children, insert-before, and
-  remove operations without widening the runtime mutation model.
+  `adaptPatches(...)`, covering replace, append-children, append-root,
+  insert-before, and remove operations, one for each runtime patch
+  operation.
 - Native block transport now has a deliberately small adapter-side JSON codec:
   `TagflowNativeBlockCodec` decodes and encodes
   `TagflowNativeBlockDocument`, `TagflowNativeBlock`, and
@@ -77,9 +84,8 @@ The first compileable adapter foundation landed in `packages/tagflow` on
   `TagflowSourceInfo` fields: `kind`, `adapter`, `uri`, `line`, `column`, and
   JSON-like metadata. Unknown source kinds fail instead of being silently
   widened.
-- Follow-up slices remain for any future dedicated runtime callout renderer
-  contract and for broader storage/sync protocol decisions outside this
-  adapter-side transport shape.
+- Follow-up slices remain for broader storage/sync protocol decisions
+  outside this adapter-side transport shape.
 
 ## 1. Problem Statement
 
@@ -299,9 +305,9 @@ Normalization rules:
 
 - Kinds already present in `TagflowDocumentNode` should map directly to their
   runtime equivalents.
-- A `callout` block does not require a first-class runtime node on day one. It
-  may normalize to `TagflowNodeKind.container` plus presentation and metadata
-  until there is evidence that a dedicated runtime kind is necessary.
+- A `callout` block maps to `TagflowNodeKind.callout` (beta.2). Earlier
+  releases normalized it to a `container` with a `calloutTone` hint that no
+  built-in component read.
 - Table-related attributes should stay minimal and semantic. They should carry
   structural facts such as header intent, spans, caption presence, or alignment
   hints, not a full HTML/CSS table model.
@@ -318,7 +324,11 @@ level when they are semantically meaningful:
 - links: `url`, optional title-like metadata
 - images/media: `url`, `alt`, optional `width`, `height`
 - code blocks: optional `language`
-- callouts: tone or variant hint, optional title
+- callouts: optional `tone` (`"neutral"`, `"info"`, `"success"`,
+  `"warning"` or `"danger"`), optional `variant` hint, optional `title`
+- text and containers: optional `semantics`, a list of
+  `TagflowInlineSemantic` names (`strong`, `emphasis`, `underline`,
+  `deleted`, `highlight`, `small`, `subscript`, `superscript`, `code`)
 - table cells: `header`, `rowSpan`, `colSpan`
 - list items: optional `checked` (`true` or `false`) for task items
 - disclosures: optional `expanded` (defaults to `false`)
@@ -385,7 +395,15 @@ Policy design direction:
 Current alpha transport behavior is intentionally strict: unknown native block
 `kind` values fail in `TagflowNativeBlockCodec.decodeDocument(...)` before a
 typed `TagflowNativeBlock` is created. Unknown patch operation names fail in
-`decodePatchEnvelope(...)` before runtime patch adaptation. There is no public
+`decodePatchEnvelope(...)` before runtime patch adaptation. Typed attributes
+are strict too: a `checked` or `expanded` that is not a boolean, a `display`
+other than `"block"` or `"inline"`, an unknown `tone`, or a `semantics` value
+that is not a list of known names fails during decode with the JSON path of
+the attribute. These checks need no new `schemaVersion`: version `1`
+payloads that used only the earlier attributes decode as before, except that
+a callout `tone` must now be one of the five names. Adding a new block kind,
+attribute or operation that older decoders would reject is a schema change
+only if it changes the meaning of a payload those decoders accept. There is no public
 unknown-block model in the native JSON transport yet.
 
 Known blocks rejected by adapter policy are different from unknown producer
@@ -497,6 +515,10 @@ Landed first transport slice:
   existing `TagflowDocumentPatch.replaceNode(...)`.
 - `TagflowNativeBlockPatch.appendChildren(...)` adapts ordered native children
   into `TagflowDocumentPatch.appendChildren(...)`.
+- `TagflowNativeBlockPatch.appendRootChildren(...)` (op `append-root`, with
+  `blocks` and no target id) adapts into
+  `TagflowDocumentPatch.appendRootChildren(...)`. It is the operation a
+  stream of new top-level blocks needs. Its `targetNodeId` is `null`.
 - `TagflowNativeBlockPatch.insertBefore(...)` adapts ordered native nodes into
   `TagflowDocumentPatch.insertBefore(...)`.
 - `TagflowNativeBlockPatch.removeNode(...)` maps directly to
@@ -643,11 +665,9 @@ kind-level allowlists, per-kind degradation, or source-specific behavior that
 cannot be represented by the current URL/resource and unsupported-content
 policy.
 
-Closed for beta: `callout` stays a native producer kind normalized into
-`TagflowNodeKind.container` with preserved native metadata and optional
-presentation hints. Do not add a first-class runtime node kind or built-in
-callout renderer until app integration proves the generic container plus
-semantic registry path is insufficient.
+Superseded in beta.2 (#114): `callout` is a runtime kind with a typed tone
+and title and a built-in renderer, because a tone that nothing rendered was
+not useful to producers.
 
 Closed for beta: patch transport includes optional producer revision tokens as
 part of the first public contract, but those tokens are not core conflict

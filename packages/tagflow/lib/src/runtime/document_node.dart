@@ -7,6 +7,24 @@ import 'package:tagflow/src/runtime/source.dart';
 const ListEquality<TagflowDocumentNode> _nodeListEquality =
     ListEquality<TagflowDocumentNode>();
 
+/// Tone of a [TagflowNodeKind.callout], which picks its accent colour.
+enum TagflowCalloutTone {
+  /// A plain aside with no particular tone.
+  neutral,
+
+  /// Background information or a note.
+  info,
+
+  /// A tip, or a step that went well.
+  success,
+
+  /// Something to be careful about.
+  warning,
+
+  /// An error, or an action that cannot be undone.
+  danger,
+}
+
 /// Semantic runtime node kinds for Tagflow documents.
 enum TagflowNodeKind {
   root,
@@ -30,6 +48,10 @@ enum TagflowNodeKind {
 
   /// The title of a [disclosure], like HTML `<summary>`.
   disclosureSummary,
+
+  /// A highlighted aside such as a note, tip or warning, with an optional
+  /// title and a [TagflowCalloutTone].
+  callout,
   codeBlock,
   inlineCode,
   image,
@@ -67,6 +89,8 @@ final class TagflowDocumentNode {
     this.header = false,
     this.checked,
     this.expanded = false,
+    this.tone,
+    this.title,
     this.unsupportedReason,
   }) : children = List.unmodifiable(children),
        presentation = presentation ?? TagflowPresentation.empty,
@@ -321,6 +345,31 @@ final class TagflowDocumentNode {
       presentation: presentation,
       metadata: metadata,
       source: source,
+    );
+  }
+
+  /// Creates a callout node: a highlighted aside with an optional [title].
+  ///
+  /// [tone] picks the accent colour; `null` renders like
+  /// [TagflowCalloutTone.neutral].
+  factory TagflowDocumentNode.callout({
+    required String id,
+    List<TagflowDocumentNode> children = const [],
+    TagflowCalloutTone? tone,
+    String? title,
+    TagflowPresentation? presentation,
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowDocumentNode._(
+      id: id,
+      kind: TagflowNodeKind.callout,
+      children: children,
+      presentation: presentation,
+      metadata: metadata,
+      source: source,
+      tone: tone,
+      title: title,
     );
   }
 
@@ -582,6 +631,12 @@ final class TagflowDocumentNode {
   /// Whether a disclosure node starts expanded.
   final bool expanded;
 
+  /// Tone of a callout node.
+  final TagflowCalloutTone? tone;
+
+  /// Title of a callout node.
+  final String? title;
+
   /// Optional unsupported-content reason.
   final String? unsupportedReason;
 
@@ -614,6 +669,8 @@ final class TagflowDocumentNode {
     bool? header,
     bool? checked,
     bool? expanded,
+    TagflowCalloutTone? tone,
+    String? title,
     String? unsupportedReason,
     bool clearSource = false,
     bool clearText = false,
@@ -626,6 +683,8 @@ final class TagflowDocumentNode {
     bool clearHeight = false,
     bool clearLanguage = false,
     bool clearChecked = false,
+    bool clearTone = false,
+    bool clearTitle = false,
     bool clearUnsupportedReason = false,
   }) {
     return TagflowDocumentNode._(
@@ -704,6 +763,18 @@ final class TagflowDocumentNode {
         name: 'checked',
       ),
       expanded: expanded ?? this.expanded,
+      tone: _resolveNullableCopyField(
+        current: this.tone,
+        replacement: tone,
+        clear: clearTone,
+        name: 'tone',
+      ),
+      title: _resolveNullableCopyField(
+        current: this.title,
+        replacement: title,
+        clear: clearTitle,
+        name: 'title',
+      ),
       unsupportedReason: _resolveNullableCopyField(
         current: this.unsupportedReason,
         replacement: unsupportedReason,
@@ -737,6 +808,8 @@ final class TagflowDocumentNode {
             other.header == header &&
             other.checked == checked &&
             other.expanded == expanded &&
+            other.tone == tone &&
+            other.title == title &&
             other.unsupportedReason == unsupportedReason;
   }
 
@@ -762,6 +835,8 @@ final class TagflowDocumentNode {
     header,
     checked,
     expanded,
+    tone,
+    title,
     unsupportedReason,
   ]);
 }

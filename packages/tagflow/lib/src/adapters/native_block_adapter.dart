@@ -53,22 +53,33 @@ final class TagflowNativeBlockAdapter {
 
   /// Converts [patch] into the canonical runtime patch model.
   TagflowDocumentPatch adaptPatch(TagflowNativeBlockPatch patch) {
-    _requireNonBlankId(patch.targetNodeId, label: 'target node');
+    String target() {
+      final id = patch.targetNodeId ?? '';
+      _requireNonBlankId(id, label: 'target node');
+      return id;
+    }
 
     return switch (patch.kind) {
-      TagflowNativeBlockPatchKind.replaceNode => _adaptReplacePatch(patch),
+      TagflowNativeBlockPatchKind.replaceNode => _adaptReplacePatch(
+        patch,
+        target(),
+      ),
       TagflowNativeBlockPatchKind.appendChildren =>
         TagflowDocumentPatch.appendChildren(
-          parentNodeId: patch.targetNodeId,
+          parentNodeId: target(),
+          children: _adaptPatchBlocks(patch.blocks),
+        ),
+      TagflowNativeBlockPatchKind.appendRootChildren =>
+        TagflowDocumentPatch.appendRootChildren(
           children: _adaptPatchBlocks(patch.blocks),
         ),
       TagflowNativeBlockPatchKind.insertBefore =>
         TagflowDocumentPatch.insertBefore(
-          siblingNodeId: patch.targetNodeId,
+          siblingNodeId: target(),
           nodes: _adaptPatchBlocks(patch.blocks),
         ),
       TagflowNativeBlockPatchKind.removeNode => TagflowDocumentPatch.removeNode(
-        nodeId: patch.targetNodeId,
+        nodeId: target(),
       ),
     };
   }
@@ -120,6 +131,7 @@ final class TagflowNativeBlockAdapter {
       TagflowNativeBlockKind.text => TagflowDocumentNode.text(
         id: block.id,
         text: block.text ?? '',
+        presentation: _containerPresentation(block),
         metadata: metadata,
         source: source,
       ),
@@ -236,9 +248,11 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
-      TagflowNativeBlockKind.callout => TagflowDocumentNode.container(
+      TagflowNativeBlockKind.callout => TagflowDocumentNode.callout(
         id: block.id,
         children: children,
+        tone: _calloutTone(block),
+        title: _stringAttribute(block, 'title'),
         metadata: metadata,
         presentation: _calloutPresentation(block),
         source: source,
@@ -246,7 +260,7 @@ final class TagflowNativeBlockAdapter {
       TagflowNativeBlockKind.container => TagflowDocumentNode.container(
         id: block.id,
         children: children,
-        presentation: _displayPresentation(block),
+        presentation: _containerPresentation(block),
         metadata: metadata,
         source: source,
       ),
@@ -352,16 +366,19 @@ final class TagflowNativeBlockAdapter {
     _validateBlockTreeIds(document.blocks);
   }
 
-  TagflowDocumentPatch _adaptReplacePatch(TagflowNativeBlockPatch patch) {
+  TagflowDocumentPatch _adaptReplacePatch(
+    TagflowNativeBlockPatch patch,
+    String targetNodeId,
+  ) {
     final block = patch.block;
     if (block == null) {
       throw StateError('Replace-node patch is missing a native block payload.');
     }
-    if (block.id != patch.targetNodeId) {
+    if (block.id != targetNodeId) {
       throw ArgumentError.value(
         block.id,
         'block.id',
-        'Replacement block id must match nodeId ${patch.targetNodeId}.',
+        'Replacement block id must match nodeId $targetNodeId.',
       );
     }
 
@@ -374,11 +391,11 @@ final class TagflowNativeBlockAdapter {
     );
 
     if (replacement == null) {
-      return TagflowDocumentPatch.removeNode(nodeId: patch.targetNodeId);
+      return TagflowDocumentPatch.removeNode(nodeId: targetNodeId);
     }
 
     return TagflowDocumentPatch.replaceNode(
-      nodeId: patch.targetNodeId,
+      nodeId: targetNodeId,
       node: replacement,
     );
   }
@@ -416,8 +433,8 @@ extension TagflowNativeBlockDocumentMetadata on TagflowDocument {
 extension TagflowNativeBlockNodeMetadata on TagflowDocumentNode {
   /// Original native block kind before semantic normalization.
   ///
-  /// For example, a `callout` native block adapts into a semantic
-  /// `TagflowNodeKind.container` while still exposing `callout` here.
+  /// For example, a `callout` native block adapts into a
+  /// `TagflowNodeKind.callout` node and exposes `callout` here.
   String? get nativeBlockKind {
     final value = metadata[_nativeBlockKindKey];
     return value is String ? value : null;
@@ -492,26 +509,31 @@ TagflowMetadata _metadataForRejectedUrl(
   return metadata.merge(TagflowMetadata({_policyDecisionReasonKey: reason}));
 }
 
-TagflowPresentation? _displayPresentation(TagflowNativeBlock block) {
+/// Reads the `display` and `semantics` attributes. Values the codec would
+/// reject are ignored here, since hand-built blocks skip the codec.
+TagflowPresentation? _containerPresentation(TagflowNativeBlock block) {
   final display = switch (_stringAttribute(block, 'display')) {
     'inline' => TagflowDisplay.inline,
     'block' => TagflowDisplay.block,
     _ => null,
   };
-  return display == null ? null : TagflowPresentation(display: display);
+  final rawSemantics = block.attributes['semantics'];
+  final semantics = <TagflowInlineSemantic>{
+    if (rawSemantics is List)
+      for (final value in rawSemantics)
+        if (TagflowInlineSemantic.values.asNameMap()[value] case final s?) s,
+  };
+  if (display == null && semantics.isEmpty) return null;
+  return TagflowPresentation(display: display, inlineSemantics: semantics);
+}
+
+TagflowCalloutTone? _calloutTone(TagflowNativeBlock block) {
+  return TagflowCalloutTone.values.asNameMap()[_stringAttribute(block, 'tone')];
 }
 
 TagflowPresentation? _calloutPresentation(TagflowNativeBlock block) {
   final variant = _stringAttribute(block, 'variant');
-  final tone = _stringAttribute(block, 'tone');
-  if (variant == null && tone == null) {
-    return null;
-  }
-
-  return TagflowPresentation(
-    variant: variant,
-    hints: {if (tone != null) 'calloutTone': tone},
-  );
+  return variant == null ? null : TagflowPresentation(variant: variant);
 }
 
 void _requireNonBlankId(String id, {required String label}) {

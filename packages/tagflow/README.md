@@ -360,6 +360,22 @@ final updatedDocument = document.applyPatches(
 );
 ```
 
+The other operations are `replace` (`nodeId`, `block`), `append-children`
+(`parentNodeId`, `blocks`), `append-root` (`blocks`, appended to the end of
+the document, which suits streaming) and `remove` (`nodeId`).
+
+Text and container blocks take inline semantics, so styled runs fit inside a
+paragraph:
+
+```dart
+{
+  'id': 'p.1',
+  'kind': 'text',
+  'text': 'bold and struck',
+  'attributes': {'semantics': ['strong', 'deleted']},
+}
+```
+
 This transport is for trusted, app-controlled structured content. It is not a
 webpage renderer, JavaScript environment, arbitrary CMS sync layer, or generic
 serializer for Flutter widgets and callbacks.

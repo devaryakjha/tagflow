@@ -135,7 +135,7 @@ void main() {
       );
 
       final callout = adapted.nodeById('callout');
-      expect(callout?.kind, TagflowNodeKind.container);
+      expect(callout?.kind, TagflowNodeKind.callout);
       expect(callout?.presentation.variant, 'tip');
 
       final cell = adapted.nodeById('cell');

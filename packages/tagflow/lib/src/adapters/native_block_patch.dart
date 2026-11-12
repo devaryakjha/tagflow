@@ -22,6 +22,17 @@ final class TagflowNativeBlockPatch {
        block = null,
        blocks = List.unmodifiable(children);
 
+  /// Creates an update that appends [children] to the end of the document.
+  ///
+  /// This is the operation a stream of new blocks needs: it does not target
+  /// a node, so [targetNodeId] is `null`.
+  TagflowNativeBlockPatch.appendRootChildren({
+    required List<TagflowNativeBlock> children,
+  }) : kind = TagflowNativeBlockPatchKind.appendRootChildren,
+       targetNodeId = null,
+       block = null,
+       blocks = List.unmodifiable(children);
+
   /// Creates an update that inserts [nodes] before the existing sibling node.
   TagflowNativeBlockPatch.insertBefore({
     required String siblingNodeId,
@@ -41,8 +52,9 @@ final class TagflowNativeBlockPatch {
   /// The semantic update kind.
   final TagflowNativeBlockPatchKind kind;
 
-  /// Runtime node id targeted by the update.
-  final String targetNodeId;
+  /// Runtime node id targeted by the update, or `null` for
+  /// [TagflowNativeBlockPatchKind.appendRootChildren].
+  final String? targetNodeId;
 
   /// Native block payload for replacement updates.
   final TagflowNativeBlock? block;
@@ -55,6 +67,7 @@ final class TagflowNativeBlockPatch {
 enum TagflowNativeBlockPatchKind {
   replaceNode,
   appendChildren,
+  appendRootChildren,
   insertBefore,
   removeNode,
 }
