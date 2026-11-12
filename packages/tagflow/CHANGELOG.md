@@ -1,3 +1,16 @@
+## Unreleased
+
+- Rendering reuses the build of a node when the same node instance comes
+  back through the same registry with unchanged theme and view options, so
+  while a document streams only the changed blocks build again. Errors from
+  component builders now replace only the failing node with the error
+  widget. ([#119](https://github.com/devaryakjha/tagflow/issues/119))
+- `applyPatch` rebuilds only the path to the target and checks only the ids
+  a patch adds, using an id index that moves from document to document. A
+  `replaceNode` patch on a 13,000-node document drops from about 3 ms to
+  about 40 µs. New `benchmark:streaming` melos script.
+  ([#120](https://github.com/devaryakjha/tagflow/issues/120))
+
 ## 1.0.0-beta.2
 
 The frozen API release. The public surface is recorded in

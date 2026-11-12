@@ -380,11 +380,19 @@ class _TagflowState extends State<Tagflow> {
       return _converter.convert(_element!, context);
     }
 
-    return (widget.registry ?? TagflowComponentRegistry.builtIn).render(
-      context,
-      TagflowDocumentNode.root(
-        id: '${_document!.id}:root',
-        children: _document!.children,
+    return TagflowRenderErrorScope(
+      onError: (context, error, stackTrace) {
+        if (widget.viewOptions.debug) {
+          debugPrint('Error rendering Tagflow content: $error\n$stackTrace');
+        }
+        return _buildErrorContent(context, error);
+      },
+      child: (widget.registry ?? TagflowComponentRegistry.builtIn).render(
+        context,
+        TagflowDocumentNode.root(
+          id: '${_document!.id}:root',
+          children: _document!.children,
+        ),
       ),
     );
   }

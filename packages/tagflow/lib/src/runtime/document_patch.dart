@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:tagflow/src/runtime/document.dart';
 import 'package:tagflow/src/runtime/document_node.dart';
-import 'package:tagflow/src/runtime/document_traversal.dart';
 
 /// Immutable structural update operation for a [TagflowDocument].
 @immutable
@@ -71,11 +70,16 @@ extension TagflowDocumentUpdates on TagflowDocument {
   /// Throws [ArgumentError] when the patch target does not exist or when a
   /// replacement node does not use the target ID. Throws [StateError] when the
   /// current or updated document contains duplicate node IDs.
+  ///
+  /// The first patch on a document indexes its node ids once. The index then
+  /// moves to the returned document, so a chain of patches, such as a
+  /// stream, costs time in proportion to the nodes each patch touches and the
+  /// depth of its target rather than the size of the document. Nodes outside
+  /// the patched path keep their instances.
   TagflowDocument applyPatch(TagflowDocumentPatch patch) {
-    validateUniqueNodeIdsInChildren(children);
+    final index = _TagflowNodeIndex.of(this);
     final targetNodeId = patch._targetNodeId;
-    if (targetNodeId != null &&
-        !containsNodeIdInChildren(children, targetNodeId)) {
+    if (targetNodeId != null && !index.contains(targetNodeId)) {
       throw ArgumentError.value(
         targetNodeId,
         patch._targetArgumentName,
@@ -83,39 +87,66 @@ extension TagflowDocumentUpdates on TagflowDocument {
       );
     }
 
+    final replacement = patch._kind == _TagflowDocumentPatchKind.replaceNode
+        ? _validatedReplacement(patch)
+        : null;
+    final added = replacement == null ? patch._children : [replacement];
+    final path = targetNodeId == null
+        ? const <String>[]
+        : index.pathTo(targetNodeId);
+
+    // Find the removed subtree on the way down, then check the added ids
+    // against the index before anything changes.
+    TagflowDocumentNode? removed;
     final updatedChildren = switch (patch._kind) {
-      _TagflowDocumentPatchKind.replaceNode => _replaceNode(
-        children,
-        targetNodeId!,
-        _validatedReplacement(patch),
-      ),
-      _TagflowDocumentPatchKind.appendChildren => _appendChildren(
-        children,
-        targetNodeId!,
-        patch._children,
-      ),
       _TagflowDocumentPatchKind.appendRootChildren =>
-        List<TagflowDocumentNode>.unmodifiable([
-          ...children,
-          ...patch._children,
-        ]),
-      _TagflowDocumentPatchKind.insertBefore => _insertBefore(
+        List<TagflowDocumentNode>.unmodifiable([...children, ...added]),
+      _TagflowDocumentPatchKind.replaceNode => _rebuildAlong(children, path, (
+        siblings,
+        i,
+      ) {
+        removed = siblings[i];
+        return [...siblings]..[i] = replacement!;
+      }),
+      _TagflowDocumentPatchKind.appendChildren => _rebuildAlong(
         children,
-        targetNodeId!,
-        patch._children,
+        path,
+        (siblings, i) {
+          final parent = siblings[i];
+          return [...siblings]
+            ..[i] = parent.copyWith(children: [...parent.children, ...added]);
+        },
       ),
-      _TagflowDocumentPatchKind.removeNode => _removeNode(
+      _TagflowDocumentPatchKind.insertBefore => _rebuildAlong(
         children,
-        targetNodeId!,
+        path,
+        (siblings, i) => [...siblings]..insertAll(i, added),
       ),
+      _TagflowDocumentPatchKind.removeNode => _rebuildAlong(children, path, (
+        siblings,
+        i,
+      ) {
+        removed = siblings[i];
+        return [...siblings]..removeAt(i);
+      }),
     };
-    validateUniqueNodeIdsInChildren(updatedChildren);
-    return _copyDocumentWithChildren(this, updatedChildren);
+
+    final parentOfAdded = switch (patch._kind) {
+      _TagflowDocumentPatchKind.appendChildren => targetNodeId,
+      _TagflowDocumentPatchKind.appendRootChildren => null,
+      _ => path.length > 1 ? path[path.length - 2] : null,
+    };
+    index.update(added: added, parentId: parentOfAdded, removed: removed);
+
+    final updated = _copyDocumentWithChildren(this, updatedChildren);
+    index.moveTo(this, updated);
+    return updated;
   }
 
   /// Applies [patches] in order and returns the final document.
   ///
-  /// Each patch has the same validation behavior as [applyPatch].
+  /// Each patch has the same validation behavior as [applyPatch], and the id
+  /// index is built at most once for the whole batch.
   TagflowDocument applyPatches(Iterable<TagflowDocumentPatch> patches) {
     var document = this;
     for (final patch in patches) {
@@ -123,6 +154,125 @@ extension TagflowDocumentUpdates on TagflowDocument {
     }
     return document;
   }
+}
+
+/// Node ids of one document, each mapped to its parent id (`null` at the
+/// top level).
+///
+/// Building it validates that ids are unique. It belongs to one document at
+/// a time: [moveTo] hands it to the patched document, and the old document
+/// builds a new index if it is patched again.
+final class _TagflowNodeIndex {
+  _TagflowNodeIndex._(this._parents);
+
+  factory _TagflowNodeIndex.of(TagflowDocument document) {
+    return _indexes[document] ??= _TagflowNodeIndex._build(document.children);
+  }
+
+  factory _TagflowNodeIndex._build(List<TagflowDocumentNode> roots) {
+    final parents = <String, String?>{};
+    for (final root in roots) {
+      _collect(root, null, parents, existing: const {});
+    }
+    return _TagflowNodeIndex._(parents);
+  }
+
+  static final _indexes = Expando<_TagflowNodeIndex>('TagflowNodeIndex');
+
+  final Map<String, String?> _parents;
+
+  bool contains(String id) => _parents.containsKey(id);
+
+  /// Ids from the top level down to [id], inclusive.
+  List<String> pathTo(String id) {
+    final path = <String>[];
+    String? current = id;
+    while (current != null) {
+      path.add(current);
+      current = _parents[current];
+    }
+    return path.reversed.toList(growable: false);
+  }
+
+  /// Removes the ids under [removed] and adds the ids under [added], whose
+  /// top nodes sit under [parentId].
+  ///
+  /// Throws [StateError] without changing the index when an added id
+  /// already exists outside [removed] or repeats within [added].
+  void update({
+    required List<TagflowDocumentNode> added,
+    required String? parentId,
+    required TagflowDocumentNode? removed,
+  }) {
+    final removedIds = <String>{};
+    if (removed != null) _collectIds(removed, removedIds);
+    final addedParents = <String, String?>{};
+    for (final node in added) {
+      _collect(
+        node,
+        parentId,
+        addedParents,
+        existing: _parents,
+        except: removedIds,
+      );
+    }
+    removedIds.forEach(_parents.remove);
+    _parents.addAll(addedParents);
+  }
+
+  void moveTo(TagflowDocument from, TagflowDocument to) {
+    _indexes[from] = null;
+    _indexes[to] = this;
+  }
+
+  static void _collect(
+    TagflowDocumentNode node,
+    String? parentId,
+    Map<String, String?> into, {
+    required Map<String, String?> existing,
+    Set<String> except = const {},
+  }) {
+    final id = node.id;
+    if (into.containsKey(id) ||
+        (existing.containsKey(id) && !except.contains(id))) {
+      throw StateError('Duplicate TagflowDocumentNode id: $id.');
+    }
+    into[id] = parentId;
+    for (final child in node.children) {
+      _collect(child, id, into, existing: existing, except: except);
+    }
+  }
+
+  static void _collectIds(TagflowDocumentNode node, Set<String> into) {
+    into.add(node.id);
+    for (final child in node.children) {
+      _collectIds(child, into);
+    }
+  }
+}
+
+/// Rebuilds [nodes] along [path], applying [edit] to the list that holds
+/// the last id of [path]. Nodes off the path keep their instances.
+List<TagflowDocumentNode> _rebuildAlong(
+  List<TagflowDocumentNode> nodes,
+  List<String> path,
+  List<TagflowDocumentNode> Function(
+    List<TagflowDocumentNode> siblings,
+    int index,
+  )
+  edit, [
+  int depth = 0,
+]) {
+  final id = path[depth];
+  final index = nodes.indexWhere((node) => node.id == id);
+  if (depth == path.length - 1) {
+    return List.unmodifiable(edit(nodes, index));
+  }
+  final node = nodes[index];
+  final children = _rebuildAlong(node.children, path, edit, depth + 1);
+  return List.unmodifiable(
+    [...nodes]..[index] = node.copyWith(children: children),
+  );
 }
 
 enum _TagflowDocumentPatchKind {
@@ -159,178 +309,4 @@ TagflowDocument _copyDocumentWithChildren(
     source: document.source,
     version: document.version,
   );
-}
-
-List<TagflowDocumentNode> _replaceNode(
-  List<TagflowDocumentNode> nodes,
-  String nodeId,
-  TagflowDocumentNode replacement,
-) {
-  var changed = false;
-  final updated = <TagflowDocumentNode>[];
-
-  for (final node in nodes) {
-    if (node.id == nodeId) {
-      updated.add(replacement);
-      changed = true;
-    } else {
-      final updatedNode = _replaceNodeInDescendants(node, nodeId, replacement);
-      updated.add(updatedNode);
-      changed = changed || !identical(updatedNode, node);
-    }
-  }
-
-  return changed ? List.unmodifiable(updated) : nodes;
-}
-
-TagflowDocumentNode _replaceNodeInDescendants(
-  TagflowDocumentNode node,
-  String nodeId,
-  TagflowDocumentNode replacement,
-) {
-  if (node.children.isEmpty) {
-    return node;
-  }
-
-  final updatedChildren = _replaceNode(node.children, nodeId, replacement);
-  if (identical(updatedChildren, node.children)) {
-    return node;
-  }
-  return _copyNodeWithChildren(node, updatedChildren);
-}
-
-List<TagflowDocumentNode> _appendChildren(
-  List<TagflowDocumentNode> nodes,
-  String parentNodeId,
-  List<TagflowDocumentNode> children,
-) {
-  var changed = false;
-  final updated = <TagflowDocumentNode>[];
-
-  for (final node in nodes) {
-    if (node.id == parentNodeId) {
-      updated.add(_copyNodeWithChildren(node, [...node.children, ...children]));
-      changed = true;
-    } else {
-      final updatedNode = _appendChildrenInDescendants(
-        node,
-        parentNodeId,
-        children,
-      );
-      updated.add(updatedNode);
-      changed = changed || !identical(updatedNode, node);
-    }
-  }
-
-  return changed ? List.unmodifiable(updated) : nodes;
-}
-
-TagflowDocumentNode _appendChildrenInDescendants(
-  TagflowDocumentNode node,
-  String parentNodeId,
-  List<TagflowDocumentNode> children,
-) {
-  if (node.children.isEmpty) {
-    return node;
-  }
-
-  final updatedChildren = _appendChildren(
-    node.children,
-    parentNodeId,
-    children,
-  );
-  if (identical(updatedChildren, node.children)) {
-    return node;
-  }
-  return _copyNodeWithChildren(node, updatedChildren);
-}
-
-List<TagflowDocumentNode> _insertBefore(
-  List<TagflowDocumentNode> nodes,
-  String siblingNodeId,
-  List<TagflowDocumentNode> insertedNodes,
-) {
-  var changed = false;
-  final updated = <TagflowDocumentNode>[];
-
-  for (final node in nodes) {
-    if (node.id == siblingNodeId) {
-      updated
-        ..addAll(insertedNodes)
-        ..add(node);
-      changed = true;
-    } else {
-      final updatedNode = _insertBeforeInDescendants(
-        node,
-        siblingNodeId,
-        insertedNodes,
-      );
-      updated.add(updatedNode);
-      changed = changed || !identical(updatedNode, node);
-    }
-  }
-
-  return changed ? List.unmodifiable(updated) : nodes;
-}
-
-TagflowDocumentNode _insertBeforeInDescendants(
-  TagflowDocumentNode node,
-  String siblingNodeId,
-  List<TagflowDocumentNode> insertedNodes,
-) {
-  if (node.children.isEmpty) {
-    return node;
-  }
-
-  final updatedChildren = _insertBefore(
-    node.children,
-    siblingNodeId,
-    insertedNodes,
-  );
-  if (identical(updatedChildren, node.children)) {
-    return node;
-  }
-  return _copyNodeWithChildren(node, updatedChildren);
-}
-
-List<TagflowDocumentNode> _removeNode(
-  List<TagflowDocumentNode> nodes,
-  String nodeId,
-) {
-  var changed = false;
-  final updated = <TagflowDocumentNode>[];
-
-  for (final node in nodes) {
-    if (node.id == nodeId) {
-      changed = true;
-    } else {
-      final updatedNode = _removeNodeFromDescendants(node, nodeId);
-      updated.add(updatedNode);
-      changed = changed || !identical(updatedNode, node);
-    }
-  }
-
-  return changed ? List.unmodifiable(updated) : nodes;
-}
-
-TagflowDocumentNode _removeNodeFromDescendants(
-  TagflowDocumentNode node,
-  String nodeId,
-) {
-  if (node.children.isEmpty) {
-    return node;
-  }
-
-  final updatedChildren = _removeNode(node.children, nodeId);
-  if (identical(updatedChildren, node.children)) {
-    return node;
-  }
-  return _copyNodeWithChildren(node, updatedChildren);
-}
-
-TagflowDocumentNode _copyNodeWithChildren(
-  TagflowDocumentNode node,
-  List<TagflowDocumentNode> children,
-) {
-  return node.copyWith(children: children);
 }

@@ -154,6 +154,12 @@ melos:
         "flutter test test/run_render_benchmarks_test.dart"
       description: Run Tagflow widget render benchmarks
 
+    benchmark:streaming:
+      run: >
+        dart run melos exec --scope=tagflow_benchmarks -c 1 --fail-fast --
+        "TAGFLOW_BENCH_FULL=1 flutter test test/run_streaming_benchmarks_test.dart"
+      description: Run Tagflow patch, Markdown stream and streaming render benchmarks
+
     combine-coverage:
       run: |
         mkdir -p coverage &&

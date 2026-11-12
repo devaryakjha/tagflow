@@ -142,8 +142,9 @@ void main() {
         );
       }
 
-      expect(seen, hasLength(2));
-      expect(identical(seen[0], seen[1]), isTrue);
+      // Without a re-parse the heading node is the same instance, so its
+      // build is reused and the builder runs once.
+      expect(seen, hasLength(1));
     });
 
     testWidgets('should re-parse when the content policy changes', (
