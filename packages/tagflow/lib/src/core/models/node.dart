@@ -2,7 +2,9 @@ import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
 
+/// Base type of the legacy parsed node tree.
 abstract class TagflowNode extends Equatable {
+  /// Creates a node.
   const TagflowNode({
     required this.tag,
     this.textContent,
@@ -61,6 +63,7 @@ abstract class TagflowNode extends Equatable {
     this['class'] = value.join(' ');
   }
 
+  /// Whether the node has [attribute].
   bool hasAttribute(String attribute) =>
       attributes?.containsKey(attribute) ?? false;
 

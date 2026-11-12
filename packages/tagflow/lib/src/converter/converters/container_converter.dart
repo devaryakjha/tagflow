@@ -3,6 +3,7 @@ import 'package:tagflow/legacy.dart';
 
 /// Converts container elements (div, section, article, etc.)
 class ContainerConverter extends ElementConverter<TagflowElement> {
+  /// Creates a container converter.
   const ContainerConverter();
 
   @override

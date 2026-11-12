@@ -12,28 +12,75 @@ const MapEquality<String, Object?> _nativeBlockAttributeEquality =
 
 /// Semantic native block kinds supported by the block adapter contract.
 enum TagflowNativeBlockKind {
+  /// A paragraph of inline content.
   paragraph,
+
+  /// A heading; needs a `level` attribute from 1 to 6.
   heading,
+
+  /// A run of text in `text`, with optional `semantics`.
   text,
+
+  /// A link; needs a `url` attribute.
   link,
+
+  /// A list; `ordered` and optional `startIndex` attributes.
   list,
+
+  /// A list item, with optional `checked` for tasks.
   listItem,
+
+  /// A description list of terms and details.
   descriptionList,
+
+  /// A term in a description list.
   descriptionTerm,
+
+  /// The details for a term in a description list.
   descriptionDetails,
+
+  /// A quotation.
   blockquote,
+
+  /// A section that can be expanded, with optional `expanded`.
   disclosure,
+
+  /// The title of a disclosure.
   disclosureSummary,
+
+  /// Preformatted code in `text`, with optional `language`.
   codeBlock,
+
+  /// Inline code in `text`.
   inlineCode,
+
+  /// An image; needs a `url`, with optional `alt`, `width`, `height`.
   image,
+
+  /// A table of rows.
   table,
+
+  /// A row of table cells.
   tableRow,
+
+  /// A table cell, with optional `header`, `rowSpan`, `colSpan`.
   tableCell,
+
+  /// The caption of a table.
   tableCaption,
+
+  /// A highlighted aside with optional `tone` and `title`.
   callout,
+
+  /// A thematic break.
   horizontalRule,
+
+  /// A generic group of blocks, with optional `display` and `semantics`.
   container,
+
+  /// App content with no built-in kind. Requires a `type` attribute and
+  /// adapts to a [TagflowNodeKind.custom] node.
+  custom,
 }
 
 /// Immutable native block payload adapted into the runtime document model.
@@ -445,6 +492,27 @@ final class TagflowNativeBlock {
         if (display != null) 'display': display.name,
         ..._semanticsAttributes(semantics),
       },
+      children: children,
+      metadata: metadata,
+      source: source,
+    );
+  }
+
+  /// Creates a custom block of [type], adapted to a
+  /// [TagflowNodeKind.custom] node. [attributes] other than `type` are kept
+  /// as data in the node's metadata.
+  factory TagflowNativeBlock.custom({
+    required String id,
+    required String type,
+    Map<String, Object?> attributes = const {},
+    List<TagflowNativeBlock> children = const [],
+    TagflowMetadata? metadata,
+    TagflowSourceInfo? source,
+  }) {
+    return TagflowNativeBlock(
+      id: id,
+      kind: TagflowNativeBlockKind.custom,
+      attributes: {...attributes, 'type': type},
       children: children,
       metadata: metadata,
       source: source,

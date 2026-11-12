@@ -135,6 +135,11 @@ Map<TagflowNodeKind, TagflowDocumentNode> _nodes() {
     TagflowNodeKind.horizontalRule: TagflowDocumentNode.horizontalRule(
       id: 'horizontalRule',
     ),
+    TagflowNodeKind.custom: TagflowDocumentNode.custom(
+      id: 'custom',
+      type: 'chart',
+      children: [_text('custom')],
+    ),
     TagflowNodeKind.unsupported: TagflowDocumentNode.unsupported(
       id: 'unsupported',
       unsupportedReason: 'test',

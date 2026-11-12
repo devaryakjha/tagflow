@@ -595,6 +595,7 @@ class TagflowThemeProvider extends InheritedWidget {
     super.key,
   });
 
+  /// Provides [theme] merged over the nearest enclosing theme.
   factory TagflowThemeProvider.merge(
     BuildContext context, {
     required TagflowTheme theme,

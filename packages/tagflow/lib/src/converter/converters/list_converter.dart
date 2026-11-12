@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tagflow/legacy.dart';
 
+/// Converter for `ul` and `ol` lists.
 final class ListConverter extends ElementConverter<TagflowElement> {
+  /// Creates a list converter.
   const ListConverter();
 
   @override
@@ -29,7 +31,9 @@ final class ListConverter extends ElementConverter<TagflowElement> {
   }
 }
 
+/// Converter for `li` list items.
 final class ListItemConverter extends TextConverter {
+  /// Creates a list item converter.
   const ListItemConverter();
 
   @override

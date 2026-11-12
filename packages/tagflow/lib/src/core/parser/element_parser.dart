@@ -1,7 +1,9 @@
 import 'package:html/dom.dart' as dom;
 import 'package:tagflow/legacy.dart';
 
+/// Parses text nodes and generic elements.
 class ElementParser extends NodeParser<TagflowElement> {
+  /// Creates an element parser.
   const ElementParser();
 
   @override

@@ -75,5 +75,32 @@ void main() {
         TagflowUnsupportedBehavior.preservePlaceholder,
       );
     });
+
+    test('should allow every unblocked tag when allowedTags is null', () {
+      const policy = TagflowContentPolicy.defaults;
+
+      expect(policy.allowedTags, isNull);
+      expect(policy.decideTag('section').isAllowed, isTrue);
+      expect(policy.decideTag('script').isAllowed, isFalse);
+    });
+
+    test('should allow no tags when allowedTags is empty', () {
+      const policy = TagflowContentPolicy(allowedTags: {});
+      final decision = policy.decideTag('p');
+
+      expect(decision.isAllowed, isFalse);
+      expect(decision.reason, TagflowTagDecisionReason.notInAllowlist);
+    });
+
+    test('should tell a null allowlist from an empty one in equality', () {
+      expect(
+        TagflowContentPolicy.defaults,
+        isNot(const TagflowContentPolicy(allowedTags: {})),
+      );
+      expect(
+        const TagflowContentPolicy(allowedTags: {'p'}),
+        const TagflowContentPolicy(allowedTags: {'p'}),
+      );
+    });
   });
 }

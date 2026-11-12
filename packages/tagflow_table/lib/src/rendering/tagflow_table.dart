@@ -4,17 +4,28 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+/// Layout data of a child of [RenderTagflowTable].
 class TableCellData extends ContainerBoxParentData<RenderBox> {
+  /// Row index of the cell.
   int row = 0;
+
+  /// Column index of the cell.
   int column = 0;
+
+  /// Rows the cell covers.
   int rowSpan = 1;
+
+  /// Columns the cell covers.
   int colSpan = 1;
+
+  /// Whether the child is a row separator.
   bool isSeparator = false;
 }
 
 /// Defines the borders for a table
 // ignore: must_be_immutable
 class TagflowTableBorder extends Equatable {
+  /// Creates a border from its sides.
   TagflowTableBorder({
     this.left = BorderSide.none,
     this.right = BorderSide.none,
@@ -24,6 +35,7 @@ class TagflowTableBorder extends Equatable {
     this.verticalInside = BorderSide.none,
   });
 
+  /// A table border with the outer sides of [border] and no inner lines.
   factory TagflowTableBorder.fromBorder(Border border) {
     return TagflowTableBorder(
       left: border.left,
@@ -35,6 +47,7 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// The same side on every edge and between all cells.
   factory TagflowTableBorder.all({
     Color color = const Color(0xFF000000),
     double width = 1.0,
@@ -51,6 +64,7 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// Separate sides for the inner and outer lines.
   factory TagflowTableBorder.symmetric({
     BorderSide outside = BorderSide.none,
     BorderSide inside = BorderSide.none,
@@ -65,8 +79,10 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// A border that paints nothing.
   static final none = TagflowTableBorder();
 
+  /// Whether every side is [BorderStyle.none].
   bool get isNone =>
       left == BorderSide.none &&
       right == BorderSide.none &&
@@ -75,11 +91,22 @@ class TagflowTableBorder extends Equatable {
       horizontalInside == BorderSide.none &&
       verticalInside == BorderSide.none;
 
+  /// Left outer edge.
   final BorderSide left;
+
+  /// Right outer edge.
   final BorderSide right;
+
+  /// Top outer edge.
   final BorderSide top;
+
+  /// Bottom outer edge.
   final BorderSide bottom;
+
+  /// Lines between rows.
   final BorderSide horizontalInside;
+
+  /// Lines between columns.
   final BorderSide verticalInside;
 
   // Cache Paint objects
@@ -98,6 +125,7 @@ class TagflowTableBorder extends Equatable {
           ..style = PaintingStyle.stroke);
   }
 
+  /// Interpolates between [a] and [b] by [t].
   static TagflowTableBorder? lerp(
     TagflowTableBorder? a,
     TagflowTableBorder? b,
@@ -120,6 +148,7 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// Returns a copy with the given sides replaced.
   TagflowTableBorder copyWith({
     BorderSide? left,
     BorderSide? right,
@@ -138,6 +167,7 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// Returns a copy with every side scaled by [t].
   TagflowTableBorder scale(double t) {
     return TagflowTableBorder(
       left: left.scale(t),
@@ -149,6 +179,7 @@ class TagflowTableBorder extends Equatable {
     );
   }
 
+  /// Paints the border for the given cell geometry.
   void paint(
     Canvas canvas,
     Rect rect, {
@@ -320,6 +351,7 @@ class TagflowTableBorder extends Equatable {
   ];
 }
 
+/// Render object of a `TagflowTable` widget.
 class RenderTagflowTable extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, TableCellData>,
@@ -338,30 +370,35 @@ class RenderTagflowTable extends RenderBox
 
   static const double _minimumColumnWidth = 40; // Adjust as needed
 
+  /// Sets the row separator builder.
   void setSeparatorBuilder(IndexedWidgetBuilder? value) {
     if (_separatorBuilder == value) return;
     _separatorBuilder = value;
     markNeedsLayout();
   }
 
+  /// Sets whether the first row is a header.
   void setTreatFirstRowAsHeader({bool value = false}) {
     if (_treatFirstRowAsHeader == value) return;
     _treatFirstRowAsHeader = value;
     markNeedsPaint();
   }
 
+  /// Sets the header row background.
   void setHeaderBackgroundColor(Color? value) {
     if (_headerBackgroundColor == value) return;
     _headerBackgroundColor = value;
     markNeedsPaint();
   }
 
+  /// Sets the cell padding.
   void setPadding(EdgeInsets value) {
     if (_padding == value) return;
     _padding = value;
     markNeedsPaint();
   }
 
+  /// Sets the grid size.
   void setTableDimensions(int rowCount, int columnCount) {
     if (rowCount < 0 || columnCount < 0) {
       throw ArgumentError('Table dimensions cannot be negative');
@@ -373,18 +410,21 @@ class RenderTagflowTable extends RenderBox
     }
   }
 
+  /// Sets the border.
   void setBorder(TagflowTableBorder value) {
     if (_border == value) return;
     _border = value;
     markNeedsPaint();
   }
 
+  /// Sets the space between columns.
   void setColumnSpacing(double value) {
     if (_columnSpacing == value) return;
     _columnSpacing = value;
     markNeedsLayout();
   }
 
+  /// Sets the space between rows.
   void setRowSpacing(double value) {
     if (_rowSpacing == value) return;
     _rowSpacing = value;

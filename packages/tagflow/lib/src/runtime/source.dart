@@ -2,7 +2,22 @@ import 'package:meta/meta.dart';
 import 'package:tagflow/src/runtime/metadata.dart';
 
 /// High-level source kinds that can produce a Tagflow document.
-enum TagflowSourceKind { html, markdown, json, app, unknown }
+enum TagflowSourceKind {
+  /// HTML input.
+  html,
+
+  /// Markdown input.
+  markdown,
+
+  /// Native block JSON.
+  json,
+
+  /// A document built in app code.
+  app,
+
+  /// A source that is not known.
+  unknown,
+}
 
 /// Source location and adapter metadata for a document or node.
 @immutable

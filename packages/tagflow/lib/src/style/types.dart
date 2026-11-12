@@ -22,6 +22,7 @@ extension FlexTypeExtensions on FlexDirection {
   }
 }
 
+/// Conversions from [JustifyContent].
 extension JustifyContentExtensions on JustifyContent {
   /// Convert to Flutter's [MainAxisAlignment]
   MainAxisAlignment toMainAxisAlignment() => switch (this) {
@@ -34,6 +35,7 @@ extension JustifyContentExtensions on JustifyContent {
   };
 }
 
+/// Conversions from [AlignItems].
 extension AlignItemsExtensions on AlignItems {
   /// Convert to Flutter's [CrossAxisAlignment]
   CrossAxisAlignment toCrossAxisAlignment() => switch (this) {

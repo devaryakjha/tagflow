@@ -63,6 +63,7 @@ final class TagflowTableConverter
   /// The separator is placed between each row.
   final material.IndexedWidgetBuilder? separatorBuilder;
 
+  /// Space between columns.
   final double? columnSpacing;
 
   ///

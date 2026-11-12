@@ -149,6 +149,7 @@ String _htmlTagForDocumentNode(TagflowDocumentNode node) {
     TagflowNodeKind.tableCaption => 'caption',
     TagflowNodeKind.horizontalRule => 'hr',
     TagflowNodeKind.unsupported => 'div',
+    TagflowNodeKind.custom => 'div',
   };
 }
 

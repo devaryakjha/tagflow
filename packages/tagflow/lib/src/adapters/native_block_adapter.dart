@@ -264,6 +264,13 @@ final class TagflowNativeBlockAdapter {
         metadata: metadata,
         source: source,
       ),
+      TagflowNativeBlockKind.custom => TagflowDocumentNode.custom(
+        id: block.id,
+        type: _requireString(block, name: 'type'),
+        children: children,
+        metadata: metadata,
+        source: source,
+      ),
       TagflowNativeBlockKind.horizontalRule =>
         TagflowDocumentNode.horizontalRule(
           id: block.id,

@@ -2,7 +2,9 @@ import 'dart:collection';
 
 import 'package:tagflow/legacy.dart';
 
+/// Legacy parsed `table` element.
 class TagflowTableElement extends TagflowNode {
+  /// Creates a table element.
   const TagflowTableElement({
     required super.tag,
     required this.rowCount,
@@ -14,21 +16,33 @@ class TagflowTableElement extends TagflowNode {
     super.parent,
   }) : _attributes = attributes ?? const {};
 
+  /// Number of rows.
   final int rowCount;
+
+  /// Number of columns.
   final int columnCount;
+
+  /// The rows, padded to [columnCount] cells.
   final List<TagflowNode> rows;
+
+  /// Cell spans keyed by `'row:column'`.
   final Map<String, CellSpan> spans;
+
+  /// The table caption.
   final TagflowNode? caption;
 
   /// Element's attributes
   final Map<String, String> _attributes;
 
+  /// Appends [row].
   void addRow(TagflowNode row) {
     rows.add(row);
   }
 
+  /// The span of the cell at [row] and [column].
   CellSpan? getSpan(int row, int column) => spans['$row:$column'];
 
+  /// Records the span of the cell at [row] and [column].
   void setSpan(int row, int column, {int rowSpan = 1, int colSpan = 1}) {
     spans['$row:$column'] = CellSpan(rowSpan: rowSpan, colSpan: colSpan);
   }
@@ -70,9 +84,14 @@ class TagflowTableElement extends TagflowNode {
   }
 }
 
+/// Row and column span of a legacy table cell.
 class CellSpan {
+  /// Creates a span.
   const CellSpan({required this.rowSpan, required this.colSpan});
 
+  /// Rows the cell covers.
   final int rowSpan;
+
+  /// Columns the cell covers.
   final int colSpan;
 }

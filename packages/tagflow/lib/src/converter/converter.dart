@@ -335,6 +335,7 @@ class TagflowConverter {
 
 /// Default fallback converter for unknown elements
 class DefaultConverter extends ElementConverter {
+  /// Creates the fallback converter.
   const DefaultConverter();
 
   @override

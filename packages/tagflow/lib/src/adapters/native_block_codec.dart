@@ -160,12 +160,20 @@ TagflowNativeBlock _decodeBlock(
     path: '$path.attributes',
   );
   _validateTypedAttributes(attributes, path: '$path.attributes');
+  final kind = _nativeBlockKind(
+    _requiredString(json, 'kind', path: '$path.kind'),
+    path: '$path.kind',
+  );
+  final type = attributes['type'];
+  if (kind == TagflowNativeBlockKind.custom &&
+      (type is! String || type.trim().isEmpty)) {
+    throw FormatException(
+      '$path.attributes.type must be a non-empty string for a custom block.',
+    );
+  }
   return TagflowNativeBlock(
     id: _requiredString(json, 'id', path: '$path.id'),
-    kind: _nativeBlockKind(
-      _requiredString(json, 'kind', path: '$path.kind'),
-      path: '$path.kind',
-    ),
+    kind: kind,
     text: _optionalString(json, 'text', path: '$path.text'),
     attributes: attributes,
     children: _decodeBlocks(json['children'], path: '$path.children'),
