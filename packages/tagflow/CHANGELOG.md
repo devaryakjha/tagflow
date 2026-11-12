@@ -2,6 +2,24 @@
 
 ### Added
 
+- `TagflowRenderTheme`, typed styling for the built-in components: text
+  styles per node kind (paragraph, each heading level, link, strong,
+  emphasis, inline code, code block, blockquote, table header), spacing,
+  and the border, code, quote, table header and highlight colours. Unset
+  fields follow the ambient `Theme`. Pass it as `renderTheme:` on
+  `Tagflow.html`, `Tagflow.markdown`, `Tagflow.document` and
+  `TagflowMarkdownStreamView`, or for a subtree with
+  `TagflowRenderThemeScope`. No sizes or colours are hard-coded in the
+  built-ins any more. ([#112](https://github.com/devaryakjha/tagflow/issues/112))
+- `theme: TagflowTheme(...)` now affects the runtime renderer: its named
+  styles are mapped onto the render theme with
+  `TagflowRenderTheme.fromTagflowTheme`.
+- The HTML adapter keeps a safe subset of inline CSS (`color`,
+  `background-color`, `text-align`, `font-weight`, `font-style`,
+  `text-decoration`, `font-size`) as a typed `TagflowInlineStyle` on
+  `TagflowPresentation.inlineStyle`, and the built-ins apply it.
+  `TagflowContentPolicy.allowInlineStyles` turns it off.
+
 - `maxDepth` (default 128) and `maxNodes` (default 50000) on
   `TagflowContentPolicy`, applied by the HTML, Markdown and native block
   adapters and the Markdown stream. Content over a limit is cut off and
@@ -27,6 +45,14 @@
   `TagflowHtmlAdapter.parse`, `TagflowScope(options: ...)` to
   `TagflowScope.view(viewOptions: ...)`, and `ErrorWidgetBuilder` to
   `TagflowErrorWidgetBuilder`.
+
+### Changed
+
+- Default heading sizes now come from the ambient text theme (`h1` to `h6`
+  use `headlineLarge`, `headlineMedium`, `headlineSmall`, `titleLarge`,
+  `titleMedium` and `titleSmall`, bold), and `small`, `sub` and `sup` are
+  0.85 of the surrounding size instead of a fixed 12. Goldens changed
+  accordingly.
 
 ### Fixed
 

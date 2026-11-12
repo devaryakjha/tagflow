@@ -273,6 +273,7 @@ TagflowDocumentNode? _documentNodeFromLegacy(
     width: _parseDimension(node['width']),
     height: _parseDimension(node['height']),
     inlineSemantics: _inlineSemanticsForHtmlTag(node.tag),
+    inlineStyle: policy.allowInlineStyles ? _inlineStyleFor(node) : null,
     hints: _presentationHintsForLegacyNode(node),
   );
   final tableCaption = node is TagflowTableElement ? node.caption : null;
@@ -974,6 +975,117 @@ String _textContentFor(TagflowNode node) {
     buffer.write(_textContentFor(child));
   }
   return buffer.toString();
+}
+
+/// Maps the safe subset of the inline `style` attribute onto a typed
+/// [TagflowInlineStyle]: `color`, `background-color`, `text-align`,
+/// `font-weight`, `font-style`, `text-decoration` and `font-size`. Every
+/// other property is ignored.
+TagflowInlineStyle? _inlineStyleFor(TagflowNode node) {
+  if (node.isTextNode) return null;
+  final styles = _styleDeclarations(node.style);
+  if (styles.isEmpty) return null;
+
+  int? color(String key) {
+    final value = styles[key];
+    if (value == null) return null;
+    return StyleParser.parseColor(value, _cssNamedColors)?.toARGB32();
+  }
+
+  final weight = switch (styles['font-weight']) {
+    final value? => StyleParser.parseFontWeight(value.trim())?.value,
+    null => null,
+  };
+  final italic = switch (styles['font-style']?.trim().toLowerCase()) {
+    'italic' || 'oblique' => true,
+    'normal' => false,
+    _ => null,
+  };
+  final (fontSize, fontSizeFactor) = _fontSize(styles['font-size']);
+
+  final style = TagflowInlineStyle(
+    color: color('color'),
+    backgroundColor: color('background-color'),
+    textAlign: _textAlign(styles['text-align']),
+    fontWeight: weight,
+    italic: italic,
+    decorations: _decorations(styles['text-decoration']),
+    fontSize: fontSize,
+    fontSizeFactor: fontSizeFactor,
+  );
+  return style.isEmpty ? null : style;
+}
+
+/// The CSS basic colour keywords, plus `orange` and `transparent`.
+const _cssNamedColors = <String, Color>{
+  'black': Color(0xFF000000),
+  'silver': Color(0xFFC0C0C0),
+  'gray': Color(0xFF808080),
+  'grey': Color(0xFF808080),
+  'white': Color(0xFFFFFFFF),
+  'maroon': Color(0xFF800000),
+  'red': Color(0xFFFF0000),
+  'purple': Color(0xFF800080),
+  'fuchsia': Color(0xFFFF00FF),
+  'green': Color(0xFF008000),
+  'lime': Color(0xFF00FF00),
+  'olive': Color(0xFF808000),
+  'yellow': Color(0xFFFFFF00),
+  'navy': Color(0xFF000080),
+  'blue': Color(0xFF0000FF),
+  'teal': Color(0xFF008080),
+  'aqua': Color(0xFF00FFFF),
+  'orange': Color(0xFFFFA500),
+  'transparent': Color(0x00000000),
+};
+
+TagflowTextAlign? _textAlign(String? value) {
+  return switch (value?.trim().toLowerCase()) {
+    'left' => TagflowTextAlign.left,
+    'right' => TagflowTextAlign.right,
+    'center' => TagflowTextAlign.center,
+    'justify' => TagflowTextAlign.justify,
+    'start' => TagflowTextAlign.start,
+    'end' => TagflowTextAlign.end,
+    _ => null,
+  };
+}
+
+Set<TagflowTextDecoration>? _decorations(String? value) {
+  if (value == null) return null;
+  final result = <TagflowTextDecoration>{};
+  for (final part in value.toLowerCase().split(RegExp(r'\s+'))) {
+    switch (part) {
+      case 'none':
+        return const {};
+      case 'underline':
+        result.add(TagflowTextDecoration.underline);
+      case 'overline':
+        result.add(TagflowTextDecoration.overline);
+      case 'line-through':
+        result.add(TagflowTextDecoration.lineThrough);
+    }
+  }
+  return result.isEmpty ? null : result;
+}
+
+/// Parses a CSS `font-size` into an absolute size (`px`, `pt`, `rem`) or a
+/// factor of the surrounding size (`em`, `%`). Keywords and other units are
+/// ignored. Sizes are kept between 1 and 512 logical pixels.
+(double?, double?) _fontSize(String? raw) {
+  final value = raw?.trim().toLowerCase();
+  if (value == null || value.isEmpty) return (null, null);
+  final match = RegExp(r'^(\d*\.?\d+)(px|pt|rem|em|%)?$').firstMatch(value);
+  if (match == null) return (null, null);
+  final number = double.parse(match.group(1)!);
+  return switch (match.group(2)) {
+    null || 'px' => (number.clamp(1, 512).toDouble(), null),
+    'pt' => ((number * 4 / 3).clamp(1, 512).toDouble(), null),
+    'rem' => ((number * 16).clamp(1, 512).toDouble(), null),
+    'em' => (null, number.clamp(0.1, 32).toDouble()),
+    '%' => (null, (number / 100).clamp(0.1, 32).toDouble()),
+    _ => (null, null),
+  };
 }
 
 Map<String, Object?> _presentationHintsForLegacyNode(TagflowNode node) {

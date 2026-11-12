@@ -163,6 +163,37 @@ source</strong></a>.</p>
     );
 
     tagflowGoldenTest(
+      'render_theme',
+      html: '''
+<h1>Themed heading</h1>
+<p>Body text with a <a href="https://example.com">link</a> and <code>code</code>.</p>
+<blockquote>A themed quote.</blockquote>
+<pre><code>final themed = true;</code></pre>
+''',
+      renderTheme: const TagflowRenderTheme(
+        h1Style: TextStyle(fontSize: 26, color: Color(0xFF6A1B9A)),
+        linkStyle: TextStyle(color: Color(0xFF00897B)),
+        quoteBorderColor: Color(0xFF00897B),
+        codeBlockStyle: TextStyle(fontSize: 13),
+        paragraphSpacing: 16,
+      ),
+    );
+
+    tagflowGoldenTest(
+      'inline_css',
+      html: '''
+<p style="text-align: center">Centered paragraph</p>
+<p>Plain, <span style="color: #c62828">red</span>,
+<span style="background-color: #fff59d; color: #000000">highlighted</span>,
+<span style="font-weight: bold">bold</span>,
+<span style="font-style: italic">italic</span>,
+<span style="text-decoration: underline">underlined</span> and
+<span style="font-size: 20px">larger</span> text.</p>
+<p style="text-align: right">Right aligned</p>
+''',
+    );
+
+    tagflowGoldenTest(
       'table_spans',
       html: '''
 <table>

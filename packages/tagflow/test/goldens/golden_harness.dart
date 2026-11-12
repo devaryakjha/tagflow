@@ -46,6 +46,7 @@ void tagflowGoldenTest(
   String name, {
   required String html,
   TagflowHtmlAdapter? adapter,
+  TagflowRenderTheme? renderTheme,
   TagflowComponentRegistry? registry,
   TagflowViewOptions? viewOptions,
   Future<void> Function(WidgetTester tester)? interact,
@@ -63,6 +64,7 @@ void tagflowGoldenTest(
           child: Tagflow.html(
             html: html,
             adapter: adapter,
+            renderTheme: renderTheme,
             registry: registry,
             viewOptions: viewOptions,
           ),

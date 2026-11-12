@@ -106,6 +106,20 @@ void main() {
     expect(policy.maxDepth, api.TagflowContentPolicy.defaultMaxDepth);
     expect(policy.maxNodes, api.TagflowContentPolicy.defaultMaxNodes);
     expect(api.TagflowContentLimit.values, hasLength(2));
+    expect(policy.allowInlineStyles, isTrue);
+    const renderTheme = api.TagflowRenderTheme(paragraphSpacing: 4);
+    expect(renderTheme.merge(null), renderTheme);
+    expect(
+      const api.TagflowRenderThemeScope(theme: renderTheme, child: SizedBox()),
+      isA<Widget>(),
+    );
+    expect(
+      api.TagflowInlineStyle(
+        textAlign: api.TagflowTextAlign.center,
+        decorations: const {api.TagflowTextDecoration.underline},
+      ).isEmpty,
+      isFalse,
+    );
     expect(
       nativeAdapter.adapt(nativeDocument).children.single.id,
       'native-callout',

@@ -418,18 +418,51 @@ default `Tagflow(html: ...)` constructor, `TagflowOptions(...)` without a
 
 ### Theming
 
+The built-in components read a `TagflowRenderTheme`. Every field is optional,
+and unset fields follow the ambient `Theme` (headings use the text theme's
+headline and title styles, surfaces are tinted from the text colour), so dark
+mode and app typography work with no setup:
+
+```dart
+Tagflow.html(
+  html: articleContent,
+  renderTheme: const TagflowRenderTheme(
+    h1Style: TextStyle(fontSize: 28),
+    linkStyle: TextStyle(color: Colors.teal),
+    codeBackgroundColor: Color(0x14000000),
+    paragraphSpacing: 12,
+  ),
+);
+
+// Or for every Tagflow widget in a subtree:
+TagflowRenderThemeScope(
+  theme: const TagflowRenderTheme(blockSpacing: 16),
+  child: child,
+);
+```
+
+`theme: TagflowTheme(...)` keeps working: its default text style and the
+`p`, `h1` to `h6`, `a`, `strong`, `em`, `code`, `pre`, `blockquote`, `th`
+and `mark` styles are mapped onto the render theme. Class and nested
+selectors only apply to the legacy converter pipeline.
+
 ```dart
 Tagflow.html(
   html: articleContent,
   theme: TagflowTheme.fromTheme(
     Theme.of(context),
-    headingConfig: const TagflowHeadingConfig(
-      baseSize: 16,
-      scales: [2.5, 2, 1.75, 1.5, 1.25, 1],
-    ),
+    h1Style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
   ),
 );
 ```
+
+#### Inline CSS
+
+The HTML adapter keeps a safe subset of the `style` attribute: `color`,
+`background-color`, `text-align`, `font-weight`, `font-style`,
+`text-decoration` and `font-size` (`px`, `pt`, `rem`, `em`, `%`). Every other
+property is ignored. Turn inline styles off with
+`TagflowContentPolicy(allowInlineStyles: false)`.
 
 ## Installation
 
@@ -475,9 +508,15 @@ providing customization hooks for supported rich content:
 ```dart
 TagflowTheme.fromTheme(
   Theme.of(context),
-  spacingConfig: const TagflowSpacingConfig(baseSize: 16, scale: 1.2),
+  baseFontSize: 16,
+  h1Style: const TextStyle(fontSize: 32),
+  codeBackground: Colors.grey.shade200,
 );
 ```
+
+On the runtime renderer, prefer `TagflowRenderTheme` (see
+[Theming](#theming)); `TagflowTheme` selectors beyond the named styles only
+affect the legacy converter pipeline.
 
 ## Documentation
 
